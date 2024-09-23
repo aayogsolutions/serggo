@@ -358,14 +358,14 @@ class DisplayController extends Controller
      */
     public function DeleteSection(Request $request): RedirectResponse
     {
-        $banner = $this->displaysection->find($request->id);
-        if ($banner->exists()) {
-            $banner->with('childes')->delete();
+       
+        $banner = $this->displaysection->where('id' , $request->id)->with('childes')->exists();
+        if ($this->displaysection->where('id' , $request->id)->with('childes')->exists()) {
+            $this->displaysection->where('id' , $request->id)->with('childes')->delete();
 
             flash()->success(translate('Section removed!'));
             return back();
-        }else{
-            
+        }else{           
             flash()->success(translate('Section not Exists!'));
             return back();
         }

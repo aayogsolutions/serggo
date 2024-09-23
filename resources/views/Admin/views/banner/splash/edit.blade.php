@@ -34,9 +34,8 @@
                                         <span class="input-label-secondary">*</span>
                                     </label>
                                     <select name="type" class="form-control show-item">
-                                        <option value="user_product" {{$banner->ui_type == 'user_product' ? 'selected' : ''}}>{{translate('user_product')}}</option>
-                                        <option value="user_service" {{$banner->ui_type == 'user_service' ? 'selected' : ''}}>{{translate('user_service')}}</option>
-                                        <option value="vender_service" {{$banner->ui_type == 'vender_service' ? 'selected' : ''}}>{{translate('vender_service')}}</option>
+                                        <option value="user" {{$banner->ui_type == 'user' ? 'selected' : ''}}>{{translate('user')}}</option>
+                                        <option value="vender" {{$banner->ui_type == 'vender' ? 'selected' : ''}}>{{translate('vender')}}</option>
                                     </select>
                                 </div>
                             </div>

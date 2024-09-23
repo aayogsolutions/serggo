@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('splash_banners', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->enum('ui_type',['user_product','user_service','vender_service']);
+            $table->enum('ui_type',['user','vender']);
             $table->string('attechment_type');
             $table->string('attechment');
             $table->tinyInteger('status')->default(1)->comment('0 = active | 1 = inactive');

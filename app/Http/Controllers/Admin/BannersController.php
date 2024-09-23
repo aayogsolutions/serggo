@@ -150,6 +150,7 @@ class BannersController extends Controller
      */
     public function SplashUpdate(Request $request, $id): RedirectResponse
     {
+        
         $request->validate([
             'title' => 'required|max:255',
             'type' => 'required',

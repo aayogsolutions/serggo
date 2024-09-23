@@ -22,7 +22,7 @@
             </h1>
         </div>
         <!-- End Page Header -->
-        <form action="javascript:" method="post" id="product_form"
+        <form action="javascript:void(0)" method="post" id="product_form"
               enctype="multipart/form-data" class="row g-2">
             @csrf
             @php($data = Helpers::get_business_settings('language'))

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api\product;
+namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
 use App\Models\DisplaySection;
 use App\Models\HomeBanner;
 use App\Models\HomeSliderBanner;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -13,6 +14,7 @@ class DashboardController extends Controller
 {
     public function __construct(
         private HomeBanner $homebanner,
+        private Tag $tag,
         private HomeSliderBanner $homesliderbanner,
         private DisplaySection $displaysection,
     ){}
@@ -25,9 +27,9 @@ class DashboardController extends Controller
     public function Index() : JsonResponse
     {
         try {
-            // $data['tags'] = 1;
+            $data['tags'] = $this->tag->select('name')->get();
 
-            $data['homebanner'] = $this->homebanner->status()->where('ui_type','user_product')->get();
+            $data['homebanner'] = $this->homebanner->status()->where('ui_type','user_product')->first();
             $data['homesliderbanner'] = homesliderbanner_data_formatting($this->homesliderbanner->status()->where('ui_type','user_product')->get(), true);
             $data['slider'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','slider')->with('childes')->get(), true);
             $data['cart'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','cart')->with('childes')->limit(6)->get(), true);

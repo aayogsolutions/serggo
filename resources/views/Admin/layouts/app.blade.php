@@ -151,6 +151,10 @@
                     var select2 = $.HSCore.components.HSSelect2.init($(this));
                 });
 
+                $("#choice_tags").select2({
+                    tags: true
+                });
+
                 $('.js-daterangepicker').daterangepicker();
 
                 $('.js-daterangepicker-times').daterangepicker({

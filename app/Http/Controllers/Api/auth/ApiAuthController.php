@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -44,6 +44,7 @@ class ApiAuthController extends Controller
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
+                    'otp' => $otp,
                 ],
             ], 202);
         } else {
@@ -63,6 +64,7 @@ class ApiAuthController extends Controller
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
+                    'otp' => $otp,
                 ],
             ], 201);
         }
@@ -88,6 +90,7 @@ class ApiAuthController extends Controller
                     'message' => 'Otp Resend Successfully',
                     'data' => [
                         'number' => $number,
+                        'otp' => $otp,
                     ],
                 ], 200);
             }
@@ -135,7 +138,7 @@ class ApiAuthController extends Controller
                         ], 203);
                     } else {
                         if ($user->number == $request->number && $user->is_block == 0) {
-                            $token = $user->createToken('my_token')->accessToken;
+                            $token = $user->createToken(($user->name) != null ? $user->name : $user->number)->plainTextToken;
 
                             return response()->json([
                                 'message' => 'login Successfully',
@@ -207,7 +210,7 @@ class ApiAuthController extends Controller
                 $user->referral_code = Helpers_generate_referer_code();
                 $user->save();
 
-                $token = $user->createToken($user->name)->accessToken;
+                $token = $user->createToken($user->name)->plainTextToken;
 
                 return response()->json([
                     'message' => 'login Successfully',
@@ -240,7 +243,7 @@ class ApiAuthController extends Controller
                 $user->otp_expired_at = $expired_at;
                 $user->save();
 
-                $token = $user->createToken($user->name)->accessToken;
+                $token = $user->createToken($user->name)->plainTextToken;
 
                 return response()->json([
                     'Registration' => 1,
@@ -280,7 +283,7 @@ class ApiAuthController extends Controller
                 
                 $userdata = User::where('email', $request->email)->first();
                 if (!is_null($userdata)) {
-                    $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : 'my_token')->accessToken;
+                    $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'message' => 'logged in',
                         'data' => [
@@ -312,7 +315,7 @@ class ApiAuthController extends Controller
 
                 $userdata = User::where('email', $request->email)->first();
                 if (!is_null($userdata)) {
-                    $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : 'my_token')->accessToken;
+                    $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'message' => 'logged in',
                         'data' => [
@@ -345,7 +348,7 @@ class ApiAuthController extends Controller
                 // Find or create user
                 $userdata = User::where('provider_id', $request->id)->first();
                 if (!is_null($userdata)) {
-                    $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : 'my_token')->accessToken;
+                    $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'message' => 'logged in',
                         'data' => [

@@ -248,6 +248,15 @@
                                         </a>
                                     </li>
 
+                                    <li class="nav-item {{Request::is('admin/tag*')?'active':''}}">
+                                        <a class="nav-link"
+                                            href="{{route('admin.product.tag.add-new')}}"
+                                            title="{{translate('product tag')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">{{translate('product tag')}}</span>
+                                        </a>
+                                    </li>
+
                                     <li class="nav-item {{Request::is('admin/product/list*')?'active':''}} {{Request::is('admin/product/add-new')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.product.list')}}"
                                             title="{{translate('list')}}">

@@ -1,10 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Artisan,Route,Auth};
-use Laravel\Socialite\Facades\Socialite;
-use GuzzleHttp\Exception\ClientException;
-use App\Models\User;
+use Illuminate\Support\Facades\{Artisan,Route};
 
 Route::get('/optimize', function () {
     try {
@@ -21,9 +18,9 @@ Route::get('/optimize', function () {
 });
 
 require "admin.php";
-
+ 
 Route::get('/', function(){
-    return view('welcome');
+    return redirect(route('admin.login'));
 });
 
 Route::post('/', function(Request $request){

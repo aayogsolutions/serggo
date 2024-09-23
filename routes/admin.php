@@ -13,7 +13,8 @@ use App\Http\Controllers\Admin\{
     AttributeController,
     BannersController,
     BrandsController,
-    DisplayController
+    DisplayController,
+    TagController
 };
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -154,6 +155,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('Product_ajax', [ProductController::class, 'ProductAjax'])->name('ProductAjax');
             Route::post('Product_data_ajax', [ProductController::class, 'ProductDataAjax'])->name('ProductDataAjax');
             Route::post('Edit_product_column', [ProductController::class, 'Edit_product_column'])->name('Edit_product_column');
+
+            Route::group(['prefix' => 'tag', 'as' => 'tag.'], function () {
+                Route::get('add-new', [TagController::class, 'index'])->name('add-new');
+                Route::post('store', [TagController::class, 'store'])->name('store');
+                Route::get('edit/{id}', [TagController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [TagController::class, 'update'])->name('update');
+                Route::delete('delete/{id}', [TagController::class, 'delete'])->name('delete');
+                Route::get('status/{id}/{status}', [TagController::class, 'status'])->name('status');
+            });
         });
 
         Route::group(['prefix' => 'employee', 'as' => 'employee.'], function () {

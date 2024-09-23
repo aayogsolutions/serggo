@@ -22,7 +22,7 @@
                 <img src="{{asset('assets/admin/img/banner.png')}}" class="w--20" alt="{{ translate('banner') }}">
             </span>
             <span>
-                {{translate('home silder banners setup')}}
+                {{translate('home display setup')}}
             </span>
         </h1>
     </div>

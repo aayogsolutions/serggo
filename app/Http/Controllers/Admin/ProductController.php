@@ -149,6 +149,7 @@ class ProductController extends Controller
             ];
         }
 
+
         $choiceOptions = [];
         if ($request->has('choice')) {
             foreach ($request->choice_no as $key => $no) {
@@ -233,7 +234,8 @@ class ProductController extends Controller
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = $request->status? $request->status : 0 ;
-        $product->tags = $request->tags;
+        $product->tags = json_encode($request->tag_name);
+        
         $product->save();
 
         return response()->json([], 200);
