@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\product;
 
 use App\Http\Controllers\Controller;
 use App\Models\DisplaySection;
@@ -25,13 +25,13 @@ class DashboardController extends Controller
     public function Index() : JsonResponse
     {
         try {
-            $data['tags'] = 1;
+            // $data['tags'] = 1;
 
             $data['homebanner'] = $this->homebanner->status()->where('ui_type','user_product')->get();
             $data['homesliderbanner'] = homesliderbanner_data_formatting($this->homesliderbanner->status()->where('ui_type','user_product')->get(), true);
             $data['slider'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','slider')->with('childes')->get(), true);
-            $data['cart'] = 1;
-            $data['box_section'] = 1;
+            $data['cart'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','cart')->with('childes')->limit(6)->get(), true);
+            $data['box_section'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','box_section')->with('childes')->get(), true);
 
             return response()->json([
                 'status' => true,

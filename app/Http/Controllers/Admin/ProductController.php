@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Brands, BusinessSetting,
+use App\Models\{
+    Brands, 
+    BusinessSetting,
     Category,
     Products,
-    ProductTags,
     ProductReview
 };
 use Illuminate\Contracts\Foundation\Application;
@@ -211,7 +212,7 @@ class ProductController extends Controller
 
         $product = $this->product;
         $product->name = $request->name;
-        $product->brand_name = $request->brand;
+        $product->brand_name = json_encode($this->brand->find($request->brand));
         if(isset($request->otherbrand) && !is_null($request->otherbrand))
         {
             $product->brandname_if_other = $request->otherbrand;

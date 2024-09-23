@@ -44,7 +44,6 @@ class ApiAuthController extends Controller
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
-                    'otp' => $otp,
                 ],
             ], 202);
         } else {
@@ -64,7 +63,6 @@ class ApiAuthController extends Controller
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
-                    'otp' => $otp,
                 ],
             ], 201);
         }
@@ -90,7 +88,6 @@ class ApiAuthController extends Controller
                     'message' => 'Otp Resend Successfully',
                     'data' => [
                         'number' => $number,
-                        'otp' => $otp,
                     ],
                 ], 200);
             }
