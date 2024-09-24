@@ -7,12 +7,13 @@
 /vendor
 /resources/views/Admin/Allviews
 UpdatesDue.txt
+Api_routes.txt
 .env
 .env.backup
 .env.production
 .phpactor.json
 .phpunit.result.cache
-
+composer.json
 composer.lock
 Homestead.json
 Homestead.yaml

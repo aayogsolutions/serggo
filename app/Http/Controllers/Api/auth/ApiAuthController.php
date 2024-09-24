@@ -37,6 +37,7 @@ class ApiAuthController extends Controller
             $user = User::find($authuser->id);
             $user->otp = $otp;
             $user->otp_expired_at = $expired_at;
+            $user->number_verify = 0;
             $user->save();
 
             return response()->json([
@@ -57,6 +58,8 @@ class ApiAuthController extends Controller
             $user->number = $request->number;
             $user->otp = $otp;
             $user->otp_expired_at = $expired_at;
+            $user->number_verify = 0;
+            $user->registration = 0;
             $user->save();
 
             return response()->json([
@@ -114,7 +117,6 @@ class ApiAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'number' => 'required|numeric|digits:10',
             'otp' => 'required|numeric|digits:4',
-            'Registration' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -132,8 +134,11 @@ class ApiAuthController extends Controller
             if ($user->otp_expired_at->diff(Carbon::now()->format('Y/m/d H:i:s'))->format('%R') == '-') {
                 if ($request->otp == $user->otp) {
                     if ($user->registration == 0) {
+                        $user->number_verify = 1;
+                        $user->save();
                         return response()->json([
                             'status' => true,
+                            'Registration' => $user->registration,
                             'message' => 'Registration is pending',
                             'data' => [
                                 'user' => $user
@@ -141,13 +146,16 @@ class ApiAuthController extends Controller
                         ], 203);
                     } else {
                         if ($user->number == $request->number && $user->is_block == 0) {
+                            $user->number_verify = 1;
+                            $user->save();
                             $token = $user->createToken(($user->name) != null ? $user->name : $user->number)->plainTextToken;
 
                             return response()->json([
                                 'status' => true,
                                 'message' => 'login Successfully',
                                 'data' => [
-                                    'token' => $token
+                                    'token' => $token,
+                                    'user' => $user
                                 ],
                             ], 200);
                         } else {
@@ -158,6 +166,7 @@ class ApiAuthController extends Controller
                             ], 401);
                         }
                     }
+
                 } else {
                     return response()->json([
                         'status' => false,
@@ -212,15 +221,38 @@ class ApiAuthController extends Controller
                 $user->registration = 1;
                 $user->save();
 
-                $token = $user->createToken($user->name)->plainTextToken;
+                if($user->number_verify == 0)
+                {
+                    $otp = rand(1000, 9999);
+                    $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
 
-                return response()->json([
-                    'status' => true,
-                    'message' => 'login Successfully',
-                    'data' => [
-                        'token' => $token
-                    ],
-                ], 201);
+                    $user = User::where('number', $request->number)->first();
+                    $user->otp = $otp;
+                    $user->otp_expired_at = $expired_at;
+                    $user->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'Number verification' => $user->number_verify,
+                        'message' => 'Otp Sended',
+                        'data' => [
+                            'number' => $request->number,
+                            'otp' => $otp,
+                        ],
+                    ], 202);
+                }else{
+                    $token = $user->createToken($user->name)->plainTextToken;
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'login Successfully',
+                        'data' => [
+                            'token' => $token,
+                            'user' => $user
+                        ],
+                    ], 201);
+                }
+                
             }elseif (User::where('provider_id', $request->id)->exists()) {
                 $otp = rand(1000, 9999);
                 $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
@@ -238,16 +270,16 @@ class ApiAuthController extends Controller
                 $user->referral_code = Helpers_generate_referer_code();
                 $user->otp = $otp;
                 $user->otp_expired_at = $expired_at;
+                $user->registration = 1;
                 $user->save();
-
-                $token = $user->createToken($user->name)->plainTextToken;
-
+                
                 return response()->json([
                     'status' => true,
-                    'Registration' => $user->registration,
+                    'Number verification' => $user->number_verify,
                     'message' => 'Otp Sended',
                     'data' => [
                         'number' => $request->number,
+                        'otp' => $otp,
                     ],
                 ], 202);
             }
@@ -281,21 +313,50 @@ class ApiAuthController extends Controller
             if ($provider == 'google') {
                 
                 $userdata = User::where('email', $request->email)->first();
-                if (!is_null($userdata) && $userdata->registration == 1) {
+                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) {
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
                         'message' => 'logged in',
                         'data' => [
-                            'token' => $token
+                            'token' => $token,
+                            'user' => $userdata
                         ],
                     ], 202);
-                } elseif (!is_null($userdata) && $userdata->registration == 0) {
+                } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 0) {
                     return response()->json([
                         'status' => true,
                         'Registration' => $userdata->registration,
-                        'message' => 'New user Created',
-                        'required' => 'number verification',
+                        'Number verification' => $userdata->number_verify,
+                        'message' => 'Number verification or registration required',
+                        'data' => [
+                            'user' => $userdata
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 0) {
+
+                    $otp = rand(1000, 9999);
+                    $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
+                    
+                    $userdata->otp = $otp;
+                    $userdata->otp_expired_at = $expired_at;
+                    $userdata->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'Number verification' => $userdata->number_verify,
+                        'message' => 'Number verification required',
+                        'data' => [
+                            'number' => $userdata->number,
+                            'otp' => $otp,
+                            'user' => $userdata
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 1) {
+                    return response()->json([
+                        'status' => true,
+                        'Registration' => $userdata->registration,
+                        'message' => 'Registration required',
                         'data' => [
                             'user' => $userdata
                         ],
@@ -309,6 +370,8 @@ class ApiAuthController extends Controller
                     $user->provider_id = $request->id;
                     $user->provider_name = $provider;
                     $user->is_block = 0;
+                    $user->registration = 0;
+                    $user->number_verify = 0;
                     $user->referral_code = Helpers_generate_referer_code();
                     $user->email_verified_at = now();
                     $user->save();
@@ -316,8 +379,8 @@ class ApiAuthController extends Controller
                     return response()->json([
                         'status' => true,
                         'Registration' => $user->registration,
+                        'Number verification' => $user->number_verify,
                         'message' => 'New user Created',
-                        'required' => 'number verification',
                         'data' => [
                             'user' => $user
                         ],
@@ -326,21 +389,50 @@ class ApiAuthController extends Controller
             } elseif ($provider == 'facebook') {
 
                 $userdata = User::where('email', $request->email)->first();
-                if (!is_null($userdata) && $userdata->registration == 1) {
+                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) {
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
                         'message' => 'logged in',
                         'data' => [
-                            'token' => $token
+                            'token' => $token,
+                            'user' => $userdata
                         ],
                     ], 202);
-                } elseif (!is_null($userdata) && $userdata->registration == 0) {
+                } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 0) {
                     return response()->json([
                         'status' => true,
                         'Registration' => $userdata->registration,
-                        'message' => 'New user Created',
-                        'required' => 'number verification',
+                        'Number verification' => $userdata->number_verify,
+                        'message' => 'Number verification or registration required',
+                        'data' => [
+                            'user' => $userdata
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 0) {
+
+                    $otp = rand(1000, 9999);
+                    $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
+                    
+                    $userdata->otp = $otp;
+                    $userdata->otp_expired_at = $expired_at;
+                    $userdata->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'Number verification' => $userdata->number_verify,
+                        'message' => 'Number verification required',
+                        'data' => [
+                            'number' => $userdata->number,
+                            'otp' => $otp,
+                            'user' => $userdata
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 1) {
+                    return response()->json([
+                        'status' => true,
+                        'Registration' => $userdata->registration,
+                        'message' => 'Registration required',
                         'data' => [
                             'user' => $userdata
                         ],
@@ -354,6 +446,8 @@ class ApiAuthController extends Controller
                     $user->provider_id = $request->id;
                     $user->provider_name = $provider;
                     $user->is_block = 0;
+                    $user->registration = 0;
+                    $user->number_verify = 0;
                     $user->referral_code = Helpers_generate_referer_code();
                     $user->email_verified_at = now();
                     $user->save();
@@ -361,8 +455,8 @@ class ApiAuthController extends Controller
                     return response()->json([
                         'status' => true,
                         'Registration' => $user->registration,
+                        'Number verification' => $user->number_verify,
                         'message' => 'New user Created',
-                        'required' => 'number verification',
                         'data' => [
                             'user' => $user
                         ],
@@ -372,21 +466,50 @@ class ApiAuthController extends Controller
 
                 // Find or create user
                 $userdata = User::where('provider_id', $request->id)->first();
-                if (!is_null($userdata) && $userdata->registration == 1) {
+                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) {
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
                         'message' => 'logged in',
                         'data' => [
-                            'token' => $token
+                            'token' => $token,
+                            'user' => $userdata
                         ],
                     ], 202);
-                } elseif (!is_null($userdata) && $userdata->registration == 0) {
+                } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 0) {
                     return response()->json([
                         'status' => true,
                         'Registration' => $userdata->registration,
-                        'message' => 'New user Created',
-                        'required' => 'number verification',
+                        'Number verification' => $userdata->number_verify,
+                        'message' => 'Number verification or registration required',
+                        'data' => [
+                            'user' => $userdata
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 0) {
+
+                    $otp = rand(1000, 9999);
+                    $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
+                    
+                    $userdata->otp = $otp;
+                    $userdata->otp_expired_at = $expired_at;
+                    $userdata->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'Number verification' => $userdata->number_verify,
+                        'message' => 'Number verification required',
+                        'data' => [
+                            'number' => $userdata->number,
+                            'otp' => $otp,
+                            'user' => $userdata
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 1) {
+                    return response()->json([
+                        'status' => true,
+                        'Registration' => $userdata->registration,
+                        'message' => 'Registration required',
                         'data' => [
                             'user' => $userdata
                         ],
@@ -397,14 +520,16 @@ class ApiAuthController extends Controller
                     $user->provider_name = $provider;
                     $user->image = 'default.png';
                     $user->is_block = 0;
+                    $user->registration = 0;
+                    $user->number_verify = 0;
                     $user->referral_code = Helpers_generate_referer_code();
                     $user->save();
 
                     return response()->json([
                         'status' => true,
                         'Registration' => $user->registration,
+                        'Number verification' => $user->number_verify,
                         'message' => 'New user Created',
-                        'required' => 'number verification',
                         'data' => [
                             'user' => $user
                         ],
