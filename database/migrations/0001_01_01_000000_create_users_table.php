@@ -26,7 +26,9 @@ return new class extends Migration
             $table->string('referred_by')->nullable();
             $table->string('provider_id')->nullable();
             $table->string('provider_name')->nullable();
-            $table->tinyInteger('is_block', false)->default(0)->comment("0 = no | 1 = yes");
+            $table->tinyInteger('is_block')->default(0)->comment("0 = no | 1 = yes");
+            $table->tinyInteger('registration')->default(0)->comment("0 = Required | 1 = Not required");
+            $table->tinyInteger('number_verify')->default(0)->comment("0 = Required | 1 = Not required");
             $table->rememberToken();
             $table->timestamps();
         });

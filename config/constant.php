@@ -24,8 +24,6 @@ const MANAGEMENT_SECTION = [
     'display' => 'display',
     'coupons' => 'coupons',
     'send_notification' => 'send_notification',
-    'offers' => 'offers',
-    'category_discount' => 'category_discount',
 
     'report_management' => 'report_management',
     'sales_report' => 'sales_report',

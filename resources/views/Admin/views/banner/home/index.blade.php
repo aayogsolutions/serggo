@@ -130,7 +130,7 @@
                         <td>
                             <div>
                                 @if($banner->attechment_type == 'image')
-                                    <img class="initial-24" src="{{ asset('Images/banners').'/'.$banner->attechment }}" alt="{{ translate('banner image') }}">
+                                    <img class="initial-24" src="{{ asset('Images/banners').'/'.$banner->attechment }}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'">
                                 @else
                                     <video class="initial-24" src="{{ asset('Images/banners').'/'.$banner->attechment }}"onclick="this.paused?this.play():this.pause();" title="Click To play & Stop"></video>
                                 @endif

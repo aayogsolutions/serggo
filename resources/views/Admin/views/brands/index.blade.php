@@ -96,7 +96,7 @@
                                 <td class="text-center">{{$brands->firstItem()+$key}}</td>
                                 <td>
                                     <img src="{{ asset('Images/brands').'/'.$brand->Image}}" class="img--50 ml-3"
-                                        alt="{{ translate('brand') }}">
+                                        alt="{{ translate('brand') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                 </td>
                                 <td>
                                     <span class="d-block font-size-sm text-body text-trim-50">

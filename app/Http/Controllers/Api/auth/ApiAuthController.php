@@ -40,7 +40,8 @@ class ApiAuthController extends Controller
             $user->save();
 
             return response()->json([
-                'Registration' => 1,
+                'status' => true,
+                'Registration' => $user->registration,
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
@@ -60,7 +61,7 @@ class ApiAuthController extends Controller
 
             return response()->json([
                 'status' => true,
-                'Registration' => 0,
+                'Registration' => $user->registration,
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
@@ -87,6 +88,7 @@ class ApiAuthController extends Controller
                 $user->save();
 
                 return response()->json([
+                    'status' => true,
                     'message' => 'Otp Resend Successfully',
                     'data' => [
                         'number' => $number,
@@ -129,8 +131,9 @@ class ApiAuthController extends Controller
 
             if ($user->otp_expired_at->diff(Carbon::now()->format('Y/m/d H:i:s'))->format('%R') == '-') {
                 if ($request->otp == $user->otp) {
-                    if ($request->Registration == 0) {
+                    if ($user->registration == 0) {
                         return response()->json([
+                            'status' => true,
                             'message' => 'Registration is pending',
                             'data' => [
                                 'user' => $user
@@ -141,6 +144,7 @@ class ApiAuthController extends Controller
                             $token = $user->createToken(($user->name) != null ? $user->name : $user->number)->plainTextToken;
 
                             return response()->json([
+                                'status' => true,
                                 'message' => 'login Successfully',
                                 'data' => [
                                     'token' => $token
@@ -148,6 +152,7 @@ class ApiAuthController extends Controller
                             ], 200);
                         } else {
                             return response()->json([
+                                'status' => false,
                                 'message' => 'User is Blocked by Admin',
                                 'data' => [],
                             ], 401);
@@ -155,18 +160,21 @@ class ApiAuthController extends Controller
                     }
                 } else {
                     return response()->json([
+                        'status' => false,
                         'message' => 'Otp Is inCorrect',
                         'data' => [],
                     ], 401);
                 }
             } else {
                 return response()->json([
+                    'status' => false,
                     'message' => 'Otp Is Expired',
                     'data' => [],
                 ], 408);
             }
         } else {
             return response()->json([
+                'status' => false,
                 'message' => 'Invalid Phone Number',
                 'data' => [],
             ], 404);
@@ -178,7 +186,6 @@ class ApiAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg',
             'number' => 'required|numeric|digits:10',
             'referred_by' => 'nullable',
         ]);
@@ -197,22 +204,18 @@ class ApiAuthController extends Controller
                 $user->name = $request->name;
                 $user->email = $request->email;
 
-                if (!is_null($request->image)) {
-                    $imageName = $request->name . time() . '.' . $request->image->getClientOriginalExtension();
-                    $request->image->move(public_path('Images/UserProfile'), $imageName);
-                    $user->image = $imageName;
-                }
-
                 if (!is_null($request->referred_by)) {
                     $referred = User::where('referral_code', $request->referred_by)->first();
                     $user->referred_by = $referred->id;
                 }
                 $user->referral_code = Helpers_generate_referer_code();
+                $user->registration = 1;
                 $user->save();
 
                 $token = $user->createToken($user->name)->plainTextToken;
 
                 return response()->json([
+                    'status' => true,
                     'message' => 'login Successfully',
                     'data' => [
                         'token' => $token
@@ -228,12 +231,6 @@ class ApiAuthController extends Controller
                 $user->email = $request->email;
                 $user->number = $request->number;
 
-                if (!is_null($request->image)) {
-                    $imageName = $request->name . time() . '.' . $request->image->getClientOriginalExtension();
-                    $request->image->move(public_path('Images/UserProfile'), $imageName);
-                    $user->image = $imageName;
-                }
-
                 if (!is_null($request->referred_by)) {
                     $referred = User::where('referral_code', $request->referred_by)->first();
                     $user->referred_by = $referred->id;
@@ -246,7 +243,8 @@ class ApiAuthController extends Controller
                 $token = $user->createToken($user->name)->plainTextToken;
 
                 return response()->json([
-                    'Registration' => 1,
+                    'status' => true,
+                    'Registration' => $user->registration,
                     'message' => 'Otp Sended',
                     'data' => [
                         'number' => $request->number,
@@ -257,6 +255,7 @@ class ApiAuthController extends Controller
         } catch (\Throwable $th) {
             $error = $th->getMessage();
             return response()->json([
+                'status' => false,
                 'message' => $error,
                 'data' => [],
             ], 403);
@@ -282,12 +281,23 @@ class ApiAuthController extends Controller
             if ($provider == 'google') {
                 
                 $userdata = User::where('email', $request->email)->first();
-                if (!is_null($userdata)) {
+                if (!is_null($userdata) && $userdata->registration == 1) {
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
+                        'status' => true,
                         'message' => 'logged in',
                         'data' => [
                             'token' => $token
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 0) {
+                    return response()->json([
+                        'status' => true,
+                        'Registration' => $userdata->registration,
+                        'message' => 'New user Created',
+                        'required' => 'number verification',
+                        'data' => [
+                            'user' => $userdata
                         ],
                     ], 202);
                 } else {
@@ -304,6 +314,8 @@ class ApiAuthController extends Controller
                     $user->save();
 
                     return response()->json([
+                        'status' => true,
+                        'Registration' => $user->registration,
                         'message' => 'New user Created',
                         'required' => 'number verification',
                         'data' => [
@@ -314,12 +326,23 @@ class ApiAuthController extends Controller
             } elseif ($provider == 'facebook') {
 
                 $userdata = User::where('email', $request->email)->first();
-                if (!is_null($userdata)) {
+                if (!is_null($userdata) && $userdata->registration == 1) {
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
+                        'status' => true,
                         'message' => 'logged in',
                         'data' => [
                             'token' => $token
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 0) {
+                    return response()->json([
+                        'status' => true,
+                        'Registration' => $userdata->registration,
+                        'message' => 'New user Created',
+                        'required' => 'number verification',
+                        'data' => [
+                            'user' => $userdata
                         ],
                     ], 202);
                 } else {
@@ -336,6 +359,8 @@ class ApiAuthController extends Controller
                     $user->save();
 
                     return response()->json([
+                        'status' => true,
+                        'Registration' => $user->registration,
                         'message' => 'New user Created',
                         'required' => 'number verification',
                         'data' => [
@@ -347,12 +372,23 @@ class ApiAuthController extends Controller
 
                 // Find or create user
                 $userdata = User::where('provider_id', $request->id)->first();
-                if (!is_null($userdata)) {
+                if (!is_null($userdata) && $userdata->registration == 1) {
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
+                        'status' => true,
                         'message' => 'logged in',
                         'data' => [
                             'token' => $token
+                        ],
+                    ], 202);
+                } elseif (!is_null($userdata) && $userdata->registration == 0) {
+                    return response()->json([
+                        'status' => true,
+                        'Registration' => $userdata->registration,
+                        'message' => 'New user Created',
+                        'required' => 'number verification',
+                        'data' => [
+                            'user' => $userdata
                         ],
                     ], 202);
                 } else {
@@ -365,6 +401,8 @@ class ApiAuthController extends Controller
                     $user->save();
 
                     return response()->json([
+                        'status' => true,
+                        'Registration' => $user->registration,
                         'message' => 'New user Created',
                         'required' => 'number verification',
                         'data' => [

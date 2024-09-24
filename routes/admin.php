@@ -217,14 +217,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('referral-income-setup', [BusinessSettingsController::class, 'ReferralIncomeSetup'])->name('referral-income-setup');
                 Route::post('referral-income-setup-update', [BusinessSettingsController::class, 'ReferralIncomeSetupUpdate'])->name('referral-income-setup-update');
 
-                // Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
-                //     Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
-                //     Route::post('store', [TimeSlotController::class, 'store'])->name('store');
-                //     Route::get('update/{id}', [TimeSlotController::class, 'edit'])->name('update');
-                //     Route::post('update/{id}', [TimeSlotController::class, 'update']);
-                //     Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
-                //     Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
-                // });
+                Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
+                    Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
+                    Route::post('store', [TimeSlotController::class, 'store'])->name('store');
+                    Route::get('update/{id}', [TimeSlotController::class, 'edit'])->name('update');
+                    Route::post('update/{id}', [TimeSlotController::class, 'update']);
+                    Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
+                    Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
+                });
             });
 
             Route::group(['prefix'=>'web-app','as'=>'web-app.'], function() {

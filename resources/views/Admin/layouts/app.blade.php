@@ -15,9 +15,9 @@
         <link rel="stylesheet" href="{{asset('assets/back-end/css/theme.minc619.css?v=1.0')}}">
         <link rel="stylesheet" href="{{asset('assets/back-end/css/daterangepicker.css')}}"> -->
         <link rel="stylesheet" href="{{asset('assets/back-end/css/style.css')}}">
-
+        @php($fevicon = Helpers_get_business_settings('fav_icon'))
         <link rel="icon" type="image/x-icon" href="{{ asset('Images/Business').'/'.Helpers_get_business_settings('fav_icon') }}">
-        <link rel="shortcut icon" href="{{ asset('Images/Business').'/'.Helpers_get_business_settings('fav_icon') }}">
+        <link rel="shortcut icon" href="{{ $fevicon != NULL ? asset('Images/Business').'/'.Helpers_get_business_settings('fav_icon') : asset('assets/admin/img/400x400/img2.jpg') }}">
         <link rel="stylesheet" href="{{asset('assets/admin')}}/css/vendor.min.css">
         <link rel="stylesheet" href="{{asset('assets/admin')}}/vendor/icon-set/style.css">
         <link rel="stylesheet" href="{{asset('assets/admin')}}/css/bootstrap.min.css">

@@ -157,7 +157,7 @@
                             </td>
                             <td>
                                 <div>
-                                    <img class="upload--vertical--preview" src="{{ asset('Images/banners').'/'.$banner->attechment }}" alt="{{ translate('banner image') }}">
+                                    <img class="upload--vertical--preview" src="{{ asset('Images/banners').'/'.$banner->attechment }}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'">
                                 </div>
                             </td>
                             <td>

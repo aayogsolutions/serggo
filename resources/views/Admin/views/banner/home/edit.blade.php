@@ -63,7 +63,7 @@
                             <label class="m-auto">
                                 <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*,video/*" hidden>
                                 @if($banner->attechment_type == 'image')
-                                    <img id="viewer" class="initial-24" src="{{asset('Images/banners/').'/'.$banner->attechment}}" alt="{{ translate('banner image') }}" />
+                                    <img id="viewer" class="initial-24" src="{{asset('Images/banners/').'/'.$banner->attechment}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'"/>
                                     <video class="initial-24" id="viewervideo" src="" style="display: none;" autoplay muted loop></video>
                                     <input type="hidden" name="width" id="videoWidth">
                                     <input type="hidden" name="height" id="videoHeight">

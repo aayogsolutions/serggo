@@ -12,8 +12,12 @@ UpdatesDue.txt
 .env.production
 .phpactor.json
 .phpunit.result.cache
+composer.json
+composer.lock
 Homestead.json
 Homestead.yaml
+composer.json
+composer.lock
 auth.json
 npm-debug.log
 yarn-error.log

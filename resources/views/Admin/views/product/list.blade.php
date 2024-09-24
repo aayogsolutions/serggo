@@ -92,7 +92,7 @@
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <a href="{{route('admin.product.view',[$product['id']])}}" class="product-list-media">
                                         @if (!empty(json_decode($product['image'],true)))
-                                        <img src="{{ asset('Images/productimages').'/'.json_decode($product->image)[0]}}">
+                                        <img src="{{ asset('Images/productimages').'/'.json_decode($product->image)[0]}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         @else
                                         <img src="{{asset('assets/admin/img/400x400/img2.jpg')}}">
                                         @endif

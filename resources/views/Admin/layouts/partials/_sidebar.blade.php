@@ -8,7 +8,7 @@
                     @php($logo = Helpers_get_business_settings('logo'))
                     <a class="navbar-brand" href="{{route('admin.dashboard')}}" aria-label="Front">
                         <img class="w-100 side-logo" src="{{ asset('Images/business').'/'.$logo }}" alt="{{ translate('logo') }}"
-                            onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                            onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                     </a>
 
                     <button type="button" class="js-navbar-vertical-aside-toggle-invoker navbar-vertical-aside-toggle btn btn-icon btn-xs btn-ghost-dark">
@@ -378,27 +378,6 @@
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
                                             {{translate('send')}} {{translate('notifications')}}
                                         </span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['offers']))
-                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/offer*')?'active':''}}">
-                                    <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                        href="{{('admin.offer.flash.index')}}"
-                                        title="{{translate('offers')}}">
-                                        <i class="tio-alarm-alert nav-icon"></i>
-                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                            {{translate('offers')}}
-                                        </span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['category_discount']))
-                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/discount*')?'active':''}}">
-                                    <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{('admin.discount.add-new')}}"
-                                        title="{{translate('category_discount')}}">
-                                        <i class="tio-layers-outlined nav-icon"></i>
-                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('category_discount')}}</span>
                                     </a>
                                 </li>
                             @endif
