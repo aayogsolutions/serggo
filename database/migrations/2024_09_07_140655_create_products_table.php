@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->text('brand_name')->nullable();
             $table->string('brandname_if_other')->nullable();
-            $table->tinyInteger('uploaded_by')->comment('0 = admin | 1 = vender');
-            $table->bigInteger('uploader_id')->nullable();
+            $table->bigInteger('admin_id')->nullable();
+            $table->bigInteger('vender_id')->nullable();
             $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->text('image')->nullable();

@@ -21,7 +21,7 @@
         </h1>
     </div>
 
-    <form action="{{route('admin.product.store')}}" method="post" id="product_form" enctype="multipart/form-data" class="row g-2">
+    <form action="javascript:void(0)" method="post" id="product_form" enctype="multipart/form-data" class="row g-2">
         @csrf
         <div class="col-lg-6">
             <div class="card">

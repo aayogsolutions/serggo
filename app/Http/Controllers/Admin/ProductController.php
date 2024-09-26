@@ -218,8 +218,7 @@ class ProductController extends Controller
         {
             $product->brandname_if_other = $request->otherbrand;
         }
-        $product->uploaded_by = 0;
-        $product->uploader_id = auth('admins')->user()->id;
+        $product->admin_id = auth('admins')->user()->id;
         $product->category_ids = json_encode($category);
         $product->description = $request->description;
         $product->choice_options = json_encode($choiceOptions);

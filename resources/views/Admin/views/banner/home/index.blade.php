@@ -145,6 +145,12 @@
                             {{ translate($banner->ui_type) }}
                         </td>
                         <td>
+                            <div class="initial-24" style="background-color: {{ $banner->background_color }};"></div>
+                        </td>
+                        <td>
+                            <div class="initial-24" style="background-color: {{ $banner->font_color }};"></div>
+                        </td>
+                        <td>
                             <label class="toggle-switch my-0">
                                 <input type="checkbox"
                                     class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $banner->id }}"
@@ -155,12 +161,6 @@
                                     <span class="toggle-switch-indicator"></span>
                                 </span>
                             </label>
-                        </td>
-                        <td>
-                            <div class="initial-24" style="background-color: {{ $banner->background_color }};"></div>
-                        </td>
-                        <td>
-                            <div class="initial-24" style="background-color: {{ $banner->font_color }};"></div>
                         </td>
                         <td>
                             <div class="btn--container justify-content-center">

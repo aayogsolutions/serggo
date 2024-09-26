@@ -40,10 +40,10 @@ class DisplayController extends Controller
                     $q->orWhere('ui_type', 'like', "%{$value}%");
                     $q->orWhere('section_type', 'like', "%{$value}%");
                 }
-            })->orderBy('ui_type', 'desc')->orderBy('section_type', 'desc')->orderBy('priority', 'asc');
+            })->orderBy('ui_type', 'desc')->orderBy('section_type', 'asc')->orderBy('priority', 'asc');
             $queryParam = ['search' => $request['search']];
         } else {
-            $banners = $this->displaysection->orderBy('ui_type', 'desc')->orderBy('section_type', 'desc')->orderBy('priority', 'asc')
+            $banners = $this->displaysection->orderBy('ui_type', 'desc')->orderBy('section_type', 'asc')->orderBy('priority', 'asc')
             ->with('childes');
         }
         $banners = $banners->with('childes')->paginate(Helpers_getPagination())->appends($queryParam);
@@ -130,7 +130,9 @@ class DisplayController extends Controller
      */
     public function Edit($id): View|Factory|Application
     {
-        $banner = $this->displaysection->where('id',$id)->with('childes')->first();
+        $banner = $this->displaysection->where('id',$id)->with('childes', function($q){
+            $q->orderBy('priority','ASC');
+        })->first();
 
         $products = $this->product->status()->orderBy('name')->get();
         $categories = $this->category->status()->where('parent_id',0)->orderBy('name')->get();

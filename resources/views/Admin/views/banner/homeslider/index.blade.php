@@ -76,7 +76,6 @@
                                     </label>
                                     <select name="product_id" class="form-control js-select2-custom">
                                         <option selected disabled>Select Product</option>
-                                        <option value="1">1</option>
                                         @foreach($products as $product)
                                             <option value="{{$product['id']}}">{{$product['name']}}</option>
                                         @endforeach

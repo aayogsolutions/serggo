@@ -28,7 +28,7 @@ class DashboardController extends Controller
      */
     public function Index() : JsonResponse
     {
-        // try {
+        try {
             $maindata = $this->homebanner->status()->where('ui_type','user_product')->first();
 
             $data['tags'] = $this->tag->select('name')->orderBy('name','DESC')->get();
@@ -55,11 +55,11 @@ class DashboardController extends Controller
                     ]
                 ]
             ],200);
-        // } catch (\Throwable $th) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'data' => $th->getMessage()
-        //     ]);
-        // }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'data' => $th->getMessage()
+            ]);
+        }
     }
 }
