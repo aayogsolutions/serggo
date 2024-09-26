@@ -50,6 +50,11 @@ return [
             'driver' => 'session',
             'provider' => 'vendor',
         ],
+
+        'branch' => [
+            'driver' => 'session',
+            'provider' => 'branches',
+        ],
     ],
 
     /*
@@ -83,6 +88,11 @@ return [
         'vendor' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\Vendor::class),
+        ],
+
+        'branches' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\Branch::class,
         ],
     ],
 

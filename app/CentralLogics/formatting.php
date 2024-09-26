@@ -12,6 +12,7 @@ if(! function_exists('product_data_formatting')) {
                 $item->image = json_decode($item->image);
                 $item->attributes = json_decode($item->attributes);
                 $item->choice_options = json_decode($item->choice_options);
+                $item->tags = json_decode($item->tags);
                 $categories = gettype($item->category_ids) == 'array' ? $item->category_ids : json_decode($item->category_ids);
                 // if(!is_null($categories) && count($categories) > 0) {
                 //     $ids = [];
@@ -46,6 +47,7 @@ if(! function_exists('product_data_formatting')) {
             $data->image =  gettype($data->image) == 'array' ? $data->image : json_decode($data->image);
             $data->attributes = gettype($data->attributes) == 'array' ? $data->attributes : json_decode($data->attributes);
             $data->choice_options = gettype($data->choice_options) == 'array' ? $data->choice_options : json_decode($data->choice_options);
+            $data->tags = gettype($data->tags) == 'array' ? $data->tags : json_decode($data->tags);
 
             
             $categories = gettype($data->category_ids) == 'array' ? $data->category_ids : json_decode($data->category_ids, true);
@@ -76,13 +78,25 @@ if(! function_exists('homesliderbanner_data_formatting')) {
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
-                $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : json_decode($item->item_detail);
+                if($item->item_type == 'product')
+                    {
+                        $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? product_data_formatting($item->item_detail) : product_data_formatting(json_decode($item->item_detail));
+                    }else{
+                        $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : json_decode($item->item_detail);
+                    }
+                // $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : product_data_formatting(json_decode($item->item_detail));
                 
                 array_push($storage, $item);
             }
             $data = $storage;
         } else {
-            $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
+            if($data->item_type == 'product')
+                {
+                    $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? product_data_formatting($data->item_detail) : product_data_formatting(json_decode($data->item_detail));
+                }else{
+                    $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
+                }
+            // $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
             
         }
 

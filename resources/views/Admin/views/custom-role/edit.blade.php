@@ -134,6 +134,15 @@
                                 <li>
                                     <div class="sub-check-item">
                                         <div class="form-group form-check form--check">
+                                            <input type="checkbox" name="display" value="display" class="form-check-input module-permission promotion_management" id="display"
+                                            {{in_array('display',(array)json_decode($role['module_access']))?'checked':''}}>
+                                            <label class="form-check-label text-nowrap" for="banner">{{translate('display')}}</label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="sub-check-item">
+                                        <div class="form-group form-check form--check">
                                             <input type="checkbox" name="coupons" value="coupons" class="form-check-input module-permission promotion_management" id="coupons"
                                             {{in_array('coupons',(array)json_decode($role['module_access']))?'checked':''}}>
                                             <label class="form-check-label text-nowrap" for="coupons">{{translate('coupons')}}</label>
@@ -146,24 +155,6 @@
                                             <input type="checkbox" name="send_notification" value="send_notification" class="form-check-input module-permission promotion_management" id="send_notification"
                                             {{in_array('send_notification',(array)json_decode($role['module_access']))?'checked':''}}>
                                             <label class="form-check-label text-nowrap" for="send_notification">{{translate('send_notification')}}</label>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="sub-check-item">
-                                        <div class="form-group form-check form--check">
-                                            <input type="checkbox" name="offers" value="offers" class="form-check-input module-permission promotion_management" id="offers"
-                                            {{in_array('offers',(array)json_decode($role['module_access']))?'checked':''}}>
-                                            <label class="form-check-label text-nowrap" for="offers">{{translate('offers')}}</label>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="sub-check-item">
-                                        <div class="form-group form-check form--check">
-                                            <input type="checkbox" name="category_discount" value="category_discount" class="form-check-input module-permission promotion_management" id="category_discount"
-                                            {{in_array('category_discount',(array)json_decode($role['module_access']))?'checked':''}}>
-                                            <label class="form-check-label text-nowrap" for="category_discount">{{translate('category_discount')}}</label>
                                         </div>
                                     </div>
                                 </li>

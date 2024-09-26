@@ -14,7 +14,8 @@ use App\Http\Controllers\Admin\{
     BannersController,
     BrandsController,
     DisplayController,
-    TagController
+    TagController,
+    BranchController
 };
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -94,6 +95,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::post('update/{id}', [BannersController::class, 'HomeSliderUpdate'])->name('update');
                 Route::get('status/{id}/{status}/{type}', [BannersController::class, 'HomeSliderStatus'])->name('status');
                 Route::delete('delete/{id}', [BannersController::class, 'HomeSliderDelete'])->name('delete');
+                Route::get('priority', [BannersController::class, 'HomeSliderPriority'])->name('priority');
             });
         });
 
@@ -111,6 +113,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('update-section', [DisplayController::class, 'UpdateSection'])->name('update.section');
             Route::post('update-item', [DisplayController::class, 'UpdateItem'])->name('update.item');
             Route::get('priority', [DisplayController::class, 'Priority'])->name('priority');
+            Route::get('sectionpriority', [DisplayController::class, 'SectionPriority'])->name('section.priority');
 
 
             Route::delete('delete/{id}', [DisplayController::class, 'DeleteSection'])->name('delete');
@@ -124,6 +127,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('update/{id}', [AttributeController::class, 'update'])->name('update');
             Route::delete('delete/{id}', [AttributeController::class, 'delete'])->name('delete');
             Route::get('status/{id}/{status}', [AttributeController::class, 'status'])->name('status');
+        });
+
+        Route::group(['prefix' => 'branch', 'as' => 'branch.'], function () {
+            Route::get('add-new', [BranchController::class, 'index'])->name('add-new');
+            Route::get('list', [BranchController::class, 'list'])->name('list');
+            Route::post('store', [BranchController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [BranchController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [BranchController::class, 'update'])->name('update');
+            Route::delete('delete/{id}', [BranchController::class, 'delete'])->name('delete');
+            Route::get('status/{id}/{status}', [BranchController::class, 'status'])->name('status');
         });
 
         Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
@@ -217,14 +230,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('referral-income-setup', [BusinessSettingsController::class, 'ReferralIncomeSetup'])->name('referral-income-setup');
                 Route::post('referral-income-setup-update', [BusinessSettingsController::class, 'ReferralIncomeSetupUpdate'])->name('referral-income-setup-update');
 
-                Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
-                    Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
-                    Route::post('store', [TimeSlotController::class, 'store'])->name('store');
-                    Route::get('update/{id}', [TimeSlotController::class, 'edit'])->name('update');
-                    Route::post('update/{id}', [TimeSlotController::class, 'update']);
-                    Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
-                    Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
-                });
+                // Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
+                //     Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
+                //     Route::post('store', [TimeSlotController::class, 'store'])->name('store');
+                //     Route::get('update/{id}', [TimeSlotController::class, 'edit'])->name('update');
+                //     Route::post('update/{id}', [TimeSlotController::class, 'update']);
+                //     Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
+                //     Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
+                // });
             });
 
             Route::group(['prefix'=>'web-app','as'=>'web-app.'], function() {

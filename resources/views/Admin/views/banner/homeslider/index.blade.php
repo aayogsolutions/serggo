@@ -11,6 +11,12 @@
         .table-responsive{
             max-height: 700px !important;
         }
+
+        .image-section{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 @endpush
 
@@ -146,6 +152,7 @@
                         <th class="border-0">{{translate('UI type')}}</th>
                         <th class="border-0">{{translate('Item')}}</th>
                         <th class="text-center border-0">{{translate('status')}}</th>
+                        <th class="text-center border-0">{{translate('priority')}}</th>
                         <th class="text-center border-0">{{translate('action')}}</th>
                     </tr>
                 </thead>
@@ -156,7 +163,7 @@
                                 {{$key+1}}
                             </td>
                             <td>
-                                <div>
+                                <div class="image-section">
                                     <img class="upload--vertical--preview" src="{{ asset('Images/banners').'/'.$banner->attechment }}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'">
                                 </div>
                             </td>
@@ -184,6 +191,16 @@
                                         <span class="toggle-switch-indicator"></span>
                                     </span>
                                 </label>
+                            </td>
+                            <td>
+                                <div class="max-85">
+                                    <select name="priority" class="custom-select"
+                                        onchange="location.href='{{ route('admin.banners.homeslider.priority', ['id' => $banner['id'], 'priority' => '']) }}' + this.value">
+                                        @for($i = 0; $i <= 10; $i++)
+                                            <option value="{{ $i }}" {{ $banner->priority == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
                             </td>
                             <td>
                                 <div class="btn--container justify-content-center">

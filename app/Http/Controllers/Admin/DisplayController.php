@@ -40,10 +40,11 @@ class DisplayController extends Controller
                     $q->orWhere('ui_type', 'like', "%{$value}%");
                     $q->orWhere('section_type', 'like', "%{$value}%");
                 }
-            })->orderBy('id', 'desc');
+            })->orderBy('ui_type', 'desc')->orderBy('section_type', 'desc')->orderBy('priority', 'asc');
             $queryParam = ['search' => $request['search']];
         } else {
-            $banners = $this->displaysection->orderBy('id', 'desc')->with('childes');
+            $banners = $this->displaysection->orderBy('ui_type', 'desc')->orderBy('section_type', 'desc')->orderBy('priority', 'asc')
+            ->with('childes');
         }
         $banners = $banners->with('childes')->paginate(Helpers_getPagination())->appends($queryParam);
 
@@ -389,6 +390,20 @@ class DisplayController extends Controller
             flash()->success(translate('Item not Exists!'));
             return back();
         }
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function SectionPriority(Request $request): RedirectResponse
+    {
+        $category = $this->displaysection->find($request->id);
+        $category->priority = $request->priority;
+        $category->save();
+
+        flash()->success(translate('priority updated!'));
+        return back();
     }
 
     /**

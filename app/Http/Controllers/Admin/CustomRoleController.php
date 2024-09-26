@@ -98,13 +98,11 @@ class CustomRoleController extends Controller
         {
             if (isset($request['banner'])) {
                 $request['promotion_management'] = 'promotion_management';
+            }elseif (isset($request['display'])) {
+                $request['promotion_management'] = 'promotion_management';
             }elseif (isset($request['coupons'])) {
                 $request['promotion_management'] = 'promotion_management';
             }elseif (isset($request['send_notification'])) {
-                $request['promotion_management'] = 'promotion_management';
-            }elseif (isset($request['offers'])) {
-                $request['promotion_management'] = 'promotion_management';
-            }elseif (isset($request['category_discount'])) {
                 $request['promotion_management'] = 'promotion_management';
             }
         }

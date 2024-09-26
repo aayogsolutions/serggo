@@ -651,10 +651,10 @@ class BannersController extends Controller
                     $q->orWhere('title', 'like', "%{$value}%");
                     $q->orWhere('ui_type', 'like', "%{$value}%");
                 }
-            })->orderBy('id', 'desc');
+            })->orderBy('priority', 'asc');
             $queryParam = ['search' => $request['search']];
         } else {
-            $banners = $this->homesilderbanner->orderBy('id', 'desc');
+            $banners = $this->homesilderbanner->orderBy('priority', 'asc');
         }
         $banners = $banners->paginate(Helpers_getPagination())->appends($queryParam);
 
@@ -808,6 +808,20 @@ class BannersController extends Controller
             return redirect()->route('admin.banners.homeslider.add');
         }
         
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function HomeSliderPriority(Request $request): RedirectResponse
+    {
+        $banner = $this->homesilderbanner->find($request->id);
+        $banner->priority = $request->priority;
+        $banner->save();
+
+        flash()->success(translate('priority updated!'));
+        return back();
     }
 
     /**

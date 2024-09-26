@@ -35,14 +35,9 @@
                     <div class="col-md-6">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">{{translate('First Name')}}</label>
-                                <input type="text" name="first_name" class="form-control" id="name"
+                                <label class="form-label">{{translate('Name')}}</label>
+                                <input type="text" name="name" class="form-control" id="name"
                                         placeholder="{{translate('Ex')}} : {{translate('John')}}" value="{{old('first_name')}}" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">{{translate('Last Name')}}</label>
-                                <input type="text" name="last_name" class="form-control" id="name"
-                                        placeholder="{{translate('Ex')}} : {{translate('Doe')}}" value="{{old('last_name')}}" required>
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label">{{translate('Phone')}}</label>
@@ -80,7 +75,7 @@
                                 &nbsp;
                             </label>
                             <div class="text-center mb-4">
-                                <img class="initial-24" id="viewer"
+                                <img class="initial-24" id="viewer1"
                                 src="{{asset('assets/admin/img/upload-vertical.png')}}" alt="{{ translate('employee') }}"/>
                             </div>
                             <div class="form-group mb-0">
@@ -88,8 +83,8 @@
                                     {{ translate('Employee Image') }} <span class="text-danger">({{ translate('Ratio 1:1') }})</span>
                                 </label>
                                 <div class="custom-file">
-                                    <input type="file" name="image" id="customFileUpload" class="custom-file-input h--45px"
-                                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
+                                <input type="file" name="image" id="customFileUpload" class="custom-file-input h--45px" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
+                                <input type="hidden" name="image" id="mypicture" class="custom-file-input h--45px" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
                                     <label class="custom-file-label  h--45px" for="customFileUpload"></label>
                                 </div>
                             </div>
@@ -141,10 +136,31 @@
 </div>
 @endsection
 
-@push('script_2')
+@push('script')
     <script src="{{asset('assets/admin/js/spartan-multi-image-picker.js')}}"></script>
     <script src="{{asset('assets/admin')}}/js/select2.min.js"></script>
 
+    <script>
+         $(function () {
+         function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#viewer1').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+ 
+
+        $("#mypicture").change(function () {
+            readURL(this);
+        }); 
+
+    })
+    </script>
     <script type="text/javascript">
         $(function () {
             "use strict";
@@ -183,21 +199,7 @@
             });
         });
 
-        function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    $('#viewer').attr('src', e.target.result);
-                }
-
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        $("#customFileUpload").change(function () {
-            readURL(this);
-        });
+       
 
         $(".js-example-theme-single").select2({
             theme: "classic"

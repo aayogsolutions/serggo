@@ -590,7 +590,7 @@
                             <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
                                 style="display: {{Request::is('admin/branch*')?'block':'none'}}">
                                 <li class="nav-item {{Request::is('admin/branch/add-new')?'active':''}}">
-                                    <a class="nav-link " href="{{('admin.branch.add-new')}}"
+                                    <a class="nav-link " href="{{route('admin.branch.add-new')}}"
                                         title="{{translate('add New')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span
@@ -598,7 +598,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item {{Request::is('admin/branch/list')?'active':''}}">
-                                    <a class="nav-link " href="{{('admin.branch.list')}}"
+                                    <a class="nav-link " href="{{route('admin.branch.list')}}"
                                         title="{{translate('list')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span

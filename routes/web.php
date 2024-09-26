@@ -18,6 +18,7 @@ Route::get('/optimize', function () {
 });
 
 require "admin.php";
+require "branch.php";
  
 Route::get('/', function(){
     return redirect(route('admin.login'));

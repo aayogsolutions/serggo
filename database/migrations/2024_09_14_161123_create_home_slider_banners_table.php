@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('item_detail');
             $table->string('attechment');
             $table->tinyInteger('status')->default(0)->comment('0 = active | 1 = inactive');
+            $table->tinyInteger('priority')->default(1);
             $table->timestamps();
         });
     }

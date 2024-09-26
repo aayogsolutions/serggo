@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('ui_type',['user_product','user_service','vender_service']);
             $table->enum('section_type',['slider','cart','box_section']);
             $table->tinyInteger('status')->default(1)->comment('0 = active | 1 = inactive');
+            $table->tinyInteger('priority')->default(1);
             $table->timestamps();
         });
     }

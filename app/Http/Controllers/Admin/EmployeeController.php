@@ -33,8 +33,7 @@ class EmployeeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
+            'name' => 'required',
             'role_id' => 'required',
             'image' => 'required',
             'email' => 'required|email|unique:admins',
@@ -73,9 +72,10 @@ class EmployeeController extends Controller
             $identityImage = json_encode([]);
         }
 
+       
         Admin::insert([
-            'f_name' => $request->first_name,
-            'l_name' => $request->last_name,
+            
+            'name' => $request->name,
             'number' => $request->phone,
             'email' => $request->email,
             'identity_number' => $request->identity_number,
@@ -87,6 +87,7 @@ class EmployeeController extends Controller
             'image' => $imageName,
             'created_at' => now(),
             'updated_at' => now(),
+            
         ]);
 
 

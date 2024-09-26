@@ -144,6 +144,7 @@
                         <th class="border-0">{{translate('UI type')}}</th>
                         <th class="border-0">{{translate('childes')}}</th>
                         <th class="text-center border-0">{{translate('status')}}</th>
+                        <th class="text-center border-0">{{translate('priority')}}</th>
                         <th class="text-center border-0">{{translate('action')}}</th>
                     </tr>
                 </thead>
@@ -178,6 +179,16 @@
                                     <span class="toggle-switch-indicator"></span>
                                 </span>
                             </label>
+                        </td>
+                        <td>
+                            <div class="max-85">
+                                <select name="priority" class="custom-select"
+                                    onchange="location.href='{{ route('admin.display.section.priority', ['id' => $banner['id'], 'priority' => '']) }}' + this.value">
+                                    @for($i = 1; $i <= 6; $i++)
+                                        <option value="{{ $i }}" {{ $banner->priority == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
                         </td>
                         <td>
                             <div class="btn--container justify-content-center">

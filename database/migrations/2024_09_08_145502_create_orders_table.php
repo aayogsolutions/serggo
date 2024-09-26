@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id');
+            $table->bigInteger('branch_id');
             $table->enum('order_type',['goods','service']);
             $table->decimal('order_amount',24,2);
             $table->string('order_status')->default('pending');
