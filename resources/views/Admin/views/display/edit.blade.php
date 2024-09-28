@@ -81,7 +81,7 @@
                             </h5>
                             <label class="upload--vertical">
                                 <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
-                                <img class="" id="viewer" src="{{asset('Images/banners/').'/'.$banner->attechment}}" alt="{{ translate('banner image') }}" />
+                                <img class="" id="viewer" src="{{asset($banner->attechment)}}" alt="{{ translate('banner image') }}" />
                                 <video class="" id="viewervideo" src="" style="display: none;" autoplay loop></video>
                                 <input type="hidden" name="width" id="videoWidth">
                                 <input type="hidden" name="height" id="videoHeight">

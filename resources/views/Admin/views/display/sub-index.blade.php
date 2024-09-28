@@ -223,7 +223,7 @@
                             {{$key+1}}
                         </td>
                         <td>@php($images = json_decode($value->item_detail)->image)
-                            <img class="upload--vertical--preview" src="{{ asset('Images/productimages').'/'.json_decode($images)[0]}}" alt="{{ translate('banner image') }}"
+                            <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
                                 onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                         </td>
                         <td>
@@ -265,7 +265,7 @@
                             </td>
                             <td>
                                 <div>
-                                    <img class="upload--vertical--preview" src="{{ asset('Images/banners').'/'.$value->attechment }}" alt="{{ translate('banner image') }}">
+                                    <img class="upload--vertical--preview" src="{{ asset($value->attechment )}}" alt="{{ translate('banner image') }}">
                                 </div>
                             </td>
                             <td>
@@ -277,7 +277,7 @@
                                 @if($value->item_type == 'product')
                                     @php($images = json_decode($value->item_detail)->image)
                                     <a href="{{route('admin.product.view',[json_decode($value->item_detail)->id])}}" class="product-list-media">
-                                        <img class="upload--vertical--preview" src="{{ asset('Images/productimages').'/'.json_decode($images)[0]}}" alt="{{ translate('banner image') }}"
+                                        <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
                                             onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         <h6 class="name line--limit-2">
                                             {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
@@ -286,7 +286,7 @@
                                 @else
                                     @php($images = json_decode($value->item_detail)->image)
                                     <a href="{{route('admin.category.add')}}" class="product-list-media">
-                                    <img src="{{ asset('Images/category').'/'.$images}}" class="img--50" alt="{{ translate('category') }}"
+                                    <img src="{{ asset($images)}}" class="img--50" alt="{{ translate('category') }}"
                                             onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         <h6 class="name line--limit-2">
                                             {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
@@ -337,12 +337,12 @@
                         </td>
                         <td>
                             <div>
-                                <img class="upload--vertical--preview" src="{{ asset('Images/banners').'/'.$value->attechment }}" alt="{{ translate('banner image') }}">
+                                <img class="upload--vertical--preview" src="{{ asset($value->attechment )}}" alt="{{ translate('banner image') }}">
                             </div>
                         </td>
                         <td>@php($images = json_decode($value->item_detail)->image)
                             <a href="{{route('admin.product.view',[json_decode($value->item_detail)->id])}}" class="product-list-media">
-                                <img class="upload--vertical--preview" src="{{ asset('Images/productimages').'/'.json_decode($images)[0]}}" alt="{{ translate('banner image') }}"
+                                <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
                                     onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                 <h6 class="name line--limit-2">
                                     {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}

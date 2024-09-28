@@ -165,8 +165,8 @@ class CategoryController extends Controller
     {
         $category = Category::find($request->id);
         if ($category->childes->count() == 0) {
-            if (File::exists('Images/category/' . $category['image'])) {
-                File::delete('Images/category/' . $category['image']);
+            if (File::exists($category['image'])) {
+                File::delete($category['image']);
             }
             $category->delete();
             flash()->success($category->parent_id == 0 ? translate('Category removed!') : translate('Sub Category removed!'));

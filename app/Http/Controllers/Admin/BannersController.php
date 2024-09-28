@@ -213,8 +213,8 @@ class BannersController extends Controller
     public function SplashDelete(Request $request): RedirectResponse
     {
         $banner = $this->splashbanner->find($request->id);
-        if (File::exists('Images/banners/'.$banner->attechment)) {
-            File::delete('Images/banners/'.$banner->attechment);
+        if (File::exists($banner->attechment)) {
+            File::delete($banner->attechment);
         }
         $banner->delete();
         flash()->success(translate('Banner removed!'));
@@ -416,8 +416,8 @@ class BannersController extends Controller
     public function AuthDelete(Request $request): RedirectResponse
     {
         $banner = $this->authBanners->find($request->id);
-        if (File::exists('Images/banners/'.$banner->attechment)) {
-            File::delete('Images/banners/'.$banner->attechment);
+        if (File::exists($banner->attechment)) {
+            File::delete($banner->attechment);
         }
         $banner->delete();
         flash()->success(translate('Banner removed!'));
@@ -626,8 +626,8 @@ class BannersController extends Controller
     public function HomeDelete(Request $request): RedirectResponse
     {
         $banner = $this->homebanner->find($request->id);
-        if (File::exists('Images/banners/'.$banner->attechment)) {
-            File::delete('Images/banners/'.$banner->attechment);
+        if (File::exists($banner->attechment)) {
+            File::delete($banner->attechment);
         }
         $banner->delete();
         flash()->success(translate('Banner removed!'));
@@ -658,8 +658,8 @@ class BannersController extends Controller
         }
         $banners = $banners->paginate(Helpers_getPagination())->appends($queryParam);
 
-        $products = $this->product->orderBy('name')->get();
-        $categories = $this->category->where(['parent_id'=>0])->orderBy('name')->get();
+        $products = $this->product->status()->orderBy('name')->get();
+        $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
 
         return view('Admin.views.banner.homeslider.index', compact('banners', 'products', 'categories', 'search'));
     }
@@ -728,17 +728,6 @@ class BannersController extends Controller
      */
     public function HomeSliderStatus(Request $request): RedirectResponse
     {
-        $allbanner = $this->homesilderbanner->where([
-            ['id','!=',$request->id],
-            ['ui_type','=',$request->type],
-        ])->get();
-
-        foreach ($allbanner as $key => $value) {
-            $banner = $this->homesilderbanner->find($value->id);
-            $banner->status = 1;
-            $banner->save();
-        }
-
         $banner = $this->homesilderbanner->find($request->id);
         $banner->status = $request->status;
         $banner->save();
@@ -831,8 +820,8 @@ class BannersController extends Controller
     public function HomeSliderDelete(Request $request): RedirectResponse
     {
         $banner = $this->homesilderbanner->find($request->id);
-        if (File::exists('Images/banners/'.$banner->attechment)) {
-            File::delete('Images/banners/'.$banner->attechment);
+        if (File::exists($banner->attechment)) {
+            File::delete($banner->attechment);
         }
         $banner->delete();
         flash()->success(translate('Banner removed!'));

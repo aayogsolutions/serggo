@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('productid');
             $table->bigInteger('quantity');
             $table->text('product_detail');
-            $table->text('variation');
+            $table->text('variation')->nullable();
             $table->timestamps();
         });
     }

@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Category Discount'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/coupon.png')}}" class="w--20" alt="{{ translate('discount') }}">
+                    <img src="{{asset('assets/admin/img/coupon.png')}}" class="w--20" alt="{{ translate('discount') }}">
                 </span>
                 <span>
                     {{translate('discount')}}
@@ -121,6 +121,7 @@
                     </thead>
 
                     <tbody>
+                       
                     @foreach($discounts as $key=>$discount)
                         <tr>
                             <td>{{$key+1}}</td>
@@ -132,19 +133,21 @@
                             <td>{{translate($discount->discount_type)}}</td>
                             <td>{{$discount->category ? $discount->category->name:''}}</td>
                             <td>
-                                {{ $discount->discount_type == 'percent' ? $discount->discount_amount . '%' : Helpers::set_symbol($discount->discount_amount)}}
+                                {{ $discount->discount_type == 'percent' ? $discount->discount_amount . '%' : Helpers_set_symbol($discount->discount_amount)}}
                             </td>
-                            <td>{{$discount->discount_type == 'percent' ? Helpers::set_symbol($discount->maximum_amount) : '-'}}</td>
+                            <td>{{$discount->discount_type == 'percent' ? Helpers_set_symbol($discount->maximum_amount) : '-'}}</td>
                             <td>
-                                {{$discount->start_date->format('d M, Y')}} - {{$discount->expire_date->format('d M, Y')}}
+                                
+                            {{Carbon\Carbon::parse($discount->start_date)->format('d M, Y')}} - {{Carbon\Carbon::parse($discount->expire_date)->format('d M, Y')}}
+                               
                             </td>
                             <td>
                                 <label class="toggle-switch my-0">
                                     <input type="checkbox"
-                                           data-route="{{ route('admin.discount.status', [$discount->id, $discount->status ? 0 : 1]) }}"
+                                           data-route="{{ route('admin.discount.status', [$discount->id, $discount->status == 1 ? 0 : 1]) }}"
                                            data-message="{{ $discount->status? translate('you_want_to_disable_this_discount'): translate('you_want_to_active_this_discount') }}"
                                            class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $discount->id }}"
-                                        {{ $discount->status ? 'checked' : '' }}>
+                                        {{ $discount->status == 0 ? 'checked' : '' }}>
                                     <span class="toggle-switch-label mx-auto text">
                                         <span class="toggle-switch-indicator"></span>
                                     </span>
@@ -179,7 +182,7 @@
             </div>
             @if(count($discounts) == 0)
                 <div class="text-center p-4">
-                    <img class="w-120px mb-3" src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
+                    <img class="w-120px mb-3" src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
                     <p class="mb-0">{{translate('No_data_to_show')}}</p>
                 </div>
             @endif
@@ -189,5 +192,5 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('public/assets/admin/js/discount.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/discount.js') }}"></script>
 @endpush

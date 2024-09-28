@@ -24,7 +24,7 @@
                                 <div class="d-flex flex-wrap align-items-center food--media justify-content-center">
                                 @if (!empty(json_decode($product['image'],true)))
                                     <img class="avatar avatar-xxl avatar-4by3 mr-4"
-                                        src="{{ asset('Images/productimages').'/'.$product->image[0]}}"
+                                        src="{{ asset(json_decode($product['image'])[0])}}"
                                         alt="Image Description">
                                 @else
                                     <img class="avatar avatar-xxl avatar-4by3 mr-4"
@@ -168,7 +168,7 @@
                                     @endforeach
                                 </td>
                                 <td>
-                                    @foreach(explode(',',$product->tags) as $tag)
+                                    @foreach(json_decode($product->tags) as $tag)
                                         <span class="badge-soft-success mb-1 mr-1 d-inline-block px-2 py-1 rounded" >{{$tag}} </span> <br>
                                     @endforeach
                                 </td>

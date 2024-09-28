@@ -14,8 +14,18 @@ class ProductReview extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Products::class, 'product_id');
+    }
+
     public function status()
     {
-        return $this->query()->where('status', 0);
+        return $this->query()->where('is_active', 0);
+    }
+
+    public function scopeStatusStatic($qurey)
+    {
+        return $qurey->where('is_active', 0);
     }
 }

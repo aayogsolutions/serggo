@@ -50,13 +50,13 @@
                             <label class="upload--horizontal">
                                 <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*,video/*" hidden>
                                 @if($banner->attechment_type == 'image')
-                                    <img id="viewer" src="{{asset('Images/banners/').'/'.$banner->attechment}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'"/>
+                                    <img id="viewer" src="{{asset($banner->attechment)}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'"/>
                                     <video id="viewervideo" src="" style="display: none;" autoplay muted loop></video>
                                     <input type="hidden" name="width" id="videoWidth">
                                     <input type="hidden" name="height" id="videoHeight">
                                 @else
                                     <img id="viewer" src="{{asset('assets/admin/img/upload-horizontal.jpg')}}" alt="{{ translate('banner image') }}" style="display: none;"/>
-                                    <video id="viewervideo" src="{{asset('Images/banners/').'/'.$banner->attechment}}" autoplay muted loop></video>
+                                    <video id="viewervideo" src="{{asset($banner->attechment)}}" autoplay muted loop></video>
                                     <input type="hidden" name="width" id="videoWidth">
                                     <input type="hidden" name="height" id="videoHeight">
                                 @endif

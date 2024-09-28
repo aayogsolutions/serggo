@@ -62,8 +62,7 @@
                                     {{translate('category')}}
                                     <span class="input-label-secondary">*</span>
                                 </label>
-                                <select name="category_id" class="form-control js-select2-custom"
-                                    onchange="getRequest('{{url('/')}}/admin/product/get-categories?parent_id='+this.value,'sub-categories')">
+                                <select name="category_id" class="form-control js-select2-custom" id="get_category">
                                     <option value="">---{{translate('select')}}---</option>
                                     @foreach($categories as $category)
                                     <option value="{{$category['id']}}">{{$category['name']}}</option>
@@ -73,13 +72,11 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="form-group">
-                                <label class="input-label"
-                                    for="exampleFormControlSelect1">{{translate('sub_category')}}<span
-                                        class="input-label-secondary"></span></label>
-                                <select name="sub_category_id" id="sub-categories"
-                                    class="form-control js-select2-custom"
-                                    onchange="getRequest('{{url('/')}}/admin/product/get-categories?parent_id='+this.value,'sub-sub-categories')">
-                                </select>
+                                <label class="input-label" for="exampleFormControlSelect1">
+                                    {{translate('sub_category')}}
+                                    <span class="input-label-secondary"></span>
+                                </label>
+                                <select name="sub_category_id" id="sub-categories" class="form-control js-select2-custom"></select>
                             </div>
                         </div>
                         <div class="col-sm-6">
@@ -141,8 +138,9 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="mb-3">{{translate('product')}} {{translate('image')}} <small class="text-danger">* (
-                            {{translate('ratio')}} 1:1 )</small></h5>
+                    <h5 class="mb-3">{{translate('product')}} {{translate('image')}} 
+                        <small class="text-danger">* ({{translate('ratio')}} 1:1 )</small>
+                    </h5>
                     <div class="product--coba">
                         <div class="row g-2" id="coba"></div>
                     </div>
@@ -293,7 +291,7 @@
 
         <div class="col-12">
             <div class="btn--container justify-content-end">
-                <a href="" class="btn btn--reset min-w-120px">{{translate('reset')}}</a>
+                <a href="" onclick="location.reload()" class="btn btn--reset min-w-120px">{{translate('reset')}}</a>
                 <button type="submit" class="btn btn--primary">{{translate('submit')}}</button>
             </div>
         </div>
@@ -315,7 +313,7 @@ $(document).ready(function() {
 </script>
 
 <script>
-$('#').on('submit', function() {
+$('#product_form').on('submit', function() {
     var formData = new FormData(this);
     $.ajaxSetup({
         headers: {
@@ -424,6 +422,26 @@ $(document).on('ready', function() {
     $('.js-select2-custom').each(function() {
         var select2 = $.HSCore.components.HSSelect2.init($(this));
     });
+
+    $('#get_category').change(function(){
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: "get",
+            url: "{{route('admin.product.get-categories')}}",
+            data: {
+                parent_id: $(this).val()
+            },
+            success: function(data) {
+                $('#sub-categories').html(data.options);
+            }
+        });
+    });
 });
 </script>
 
@@ -470,8 +488,9 @@ function combination_update() {
         }
     });
 }
-</script>
 
+</script>
+<!-- 
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 <script>
@@ -505,9 +524,7 @@ $('#product_form').on('submit', function() {
                     });
                 }
             } else {
-                <?php
-                            flash()->success(translate("product uploaded successfully!"));
-                        ?>
+                
                 setTimeout(function() {
                     location.href = "{{route('admin.product.list')}}";
                 }, 2000);
@@ -515,7 +532,7 @@ $('#product_form').on('submit', function() {
         }
     });
 });
-</script>
+</script> -->
 
 <script>
 function update_qty() {

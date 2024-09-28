@@ -33,7 +33,7 @@
                     <div class="col-sm-6">
                         <div class="text-center">
                             <img class="img--105" id="viewer"
-                                src="{{ asset('Images/brands').'/'.$brand->Image}}"
+                                src="{{ asset($brand->Image)}}"
                                 alt="{{ translate('brand') }} " onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'"/>
                         </div>
                         <label>{{translate('image')}}</label><small class="text-danger">* ( {{translate('ratio')}} 3:1 )</small>

@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Update Notification'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/edit.png')}}" class="w--20" alt="{{ translate('notification') }}">
+                    <img src="{{asset('assets/admin/img/edit.png')}}" class="w--20" alt="{{ translate('notification') }}">
                 </span>
                 <span>
                     {{translate('notification update')}}
@@ -43,7 +43,7 @@
                                 </h5>
                                 <label class="upload--vertical mt-auto">
                                     <input type="file" name="image" id="customFileEg1" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" hidden>
-                                    <img id="viewer" src="{{$notification->imageFullPath}}" alt="{{ translate('notification') }}"/>
+                                    <img id="viewer" src="{{asset($notification->image)}}" alt="{{ translate('notification') }}" onerror="this.src='{{asset('assets/admin/img/upload-vertical.png')}}'"/>
                                 </label>
                             </div>
                         </div>
@@ -62,5 +62,5 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('public/assets/admin/js/upload-single-image.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/upload-single-image.js') }}"></script>
 @endpush

@@ -127,8 +127,8 @@ class BrandsController extends Controller
     {
         $brands = Brands::find($request->id);
         if ($brands->childes->count() == 0) {
-            if (File::exists('Images/brands/' . $brands['Image'])) {
-                File::delete('Images/brands/' . $brands['Image']);
+            if (File::exists($brands['Image'])) {
+                File::delete($brands['Image']);
             }
             $brands->delete();
             flash()->success(translate('Brand removed!'));

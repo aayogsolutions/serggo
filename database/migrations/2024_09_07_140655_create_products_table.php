@@ -27,12 +27,14 @@ return new class extends Migration
             $table->string('tax_type')->default('precent');
             $table->tinyInteger('status')->default(2)->comment('0 = active | 1 = inactive | 2 = pending');
             $table->string('attributes')->nullable();
-            $table->string('category_ids')->nullable();
+            $table->bigInteger('category_id')->nullable();
+            $table->bigInteger('sub_category_id')->nullable();
             $table->text('choice_options')->nullable();
             $table->decimal('discount',8,2)->default(0);
             $table->string('discount_type')->default('precent');
             $table->string('unit')->default('pc');
             $table->bigInteger('total_stock')->default(0);
+            $table->bigInteger('total_sale')->default(0);
             $table->tinyInteger('is_featured')->default(1);
             $table->timestamps();
         });

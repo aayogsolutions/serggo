@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('code',20)->nullable();
             $table->date('start_date')->nullable();
-            $table->date('expired_date')->nullable();
+            $table->date('expire_date')->nullable();
             $table->decimal('min_purchase',8,2)->default(0);
             $table->decimal('max_purchase',8,2)->default(0);
+            $table->decimal('max_discount',8,2)->default(0);
             $table->decimal('discount',8,2)->default(0);
             $table->string('discount_type')->default('percentage');
             $table->tinyInteger('status')->default(0)->comment('0 = Active | 1 = Inactive');

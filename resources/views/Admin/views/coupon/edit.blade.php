@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Update Coupon'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/edit.png')}}" class="w--20" alt="{{ translate('coupon') }}">
+                    <img src="{{asset('assets/admin/img/edit.png')}}" class="w--20" alt="{{ translate('coupon') }}">
                 </span>
                 <span>
                     {{translate('coupon')}} {{translate('update')}}
@@ -143,5 +143,5 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('public/assets/admin/js/coupon-edit.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/coupon-edit.js') }}"></script>
 @endpush

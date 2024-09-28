@@ -40,7 +40,7 @@ class SystemController extends Controller
         $admin = $this->admin->find(auth('admins')->id());
         $newimage = $request->file('image');
         if ($request->has('image')) {
-            $imageName =Helpers_update('Images/Admin', $admin->image, $newimage->getClientOriginalExtension(), $newimage);
+            $imageName =Helpers_update('Images/Admin/', $admin->image, $newimage->getClientOriginalExtension(), $newimage);
         } else {
             $imageName = $admin['image'];
         }

@@ -37,11 +37,11 @@ if(! function_exists('Helpers_set_business_settings')) {
                 $data->save();
             }
 
-            $message = ['message' => 'Data Created Successfully'];
+            $message = ['message' => true];
             return $message;
 
         } catch (\Throwable $th) {
-            $message = ['message' => 'Unexpected Error'];
+            $message = ['message' => false];
             return $message;
         }
     }
@@ -103,11 +103,12 @@ if(! function_exists('Helpers_upload')) {
         if ($image != null) {
             $imageName = \Carbon\Carbon::now()->toDateString() . "-" . uniqid() . "." . $format;
             $image->move(public_path($dir), $imageName);
+            $imagePath = $dir.$imageName;
         } else {
-            $imageName = 'def.png';
+            $imagePath = 'def.png';
         }
 
-        return $imageName;
+        return $imagePath;
     }
 }
 
@@ -190,12 +191,70 @@ if(! function_exists('Helpers_set_price')) {
     function Helpers_set_price($amount)
     {
         $decimal_point_settings = Helpers_get_business_settings('decimal_point_settings');
-        $amount = number_format($amount, $decimal_point_settings, '.', '');
+        $amount = number_format($amount, gettype($decimal_point_settings) == "integer" ? $decimal_point_settings: 0, '.', '');
 
         return $amount;
     }
 
 }
+
+if(! function_exists('Helpers_send_push_notif_to_topic')) {
+    function Helpers_send_push_notif_to_topic($data)
+    {
+         /*https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send*/
+         $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
+         /*$topic = BusinessSetting::where(['key' => 'fcm_topic'])->first()->value;*/
+         /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
+ 
+         $url = "https://fcm.googleapis.com/fcm/send";
+         $header = array("authorization: key=" . $key . "",
+             "content-type: application/json"
+         );
+ 
+         $image = asset('storage/app/public/notification') . '/' . $data['image'];
+         $postdata = '{
+             "to" : "/topics/grofresh",
+             "mutable-content": "true",
+             "data" : {
+                 "title" :"' . $data['title'] . '",
+                 "body" : "' . $data['description'] . '",
+                 "image" : "' . $image . '",
+                 "order_id":"' . $data['order_id'] . '",
+                 "type":"' . $data['type'] . '",
+                 "is_read": 0
+               },
+               "notification" : {
+                 "title" :"' . $data['title'] . '",
+                 "body" : "' . $data['description'] . '",
+                 "image" : "' . $image . '",
+                 "order_id":"' . $data['order_id'] . '",
+                 "title_loc_key":"' . $data['order_id'] . '",
+                 "type":"' . $data['type'] . '",
+                 "is_read": 0,
+                 "icon" : "new",
+                 "sound" : "default"
+               }
+         }';
+ 
+         $ch = curl_init();
+         $timeout = 120;
+         curl_setopt($ch, CURLOPT_URL, $url);
+         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+         curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+ 
+         // Get URL content
+         $result = curl_exec($ch);
+         // close handle to release resources
+         curl_close($ch);
+ 
+         return $result;
+    }
+
+}
+
 
 
 

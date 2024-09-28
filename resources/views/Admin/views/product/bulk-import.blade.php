@@ -13,7 +13,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('/public/assets/admin/img/bulk.png')}}" class="w--20" alt="">
+                    <img src="{{asset('assets/admin/img/bulk.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{ translate('bulk') }} {{ translate('import') }}
@@ -51,7 +51,7 @@
                             </h5>
                             <div class="form-group mt-4">
                                 <label class="drag--area mb-0 mx-auto cursor-pointer" ondrop="drop(event)" ondragover="allowDrop(event)">
-                                    <img class="icon" src="{{asset('/public/assets/admin/img/cloud.png')}}" alt="">
+                                    <img class="icon" src="{{asset('assets/admin/img/cloud.png')}}" alt="">
                                     <div class="drag-header">{{ translate('Click here to import the .xlsx file here') }}</div>
                                     <div class="__choose-input">
                                         <input type="file" name="products_file" class="form-control" id="import-file" accept=".xlsx" >
@@ -77,7 +77,7 @@
 <script>
     $('#import-file').on('change', function(){
         if($(this)[0].files.length !== 0){
-        $('.file--img').empty().append(`<div class="my-2"> <img src="{{asset('/public/assets/admin/img/excel.png')}}" alt=""></div>`)
+        $('.file--img').empty().append(`<div class="my-2"> <img src="{{asset('assets/admin/img/excel.png')}}" alt=""></div>`)
         }
     })
     $('.product-form').on('reset', function(){

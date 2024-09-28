@@ -350,18 +350,36 @@
                             @endif
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['display']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/display*')?'active':''}}">
-                                    <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.display.add')}}" title="{{translate('display sections')}}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:" title="{{translate('display sections')}}">
                                         <i class="tio-premium-outlined nav-icon"></i>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
                                             {{translate('display sections')}}
                                         </span>
                                     </a>
+                                    <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/display*') ? 'block' : 'none'}}">
+                                        <li class="nav-item {{Request::is('admin/display/section*')?'active':''}}">
+                                            <a class="nav-link" href="{{route('admin.display.add')}}" title="{{translate('display section')}}">
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span class="text-truncate">
+                                                    {{translate('display section')}}
+                                                </span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item {{Request::is('admin/display/category*')?'active':''}}">
+                                            <a class="nav-link" href="{{route('admin.display.category.add')}}" title="{{translate('category')}}">
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span class="text-truncate">
+                                                    {{translate('category')}}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
                             @endif
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['coupons']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/coupon*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                        href="{{('admin.coupon.add-new')}}"
+                                        href="{{route('admin.coupon.add-new')}}"
                                         title="{{translate('coupons')}}">
                                         <i class="tio-gift nav-icon"></i>
                                         <span
@@ -372,12 +390,21 @@
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['send_notification']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/notification*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                        href="{{('admin.notification.add-new')}}"
+                                        href="{{route('admin.notification.add-new')}}"
                                         title="{{translate('send notifications')}}">
                                         <i class="tio-notifications nav-icon"></i>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
                                             {{translate('send')}} {{translate('notifications')}}
                                         </span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['category_discount']))
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/discount*')?'active':''}}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.discount.add-new')}}"
+                                    title="{{translate('category_discount')}}">
+                                        <i class="tio-layers-outlined nav-icon"></i>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('category_discount')}}</span>
                                     </a>
                                 </li>
                             @endif
@@ -621,7 +648,7 @@
                                 style="display: {{Request::is('admin/business-settings/page-setup/*')?'block':''}} {{Request::is('admin/business-settings/web-app/third-party/social-media')?'block':''}}">
                                 <li class="nav-item mt-0 {{Request::is('admin/business-settings/page-setup/*')?'active':''}}">
                                     <a class="nav-link"
-                                        href="{{('admin.business-settings.page-setup.about-us')}}"
+                                        href="{{route('admin.business-settings.page-setup.about-us')}}"
                                         title="{{translate('Page Setup')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span
@@ -630,7 +657,7 @@
                                 </li>
                                 <li class="nav-item {{Request::is('admin/business-settings/web-app/third-party/social-media')?'active':''}}">
                                     <a class="nav-link "
-                                        href="{{('admin.business-settings.web-app.third-party.social-media')}}"
+                                        href="{{route('admin.business-settings.web-app.third-party.social-media')}}"
                                         title="{{translate('Social Media')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span

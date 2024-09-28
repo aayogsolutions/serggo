@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Add new coupon'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/coupon.png')}}" class="w--20" alt="{{ translate('coupon') }}">
+                    <img src="{{asset('assets/admin/img/coupon.png')}}" class="w--20" alt="{{ translate('coupon') }}">
                 </span>
                 <span>
                     {{translate('Coupon Setup')}}
@@ -171,7 +171,7 @@
                                         <div>{{ translate($coupon->coupon_type === 'free_delivery' ? translate('Free Delivery') : translate('discount in '). $coupon['discount_type']) }}</div>
                                     </td>
                                     <td>
-                                        {{$coupon->start_date->format('d M, Y')}} - {{$coupon->expire_date->format('d M, Y')}}
+                                        {{Carbon\Carbon::parse($coupon->start_date)->format('d M, Y')}} - {{Carbon\Carbon::parse($coupon->start_date)->format('d M, Y')}}
                                     </td>
                                     <td>
                                         <span>{{ translate('Limit') }} : <strong>{{ $coupon->coupon_type === 'first_order' ? '-' : $coupon['limit'] }},</strong></span>
@@ -217,7 +217,7 @@
                         </table>
                         @if(count($coupons) == 0)
                         <div class="text-center p-4">
-                            <img class="w-120px mb-3" src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="Image Description">
+                            <img class="w-120px mb-3" src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="Image Description">
                             <p class="mb-0">{{translate('No_data_to_show')}}</p>
                         </div>
                         @endif
@@ -237,7 +237,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('public/assets/admin/js/coupon-index.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/coupon-index.js') }}"></script>
     <script>
     "use strict";
 

@@ -15,6 +15,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\{JsonResponse,RedirectResponse};
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class ProductController extends Controller
 {
@@ -96,6 +97,17 @@ class ProductController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
+        $imageNames = [];
+        if (!empty($request->file('images'))) {
+            foreach ($request->images as $img) {
+                $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
+                $imageNames[] = $imageData;
+            }
+            $imageData = json_encode($imageNames);
+        } else {
+            $imageData = json_encode([]);
+        }
+        dd($imageData,$imageNames,json_decode($imageData));
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'category_id' => 'required',
@@ -121,7 +133,7 @@ class ProductController extends Controller
         $imageNames = [];
         if (!empty($request->file('images'))) {
             foreach ($request->images as $img) {
-                $imageData = Helpers_upload('Images/productImages', $img->getClientOriginalExtension() , $img);
+                $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
                 $imageNames[] = $imageData;
             }
             $imageData = json_encode($imageNames);
@@ -129,25 +141,25 @@ class ProductController extends Controller
             $imageData = json_encode([]);
         }
 
-        $category = [];
-        if ($request->category_id != null) {
-            $category[] = [
-                'id' => $request->category_id,
-                'position' => 1,
-            ];
-        }
-        if ($request->sub_category_id != null) {
-            $category[] = [
-                'id' => $request->sub_category_id,
-                'position' => 2,
-            ];
-        }
-        if ($request->sub_sub_category_id != null) {
-            $category[] = [
-                'id' => $request->sub_sub_category_id,
-                'position' => 3,
-            ];
-        }
+        // $category = [];
+        // if ($request->category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->category_id,
+        //         'position' => 1,
+        //     ];
+        // }
+        // if ($request->sub_category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->sub_category_id,
+        //         'position' => 2,
+        //     ];
+        // }
+        // if ($request->sub_sub_category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->sub_sub_category_id,
+        //         'position' => 3,
+        //     ];
+        // }
 
 
         $choiceOptions = [];
@@ -219,7 +231,8 @@ class ProductController extends Controller
             $product->brandname_if_other = $request->otherbrand;
         }
         $product->admin_id = auth('admins')->user()->id;
-        $product->category_ids = json_encode($category);
+        $product->category_id = $request->category_id;
+        $product->sub_category_id = $request->sub_category_id ;
         $product->description = $request->description;
         $product->choice_options = json_encode($choiceOptions);
         $product->variations = json_encode($variations);
@@ -304,29 +317,228 @@ class ProductController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function feature(Request $request): RedirectResponse
-    {
-        $product = $this->product->find($request->id);
-        $product->is_featured = $request->is_featured;
-        $product->save();
-        flash()->success(translate('product feature status updated!'));
-        return back();
-    }
-
-    /**
      * @param $id
      * @return Factory|View|Application
      */
     public function edit($id): View|Factory|Application
     {
         $product = $this->product->find($id);
-        $productCategory = json_decode($product->category_ids);
         $categories = $this->category->where(['parent_id' => 0])->get();
-        return view('admin-views.product.edit', compact('product', 'productCategory', 'categories'));
+        $subcategories = $this->category->status()->where('parent_id' , $product->category_id)->get();
+        $brand = $this->brand->status()->get();
+        return view('Admin.views.product.edit', compact('product', 'categories','subcategories','brand'));
     }
+
+    /**
+     * @param $id
+     * @param $name
+     * @return RedirectResponse
+     */
+    public function removeImage($id, $name): \Illuminate\Http\RedirectResponse
+    {
+        if (File::exists($name)) {
+            File::delete($name);
+        }
+
+        $product = $this->product->find($id);
+        $imageArray = [];
+
+        foreach (json_decode($product['image'], true) as $img) {
+            if (strcmp($img, $name) != 0) {
+                $imageArray[] = $img;
+            }
+        }
+
+        $this->product->where(['id' => $id])->update([
+            'image' => json_encode($imageArray),
+        ]);
+        flash()->success(translate('Image removed successfully!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, $id): \Illuminate\Http\JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'category_id' => 'required',
+            'total_stock' => 'required|numeric|min:1',
+            'price' => 'required|numeric|min:0',
+        ], [
+            'name.required' => 'Product name is required!',
+            'category_id.required' => 'category  is required!',
+        ]);
+
+        if ($request['discount_type'] == 'percent') {
+            $discount = ($request['price'] / 100) * $request['discount'];
+        } else {
+            $discount = $request['discount'];
+        }
+
+        if ($request['price'] <= $discount) {
+            $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
+        }
+
+        $tags = [];
+        if ($request->tags != null) {
+            $tag = explode(",", str_replace(" ", "",$request->tags));
+        }
+        if(isset($tag)){
+            foreach ($tag as $key => $value) {
+                if($value != ""){
+                    $tags[] = $value;
+                }
+            }
+        }
+
+        $product = $this->product->find($id);
+
+        $images = json_decode($product->image);
+        if (!empty($request->file('images'))) {
+            foreach ($request->images as $img) {
+                $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
+                $images[] = $imageData;
+            }
+
+        }
+
+        if (!count($images)) {
+            $validator->getMessageBag()->add('images', 'Image can not be empty!');
+        }
+
+        // $category = [];
+        // if ($request->category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->category_id,
+        //         'position' => 1,
+        //     ];
+        // }
+        // if ($request->sub_category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->sub_category_id,
+        //         'position' => 2,
+        //     ];
+        // }
+        // if ($request->sub_sub_category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->sub_sub_category_id,
+        //         'position' => 3,
+        //     ];
+        // }
+        
+        $choiceOptions = [];
+        if ($request->has('choice')) {
+            foreach ($request->choice_no as $key => $no) {
+                $str = 'choice_options_' . $no;
+                if ($request[$str][0] == null) {
+                    $validator->getMessageBag()->add('name', 'Attribute choice option values can not be null!');
+                    return response()->json(['errors' => Helpers_error_processor($validator)]);
+                }
+                $item['name'] = 'choice_' . $no;
+                $item['title'] = $request->choice[$key];
+                $item['options'] = explode(',', implode('|', preg_replace('/\s+/', ' ', $request[$str])));
+                $choiceOptions[] = $item;
+            }
+        }
+
+        $variations = [];
+        $options = [];
+        if ($request->has('choice_no')) {
+            foreach ($request->choice_no as $key => $no) {
+                $name = 'choice_options_' . $no;
+                $my_str = implode('|', $request[$name]);
+                $options[] = explode(',', $my_str);
+            }
+        }
+       
+        $combinations = Helpers_combinations($options);
+        $stockCount = 0;
+        if (count($combinations[0]) > 0) {
+            foreach ($combinations as $key => $combination) {
+                $str = '';
+                foreach ($combination as $k => $item) {
+                    if ($k > 0) {
+                        $str .= '-' . str_replace(' ', '', $item);
+                    } else {
+                        $str .= str_replace(' ', '', $item);
+                    }
+                }
+                $item = [];
+                $item['type'] = $str;
+                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
+                $item['stock'] = abs($request['stock_' . str_replace('.', '_', $str)]);
+
+                if ($request['discount_type'] == 'amount' && $item['price'] <= $request['discount'] ){
+                    $validator->getMessageBag()->add('discount_mismatch', 'Discount can not be more or equal to the price. Please change variant '. $item['type'] .' price or change discount amount!');
+                }
+
+                $variations[] = $item;
+                $stockCount += $item['stock'];
+            }
+        } else {
+            $stockCount = (integer)$request['total_stock'];
+        }
+
+        if ((integer)$request['total_stock'] != $stockCount) {
+            $validator->getMessageBag()->add('total_stock', 'Stock calculation mismatch!');
+        }
+
+        if ($validator->getMessageBag()->count() > 0) {
+            return response()->json(['errors' => Helpers_error_processor($validator)]);
+        }
+
+        $product->name = $request->name;
+        $product->brand_name = json_encode($this->brand->find($request->brand));
+        if(isset($request->otherbrand) && !is_null($request->otherbrand))
+        {
+            $product->brandname_if_other = $request->otherbrand;
+        }
+        $product->category_id = $request->category_id;
+        $product->sub_category_id = $request->sub_category_id;
+        $product->description = $request->description;
+        $product->choice_options = json_encode($choiceOptions);
+        $product->variations = json_encode($variations);
+        $product->price = $request->price;
+        $product->unit = $request->unit;
+        $product->image = json_encode($images);
+        $product->tags = json_encode($tags);
+        $product->tax = $request->tax_type == 'amount' ? $request->tax : $request->tax;
+        $product->tax_type = $request->tax_type;
+        $product->discount = $request->discount_type == 'amount' ? $request->discount : $request->discount;
+        $product->discount_type = $request->discount_type;
+        $product->total_stock = $request->total_stock;
+        $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
+        $product->status = $request->status? $request->status:0;
+        $product->save();
+        
+        return response()->json([], 200);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -378,167 +590,7 @@ class ProductController extends Controller
         return response()->json([], 200);
     }
 
-    /**
-     * @param Request $request
-     * @param $id
-     * @return JsonResponse
-     */
-    public function update(Request $request, $id): \Illuminate\Http\JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'category_id' => 'required',
-            'total_stock' => 'required|numeric|min:1',
-            'price' => 'required|numeric|min:0',
-        ], [
-            'name.required' => 'Product name is required!',
-            'category_id.required' => 'category  is required!',
-        ]);
-
-        if ($request['discount_type'] == 'percent') {
-            $discount = ($request['price'] / 100) * $request['discount'];
-        } else {
-            $discount = $request['discount'];
-        }
-
-        if ($request['price'] <= $discount) {
-            $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
-        }
-
-        $tagIds = [];
-        if ($request->tags != null) {
-            $tags = explode(",", $request->tags);
-        }
-        if(isset($tags)){
-            foreach ($tags as $key => $value) {
-                $tag = $this->tag->firstOrNew(
-                    ['tag' => $value]
-                );
-                $tag->save();
-                $tagIds[] = $tag->id;
-            }
-        }
-
-        $product = $this->product->find($id);
-
-        $images = json_decode($product->image);
-        if (!empty($request->file('images'))) {
-            foreach ($request->images as $img) {
-                $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
-                $images[] = $imageData;
-            }
-
-        }
-
-        if (!count($images)) {
-            $validator->getMessageBag()->add('images', 'Image can not be empty!');
-        }
-
-        $product->name = $request->name[array_search('en', $request->lang)];
-
-        $category = [];
-        if ($request->category_id != null) {
-            $category[] = [
-                'id' => $request->category_id,
-                'position' => 1,
-            ];
-        }
-        if ($request->sub_category_id != null) {
-            $category[] = [
-                'id' => $request->sub_category_id,
-                'position' => 2,
-            ];
-        }
-        if ($request->sub_sub_category_id != null) {
-            $category[] = [
-                'id' => $request->sub_sub_category_id,
-                'position' => 3,
-            ];
-        }
-
-        $choiceOptions = [];
-        if ($request->has('choice')) {
-            foreach ($request->choice_no as $key => $no) {
-                $str = 'choice_options_' . $no;
-                if ($request[$str][0] == null) {
-                    $validator->getMessageBag()->add('name', 'Attribute choice option values can not be null!');
-                    return response()->json(['errors' => Helpers_error_processor($validator)]);
-                }
-                $item['name'] = 'choice_' . $no;
-                $item['title'] = $request->choice[$key];
-                $item['options'] = explode(',', implode('|', preg_replace('/\s+/', ' ', $request[$str])));
-                $choiceOptions[] = $item;
-            }
-        }
-
-        $variations = [];
-        $options = [];
-        if ($request->has('choice_no')) {
-            foreach ($request->choice_no as $key => $no) {
-                $name = 'choice_options_' . $no;
-                $my_str = implode('|', $request[$name]);
-                $options[] = explode(',', $my_str);
-            }
-        }
-
-        $combinations = Helpers_combinations($options);
-        $stockCount = 0;
-        if (count($combinations[0]) > 0) {
-            foreach ($combinations as $key => $combination) {
-                $str = '';
-                foreach ($combination as $k => $item) {
-                    if ($k > 0) {
-                        $str .= '-' . str_replace(' ', '', $item);
-                    } else {
-                        $str .= str_replace(' ', '', $item);
-                    }
-                }
-                $item = [];
-                $item['type'] = $str;
-                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
-                $item['stock'] = abs($request['stock_' . str_replace('.', '_', $str)]);
-
-                if ($request['discount_type'] == 'amount' && $item['price'] <= $request['discount'] ){
-                    $validator->getMessageBag()->add('discount_mismatch', 'Discount can not be more or equal to the price. Please change variant '. $item['type'] .' price or change discount amount!');
-                }
-
-                $variations[] = $item;
-                $stockCount += $item['stock'];
-            }
-        } else {
-            $stockCount = (integer)$request['total_stock'];
-        }
-
-        if ((integer)$request['total_stock'] != $stockCount) {
-            $validator->getMessageBag()->add('total_stock', 'Stock calculation mismatch!');
-        }
-
-        if ($validator->getMessageBag()->count() > 0) {
-            return response()->json(['errors' => Helpers_error_processor($validator)]);
-        }
-
-        $product->category_ids = json_encode($category);
-        $product->description = $request->description[array_search('en', $request->lang)];
-        $product->choice_options = json_encode($choiceOptions);
-        $product->variations = json_encode($variations);
-        $product->price = $request->price;
-        $product->capacity = $request->capacity;
-        $product->unit = $request->unit;
-        $product->maximum_order_quantity = $request->maximum_order_quantity;
-        $product->image = json_encode($images);
-        $product->tax = $request->tax_type == 'amount' ? $request->tax : $request->tax;
-        $product->tax_type = $request->tax_type;
-        $product->discount = $request->discount_type == 'amount' ? $request->discount : $request->discount;
-        $product->discount_type = $request->discount_type;
-        $product->distributed_amount = $request->distributed_amount;
-        $product->distributed_type = $request->distributed_type;
-        $product->total_stock = $request->total_stock;
-        $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
-        $product->status = $request->status? $request->status:0;
-        $product->save();
-        
-        return response()->json([], 200);
-    }
+    
 
     /**
      * @param Request $request
@@ -548,46 +600,22 @@ class ProductController extends Controller
     {
         $product = $this->product->find($request->id);
         foreach (json_decode($product['image'], true) as $img) {
-            if (Storage::disk('public')->exists('product/' . $img)) {
-                Storage::disk('public')->delete('product/' . $img);
+            if (File::exists($img)) {
+                File::delete($img);
             }
         }
 
-        $flashDealProducts = FlashDealProduct::where('product_id', $product->id)->get();
-        foreach ($flashDealProducts as $flashDealProduct) {
-            $flashDealProduct->delete();
+        
+        $product_reviews = ProductReview::where('product_id', $product->id)->get();
+        foreach ($product_reviews as $review) {
+            $review->delete();
         }
         $product->delete();
         flash()->success(translate('Product removed!'));
         return back();
     }
 
-    /**
-     * @param $id
-     * @param $name
-     * @return RedirectResponse
-     */
-    public function removeImage($id, $name): \Illuminate\Http\RedirectResponse
-    {
-        if (Storage::disk('public')->exists('product/' . $name)) {
-            Storage::disk('public')->delete('product/' . $name);
-        }
-
-        $product = $this->product->find($id);
-        $imageArray = [];
-
-        foreach (json_decode($product['image'], true) as $img) {
-            if (strcmp($img, $name) != 0) {
-                $imageArray[] = $img;
-            }
-        }
-
-        $this->product->where(['id' => $id])->update([
-            'image' => json_encode($imageArray),
-        ]);
-        flash()->success(translate('Image removed successfully!'));
-        return back();
-    }
+    
 
     /**
      * @return Factory|View|Application
@@ -802,5 +830,18 @@ class ProductController extends Controller
         $data->distributed_amount = $request->value;
         $data->save();
         return $request->value;
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function feature(Request $request): RedirectResponse
+    {
+        $product = $this->product->find($request->id);
+        $product->is_featured = $request->is_featured;
+        $product->save();
+        flash()->success(translate('product feature status updated!'));
+        return back();
     }
 }

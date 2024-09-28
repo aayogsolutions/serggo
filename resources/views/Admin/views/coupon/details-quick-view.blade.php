@@ -13,12 +13,12 @@
         <div class="coupon-info">
             <div class="coupon-info-item">
                 <span>{{translate('minimum_purchase')}} :</span>
-                <strong id="min_purchase">{{Helpers::set_symbol($coupon->min_purchase)}}</strong>
+                <strong id="min_purchase">{{Helpers_set_symbol($coupon->min_purchase)}}</strong>
             </div>
             @if($coupon->coupon_type != 'free_delivery' && $coupon->discount_type == 'percent')
             <div class="coupon-info-item">
                 <span>{{translate('maximum_discount')}} : </span>
-                <strong id="max_discount">{{Helpers::set_symbol($coupon->max_discount)}}</strong>
+                <strong id="max_discount">{{Helpers_set_symbol($coupon->max_discount)}}</strong>
             </div>
             @endif
             <div class="coupon-info-item">
@@ -34,11 +34,11 @@
     <div class="coupon__details-right">
         <div class="coupon">
             @if($coupon->coupon_type == 'free_delivery')
-                <img src="{{ asset('public/assets/admin/img/delivery/free-delivery.png') }}" alt="Free delivery" width="100">
+                <img src="{{ asset('assets/admin/img/delivery/free-delivery.png') }}" alt="Free delivery" width="100">
             @else
                 <div class="d-flex">
                     <h4 id="discount">
-                        {{$coupon->discount_type=='amount'?(Helpers::set_symbol($coupon->discount)):$coupon->discount.'%'}}
+                        {{$coupon->discount_type=='amount'?(Helpers_set_symbol($coupon->discount)):$coupon->discount.'%'}}
                     </h4>
                 </div>
 

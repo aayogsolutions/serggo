@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\user\BannerController;
+use App\Http\Controllers\Api\user\product\CartController;
+use App\Http\Controllers\Api\user\product\WishlistController;
 use App\Http\Controllers\Api\auth\{
     ApiAuthController
 };
 use App\Http\Controllers\Api\user\product\{
-    DashboardController
+    DashboardController,
+    ProductController
 };
 use App\Http\Controllers\Api\user\service\{
     DashboardController as ServiceDashboardController,
@@ -16,6 +19,7 @@ use App\Http\Controllers\Api\vender\{
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'auth'], function() {
+
     Route::post('/',[ApiAuthController::class, 'OTPRequest']);
     Route::get('/resendOtp/{number}',[ApiAuthController::class, 'resendOtp']);
     Route::post('/otpsubmit',[ApiAuthController::class, 'OTPSubmit']);
@@ -32,19 +36,29 @@ Route::group(['prefix' => 'banner'], function() {
 });
 
 Route::group(['prefix' => 'product'], function(){
+
     Route::get('/dashboard', [DashboardController::class,'Index']);
+    Route::get('/product_details', [ProductController::class,'Index']);
+    Route::post('/display_section_details', [ProductController::class,'display']);
 });
 
 Route::group(['prefix' => 'service'], function(){
+
     Route::get('/dashboard', [ServiceDashboardController::class,'Index']);
 });
 
 Route::group(['prefix' => 'vender'], function(){
+  
     Route::get('/dashboard', [VenderDashboardController::class,'Index']);
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
-    
+
+    Route::group(['prefix' => 'product'], function(){
+
+        Route::get('/cart', [CartController::class,'cart']);
+        Route::get('/wishlist', [WishlistController::class,'wishlist']);
+    });
 });
 
 

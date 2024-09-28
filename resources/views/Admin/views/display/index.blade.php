@@ -172,7 +172,7 @@
                             <label class="toggle-switch my-0">
                                 <input type="checkbox"
                                     class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $banner->id }}"
-                                    data-route="{{ route('admin.display.status', [$banner->id, $banner->status == 1 ? 0 : 1,$banner->ui_type,$banner->ui_type]) }}"
+                                    data-route="{{ route('admin.display.status', [$banner->id, $banner->status == 1 ? 0 : 1]) }}"
                                     data-message="{{ $banner->status? translate('you_want_to_disable_this_banner'): translate('you_want_to_active_this_banner') }}"
                                     {{ $banner->status == 0 ? 'checked' : '' }}>
                                 <span class="toggle-switch-label mx-auto text">

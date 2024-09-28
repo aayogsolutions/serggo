@@ -8,7 +8,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('/public/assets/admin/img/bulk.png')}}" class="w--20" alt="">
+                    <img src="{{asset('assets/admin/img/bulk.png')}}" class="w--20" alt="">
                 </span>
                 <span>
                     {{translate('Products Bulk Export')}}

@@ -114,7 +114,7 @@
                         <tr>
                             <td class="text-center">{{$categories->firstItem()+$key}}</td>
                             <td>
-                                <img src="{{ asset('Images/category').'/'.$category->image}}" class="img--50 ml-3"
+                                <img src="{{ asset($category->image)}}" class="img--50 ml-3"
                                     alt="{{ translate('category') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                             </td>
                             <td>

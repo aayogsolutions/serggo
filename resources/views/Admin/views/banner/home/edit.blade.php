@@ -63,13 +63,13 @@
                             <label class="m-auto">
                                 <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*,video/*" hidden>
                                 @if($banner->attechment_type == 'image')
-                                    <img id="viewer" class="initial-24" src="{{asset('Images/banners/').'/'.$banner->attechment}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'"/>
+                                    <img id="viewer" class="initial-24" src="{{asset($banner->attechment)}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'"/>
                                     <video class="initial-24" id="viewervideo" src="" style="display: none;" autoplay muted loop></video>
                                     <input type="hidden" name="width" id="videoWidth">
                                     <input type="hidden" name="height" id="videoHeight">
                                 @else
                                     <img class="initial-24" id="viewer" src="{{asset('assets/admin/img/upload-horizontal.jpg')}}" alt="{{ translate('banner image') }}" style="display: none;"/>
-                                    <video class="initial-24" id="viewervideo" src="{{asset('Images/banners/').'/'.$banner->attechment}}" autoplay muted loop></video>
+                                    <video class="initial-24" id="viewervideo" src="{{asset($banner->attechment)}}" autoplay muted loop></video>
                                     <input type="hidden" name="width" id="videoWidth">
                                     <input type="hidden" name="height" id="videoHeight">
                                 @endif

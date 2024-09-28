@@ -56,7 +56,7 @@ class EmployeeController extends Controller
             return back();
         }
         if ($request->has('image')) {
-            $imageName = Helpers_upload('Images/Employees', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+            $imageName = Helpers_upload('Images/Employees/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
         } else {
             $imageName = 'def.png';
         }
@@ -64,7 +64,7 @@ class EmployeeController extends Controller
         $identityImageNames = [];
         if (!empty($request->file('identity_image'))) {
             foreach ($request->identity_image as $img) {
-                $identityImage = Helpers_upload('Images/EmployeeIdentity', $img->getClientOriginalExtension(), $img);
+                $identityImage = Helpers_upload('Images/EmployeeIdentity/', $img->getClientOriginalExtension(), $img);
                 $identityImageNames[] = $identityImage;
             }
             $identityImage = json_encode($identityImageNames);
@@ -173,8 +173,8 @@ class EmployeeController extends Controller
 
         if ($request->has('identity_image')){
             foreach (json_decode($employee['identity_image'], true) as $img) {
-                if (File::exists('Images/EmployeeIdentity/'.$img)) {
-                    File::delete('Images/EmployeeIdentity/'.$img);
+                if (File::exists($img)) {
+                    File::delete($img);
                 }
             }
             $imgKeeper = [];

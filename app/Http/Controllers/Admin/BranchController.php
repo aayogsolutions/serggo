@@ -94,7 +94,7 @@ class BranchController extends Controller
         ]);
 
         if (!empty($request->file('image'))) {
-            $imageName = Helpers_upload('branch/', 'png', $request->file('image'));
+            $imageName = Helpers_upload('Images/branch/', 'png', $request->file('image'));
         } else {
             $imageName = 'def.png';
         }
@@ -114,9 +114,9 @@ class BranchController extends Controller
 
         try {
             $emailServices = Helpers_get_business_settings('mail_config');
-            if (isset($emailServices['status']) && $emailServices['status'] == 1) {
-                Mail::to($branch->email)->send(new \App\Mail\Branch\BranchRegistration($branch, $request->password));
-            }
+            // if (isset($emailServices['status']) && $emailServices['status'] == 1) {
+            //     Mail::to($branch->email)->send(new \App\Mail\Branch\BranchRegistration($branch, $request->password));
+            // }
         } catch (\Exception $e) {
         }
 
@@ -160,7 +160,7 @@ class BranchController extends Controller
         $branch->latitude = $request->latitude;
         $branch->coverage = $request->coverage ? $request->coverage : 0;
         $branch->address = $request->address;
-        $branch->image = $request->has('image') ? Helpers_update('branch/', $branch->image, 'png', $request->file('image')) : $branch->image;
+        $branch->image = $request->has('image') ? Helpers_update('Images/branch/', $branch->image, 'png', $request->file('image')) : $branch->image;
         if ($request['password'] != null) {
             $branch->password = bcrypt($request->password);
         }
@@ -182,9 +182,9 @@ class BranchController extends Controller
 
             try {
                 $emailServices = Helpers_get_business_settings('mail_config');
-                if (isset($emailServices['status']) && $emailServices['status'] == 1) {
-                    Mail::to($branch->email)->send(new \App\Mail\Branch\BranchDelete($branch));
-                }
+                // if (isset($emailServices['status']) && $emailServices['status'] == 1) {
+                //     Mail::to($branch->email)->send(new \App\Mail\Branch\BranchDelete($branch));
+                // }
             } catch (\Exception $e) {
             }
 
@@ -207,9 +207,9 @@ class BranchController extends Controller
 
         try {
             $emailServices = Helpers_get_business_settings('mail_config');
-            if (isset($emailServices['status']) && $emailServices['status'] == 1) {
-                Mail::to($branch->email)->send(new \App\Mail\Branch\BranchChangeStatus($branch));
-            }
+            // if (isset($emailServices['status']) && $emailServices['status'] == 1) {
+            //     Mail::to($branch->email)->send(new \App\Mail\Branch\BranchChangeStatus($branch));
+            // }
         } catch (\Exception $e) {
         }
         flash()->success(translate('Branch status updated!'));

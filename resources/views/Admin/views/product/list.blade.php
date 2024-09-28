@@ -77,7 +77,6 @@
                                 <th>{{translate('product_name')}}</th>
                                 <th>{{translate('selling_price')}}</th>
                                 <th class="text-center">{{translate('total_sale')}}</th>
-                                <th class="text-center">{{translate('featured')}}</th>
                                 <th class="text-center">{{translate('status')}}</th>
                                 <th class="text-center">{{translate('action')}}</th>
                             </tr>
@@ -92,7 +91,7 @@
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <a href="{{route('admin.product.view',[$product['id']])}}" class="product-list-media">
                                         @if (!empty(json_decode($product['image'],true)))
-                                        <img src="{{ asset('Images/productimages').'/'.json_decode($product->image)[0]}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                        <img src="{{ asset(json_decode($product->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         @else
                                         <img src="{{asset('assets/admin/img/400x400/img2.jpg')}}">
                                         @endif
@@ -108,17 +107,6 @@
                                 </td>
                                 <td class="text-center">
                                     {{ $product->total_sold }}
-                                </td>
-                                <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
-                                    <label class="toggle-switch my-0">
-                                        <input type="checkbox"
-                                            onclick="featured_status_change_alert('{{ route('admin.product.feature', [$product->id, $product->is_featured == 1 ? 0 : 1]) }}', '{{ $product->is_featured? translate('want to remove from featured product'): translate('want to add in featured product') }}', event)"
-                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}"
-                                            {{ $product->is_featured == 0 ? 'checked' : '' }}>
-                                        <span class="toggle-switch-label mx-auto text">
-                                            <span class="toggle-switch-indicator"></span>
-                                        </span>
-                                    </label>
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <label class="toggle-switch my-0">

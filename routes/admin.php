@@ -15,7 +15,10 @@ use App\Http\Controllers\Admin\{
     BrandsController,
     DisplayController,
     TagController,
-    BranchController
+    BranchController,
+    DiscountController,
+    CouponController,
+    NotificationController,
 };
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -27,12 +30,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::get('/logout', [AdminController::class,'logout'])->name('auth.logout');
     
         Route::get('/test', [AdminController::class,'test'])->name('test');
-
-        Route::get('terms-and-conditions', [BusinessSetting::class, 'termsAndConditions'])->name('terms-and-conditions');
-        Route::post('terms-and-conditions', [BusinessSetting::class, 'termsAndConditionsUpdate']);
-
-        Route::get('privacy-policy', [BusinessSetting::class, 'privacyPolicy'])->name('privacy-policy');
-        Route::post('privacy-policy', [BusinessSetting::class, 'privacyPolicyUpdate']);
 
         Route::get('settings', [SystemController::class, 'settings'])->name('settings');
         Route::post('settings', [SystemController::class, 'settingsUpdate'])->name('UpdateSettings');
@@ -93,7 +90,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::post('store', [BannersController::class, 'HomeSliderStore'])->name('store');
                 Route::get('edit/{id}', [BannersController::class, 'HomeSliderEdit'])->name('edit');
                 Route::post('update/{id}', [BannersController::class, 'HomeSliderUpdate'])->name('update');
-                Route::get('status/{id}/{status}/{type}', [BannersController::class, 'HomeSliderStatus'])->name('status');
+                Route::get('status/{id}/{status}', [BannersController::class, 'HomeSliderStatus'])->name('status');
                 Route::delete('delete/{id}', [BannersController::class, 'HomeSliderDelete'])->name('delete');
                 Route::get('priority', [BannersController::class, 'HomeSliderPriority'])->name('priority');
             });
@@ -101,23 +98,67 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
         Route::group(['prefix' => 'display', 'as' => 'display.'], function () {
             
-            Route::get('add', [DisplayController::class, 'Index'])->name('add');
-            Route::post('store', [DisplayController::class, 'Store'])->name('store');
-            Route::get('status/{id}/{status}/{type}/{section_type}', [DisplayController::class, 'Status'])->name('status');
-            Route::get('edit/{id}', [DisplayController::class, 'Edit'])->name('edit');
-            Route::post('add-content/{id}', [DisplayController::class, 'AddContent'])->name('add.content');
+            Route::group(['prefix' => 'section'], function () {
+                Route::get('add', [DisplayController::class, 'Index'])->name('add');
+                Route::post('store', [DisplayController::class, 'Store'])->name('store');
+                Route::get('status/{id}/{status}', [DisplayController::class, 'Status'])->name('status');
+                Route::get('edit/{id}', [DisplayController::class, 'Edit'])->name('edit');
+                Route::post('add-content/{id}', [DisplayController::class, 'AddContent'])->name('add.content');
+    
+                Route::post('section-detail', [DisplayController::class, 'DetailSection'])->name('detail.section');
+                Route::post('section-item', [DisplayController::class, 'DetailItem'])->name('detail.item');
+                Route::post('update-section', [DisplayController::class, 'UpdateSection'])->name('update.section');
+                Route::post('update-item', [DisplayController::class, 'UpdateItem'])->name('update.item');
+                Route::get('priority', [DisplayController::class, 'Priority'])->name('priority');
+                Route::get('sectionpriority', [DisplayController::class, 'SectionPriority'])->name('section.priority');
+    
+                Route::delete('delete/{id}', [DisplayController::class, 'DeleteSection'])->name('delete');
+                Route::delete('delete-content/{id}', [DisplayController::class, 'DeleteContent'])->name('delete.content');
+                
+            });      
 
+            Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
 
-            Route::post('section-detail', [DisplayController::class, 'DetailSection'])->name('detail.section');
-            Route::post('section-item', [DisplayController::class, 'DetailItem'])->name('detail.item');
-            Route::post('update-section', [DisplayController::class, 'UpdateSection'])->name('update.section');
-            Route::post('update-item', [DisplayController::class, 'UpdateItem'])->name('update.item');
-            Route::get('priority', [DisplayController::class, 'Priority'])->name('priority');
-            Route::get('sectionpriority', [DisplayController::class, 'SectionPriority'])->name('section.priority');
+                Route::get('add', [DisplayController::class, 'CategoryIndex'])->name('add');
+                Route::post('store', [DisplayController::class, 'CategoryStore'])->name('store');
+                Route::get('edit/{id}', [DisplayController::class, 'CategoryEdit'])->name('edit');
+                Route::post('update/{id}', [DisplayController::class, 'CategoryUpdate'])->name('update');
+                Route::get('status/{id}/{status}/{type}', [DisplayController::class, 'CategoryStatus'])->name('status');
+                Route::delete('delete/{id}', [DisplayController::class, 'CategoryDelete'])->name('delete');
+                Route::get('priority', [DisplayController::class, 'CategoryPriority'])->name('priority');
+    
+            });
 
+        });
 
-            Route::delete('delete/{id}', [DisplayController::class, 'DeleteSection'])->name('delete');
-            Route::delete('delete-content/{id}', [DisplayController::class, 'DeleteContent'])->name('delete.content');
+        Route::group(['prefix' => 'coupon', 'as' => 'coupon.'], function () {
+            Route::get('add-new', [CouponController::class, 'index'])->name('add-new');
+            Route::post('store', [CouponController::class, 'store'])->name('store');
+            Route::get('update/{id}', [CouponController::class, 'edit'])->name('update');
+            Route::post('update/{id}', [CouponController::class, 'update']);
+            Route::get('status/{id}/{status}', [CouponController::class, 'status'])->name('status');
+            Route::delete('delete/{id}', [CouponController::class, 'delete'])->name('delete');
+            Route::get('quick-view-details', [CouponController::class, 'details'])->name('quick-view-details');
+
+        });
+
+        Route::group(['prefix' => 'notification', 'as' => 'notification.'], function () {
+            Route::get('add-new', [NotificationController::class, 'index'])->name('add-new');
+            Route::post('store', [NotificationController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [NotificationController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [NotificationController::class, 'update'])->name('update');
+            Route::get('status/{id}/{status}', [NotificationController::class, 'status'])->name('status');
+            Route::delete('delete/{id}', [NotificationController::class, 'delete'])->name('delete');
+        });
+
+        Route::group(['prefix' => 'discount', 'as' => 'discount.'], function () {
+            Route::get('add-new', [DiscountController::class, 'index'])->name('add-new');
+            Route::post('store', [DiscountController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [DiscountController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [DiscountController::class, 'update'])->name('update');
+            Route::get('list', [DiscountController::class, 'list'])->name('list');
+            Route::get('status/{id}/{status}', [DiscountController::class, 'status'])->name('status');
+            Route::delete('delete/{id}', [DiscountController::class, 'delete'])->name('delete');
         });
 
         Route::group(['prefix' => 'attribute', 'as' => 'attribute.'], function () {
@@ -144,15 +185,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('add-new', [ProductController::class, 'index'])->name('add-new');
             Route::get('get-categories', [ProductController::class, 'getCategories'])->name('get-categories');
             Route::post('variant-combination', [ProductController::class, 'variantCombination'])->name('variant-combination');
+            Route::get('get-variations', [ProductController::class, 'getVariations'])->name('get-variations');
             Route::post('store', [ProductController::class, 'store'])->name('store');
             Route::get('view/{id}', [ProductController::class, 'view'])->name('view');
             Route::get('status/{id}/{status}', [ProductController::class, 'status'])->name('status');
-            Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');
             Route::get('edit/{id}', [ProductController::class, 'edit'])->name('edit');
 
             Route::post('update/{id}', [ProductController::class, 'update'])->name('update');
             Route::delete('delete/{id}', [ProductController::class, 'delete'])->name('delete');
             
+
             Route::get('bulk-import', [ProductController::class, 'bulkImportIndex'])->name('bulk-import');
             Route::post('bulk-import', [ProductController::class, 'bulkImportProduct']);
             Route::get('bulk-export-index', [ProductController::class, 'bulkExportIndex'])->name('bulk-export-index');
@@ -160,7 +202,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('remove-image/{id}/{name}', [ProductController::class, 'removeImage'])->name('remove-image');
             Route::post('daily-needs', [ProductController::class, 'dailyNeeds'])->name('daily-needs');
             Route::get('limited-stock', [ProductController::class, 'limitedStock'])->name('limited-stock');
-            Route::get('get-variations', [ProductController::class, 'getVariations'])->name('get-variations');
+            Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');
             Route::post('update-quantity', [ProductController::class, 'updateQuantity'])->name('update-quantity');
             
 

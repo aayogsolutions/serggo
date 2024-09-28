@@ -1,30 +1,25 @@
 <?php
+use App\Models\Products;
+use App\Models\CategoryDiscount;
+use App\Models\ProductReview;
 
 if(! function_exists('product_data_formatting')) {
-    function product_data_formatting($data, $multi_data = false)
+    function product_data_formatting($data, $multi_data = false, $reviews = false)
     {
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
+
                 $variations = [];
                 $item->brand_name = json_decode($item->brand_name);
-                $item->category_ids = json_decode($item->category_ids);
                 $item->image = json_decode($item->image);
                 $item->attributes = json_decode($item->attributes);
                 $item->choice_options = json_decode($item->choice_options);
                 $item->tags = json_decode($item->tags);
-                $categories = gettype($item->category_ids) == 'array' ? $item->category_ids : json_decode($item->category_ids);
-                // if(!is_null($categories) && count($categories) > 0) {
-                //     $ids = [];
-                //     foreach ($categories as $value) {
-                //         if ($value->position == 1) {
-                //             $ids[] = $value->id;
-                //         }
-                //     }
-                //     $item['category_discount']= CategoryDiscount::active()->where('category_id', $ids)->first();
-                // } else {
-                //     $item['category_discount'] = [];
-                // }
+                if(isset($item->category_id))
+                {
+                    $item->category_discount = CategoryDiscount::Active()->where('category_id', $item->category_id)->first();
+                }
 
                 foreach (json_decode($item->variations, true) as $var) {
                     $variations[] = [
@@ -33,41 +28,67 @@ if(! function_exists('product_data_formatting')) {
                         'stock' => isset($var->stock) ? (integer)$var->stock : (integer)0,
                     ];
                 }
+
+                if($reviews)
+                {
+                    $views = ProductReview::StatusStatic()->where('product_id',$data->id)->get();
+
+                    $item->reviewsCount = $views->count();
+                    $item->reviewsAverage = $views->avg('rating');
+
+                    foreach ($views as $key => $value) {
+                        $value->attachment = gettype($value->attachment) == 'array' ? $value->attachment : json_decode($value->attachment);
+                    }
+
+                    $item->reviews = $views;
+                }else{
+                    $views = ProductReview::StatusStatic()->where('product_id',$data->id)->get();
+
+                    $item->reviewsCount = $views->count();
+                    $item->reviewsAverage = $views->avg('rating');
+                }
+
                 $item->variations = $variations;
 
                 array_push($storage, $item);
             }
             $data = $storage;
         } else {
-            
+
             $variations = [];
             
             $data->brand_name = gettype($data->brand_name) == 'array' ? $data->brand_name : json_decode($data->brand_name);
-            $data->category_ids = gettype($data->category_ids) == 'array' ? $data->category_ids : json_decode($data->category_ids);
             $data->image =  gettype($data->image) == 'array' ? $data->image : json_decode($data->image);
             $data->attributes = gettype($data->attributes) == 'array' ? $data->attributes : json_decode($data->attributes);
             $data->choice_options = gettype($data->choice_options) == 'array' ? $data->choice_options : json_decode($data->choice_options);
             $data->tags = gettype($data->tags) == 'array' ? $data->tags : json_decode($data->tags);
 
-            
-            $categories = gettype($data->category_ids) == 'array' ? $data->category_ids : json_decode($data->category_ids, true);
+            if(isset($data->category_id))
+            {
+                $data['category_discount'] = CategoryDiscount::Active()->where('category_id', $data->category_id)->first();
+            }
 
-            // if(!is_null($categories) && count($categories) > 0) {
-            //     $ids = [];
-            //     foreach ($categories as $value) {
-            //         $value = (array)$value;
-            //         if ($value['position'] == 1) {
-            //             $ids[] = $value['id'];
-            //         }
-            //     }
-            //     $data['category_discount']= CategoryDiscount::active()->where('category_id', $ids)->first();
-            // } else {
-            //     $data['category_discount'] = [];
-            // }
+            if($reviews)
+            {
+                $views = ProductReview::StatusStatic()->where('product_id',$data->id)->get();
+
+                $data->reviewsCount = $views->count();
+                $data->reviewsAverage = $views->avg('rating');
+
+                foreach ($views as $key => $value) {
+                    $value->attachment = gettype($value->attachment) == 'array' ? $value->attachment : json_decode($value->attachment);
+                }
+
+                $data->reviews = $views;
+            }else{
+                $views = ProductReview::StatusStatic()->where('product_id',$data->id)->get();
+
+                $data->reviewsCount = $views->count();
+                $data->reviewsAverage = $views->avg('rating');
+            }
 
             $data->variations = gettype($data->variations) == 'array' ? $data->variations : json_decode($data->variations);
         }
-
         return $data;
     }
 }

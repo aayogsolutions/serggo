@@ -163,7 +163,7 @@
                             </td>
                             <td>
                                 <div class="image-section">
-                                    <img class="upload--vertical--preview" src="{{ asset('Images/banners').'/'.$banner->attechment }}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-horizontal.jpg')}}'">
+                                    <img class="upload--vertical--preview" src="{{ asset($banner->attechment )}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/upload-vertical.png')}}'">
                                 </div>
                             </td>
                             <td>
@@ -183,7 +183,7 @@
                                 <label class="toggle-switch my-0">
                                     <input type="checkbox"
                                         class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $banner->id }}"
-                                        data-route="{{ route('admin.banners.homeslider.status', [$banner->id, $banner->status == 1 ? 0 : 1,$banner->ui_type]) }}"
+                                        data-route="{{ route('admin.banners.homeslider.status', [$banner->id, $banner->status == 1 ? 0 : 1]) }}"
                                         data-message="{{ $banner->status? translate('you_want_to_disable_this_banner'): translate('you_want_to_active_this_banner') }}"
                                         {{ $banner->status == 0 ? 'checked' : '' }}>
                                     <span class="toggle-switch-label mx-auto text">

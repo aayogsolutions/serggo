@@ -9,6 +9,7 @@ use App\Models\{
     DisplaySection,
     DisplaySectionContent,
     Products,
+    DisplayCategory,
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
@@ -21,7 +22,8 @@ class DisplayController extends Controller
         private DisplaySection $displaysection,
         private DisplaySectionContent $displaysectioncontent,
         private Products $product,
-        private Category $category
+        private Category $category,
+        private DisplayCategory $displaycategorys
     ) {}
 
     /**
@@ -104,18 +106,6 @@ class DisplayController extends Controller
      */
     public function Status(Request $request): RedirectResponse
     {
-        $allbanner = $this->displaysection->where([
-            ['id','!=',$request->id],
-            ['ui_type','=',$request->type],
-            ['section_type','=',$request->section_type],
-        ])->get();
-
-        foreach ($allbanner as $key => $value) {
-            $banner = $this->displaysection->find($value->id);
-            $banner->status = 1;
-            $banner->save();
-        }
-
         $banner = $this->displaysection->find($request->id);
         $banner->status = $request->status;
         $banner->save();
@@ -425,6 +415,204 @@ class DisplayController extends Controller
         $category->save();
 
         flash()->success(translate('priority updated!'));
+        return back();
+    }
+
+
+    
+    // start display category section 
+
+     /**
+     * @param Request $request
+     * @return Factory|View|Application
+     */
+    function CategoryIndex(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $category_banners = $this->displaycategorys->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('title', 'like', "%{$value}%");
+                    // $q->orWhere('ui_type', 'like', "%{$value}%");
+                }
+            })->orderBy('priority', 'asc');
+            $queryParam = ['search' => $request['search']];
+        } else {
+            $category_banners = $this->displaycategorys->orderBy('priority', 'asc');
+        }
+        $category_banners = $category_banners->paginate(Helpers_getPagination())->appends($queryParam);
+        
+        $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
+        return view('Admin.views.display.category.index', compact('category_banners', 'categories', 'search'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function CategoryStore(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|max:255',
+            'image' => 'required|image',
+            // 'type' => 'required',
+            // 'item_type' => 'required',
+        ], [
+            'title.required' => translate('Title is required'),
+            'image.required' => translate('Image is required'),
+            // 'type.required' => translate('Type is required'),
+            // 'item_type.required' => translate('Item Type is required'),
+        ]);
+        
+        $file_size = getimagesize($request->file('image'));
+        // Width Check                 Height Check
+        if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+            $category = $this->displaycategorys;
+            $category->title = $request->title;
+            $cate_id = $this->category->find($request->category_id);
+            $category->category_id = $request->category_id;
+            $category->category_detail = $cate_id;
+
+            // $banner->ui_type = $request->type;
+            // $banner->item_type = $request->item_type;
+            // if($request->item_type == 'product')
+            // {
+            //     $data = $this->product->find($request->product_id);
+            //     $banner->item_id = $request->product_id;
+            //     $banner->item_detail = $data;
+            // }else{
+            //     $data = $this->category->find($request->category_id);
+            //     $banner->item_id = $request->category_id;
+            //     $banner->item_detail = $data;
+            // }
+            $category->attechment = Helpers_upload('Images/banners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+            $category->save();
+            flash()->success(translate('category added successfully!'));
+            return back();
+        }
+        flash()->error(translate('Image size is wrong.!'));
+        return back();
+    }
+
+    /**
+     * @param $id
+     * @return Factory|View|Application
+     */
+    public function CategoryEdit($id): View|Factory|Application
+    {
+        $banner = $this->displaycategorys->find($id);
+
+        $products = $this->product->status()->orderBy('name')->get();
+        $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
+        
+        return view('Admin.views.display.category.edit', compact('banner','categories','products'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function CategoryStatus(Request $request): RedirectResponse
+    {
+        $banner = $this->displaycategorys->find($request->id);
+        $banner->status = $request->status;
+        $banner->save();
+
+        flash()->success(translate('display Category status updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function CategoryUpdate(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|max:255',
+            // 'type' => 'required',
+        ], [
+            'title.required' => translate('Title is required'),
+            // 'type.required' => translate('UI Type is required'),
+        ]);
+
+        if($request->has('image'))
+        {
+            $file_size = getimagesize($request->file('image'));
+            // Width Check              Height Check
+            if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+                $banner = $this->displaycategorys->find($id);
+                $banner->title = $request->title;
+                // $banner->ui_type = $request->type;
+                // $banner->item_type = $request->item_type;
+                // if($request->item_type == 'product')
+                // {
+                //     $data = $this->product->find($request->product_id);
+                //     $banner->item_id = $request->product_id;
+                //     $banner->item_detail = $data;
+                // }else{
+                //     $data = $this->category->find($request->category_id);
+                //     $banner->item_id = $request->category_id;
+                //     $banner->item_detail = $data;
+                // }
+                $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $banner->save();
+                flash()->success(translate('dispaly category updated successfully!'));
+                return redirect()->route('admin.display.category.add');
+            }
+            flash()->error(translate('Image size is wrong.!'));
+            return back();
+        }else{
+            $banner = $this->displaycategorys->find($id);
+            $banner->title = $request->title;
+            // $banner->ui_type = $request->type;
+            // $banner->item_type = $request->item_type;
+            // if($request->item_type == 'product')
+            // {
+            //     $data = $this->product->find($request->product_id);
+            //     $banner->item_id = $request->product_id;
+            //     $banner->item_detail = $data;
+            // }else{
+            //     $data = $this->category->find($request->category_id);
+            //     $banner->item_id = $request->category_id;
+            //     $banner->item_detail = $data;
+            // }
+            $banner->save();
+            flash()->success(translate('Display Category updated successfully!'));
+            return redirect()->route('admin.display.category.add');
+        }
+        
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function CategoryPriority(Request $request): RedirectResponse
+    {
+        $banner = $this->displaycategorys->find($request->id);
+        $banner->priority = $request->priority;
+        $banner->save();
+
+        flash()->success(translate('priority updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function CategoryDelete(Request $request): RedirectResponse
+    {
+        $banner = $this->displaycategorys->find($request->id);
+        if (File::exists($banner->attechment)) {
+            File::delete($banner->attechment);
+        }
+        $banner->delete();
+        flash()->success(translate('display category removed!'));
         return back();
     }
 }

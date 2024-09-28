@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Update Category Discount'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/coupon.png')}}" class="w--20" alt="{{ translate('discount') }}">
+                    <img src="{{asset('assets/admin/img/coupon.png')}}" class="w--20" alt="{{ translate('discount') }}">
                 </span>
                 <span>
                     {{translate('discount update')}}
@@ -98,7 +98,7 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('public/assets/admin/js/discount.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/discount.js') }}"></script>
     <script>
         let selected_type = $("#discount_type").val();
         $(document).ready(function() {

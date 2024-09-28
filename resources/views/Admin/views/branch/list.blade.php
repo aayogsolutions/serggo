@@ -63,7 +63,7 @@
                                     <td>{{$branches->firstItem()+$key}}</td>
                                     <td>
                                         <div class="short-media">
-                                            <img src="{{$branch->imageFullPath}}"  onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg') }}'">
+                                            <img src="{{asset($branch->image)}}"  onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg') }}'">
                                             <div class="text-cont">
                                                 <span class="d-block font-size-sm text-body text-trim-50">
                                                     {{$branch['name']}}
