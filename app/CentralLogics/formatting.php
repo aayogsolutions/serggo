@@ -9,7 +9,7 @@ if(! function_exists('product_data_formatting')) {
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
-
+                
                 $variations = [];
                 $item->brand_name = json_decode($item->brand_name);
                 $item->image = json_decode($item->image);
@@ -56,7 +56,7 @@ if(! function_exists('product_data_formatting')) {
         } else {
 
             $variations = [];
-            
+
             $data->brand_name = gettype($data->brand_name) == 'array' ? $data->brand_name : json_decode($data->brand_name);
             $data->image =  gettype($data->image) == 'array' ? $data->image : json_decode($data->image);
             $data->attributes = gettype($data->attributes) == 'array' ? $data->attributes : json_decode($data->attributes);
@@ -65,7 +65,7 @@ if(! function_exists('product_data_formatting')) {
 
             if(isset($data->category_id))
             {
-                $data['category_discount'] = CategoryDiscount::Active()->where('category_id', $data->category_id)->first();
+                $data->category_discount = CategoryDiscount::Active()->where('category_id', $data->category_id)->first();
             }
 
             if($reviews)

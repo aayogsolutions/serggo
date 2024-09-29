@@ -309,41 +309,39 @@ $(document).ready(function() {
     $('.summernote').summernote({
         height: 200,
     });
-});
-</script>
 
-<script>
-$('#product_form').on('submit', function() {
-    var formData = new FormData(this);
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.post({
-        url: "{{route('admin.product.store')}}",
-        data: formData,
-        cache: false,
-        contentType: false,
-        processData: false,
-        success: function(data) {
-            if (data.errors) {
-                for (var i = 0; i < data.errors.length; i++) {
-                    toastr.error(data.errors[i].message, {
+    $('#product_form').on('submit', function() {
+        var formData = new FormData(this);
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.post({
+            url: "{{route('admin.product.store')}}",
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                if (data.errors) {
+                    for (var i = 0; i < data.errors.length; i++) {
+                        toastr.error(data.errors[i].message, {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                    }
+                } else {
+                    toastr.success('{{ translate("product uploaded successfully!") }}', {
                         CloseButton: true,
                         ProgressBar: true
                     });
+                    setTimeout(function() {
+                        location.href = "{{route('admin.product.list')}}";
+                    }, 2000);
                 }
-            } else {
-                toastr.success('{{ translate("product uploaded successfully!") }}', {
-                    CloseButton: true,
-                    ProgressBar: true
-                });
-                setTimeout(function() {
-                    location.href = "{{route('admin.product.list')}}";
-                }, 2000);
             }
-        }
+        });
     });
 });
 </script>

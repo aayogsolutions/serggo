@@ -97,17 +97,6 @@ class ProductController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
-        $imageNames = [];
-        if (!empty($request->file('images'))) {
-            foreach ($request->images as $img) {
-                $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
-                $imageNames[] = $imageData;
-            }
-            $imageData = json_encode($imageNames);
-        } else {
-            $imageData = json_encode([]);
-        }
-        dd($imageData,$imageNames,json_decode($imageData));
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'category_id' => 'required',
