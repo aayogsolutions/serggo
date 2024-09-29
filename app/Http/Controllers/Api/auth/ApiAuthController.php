@@ -143,7 +143,7 @@ class ApiAuthController extends Controller
                             'data' => [
                                 'user' => $user
                             ],
-                        ], 203);
+                        ],203);
                     } else {
                         if ($user->number == $request->number && $user->is_block == 0) {
                             $user->number_verify = 1;
@@ -157,7 +157,7 @@ class ApiAuthController extends Controller
                                     'token' => $token,
                                     'user' => $user
                                 ],
-                            ], 200);
+                            ], 202);
                         } else {
                             return response()->json([
                                 'status' => false,
@@ -239,7 +239,7 @@ class ApiAuthController extends Controller
                             'number' => $request->number,
                             'otp' => $otp,
                         ],
-                    ], 202);
+                    ], 203);
                 }else{
                     $token = $user->createToken($user->name)->plainTextToken;
 
@@ -250,7 +250,7 @@ class ApiAuthController extends Controller
                             'token' => $token,
                             'user' => $user
                         ],
-                    ], 201);
+                    ], 202);
                 }
                 
             }elseif (User::where('provider_id', $request->id)->exists()) {
@@ -281,7 +281,7 @@ class ApiAuthController extends Controller
                         'number' => $request->number,
                         'otp' => $otp,
                     ],
-                ], 202);
+                ], 203);
             }
             
         } catch (\Throwable $th) {
@@ -332,7 +332,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } elseif (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 0) {
 
                     $otp = rand(1000, 9999);
@@ -351,7 +351,7 @@ class ApiAuthController extends Controller
                             'otp' => $otp,
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 1) {
                     return response()->json([
                         'status' => true,
@@ -360,7 +360,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } else {
                     $user = new User();
                     $user->name = $request->name;
@@ -384,7 +384,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $user
                         ],
-                    ], 202);
+                    ], 203);
                 }
             } elseif ($provider == 'facebook') {
 
@@ -408,7 +408,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } elseif (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 0) {
 
                     $otp = rand(1000, 9999);
@@ -427,7 +427,7 @@ class ApiAuthController extends Controller
                             'otp' => $otp,
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 1) {
                     return response()->json([
                         'status' => true,
@@ -436,7 +436,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } else {
                     $user = new User();
                     $user->name = $request->name;
@@ -460,7 +460,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $user
                         ],
-                    ], 202);
+                    ], 201);
                 }
             } elseif ($provider == 'apple') {
 
@@ -485,7 +485,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } elseif (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 0) {
 
                     $otp = rand(1000, 9999);
@@ -504,7 +504,7 @@ class ApiAuthController extends Controller
                             'otp' => $otp,
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } elseif (!is_null($userdata) && $userdata->registration == 0 && $userdata->number_verify == 1) {
                     return response()->json([
                         'status' => true,
@@ -513,7 +513,7 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $userdata
                         ],
-                    ], 202);
+                    ], 203);
                 } else {
                     $user = new User();
                     $user->provider_id = $request->id;
@@ -533,11 +533,13 @@ class ApiAuthController extends Controller
                         'data' => [
                             'user' => $user
                         ],
-                    ], 202);
+                    ], 201);
                 }
             }
         } catch (ClientException $exception) {
-            return response()->json(['error' => 'Invalid credentials provided.'], 422);
+            return response()->json(
+                ['error' => 'Invalid credentials provided.'
+            ], 422);
         }
     }
 
@@ -548,7 +550,9 @@ class ApiAuthController extends Controller
     protected function validateProvider($provider)
     {
         if (!in_array($provider, ['facebook', 'apple', 'google'])) {
-            return response()->json(['error' => 'Please login using facebook, apple or google'], 422);
+            return response()->json(
+                ['error' => 'Please login using facebook, apple or google'
+            ], 422);
         }
     }
 }

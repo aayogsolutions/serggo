@@ -1,5 +1,10 @@
 <?php
-use App\Models\{User,BusinessSetting,ProductReview};
+use App\Models\{
+    User,
+    BusinessSetting,
+    ProductReview,
+    CategoryDiscount
+};
 use Illuminate\Support\Facades\File;
 
 if(! function_exists('Helpers_get_business_settings')) {
@@ -163,30 +168,6 @@ if(! function_exists('Helpers_rating_count')) {
     }
 }
 
-if(! function_exists('Helpers_tax_calculate')) {
-    function Helpers_tax_calculate($product, $price)
-    {
-        if ($product['tax_type'] == 'percent') {
-            $price_tax = ($price / 100) * $product['tax'];
-        } else {
-            $price_tax = $product['tax'];
-        }
-        return $price_tax;
-    }
-}
-
-if(! function_exists('Helpers_discount_calculate')) {
-    function Helpers_discount_calculate($product, $price)
-    {
-        if ($product['discount_type'] == 'percent') {
-            $price_discount = ($price / 100) * $product['discount'];
-        } else {
-            $price_discount = $product['discount'];
-        }
-        return Helpers_set_price($price_discount);
-    }
-}
-
 if(! function_exists('Helpers_set_price')) {
     function Helpers_set_price($amount)
     {
@@ -195,68 +176,131 @@ if(! function_exists('Helpers_set_price')) {
 
         return $amount;
     }
-
 }
 
 if(! function_exists('Helpers_send_push_notif_to_topic')) {
     function Helpers_send_push_notif_to_topic($data)
     {
-         /*https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send*/
-         $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
-         /*$topic = BusinessSetting::where(['key' => 'fcm_topic'])->first()->value;*/
-         /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
- 
-         $url = "https://fcm.googleapis.com/fcm/send";
-         $header = array("authorization: key=" . $key . "",
-             "content-type: application/json"
-         );
- 
-         $image = asset('storage/app/public/notification') . '/' . $data['image'];
-         $postdata = '{
-             "to" : "/topics/grofresh",
-             "mutable-content": "true",
-             "data" : {
-                 "title" :"' . $data['title'] . '",
-                 "body" : "' . $data['description'] . '",
-                 "image" : "' . $image . '",
-                 "order_id":"' . $data['order_id'] . '",
-                 "type":"' . $data['type'] . '",
-                 "is_read": 0
-               },
-               "notification" : {
-                 "title" :"' . $data['title'] . '",
-                 "body" : "' . $data['description'] . '",
-                 "image" : "' . $image . '",
-                 "order_id":"' . $data['order_id'] . '",
-                 "title_loc_key":"' . $data['order_id'] . '",
-                 "type":"' . $data['type'] . '",
-                 "is_read": 0,
-                 "icon" : "new",
-                 "sound" : "default"
-               }
-         }';
- 
-         $ch = curl_init();
-         $timeout = 120;
-         curl_setopt($ch, CURLOPT_URL, $url);
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-         curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
- 
-         // Get URL content
-         $result = curl_exec($ch);
-         // close handle to release resources
-         curl_close($ch);
- 
-         return $result;
-    }
+        /*https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send*/
+        $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
+        /*$topic = BusinessSetting::where(['key' => 'fcm_topic'])->first()->value;*/
+        /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
 
+        $url = "https://fcm.googleapis.com/fcm/send";
+        $header = array("authorization: key=" . $key . "",
+            "content-type: application/json"
+        );
+
+        $image = asset('storage/app/public/notification') . '/' . $data['image'];
+        $postdata = '{
+            "to" : "/topics/grofresh",
+            "mutable-content": "true",
+            "data" : {
+                "title" :"' . $data['title'] . '",
+                "body" : "' . $data['description'] . '",
+                "image" : "' . $image . '",
+                "order_id":"' . $data['order_id'] . '",
+                "type":"' . $data['type'] . '",
+                "is_read": 0
+            },
+            "notification" : {
+                "title" :"' . $data['title'] . '",
+                "body" : "' . $data['description'] . '",
+                "image" : "' . $image . '",
+                "order_id":"' . $data['order_id'] . '",
+                "title_loc_key":"' . $data['order_id'] . '",
+                "type":"' . $data['type'] . '",
+                "is_read": 0,
+                "icon" : "new",
+                "sound" : "default"
+            }
+        }';
+
+        $ch = curl_init();
+        $timeout = 120;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+        // Get URL content
+        $result = curl_exec($ch);
+        // close handle to release resources
+        curl_close($ch);
+
+        return $result;
+    }
 }
 
+if(! function_exists('Helpers_discount_calculate')) {
+    function Helpers_discount_calculate($product, $price)
+    {
+        if ($product->discount_type == 'percent') {
+            $price_discount = ($price / 100) * $product->discount;
+        } else {
+            $price_discount = $product->discount;
+        }
+        return Helpers_set_price($price_discount);
+    }
+}
 
+if(! function_exists('Helpers_category_discount_calculate')) {
+    function Helpers_category_discount_calculate($product, $price)
+    {
+        $category_discount = CategoryDiscount::active()->where(['category_id' => $product->category_id])->first();
+        if ($category_discount) {
+            if ($category_discount->discount_type == 'percent') {
+                $price_discount = ($price / 100) * $category_discount->discount_amount;
+                if ($category_discount->maximum_amount < $price_discount) {
+                    $price_discount = $category_discount->maximum_amount;
+                }
+            } else {
+                $price_discount = $category_discount->discount_amount;
+            }
+        } else {
+            $price_discount = 0;
+        }
+        return Helpers_set_price($price_discount);
+    }
+}
 
+if(! function_exists('Helpers_tax_calculate')) {
+    function Helpers_tax_calculate($product, $price)
+    {
+        if ($product->tax_type == 'percent') {
+            $category_id = null;
+            foreach (json_decode($product->category_ids, true) as $cat) {
+                if ($cat->position == 1) {
+                    $category_id = ($cat->id);
+                }
+            }
 
+            $category_discount = Helpers_category_discount_calculate($category_id, $price);
+            $product_discount = Helpers_discount_calculate($product, $price);
+            if ($category_discount >= $price) {
+                $discount = $product_discount;
+                $discount_type = 'discount_on_product';
+            } else {
+                $discount = max($category_discount, $product_discount);
+                $discount_type = $product_discount > $category_discount ? 'discount_on_product' : 'discount_on_category';
+            }
+            
+            $item_price = $price; // The total price including tax
+            $tax_rate = $product->tax; // Tax rate percentage
+            
+            $discounted_price = $price - $discount;
+            
+            // Calculate the price without tax
+            $price_without_tax = $discounted_price / (1 + ($tax_rate / 100));
 
-
+            // Calculate the tax amount
+            $price_tax = $discounted_price - $price_without_tax;
+            // $price_tax = ($price / 100) * $product['tax'];
+        } else {
+            $price_tax = $product->tax;
+        }
+        return $price_tax;
+    }
+}

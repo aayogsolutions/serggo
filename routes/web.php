@@ -24,6 +24,15 @@ Route::get('/', function(){
     return redirect(route('admin.login'));
 });
 
+Route::get('/ApiLogin', function(){
+
+    return response()->json([
+        'status' => false,
+        'message' => 'Login Required',
+        'data' => [],
+    ],204);
+})->name('login');
+
 
 
 Route::post('/', function(Request $request){

@@ -38,8 +38,11 @@ Route::group(['prefix' => 'banner'], function() {
 Route::group(['prefix' => 'product'], function(){
 
     Route::get('/dashboard', [DashboardController::class,'Index']);
-    Route::get('/product_details', [ProductController::class,'Index']);
+    Route::get('/category_display/{ui}', [DashboardController::class,'CategoryDisplay']);
     Route::post('/display_section_details', [ProductController::class,'display']);
+
+    Route::get('/product_details', [ProductController::class,'Index']);
+    
 });
 
 Route::group(['prefix' => 'service'], function(){

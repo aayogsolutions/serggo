@@ -34,6 +34,19 @@
     </div>
     <div class="card mb-3">
         <div class="card-body">
+            <div class="row">
+                @if(App\Models\DisplayCategory::where('status', 0)->count() < 6)
+                    <div class="col-4">
+                        <div class="alert alert-warning">
+                            {{ translate('Add Minimum 7 Category') }}
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
             <form action="{{route('admin.display.category.store')}}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row g-3">

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
-use App\Models\Brands;
-use App\Models\DisplaySection;
-use App\Models\HomeBanner;
-use App\Models\HomeSliderBanner;
-use App\Models\Tag;
+use App\Models\{
+    Brands,
+    DisplaySection,
+    HomeBanner,
+    HomeSliderBanner,
+    Tag,
+    DisplayCategory
+};
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -20,6 +23,7 @@ class DashboardController extends Controller
         private Brands $brand,
         private HomeSliderBanner $homesliderbanner,
         private DisplaySection $displaysection,
+        private DisplayCategory $displaycategory,
     ){}
     
     /**
@@ -29,15 +33,15 @@ class DashboardController extends Controller
      */
     public function Index() : JsonResponse
     {
-        // try {
+        try {
             $maindata = $this->homebanner->status()->where('ui_type','user_product')->first();
 
             $data['tags'] = $this->tag->select('name')->orderBy('name','DESC')->get();
             $data['brands'] = $this->brand->status()->orderBy('priority','ASC')->select('name','Image')->get();
             $data['homesliderbanner'] = homesliderbanner_data_formatting($this->homesliderbanner->status()->where('ui_type','user_product')->orderBy('priority', 'asc')->get(), true);
-            // $data['slider'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','slider')->orderBy('priority', 'asc')->with('childes')->get(), true);
-            // $data['cart'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','cart')->orderBy('priority', 'asc')->with('childes')->limit(6)->get(), true);
-            // $data['box_section'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','box_section')->orderBy('priority', 'asc')->with('childes')->get(), true);
+            $data['slider'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','slider')->orderBy('priority', 'asc')->with('childes')->get(), true);
+            $data['cart'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','cart')->orderBy('priority', 'asc')->with('childes')->limit(6)->get(), true);
+            $data['box_section'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','box_section')->orderBy('priority', 'asc')->with('childes')->get(), true);
 
             return response()->json([
                 'status' => true,
@@ -49,18 +53,55 @@ class DashboardController extends Controller
                     'brands' => $data['brands'],
                     'arraydata' => [
                         'tags' => $data['tags'],
-                        // 'productslider' => $data['slider'],
-                        // 'cartsection' => $data['cart'],
+                        'productslider' => $data['slider'],
+                        'cartsection' => $data['cart'],
                         'bannerslider' => $data['homesliderbanner'],
-                        // 'boxsection' => $data['box_section'],
+                        'boxsection' => $data['box_section'],
                     ]
                 ]
             ],200);
-        // } catch (\Throwable $th) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'data' => $th->getMessage()
-        //     ]);
-        // }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => $th->getMessage(),
+                'data' => []
+            ],409);
+        }
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function CategoryDisplay($ui) : JsonResponse
+    {
+        try {
+
+            if($ui == 'user')
+            {
+                $data = category_data_formatting($this->displaycategory->status()->where('ui_type','user_product')->get(),true);
+
+                return response()->json([
+                    'status' => true,
+                    'data' => [
+                        'banners' => $data,
+                    ]
+                ],200);
+
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Parameter must be only user'
+                ],400);
+            }
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => $th->getMessage(),
+                'data' => []
+            ],409);
+        }
     }
 }

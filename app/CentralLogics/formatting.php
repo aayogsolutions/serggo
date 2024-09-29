@@ -1,7 +1,10 @@
 <?php
-use App\Models\Products;
-use App\Models\CategoryDiscount;
-use App\Models\ProductReview;
+use App\Models\{
+    Products,
+    CategoryDiscount,
+    ProductReview,
+    User
+};
 
 if(! function_exists('product_data_formatting')) {
     function product_data_formatting($data, $multi_data = false, $reviews = false)
@@ -16,9 +19,11 @@ if(! function_exists('product_data_formatting')) {
                 $item->attributes = json_decode($item->attributes);
                 $item->choice_options = json_decode($item->choice_options);
                 $item->tags = json_decode($item->tags);
+                $item->productdiscountamount = Helpers_discount_calculate($item, $item->price);
                 if(isset($item->category_id))
                 {
                     $item->category_discount = CategoryDiscount::Active()->where('category_id', $item->category_id)->first();
+                    $item->categorydiscountamount = Helpers_category_discount_calculate($item, $item->price);
                 }
 
                 foreach (json_decode($item->variations, true) as $var) {
@@ -37,6 +42,7 @@ if(! function_exists('product_data_formatting')) {
                     $item->reviewsAverage = $views->avg('rating');
 
                     foreach ($views as $key => $value) {
+                        $value->user = User::find($value->user_id) ?? null;
                         $value->attachment = gettype($value->attachment) == 'array' ? $value->attachment : json_decode($value->attachment);
                     }
 
@@ -62,10 +68,11 @@ if(! function_exists('product_data_formatting')) {
             $data->attributes = gettype($data->attributes) == 'array' ? $data->attributes : json_decode($data->attributes);
             $data->choice_options = gettype($data->choice_options) == 'array' ? $data->choice_options : json_decode($data->choice_options);
             $data->tags = gettype($data->tags) == 'array' ? $data->tags : json_decode($data->tags);
-
+            $data->productdiscountamount = Helpers_discount_calculate($data, $data->price);
             if(isset($data->category_id))
             {
                 $data->category_discount = CategoryDiscount::Active()->where('category_id', $data->category_id)->first();
+                $data->categorydiscountamount = Helpers_category_discount_calculate($data, $data->price);
             }
 
             if($reviews)
@@ -76,6 +83,7 @@ if(! function_exists('product_data_formatting')) {
                 $data->reviewsAverage = $views->avg('rating');
 
                 foreach ($views as $key => $value) {
+                    $value->user = User::find($value->user_id) ?? null;
                     $value->attachment = gettype($value->attachment) == 'array' ? $value->attachment : json_decode($value->attachment);
                 }
 
@@ -88,6 +96,26 @@ if(! function_exists('product_data_formatting')) {
             }
 
             $data->variations = gettype($data->variations) == 'array' ? $data->variations : json_decode($data->variations);
+        }
+        return $data;
+    }
+}
+
+if(! function_exists('category_data_formatting')) {
+    function category_data_formatting($data, $multi_data = false)
+    {
+        $storage = [];
+        if ($multi_data == true) {
+            foreach ($data as $item) {
+                
+                $item->category_detail = gettype(json_decode($item->category_detail)) == 'array' ? $item->category_detail : json_decode($item->category_detail);
+
+                array_push($storage, $item);
+            }
+            $data = $storage;
+        } else {
+
+            $data->category_detail = gettype(json_decode($data->category_detail)) == 'array' ? $data->category_detail : json_decode($data->category_detail);
         }
         return $data;
     }

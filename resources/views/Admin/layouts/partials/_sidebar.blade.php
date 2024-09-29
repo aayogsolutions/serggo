@@ -7,7 +7,7 @@
 
                     @php($logo = Helpers_get_business_settings('logo'))
                     <a class="navbar-brand" href="{{route('admin.dashboard')}}" aria-label="Front">
-                        <img class="w-100 side-logo" src="{{ asset('Images/business').'/'.$logo }}" alt="{{ translate('logo') }}"
+                        <img class="w-100 side-logo" src="{{ asset($logo) }}" alt="{{ translate('logo') }}"
                             onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                     </a>
 

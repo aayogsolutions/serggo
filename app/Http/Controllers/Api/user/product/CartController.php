@@ -56,14 +56,14 @@ class CartController extends Controller
                 'status' => true,
                 'message' => 'Add to cart sucessfully',
                 'data' => []
-            ]);
+            ],202);
             
         }else {
             return response()->json([
                 'status' => false,
                 'message' => 'Product Not exists',
                 'data' => []
-            ]);
+            ],406);
             
         }
     }

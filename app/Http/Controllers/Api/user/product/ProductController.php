@@ -50,12 +50,12 @@ class ProductController extends Controller
                 'data' => [
                     'product_details' => $data,
                 ]
-            ]);
+            ],200);
         }else {
             return response()->json([
                 'status' => false,
                 'message' => 'Product Not exists'
-            ]);
+            ],404);
         }
     }
       
@@ -79,18 +79,21 @@ class ProductController extends Controller
 
         $section = $this->display_section->find($request->section_id);
         if(!is_null($section)) {
-            $data['section_details'] = display_data_formatting($section);
+
+            // $data = display_data_formatting($section);
+
+            return response()->json([
+                'status' => true,
+                'data' =>  $section
+            ]);
         }else {
             return response()->json([
                 'status' => false,
-                'message' => 'Not available section data'
+                'message' => 'Section data not available'
             ]);
         }
               
             
-        return response()->json([
-            'status' => true,
-            'data' =>  $data['section_details'] 
-        ]);
+        
     }
 }
