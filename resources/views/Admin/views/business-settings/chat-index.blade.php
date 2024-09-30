@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Chat Settings'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.third-party-api-navmenu')
+            @include('Admin.views.business-settings.partial.third-party-api-navmenu')
         </div>
         <div class="row gx-2 gx-lg-3">
 
@@ -18,7 +18,7 @@
                             @csrf
 
                             <div class="row">
-                                @php($whatsapp=\App\Model\BusinessSetting::where('key','whatsapp')->first()->value)
+                                @php($whatsapp=\App\Models\BusinessSetting::where('key','whatsapp')->first()->value)
                                 @php($whatsapp_data=json_decode($whatsapp,true))
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
@@ -37,7 +37,7 @@
                                     </div>
                                 </div>
 
-                                @php($telegram=\App\Model\BusinessSetting::where('key','telegram')->first()->value)
+                                @php($telegram=\App\Models\BusinessSetting::where('key','telegram')->first()->value)
                                 @php($telegram_data=json_decode($telegram,true))
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
@@ -56,7 +56,7 @@
                                     </div>
                                 </div>
 
-                                @php($messenger=\App\Model\BusinessSetting::where('key','messenger')->first()->value)
+                                @php($messenger=\App\Models\BusinessSetting::where('key','messenger')->first()->value)
                                 @php($messenger_data=json_decode($messenger,true))
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">

@@ -1,10 +1,10 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Reffral Income Distributing setting'))
 
 @section('content')
     <div class="content container-fluid">
-        @include('admin-views.business-settings.partial.business-settings-navmenu')
+        @include('Admin.views.business-settings.partial.business-settings-navmenu')
         <div class="tab-content">
             <div class="tab-pane fade show active" id="business-setting">
                 <div class="card">
@@ -20,7 +20,7 @@
                         <form action="{{route('admin.business-settings.store.referral-income-setup-update')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-                                @php($value=\App\Model\BusinessSetting::where('key','reffral_income_distributing_days')->first()->value)
+                                @php($value = Helpers_get_business_settings('Helpers_get_business_settings'))
                                 <div class="col-md-4 col-sm-6">
                                     <div class="form-group">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('How many Days')}}</label>

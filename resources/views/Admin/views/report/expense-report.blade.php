@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Expense Report'))
 
@@ -6,7 +6,7 @@
     <div class="content container-fluid">
         <div class="page-header">
             <div class="media align-items-center">
-                <img src="{{asset('public/assets/admin/img/expense_report.png')}}" class="w--20" alt="">
+                <img src="{{asset('assets/admin/img/expense_report.png')}}" class="w--20" alt="">
                 <div class="media-body pl-3">
                     <h1 class="page-header-title mb-1">{{translate('expense')}} {{translate('report')}}</h1>
                 </div>
@@ -64,28 +64,28 @@
             <div class="store-report-content mb-2">
                 <div class="left-content expense--content">
                     <div class="left-content-card">
-                        <img src="{{asset('/public/assets/admin/img/expense.svg')}}" alt="">
+                        <img src="{{asset('assets/admin/img/expense.svg')}}" alt="">
                         <div class="info">
                             <h4 class="subtitle">{{ \App\CentralLogics\Helpers::set_symbol($totalExpense) }}</h4>
                             <h6 class="subtext"><span>{{translate('Total_Expense')}}</span></h6>
                         </div>
                     </div>
                     <div class="left-content-card">
-                        <img src="{{asset('/public/assets/admin/img/free-delivery.svg')}}" alt="">
+                        <img src="{{asset('assets/admin/img/free-delivery.svg')}}" alt="">
                         <div class="info">
                             <h4 class="subtitle">{{ \App\CentralLogics\Helpers::set_symbol($extraDiscount) }}</h4>
                             <h6 class="subtext">{{translate('Extra Discount')}}</h6>
                         </div>
                     </div>
                     <div class="left-content-card">
-                        <img src="{{asset('/public/assets/admin/img/free-delivery.svg')}}" alt="">
+                        <img src="{{asset('assets/admin/img/free-delivery.svg')}}" alt="">
                         <div class="info">
                             <h4 class="subtitle">{{ \App\CentralLogics\Helpers::set_symbol($freeDelivery) }}</h4>
                             <h6 class="subtext">{{translate('Free_Delivery')}}</h6>
                         </div>
                     </div>
                     <div class="left-content-card">
-                        <img src="{{asset('/public/assets/admin/img/coupon-discount.svg')}}" alt="">
+                        <img src="{{asset('assets/admin/img/coupon-discount.svg')}}" alt="">
                         <div class="info">
                             <h4 class="subtitle">{{ \App\CentralLogics\Helpers::set_symbol($couponDiscount) }}</h4>
                             <h6 class="subtext"><span>{{translate('Coupon_Discount')}}</span></h6>
@@ -200,7 +200,7 @@
                                 {{ translate('options') }}</span>
                                         <a id="export-excel" class="dropdown-item" href="{{ route('admin.report.expense.export.excel', ['search'=>request('search'), 'date_type'=>request('date_type'), 'start_date'=>request('start_date'), 'end_date'=>request('end_date')]) }}">
                                             <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                                 src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
+                                                 src="{{ asset('assets/admin') }}/svg/components/excel.svg"
                                                  alt="{{ translate('excel') }}">
                                             {{ translate('excel') }}
                                         </a>
@@ -268,7 +268,7 @@
                         </div>
                         @if(count($expenseTransactionsTable)==0)
                             <div class="text-center p-4">
-                                <img class="mb-3 w-120px" src="{{asset('public/assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('Image Description')}}">
+                                <img class="mb-3 w-120px" src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('Image Description')}}">
                                 <p class="mb-0">No data to show</p>
                             </div>
                         @endif
@@ -280,10 +280,10 @@
 
 @push('script_2')
 
-    <script src="{{ asset('public/assets/admin') }}/js/Chart.min.js"></script>
-    <script src="{{ asset('public/assets/admin') }}/js/chart.js.extensions/chartjs-extensions.js"></script>
-    <script src="{{ asset('public/assets/admin') }}/js/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.min.js"></script>
-    <script src="{{asset('public/assets/admin/js/flatpicker.js')}}"></script>
+    <script src="{{ asset('assets/admin') }}/js/Chart.min.js"></script>
+    <script src="{{ asset('assets/admin') }}/js/chart.js.extensions/chartjs-extensions.js"></script>
+    <script src="{{ asset('assets/admin') }}/js/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="{{asset('assets/admin/js/flatpicker.js')}}"></script>
     <script>
         "use strict";
 

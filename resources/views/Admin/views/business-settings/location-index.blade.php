@@ -1,10 +1,10 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Settings'))
 
 @section('content')
     <div class="content container-fluid">
-    @php($branchCount=\App\Model\Branch::count())
+    @php($branchCount=\App\Models\Branch::count())
         <div class="page-header">
             <div class="row align-items-center">
                 <div class="col-sm mb-2 mb-sm-0">
@@ -21,7 +21,7 @@
                 <form action="{{route('admin.business-settings.store.update-location')}}" method="post"
                       enctype="multipart/form-data">
                     @csrf
-                    @php($data=\App\Model\Branch::find(1))
+                    @php($data=\App\Models\Branch::find(1))
                     <div class="row">
 
                         <div class="col-md-4 col-12">

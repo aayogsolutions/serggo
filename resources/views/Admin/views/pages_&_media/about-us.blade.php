@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('About us'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.page-setup-menu')
+            @include('Admin.views.pages_&_media.partial.page-setup-menu')
         </div>
         <div class="row gx-2 gx-lg-3">
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">

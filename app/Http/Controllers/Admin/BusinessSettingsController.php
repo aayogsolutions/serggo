@@ -38,7 +38,7 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
-        return view('admin-views.business-settings.delivery-fee');
+        return view('admin.views.business-settings.delivery-fee');
     }
 
     public function maintenanceMode(): \Illuminate\Http\JsonResponse
@@ -184,7 +184,7 @@ class BusinessSettingsController extends Controller
         $currentLogo = $this->businessSettings->where(['key' => 'logo'])->first();
         $NewLogo = $request->file('logo');
         if ($request->has('logo')) {
-            $imageName = Helpers_update('Images/Business', $currentLogo->value, $NewLogo->getClientOriginalExtension(), $NewLogo);
+            $imageName = Helpers_update('Images/Business/', $currentLogo->value, $NewLogo->getClientOriginalExtension(), $NewLogo);
         } else {
             $imageName = $currentLogo['value'];
         }
@@ -208,7 +208,7 @@ class BusinessSettingsController extends Controller
         $currentFavIcon = $this->businessSettings->where(['key' => 'fav_icon'])->first();
         $newFavIcon = $request->file('fav_icon');
         BusinessSetting::updateOrInsert(['key' => 'fav_icon'], [
-            'value' => $request->has('fav_icon') ? Helpers_update('Images/Business', $currentFavIcon->value, $newFavIcon->getClientOriginalExtension(), $newFavIcon ) : $currentFavIcon->value
+            'value' => $request->has('fav_icon') ? Helpers_update('Images/Business/', $currentFavIcon->value, $newFavIcon->getClientOriginalExtension(), $newFavIcon ) : $currentFavIcon->value
         ]);
 
         flash()->success(translate('Settings updated!'));
@@ -220,7 +220,7 @@ class BusinessSettingsController extends Controller
      */
     public function mailIndex(): Factory|View|Application
     {
-        return view('admin-views.business-settings.mail-index');
+        return view('Admin.views.business-settings.mail-index');
     }
 
     public function mailSend(Request $request): \Illuminate\Http\JsonResponse
@@ -301,7 +301,7 @@ class BusinessSettingsController extends Controller
             ->whereIn('key_name', ['ssl_commerz','paypal','stripe','razor_pay','senang_pay','paystack','paymob_accept','flutterwave','bkash','mercadopago'])
             ->get();
 
-        return view('admin-views.business-settings.payment-index', compact('published_status', 'payment_url', 'data_values'));
+        return view('Admin.views.business-settings.payment-index', compact('published_status', 'payment_url', 'data_values'));
     }
 
     public function paymentUpdate(Request $request, $name): \Illuminate\Http\RedirectResponse
@@ -687,7 +687,7 @@ class BusinessSettingsController extends Controller
      */
     public function currencyIndex(): Factory|View|Application
     {
-        return view('admin-views.business-settings.currency-index');
+        return view('Admin.views.business-settings.currency-index');
     }
 
     public function currencyStore(Request $request): \Illuminate\Http\RedirectResponse
@@ -714,7 +714,7 @@ class BusinessSettingsController extends Controller
     public function currencyEdit($id): Factory|View|Application
     {
         $currency = Currency::find($id);
-        return view('admin-views.business-settings.currency-update', compact('currency'));
+        return view('Admin.views.business-settings.currency-update', compact('currency'));
     }
 
     /**
@@ -741,245 +741,7 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function termsAndConditions(): View|Factory|Application
-    {
-        $termsAndConditions = $this->businessSettings->where(['key' => 'terms_and_conditions'])->first();
-        if (!$termsAndConditions) {
-            $this->businessSettings->insert([
-                'key'   => 'terms_and_conditions',
-                'value' => '',
-            ]);
-        }
-        return view('admin-views.business-settings.terms-and-conditions', compact('termsAndConditions'));
-    }
-
-    public function termsAndConditionsUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'terms_and_conditions'])->update([
-            'value' => $request->tnc,
-        ]);
-        flash()->success(translate('Terms and Conditions updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function privacyPolicy(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where(['key' => 'privacy_policy'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'privacy_policy',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        return view('admin-views.business-settings.privacy-policy', compact('data'));
-    }
-
-    public function privacyPolicyUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'privacy_policy'])->update([
-            'value' => $request->privacy_policy,
-        ]);
-
-        flash()->success(translate('Privacy policy updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function aboutUs(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where(['key' => 'about_us'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'about_us',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        return view('admin-views.business-settings.about-us', compact('data'));
-    }
-
-    public function aboutUsUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'about_us'])->update([
-            'value' => $request->about_us,
-        ]);
-
-        flash()->success(translate('About us updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function faq(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where(['key' => 'faq'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'faq',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        return view('admin-views.business-settings.faq', compact('data'));
-    }
-
-    public function faqUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'faq'])->update([
-            'value' => $request->faq,
-        ]);
-
-        flash()->success(translate('FAQ updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function cancellationPolicy(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where(['key' => 'cancellation_policy'])->first();
-        $status = $this->businessSettings->where(['key' => 'cancellation_policy_status'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'cancellation_policy',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        if (!$status) {
-            $status = [
-                'key' => 'cancellation_policy_status',
-                'value' => 0,
-            ];
-            $this->businessSettings->insert($status);
-        }
-        return view('admin-views.business-settings.cancellation-policy', compact('data', 'status'));
-    }
-
-    public function cancellationPolicyUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'cancellation_policy'])->update([
-            'value' => $request->cancellation_policy,
-        ]);
-
-        flash()->success(translate('Cancellation Policy updated!'));
-        return back();
-    }
-
-    public function cancellationPolicyStatus(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'cancellation_policy_status'])->update([
-            'value' => $request->status,
-        ]);
-        flash()->success(translate('Status updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function refundPolicy(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where(['key' => 'refund_policy'])->first();
-        $status = $this->businessSettings->where(['key' => 'refund_policy_status'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'refund_policy',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        if (!$status) {
-            $status = [
-                'key' => 'refund_policy_status',
-                'value' => 0,
-            ];
-            $this->businessSettings->insert($status);
-        }
-        return view('admin-views.business-settings.refund-policy', compact('data', 'status'));
-    }
-
-    public function refundPolicyUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'refund_policy'])->update([
-            'value' => $request->refund_policy,
-        ]);
-
-        flash()->success(translate('Refund Policy updated!'));
-        return back();
-    }
-
-    public function refundPolicyStatus(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'refund_policy_status'])->update([
-            'value' => $request->status,
-        ]);
-        flash()->success(translate('Status updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function returnPolicy(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where(['key' => 'return_policy'])->first();
-        $status = $this->businessSettings->where(['key' => 'return_policy_status'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'return_policy',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-
-        if (!$status) {
-            $status = [
-                'key' => 'return_policy_status',
-                'value' => 0,
-            ];
-            $this->businessSettings->insert($status);
-        }
-        return view('admin-views.business-settings.return-policy', compact('data', 'status'));
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function returnPolicyUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'return_policy'])->update([
-            'value' => $request->return_policy,
-        ]);
-
-        flash()->success(translate('Return Policy updated!'));
-        return back();
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function returnPolicyStatus(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $this->businessSettings->where(['key' => 'return_policy_status'])->update([
-            'value' => $request->status,
-        ]);
-        flash()->success(translate('Status updated!'));
-        return back();
-    }
+ 
 
     /**
      * @return Application|Factory|View
@@ -1101,7 +863,7 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
-        return view('admin-views.business-settings.fcm-index');
+        return view('Admin.views.business-settings.fcm-index');
     }
 
     /**
@@ -1128,7 +890,7 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
-        return view('admin-views.business-settings.fcm-config');
+        return view('Admin.views.business-settings.fcm-config');
     }
 
     /**
@@ -1221,7 +983,7 @@ class BusinessSettingsController extends Controller
      */
     public function mapApiSetting(): Factory|View|Application
     {
-        return view('admin-views.business-settings.map-api');
+        return view('Admin.views.business-settings.map-api');
     }
 
     /**
@@ -1246,7 +1008,7 @@ class BusinessSettingsController extends Controller
      */
     public function recaptchaIndex(Request $request): Factory|View|Application
     {
-        return view('admin-views.business-settings.recaptcha-index');
+        return view('Admin.views.business-settings.recaptcha-index');
     }
 
     /**
@@ -1275,7 +1037,7 @@ class BusinessSettingsController extends Controller
      */
     public function appSettingIndex(): Factory|View|Application
     {
-        return View('admin-views.business-settings.app-setting-index');
+        return View('Admin.views.business-settings.app-setting-index');
     }
 
     /**
@@ -1322,7 +1084,7 @@ class BusinessSettingsController extends Controller
      */
     public function firebaseMessageConfigIndex(): Factory|View|Application
     {
-        return View('admin-views.business-settings.firebase-config-index');
+        return View('Admin.views.business-settings.firebase-config-index');
     }
 
     public function firebaseMessageConfig(Request $request): \Illuminate\Http\RedirectResponse
@@ -1377,99 +1139,7 @@ class BusinessSettingsController extends Controller
 
     }
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function socialMedia(): Factory|View|Application
-    {
-        return view('admin-views.business-settings.social-media');
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse|void
-     */
-    public function fetch(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = SocialMedia::orderBy('id', 'desc')->get();
-            return response()->json($data);
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function socialMediaStore(Request $request): \Illuminate\Http\JsonResponse
-    {
-        try {
-            SocialMedia::updateOrInsert([
-                'name' => $request->get('name'),
-            ], [
-                'name' => $request->get('name'),
-                'link' => $request->get('link'),
-            ]);
-
-            return response()->json([
-                'success' => 1,
-            ]);
-
-        } catch (\Exception $exception) {
-            return response()->json([
-                'error' => 1,
-            ]);
-        }
-
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function socialMediaEdit(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $data = SocialMedia::where('id', $request->id)->first();
-        return response()->json($data);
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function socialMediaUpdate(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $socialMedia = SocialMedia::find($request->id);
-        $socialMedia->name = $request->name;
-        $socialMedia->link = $request->link;
-        $socialMedia->save();
-        return response()->json();
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function socialMediaDelete(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $socialMedia = SocialMedia::find($request->id);
-        $socialMedia->delete();
-        return response()->json();
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function socialMediaStatusUpdate(Request $request): \Illuminate\Http\JsonResponse
-    {
-        SocialMedia::where(['id' => $request['id']])->update([
-            'status' => $request['status'],
-        ]);
-        return response()->json([
-            'success' => 1,
-        ], 200);
-    }
+  
 
     /**
      * @return Application|Factory|View
@@ -1477,7 +1147,7 @@ class BusinessSettingsController extends Controller
     public function mainBranchSetup(): View|Factory|Application
     {
         $main_branch = Branch::where(['id' => 1])->first();
-        return view('admin-views.business-settings.main-branch-setup', compact('main_branch'));
+        return view('Admin.views.business-settings.main-branch-setup', compact('main_branch'));
     }
 
     /**
@@ -1542,7 +1212,7 @@ class BusinessSettingsController extends Controller
         }
         $appleLoginService = json_decode($apple->value, true);
 
-        return view('admin-views.business-settings.social-media-login', compact('appleLoginService'));
+        return view('Admin.views.business-settings.social-media-login', compact('appleLoginService'));
     }
 
     /**
@@ -1605,7 +1275,7 @@ class BusinessSettingsController extends Controller
      */
     public function productSetup(): Factory|View|Application
     {
-        return view('admin-views.business-settings.product-setup-index');
+        return view('Admin.views.business-settings.product-setup-index');
     }
 
     /**
@@ -1647,7 +1317,7 @@ class BusinessSettingsController extends Controller
      */
     public function cookiesSetup(): Factory|View|Application
     {
-        return view('admin-views.business-settings.cookies-setup-index');
+        return view('Admin.views.business-settings.cookies-setup-index');
     }
 
     /**
@@ -1672,7 +1342,7 @@ class BusinessSettingsController extends Controller
      */
     public function OTPSetup(): Factory|View|Application
     {
-        return view('admin-views.business-settings.otp-setup');
+        return view('Admin.views.business-settings.otp-setup');
     }
 
     /**
@@ -1736,7 +1406,7 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
-        return view('admin-views.business-settings.chat-index');
+        return view('Admin.views.business-settings.chat-index');
     }
 
 
@@ -1783,7 +1453,7 @@ class BusinessSettingsController extends Controller
             ->orWhere('key','like','ref_earning_%')->get();
         $data = array_column($data->toArray(), 'value','key');
 
-        return view('admin-views.business-settings.customer-setup', compact('data'));
+        return view('Admin.views.business-settings.customer-setup', compact('data'));
     }
 
     /**
@@ -1839,7 +1509,7 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
-        return view('admin-views.business-settings.order-setup-index');
+        return view('Admin.views.business-settings.order-setup-index');
     }
 
     /**
@@ -1884,7 +1554,7 @@ class BusinessSettingsController extends Controller
      */
     public function firebaseOTPVerification(): Factory|View|Application
     {
-        return view('admin-views.business-settings.firebase-otp-verification');
+        return view('Admin.views.business-settings.firebase-otp-verification');
     }
 
     /**
@@ -1921,7 +1591,7 @@ class BusinessSettingsController extends Controller
     
     public function ReferralIncomeSetup()
     {
-        return view('admin-views.business-settings.refferal_income');
+        return view('Admin.views.business-settings.refferal_income');
     }
 
     /**

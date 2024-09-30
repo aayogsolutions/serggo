@@ -6,7 +6,7 @@
             <div class="col-md-8 mt-3">
                 <div class="card mt-3">
                     <div class="card-body text-center">
-                        @php($logo=\App\Model\BusinessSetting::where(['key'=>'logo'])->first()->value)
+                        @php($logo=\App\Models\BusinessSetting::where(['key'=>'logo'])->first()->value)
                         <img class="width-200px"
                              src="{{ App\CentralLogics\Helpers::onErrorImage($logo, asset('storage/app/public/restaurant') . '/' . $logo, asset('public/assets/admin/img/160x160/img2.jpg'), 'restaurant/')}}"
                              alt="{{ translate('logo') }}">

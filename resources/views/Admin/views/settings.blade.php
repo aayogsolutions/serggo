@@ -70,7 +70,7 @@
                             for="avatarUploader">
                             <img id="viewer"
                                  class="avatar-img"
-                                 src="{{asset('Images/Admin').'/'.auth('admins')->user()->image}}"
+                                 src="{{asset(auth('admins')->user()->image)}}"
                                  onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
                                  alt="{{ translate('Image')}}">
 

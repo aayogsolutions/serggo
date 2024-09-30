@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Customer List'))
 
@@ -11,7 +11,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('customer') }}">
+                    <img src="{{asset('assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('customer') }}">
                 </span>
                 <span>
                     {{translate('customers list')}} <span class="badge badge-soft-primary ml-2 badge-pill">{{ $customers->total() }}</span>
@@ -51,7 +51,7 @@
                                 {{ translate('options') }}</span>
                             <a id="export-excel" class="dropdown-item" href="{{route('admin.customer.export', ['search'=>Request::get('search')])}}">
                                 <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                    src="{{ asset('public/assets/admin') }}/svg/components/excel.svg"
+                                    src="{{ asset('assets/admin') }}/svg/components/excel.svg"
                                     alt="{{ translate('excel') }}">
                                 {{ translate('excel') }}
                             </a>
@@ -112,7 +112,7 @@
                             </td>
                             <td>
                                 <div class="text-center">
-                                    {{ Helpers::set_symbol(\App\User::total_order_amount($customer->id)) }}
+                                    {{ Helpers_set_symbol(\App\User::total_order_amount($customer->id)) }}
                                 </div>
                             </td>
                             <td>
@@ -150,7 +150,7 @@
             </div>
             @if(count($customers) == 0)
             <div class="text-center p-4">
-                <img class="w-120px mb-3" src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
+                <img class="w-120px mb-3" src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
                 <p class="mb-0">{{translate('No_data_to_show')}}</p>
             </div>
             @endif

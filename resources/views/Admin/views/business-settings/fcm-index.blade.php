@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('FCM Settings'))
 
@@ -80,7 +80,7 @@
                                 <input type="hidden" name="lang[]" value="default">
 
                                 <div class="row">
-                                    @php($opm=\App\Model\BusinessSetting::with('translations')->where('key','order_pending_message')->first())
+                                    @php($opm=\App\Models\BusinessSetting::with('translations')->where('key','order_pending_message')->first())
                                     @php($data=json_decode($opm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -99,7 +99,7 @@
                                         </div>
                                     </div>
 
-                                    @php($ocm=\App\Model\BusinessSetting::with('translations')->where('key','order_confirmation_msg')->first())
+                                    @php($ocm=\App\Models\BusinessSetting::with('translations')->where('key','order_confirmation_msg')->first())
                                     @php($data=json_decode($ocm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -119,7 +119,7 @@
                                         </div>
                                     </div>
 
-                                    @php($oprm=\App\Model\BusinessSetting::with('translations')->where('key','order_processing_message')->first())
+                                    @php($oprm=\App\Models\BusinessSetting::with('translations')->where('key','order_processing_message')->first())
                                     @php($data=json_decode($oprm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -140,7 +140,7 @@
                                         </div>
                                     </div>
 
-                                    @php($ofdm=\App\Model\BusinessSetting::with('translations')->where('key','out_for_delivery_message')->first())
+                                    @php($ofdm=\App\Models\BusinessSetting::with('translations')->where('key','out_for_delivery_message')->first())
                                     @php($data=json_decode($ofdm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -160,7 +160,7 @@
                                         </div>
                                     </div>
 
-                                    @php($odm=\App\Model\BusinessSetting::with('translations')->where('key','order_delivered_message')->first())
+                                    @php($odm=\App\Models\BusinessSetting::with('translations')->where('key','order_delivered_message')->first())
                                     @php($data=json_decode($odm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -180,7 +180,7 @@
                                             <textarea name="delivered_message" class="form-control">{{$data['message']}}</textarea>
                                         </div>
                                     </div>
-                                    @php($cnm=\App\Model\BusinessSetting::with('translations')->where('key','customer_notify_message')->first())
+                                    @php($cnm=\App\Models\BusinessSetting::with('translations')->where('key','customer_notify_message')->first())
                                     @php($data=json_decode($cnm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -204,7 +204,7 @@
                                         </div>
                                     </div>
 
-                                    @php($dba=\App\Model\BusinessSetting::with('translations')->where('key','delivery_boy_assign_message')->first())
+                                    @php($dba=\App\Models\BusinessSetting::with('translations')->where('key','delivery_boy_assign_message')->first())
                                     @php($data=json_decode($dba->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -227,7 +227,7 @@
                                         </div>
                                     </div>
 
-                                    @php($dbs=\App\Model\BusinessSetting::with('translations')->where('key','delivery_boy_start_message')->first())
+                                    @php($dbs=\App\Models\BusinessSetting::with('translations')->where('key','delivery_boy_start_message')->first())
                                     @php($data=json_decode($dbs->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -249,7 +249,7 @@
                                         </div>
                                     </div>
 
-                                    @php($dbc=\App\Model\BusinessSetting::with('translations')->where('key','delivery_boy_delivered_message')->first())
+                                    @php($dbc=\App\Models\BusinessSetting::with('translations')->where('key','delivery_boy_delivered_message')->first())
                                     @php($data=json_decode($dbc->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -272,7 +272,7 @@
                                         </div>
                                     </div>
 
-                                    @php($orm=\App\Model\BusinessSetting::with('translations')->where('key','returned_message')->first())
+                                    @php($orm=\App\Models\BusinessSetting::with('translations')->where('key','returned_message')->first())
                                     @php($data=json_decode($orm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -294,7 +294,7 @@
                                         </div>
                                     </div>
 
-                                    @php($ofm=\App\Model\BusinessSetting::with('translations')->where('key','failed_message')->first())
+                                    @php($ofm=\App\Models\BusinessSetting::with('translations')->where('key','failed_message')->first())
                                     @php($data=json_decode($ofm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -317,7 +317,7 @@
                                         </div>
                                     </div>
 
-                                    @php($ocanm=\App\Model\BusinessSetting::with('translations')->where('key','canceled_message')->first())
+                                    @php($ocanm=\App\Models\BusinessSetting::with('translations')->where('key','canceled_message')->first())
                                     @php($data=json_decode($ocanm->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -340,7 +340,7 @@
                                         </div>
                                     </div>
 
-                                    @php($deliveryman_order_processing=\App\Model\BusinessSetting::with('translations')->where('key','deliveryman_order_processing_message')->first())
+                                    @php($deliveryman_order_processing=\App\Models\BusinessSetting::with('translations')->where('key','deliveryman_order_processing_message')->first())
                                     @php($data=json_decode($deliveryman_order_processing->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -363,7 +363,7 @@
                                         </div>
                                     </div>
 
-                                    @php($add_fund=\App\Model\BusinessSetting::with('translations')->where('key','add_fund_wallet_message')->first())
+                                    @php($add_fund=\App\Models\BusinessSetting::with('translations')->where('key','add_fund_wallet_message')->first())
                                     @php($data=json_decode($add_fund->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
@@ -386,7 +386,7 @@
                                         </div>
                                     </div>
 
-                                    @php($add_fund_bonus=\App\Model\BusinessSetting::with('translations')->where('key','add_fund_wallet_bonus_message')->first())
+                                    @php($add_fund_bonus=\App\Models\BusinessSetting::with('translations')->where('key','add_fund_wallet_bonus_message')->first())
                                     @php($data=json_decode($add_fund_bonus->value,true))
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">

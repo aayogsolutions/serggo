@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('SMS config'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.third-party-api-navmenu')
+            @include('Admin.views.business-settings.partial.third-party-api-navmenu')
         </div>
 
         <div class="row g-3 mb-2">

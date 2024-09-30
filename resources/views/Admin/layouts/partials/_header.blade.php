@@ -14,6 +14,18 @@
 
             <div class="navbar-nav-wrap-content-right">
                 <ul class="navbar-nav align-items-center flex-row">
+                    <li class="nav-item">
+                        <div class="hs-unfold">
+                            <a class="js-hs-unfold-invoker btn btn-icon notify--icon"
+                               href="{{route('admin.orders.list',['status'=>'pending'])}}">
+                                <i class="tio-shopping-cart-outlined"></i>
+                                <span class="amount">
+                                    {{\App\Models\Order::where(['checked' => 0])->count()}}
+                                </span>
+                            </a>
+                        </div>
+                    </li>
+
                     <li class="nav-item ml-4">
                         <div class="hs-unfold">
                             <a class="js-hs-unfold-invoker navbar-dropdown-account-wrapper" href="javascript:;"
@@ -30,7 +42,7 @@
                                     </div>
                                     <div class="avatar avatar-sm avatar-circle">
                                         <img class="avatar-img"
-                                             src="{{asset('Images/Admin/').'/'.auth('admins')->user()->image}}"
+                                             src="{{asset(auth('admins')->user()->image)}}"
                                              onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
                                              alt="{{ translate('logo') }}">
                                         <span class="avatar-status avatar-sm-status avatar-status-success"></span>
@@ -45,7 +57,7 @@
                                         <div class="avatar avatar-sm avatar-circle mr-2">
                                             <img class="avatar-img"
                                                  onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
-                                                 src="{{asset('Images/Admin/').'/'.auth('admins')->user()->image}}"
+                                                 src="{{asset(auth('admins')->user()->image)}}"
                                                  alt="{{ translate('admin') }}">
                                         </div>
                                         <div class="media-body">

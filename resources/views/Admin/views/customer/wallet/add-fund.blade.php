@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title',translate('add_fund'))
 
@@ -11,7 +11,7 @@
         <div class="page-header">
             <h1 class="page-header-title text-capitalize">
                 <div class="card-header-icon d-inline-flex mr-2 img">
-                    <img src="{{asset('/public/assets/admin/img/money.png')}}" alt="{{ translate('image') }}">
+                    <img src="{{asset('assets/admin/img/money.png')}}" alt="{{ translate('image') }}">
                 </div>
                 <span>
                     {{translate('add_fund')}}
@@ -72,7 +72,7 @@
 
             Swal.fire({
                 title: '{{translate('are_you_sure')}}',
-                text: '{{translate('add_fund ')}}'+$('#amount').val()+' {{ Helpers::currency_code().' '.translate('to')}} '+$('#customer option:selected').text()+' {{translate('wallet')}}',
+                text: '{{translate('add_fund ')}}'+$('#amount').val()+' {{ Helpers_currency_code().' '.translate('to')}} '+$('#customer option:selected').text()+' {{translate('wallet')}}',
                 type: 'info',
                 showCancelButton: true,
                 cancelButtonColor: 'default',

@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Products;
-use App\Models\DisplaySection;
+use App\Models\{
+    Products,
+    DisplaySection,
+    DisplaySectionContent
+};
 
 
 class ProductController extends Controller
@@ -44,11 +47,17 @@ class ProductController extends Controller
 
             $data = product_data_formatting($product, false, true);
 
+            // $options['cart'] = display_data_formatting($this->display_section->status()->where('ui_type','user_product')->where('section_type','cart')->orderBy('priority', 'asc')->with('childes',function($q){
+            //     $q->where('item_type', 'product');
+            // })->get(), true);
+            
+            $products = $this->product->status()->where('category_id', $data->category_id)->get();
             return response()->json([
                 'status' => true,
                 'message' => 'Detail Provided',
                 'data' => [
                     'product_details' => $data,
+                    // 'more_option' => $products
                 ]
             ],200);
         }else {

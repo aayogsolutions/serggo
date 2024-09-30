@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Firebase OTP Verification'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.third-party-api-navmenu')
+            @include('Admin.views.business-settings.partial.third-party-api-navmenu')
         </div>
         <div class="row gx-2 gx-lg-3">
             <div class="col-sm-12 col-lg-12 mb-3 mb-lg-2">

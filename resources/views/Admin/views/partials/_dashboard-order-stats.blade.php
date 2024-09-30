@@ -5,7 +5,7 @@
         <h2 class="title">
             {{$data['pending']}}
         </h2>
-        <img src="{{asset('/public/assets/admin/img/dashboard/pending.png')}}" alt="" class="dashboard-icon">
+        <img src="{{asset('assets/admin/img/dashboard/pending.png')}}" alt="" class="dashboard-icon">
     </a>
 </div>
 
@@ -15,7 +15,7 @@
         <h2 class="title">
             {{$data['confirmed']}}
         </h2>
-        <img src="{{asset('/public/assets/admin/img/dashboard/confirmed.png')}}" alt="" class="dashboard-icon">
+        <img src="{{asset('assets/admin/img/dashboard/confirmed.png')}}" alt="" class="dashboard-icon">
     </a>
 </div>
 
@@ -25,7 +25,7 @@
         <h2 class="title">
             {{$data['processing']}}
         </h2>
-        <img src="{{asset('/public/assets/admin/img/dashboard/packaging.png')}}" alt="" class="dashboard-icon">
+        <img src="{{asset('assets/admin/img/dashboard/packaging.png')}}" alt="" class="dashboard-icon">
     </a>
 </div>
 
@@ -35,7 +35,7 @@
         <h2 class="title">
             {{$data['out_for_delivery']}}
         </h2>
-        <img src="{{asset('/public/assets/admin/img/dashboard/out-for-delivery.png')}}" alt="" class="dashboard-icon">
+        <img src="{{asset('assets/admin/img/dashboard/out-for-delivery.png')}}" alt="" class="dashboard-icon">
     </a>
 </div>
 
@@ -43,7 +43,7 @@
     <a class="order--card h-100" href="{{route('admin.orders.list',['delivered'])}}">
         <div class="d-flex justify-content-between align-items-center">
             <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                <img src="{{asset('public/assets/admin/img/delivery/1.png')}}" alt="dashboard" class="oder--card-icon">
+                <img src="{{asset('assets/admin/img/delivery/1.png')}}" alt="dashboard" class="oder--card-icon">
                 <span>{{translate('delivered')}}</span>
             </h6>
             <span class="card-title text-success">
@@ -57,7 +57,7 @@
     <a class="order--card h-100" href="{{route('admin.orders.list',['canceled'])}}">
         <div class="d-flex justify-content-between align-items-center">
             <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                <img src="{{asset('public/assets/admin/img/delivery/2.png')}}" alt="{{translate('dashboard')}}" class="oder--card-icon">
+                <img src="{{asset('assets/admin/img/delivery/2.png')}}" alt="{{translate('dashboard')}}" class="oder--card-icon">
                 <span>{{translate('Canceled')}}</span>
             </h6>
             <span class="card-title text-danger">
@@ -71,7 +71,7 @@
     <a class="order--card h-100" href="{{route('admin.orders.list',['returned'])}}">
         <div class="d-flex justify-content-between align-items-center">
             <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                <img src="{{asset('public/assets/admin/img/delivery/3.png')}}" alt="{{translate('dashboard')}}" class="oder--card-icon">
+                <img src="{{asset('assets/admin/img/delivery/3.png')}}" alt="{{translate('dashboard')}}" class="oder--card-icon">
                 <span>{{translate('returned')}}</span>
             </h6>
             <span class="card-title text-warning">
@@ -84,7 +84,7 @@
     <a class="order--card h-100" href="{{route('admin.orders.list',['failed'])}}">
         <div class="d-flex justify-content-between align-items-center">
             <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                <img src="{{asset('public/assets/admin/img/delivery/4.png')}}" alt="{{translate('dashboard')}}" class="oder--card-icon">
+                <img src="{{asset('assets/admin/img/delivery/4.png')}}" alt="{{translate('dashboard')}}" class="oder--card-icon">
                 <span>{{translate('Failed to Delivered')}}</span>
             </h6>
             <span class="card-title text-danger">

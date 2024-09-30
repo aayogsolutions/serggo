@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="row g-2" id="order_stats">
-                        <!-- include('admin-views.partials._dashboard-order-stats',['data'=>$data]) -->
+                        @include('admin.views.partials._dashboard-order-stats',['data'=>$data])
                     </div>
                 </div>
             </div>

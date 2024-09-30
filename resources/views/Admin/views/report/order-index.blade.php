@@ -2,7 +2,7 @@
 ini_set('memory_limit', '-1');
 
 ?>
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Order Report'))
 
@@ -15,7 +15,7 @@ ini_set('memory_limit', '-1');
         <div class="page-header">
             <div class="media align-items-center mb-2">
                 <div class="">
-                    <img src="{{asset('public/assets/admin/img/order-img.png')}}" class="w--20" alt="">
+                    <img src="{{asset('assets/admin/img/order-img.png')}}" class="w--20" alt="">
                 </div>
 
                 <div class="media-body pl-3">
@@ -26,7 +26,7 @@ ini_set('memory_limit', '-1');
                             <div class="row align-items-center">
                                 <div class="col-auto">
                                     <span>{{translate('admin')}}:</span>
-                                    <a href="#"  class="text--primary-2">{{auth('admin')->user()->f_name.' '.auth('admin')->user()->l_name}}</a>
+                                    <a href="#"  class="text--primary-2">{{auth('admins')->user()->f_name.' '.auth('admins')->user()->l_name}}</a>
                                 </div>
 
                                 <div class="col-auto">
@@ -83,14 +83,14 @@ ini_set('memory_limit', '-1');
                     @php
                         $from = session('from_date');
                         $to = session('to_date');
-                        $total=\App\Model\Order::whereBetween('created_at', [$from, $to])->count();
+                        $total=\App\Models\Order::whereBetween('created_at', [$from, $to])->count();
                         if($total==0){
                         $total=.01;
                         }
                     @endphp
                     <div class="col-sm-6 col-lg-3">
                     @php
-                        $delivered=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->count()
+                        $delivered=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->count()
                     @endphp
                         <div class="card card-sm bg--2 border-0 shadow-none">
                             <div class="card-body py-5 px-xxl-5">
@@ -132,7 +132,7 @@ ini_set('memory_limit', '-1');
 
                     <div class="col-sm-6 col-lg-3">
                     @php
-                        $returned=\App\Model\Order::where(['order_status'=>'returned'])->whereBetween('created_at', [$from, $to])->count()
+                        $returned=\App\Models\Order::where(['order_status'=>'returned'])->whereBetween('created_at', [$from, $to])->count()
                     @endphp
                         <div class="card card-sm bg--3 border-0 shadow-none">
                             <div class="card-body py-5 px-xxl-5">
@@ -174,7 +174,7 @@ ini_set('memory_limit', '-1');
 
                     <div class="col-sm-6 col-lg-3">
                     @php
-                        $failed=\App\Model\Order::where(['order_status'=>'failed'])->whereBetween('created_at', [$from, $to])->count()
+                        $failed=\App\Models\Order::where(['order_status'=>'failed'])->whereBetween('created_at', [$from, $to])->count()
                     @endphp
                         <div class="card card-sm bg--1 border-0 shadow-none">
                             <div class="card-body py-5 px-xxl-5">
@@ -215,7 +215,7 @@ ini_set('memory_limit', '-1');
 
                     <div class="col-sm-6 col-lg-3">
                     @php
-                        $canceled=\App\Model\Order::where(['order_status'=>'canceled'])->whereBetween('created_at', [$from, $to])->count()
+                        $canceled=\App\Models\Order::where(['order_status'=>'canceled'])->whereBetween('created_at', [$from, $to])->count()
                     @endphp
                         <div class="card card-sm bg--4 border-0 shadow-none">
                             <div class="card-body py-5 px-xxl-5">
@@ -262,7 +262,7 @@ ini_set('memory_limit', '-1');
                 @php
                     $x=1;
                     $y=12;
-                    $total=\App\Model\Order::whereBetween('created_at', [date('Y-'.$x.'-01'), date('Y-'.$y.'-30')])->count()
+                    $total=\App\Models\Order::whereBetween('created_at', [date('Y-'.$x.'-01'), date('Y-'.$y.'-30')])->count()
                 @endphp
                 <h6 class="card-subtitle mb-0">{{translate('total')}} {{translate('orders')}} of {{date('Y')}}: <span
                         class="h3 ml-sm-2">{{round($total)}}</span>
@@ -274,7 +274,7 @@ ini_set('memory_limit', '-1');
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $delivered[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->count();
+                    $delivered[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->count();
                 }
         @endphp
 
@@ -283,7 +283,7 @@ ini_set('memory_limit', '-1');
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $ret[$i]=\App\Model\Order::where(['order_status'=>'returned'])->whereBetween('created_at', [$from, $to])->count();
+                    $ret[$i]=\App\Models\Order::where(['order_status'=>'returned'])->whereBetween('created_at', [$from, $to])->count();
                 }
         @endphp
 
@@ -292,7 +292,7 @@ ini_set('memory_limit', '-1');
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $fai[$i]=\App\Model\Order::where(['order_status'=>'failed'])->whereBetween('created_at', [$from, $to])->count();
+                    $fai[$i]=\App\Models\Order::where(['order_status'=>'failed'])->whereBetween('created_at', [$from, $to])->count();
                 }
         @endphp
 
@@ -301,7 +301,7 @@ ini_set('memory_limit', '-1');
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $can[$i]=\App\Model\Order::where(['order_status'=>'canceled'])->whereBetween('created_at', [$from, $to])->count();
+                    $can[$i]=\App\Models\Order::where(['order_status'=>'canceled'])->whereBetween('created_at', [$from, $to])->count();
                 }
         @endphp
 
@@ -434,7 +434,7 @@ ini_set('memory_limit', '-1');
                     </div>
                     <div class="card-body card-body-height">
                     @php
-                        $orders= \App\Model\Order::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->get();
+                        $orders= \App\Models\Order::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->get();
                     @endphp
                         <div class="tab-content" id="eventsTabContent">
                             <div class="tab-pane fade show active" id="this-week" role="tabpanel"
@@ -467,7 +467,7 @@ ini_set('memory_limit', '-1');
                             </div>
 
                             @php
-                                $orders= \App\Model\Order::whereBetween('created_at', [now()->subDays(7)->startOfWeek(), now()->subDays(7)->endOfWeek()])->get();
+                                $orders= \App\Models\Order::whereBetween('created_at', [now()->subDays(7)->startOfWeek(), now()->subDays(7)->endOfWeek()])->get();
                             @endphp
 
                             <div class="tab-pane fade" id="last-week" role="tabpanel" aria-labelledby="last-week-tab">
@@ -511,10 +511,10 @@ ini_set('memory_limit', '-1');
 
 @push('script_2')
 
-    <script src="{{asset('public/assets/admin')}}/vendor/chart.js/dist/Chart.min.js"></script>
+    <script src="{{asset('assets/admin')}}/vendor/chart.js/dist/Chart.min.js"></script>
     <script
-        src="{{asset('public/assets/admin')}}/vendor/chartjs-chart-matrix/dist/chartjs-chart-matrix.min.js"></script>
-    <script src="{{asset('public/assets/admin')}}/js/hs.chartjs-matrix.js"></script>
-    <script src="{{asset('public/assets/admin/js/flatpicker.js')}}"></script>
-    <script src="{{asset('public/assets/admin/js/order-report.js')}}"></script>
+        src="{{asset('assets/admin')}}/vendor/chartjs-chart-matrix/dist/chartjs-chart-matrix.min.js"></script>
+    <script src="{{asset('assets/admin')}}/js/hs.chartjs-matrix.js"></script>
+    <script src="{{asset('assets/admin/js/flatpicker.js')}}"></script>
+    <script src="{{asset('assets/admin/js/order-report.js')}}"></script>
 @endpush

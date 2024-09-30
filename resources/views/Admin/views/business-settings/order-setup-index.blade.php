@@ -1,10 +1,10 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Product Setup'))
 
 @section('content')
 <div class="content container-fluid">
-    @include('admin-views.business-settings.partial.business-settings-navmenu')
+    @include('Admin.views.business-settings.partial.business-settings-navmenu')
 
     <div class="tab-content">
         <div class="tab-pane fade show active" id="business-setting">
@@ -49,7 +49,7 @@
                                 </div>
                             </div>
 
-                            @php($mov=\App\Model\BusinessSetting::where('key','minimum_order_value')->first()->value)
+                            @php($mov=\App\Models\BusinessSetting::where('key','minimum_order_value')->first()->value)
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
                                     <label class="input-label" for="exampleFormControlInput1">{{translate('min order value')}}( {{\App\CentralLogics\Helpers::currency_symbol()}} )</label>

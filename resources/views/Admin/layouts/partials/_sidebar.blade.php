@@ -7,7 +7,7 @@
 
                     @php($logo = Helpers_get_business_settings('logo'))
                     <a class="navbar-brand" href="{{route('admin.dashboard')}}" aria-label="Front">
-                        <img class="w-100 side-logo" src="{{ asset($logo) }}" alt="{{ translate('logo') }}"
+                        <img class="w-100 side-logo" src="{{ asset($logo )}}" alt="{{ translate('logo') }}"
                             onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                     </a>
 
@@ -418,7 +418,7 @@
                         </li>
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['sales_report']))
                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/report/sale-report')?'active':''}}">
-                            <a class="nav-link " href="{{('admin.report.sale-report')}}"
+                            <a class="nav-link " href="{{route('admin.report.sale-report')}}"
                                 title="{{translate('sale')}} {{translate('report')}}">
                                 <span class="tio-chart-bar-1 nav-icon"></span>
                                 <span class="text-truncate">{{translate('Sales Report')}}</span>
@@ -427,7 +427,7 @@
                         @endif
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['order_report']))
                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/report/order')?'active':''}}">
-                            <a class="nav-link " href="{{('admin.report.order')}}"
+                            <a class="nav-link " href="{{route('admin.report.order')}}"
                                 title="{{translate('order')}} {{translate('report')}}">
                                 <span class="tio-chart-bar-2 nav-icon"></span>
                                 <span class="text-truncate">{{translate('Order Report')}}</span>
@@ -436,7 +436,7 @@
                         @endif
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['earning_report']))
                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/report/earning')?'active':''}}">
-                            <a class="nav-link " href="{{('admin.report.earning')}}"
+                            <a class="nav-link " href="{{route('admin.report.earning')}}"
                                 title="{{translate('earning')}} {{translate('report')}}">
                                 <span class="tio-chart-pie-1 nav-icon"></span>
                                 <span
@@ -455,7 +455,7 @@
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['customer_list']))
                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/customer/list') || Request::is('admin/customer/view*')?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                href="{{('admin.customer.list')}}"
+                                href="{{route('admin.customer.list')}}"
                                 title="{{translate('customer')}} {{translate('list')}}">
                                 <i class="tio-poi-user nav-icon"></i>
                                 <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
@@ -500,7 +500,7 @@
 
                                 <li class="nav-item {{Request::is('admin/customer/wallet/add-fund')?'active':''}}">
                                     <a class="nav-link"
-                                        href="{{('admin.customer.wallet.add-fund')}}"
+                                        href="{{route('admin.customer.wallet.add-fund')}}"
                                         title="{{translate('add_fund')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
@@ -511,7 +511,7 @@
 
                                 <li class="nav-item {{Request::is('admin/customer/wallet/report')?'active':''}}">
                                     <a class="nav-link"
-                                        href="{{('admin.customer.wallet.report')}}"
+                                        href="{{route('admin.customer.wallet.report')}}"
                                         title="{{translate('report')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
@@ -521,7 +521,7 @@
                                 </li>
                                 <li class="nav-item {{Request::is('admin/customer/wallet/bonus*')?'active':''}}">
                                     <a class="nav-link"
-                                        href="{{('admin.customer.wallet.bonus.index')}}"
+                                        href="{{route('admin.customer.wallet.bonus.index')}}"
                                         title="{{translate('wallet_bonus_setup')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
@@ -536,7 +536,7 @@
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['product_reviews']))
                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/reviews*')?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                href="{{('admin.reviews.list')}}"
+                                href="{{route('admin.reviews.list')}}"
                                 title="{{translate('product')}} {{translate('reviews')}}">
                                 <i class="tio-star nav-icon"></i>
                                 <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">

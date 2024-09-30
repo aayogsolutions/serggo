@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title',translate('customer_wallet').' '.translate('report'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title text-capitalize">
                 <div class="card-header-icon d-inline-flex mr-2 img">
-                    <img src="{{asset('/public/assets/admin/img/wallet.png')}}" alt="{{ translate('wallet') }}" class="width-24">
+                    <img src="{{asset('assets/admin/img/wallet.png')}}" alt="{{ translate('wallet') }}" class="width-24">
                 </div>
                 <span>
                     {{translate('customer_wallet')}} {{translate('report')}}
@@ -82,9 +82,9 @@
                 <div class="resturant-card dashboard--card bg--2">
                     <h4 class="title">{{translate('debit')}}</h4>
                     <span class="subtitle">
-                        {{Helpers::set_symbol($debit)}}
+                        {{Helpers_set_symbol($debit)}}
                     </span>
-                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
+                    <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
                 </div>
             </div>
 
@@ -92,18 +92,18 @@
                 <div class="resturant-card dashboard--card bg--3">
                     <h4 class="title">{{translate('credit')}}</h4>
                     <span class="subtitle">
-                        {{Helpers::set_symbol($credit)}}
+                        {{Helpers_set_symbol($credit)}}
                     </span>
-                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/dashboard/4.png')}}" alt="{{ translate('image') }}">
+                    <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/4.png')}}" alt="{{ translate('image') }}">
                 </div>
             </div>
             <div class="col-sm-4">
                 <div class="resturant-card dashboard--card bg--1">
                     <h4 class="title">{{translate('balance')}}</h4>
                     <span class="subtitle">
-                        {{Helpers::set_symbol($balance)}}
+                        {{Helpers_set_symbol($balance)}}
                     </span>
-                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/dashboard/1.png')}}" alt="{{ translate('image') }}">
+                    <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/1.png')}}" alt="{{ translate('image') }}">
                 </div>
             </div>
         </div>
@@ -144,7 +144,7 @@
                                 </td>
                                 <td>{{$walletTransaction->credit}}</td>
                                 <td>{{$walletTransaction->debit}}</td>
-                                <td>{{Helpers::set_symbol($walletTransaction->balance)}}</td>
+                                <td>{{Helpers_set_symbol($walletTransaction->balance)}}</td>
                                 <td>
                                     <span class="badge badge-soft-{{$walletTransaction->transaction_type=='order_refund'
                                         ?'danger'
@@ -163,7 +163,7 @@
                     </table>
                     @if(!$transactions)
                         <div class="empty--data">
-                            <img src="{{asset('/public/assets/admin/img/empty.png')}}" alt="public">
+                            <img src="{{asset('assets/admin/img/empty.png')}}" alt="public">
                             <h5>
                                 {{translate('no_data_found')}}
                             </h5>

@@ -18,6 +18,13 @@ use App\Http\Controllers\Admin\{
     DiscountController,
     CouponController,
     NotificationController,
+    PageSetupController,
+    ReviewsController,
+    ReportController,
+    WalletBonusController,
+    CustomerController,
+    CustomerWalletController,
+    OrderController,
 };
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -179,6 +186,70 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', [BranchController::class, 'status'])->name('status');
         });
 
+        Route::group(['prefix' => 'reviews', 'as' => 'reviews.'], function () {
+            Route::get('list', [ReviewsController::class, 'list'])->name('list');
+            Route::get('status/{id}/{status}', [ReviewsController::class, 'status'])->name('status');
+        });
+
+        Route::group(['prefix' => 'report', 'as' => 'report.'], function () {
+            Route::get('order', [ReportController::class, 'order_index'])->name('order');
+            Route::get('earning', [ReportController::class, 'earning_index'])->name('earning');
+            Route::post('set-date', [ReportController::class, 'setDate'])->name('set-date');
+            Route::get('sale-report', [ReportController::class, 'saleReportIndex'])->name('sale-report');
+            Route::get('export-sale-report', [ReportController::class, 'exportSaleReport'])->name('export-sale-report');
+            Route::get('expense', [ReportController::class, 'expenseIndex'])->name('expense');
+            Route::get('expense-export-excel', [ReportController::class, 'expenseExportExcel'])->name('expense.export.excel');
+            Route::get('expense-export-pdf', [ReportController::class, 'expenseSummaryPdf'])->name('expense.export.pdf');
+        });
+
+        Route::group(['prefix' => 'orders', 'as' => 'orders.'], function () {
+            Route::get('list/{status}', [OrderController::class, 'list'])->name('list');
+            Route::get('details/{id}', [OrderController::class, 'details'])->name('details');
+            Route::get('status', [OrderController::class, 'status'])->name('status');
+            Route::get('add-delivery-man/{order_id}/{delivery_man_id}', [OrderController::class, 'addDeliveryman'])->name('add-delivery-man');
+            Route::get('payment-status', [OrderController::class, 'paymentStatus'])->name('payment-status');
+            Route::get('generate-invoice/{id}', [OrderController::class, 'generateInvoice'])->name('generate-invoice')->withoutMiddleware(['module:order_management']);
+            Route::post('add-payment-ref-code/{id}', [OrderController::class, 'addPaymentReferenceCode'])->name('add-payment-ref-code');
+            Route::get('branch-filter/{branch_id}', [OrderController::class, 'branchFilter'])->name('branch-filter');
+            Route::post('search', [OrderController::class, 'search'])->name('search');
+            Route::get('export/{status}', [OrderController::class, 'exportOrders'])->name('export');
+            Route::get('verify-offline-payment/{order_id}/{status}', [OrderController::class, 'verifyOfflinePayment']);
+
+            Route::get('edit-item/{id}', [OrderController::class, 'edit_item'])->name('edit_item');
+            Route::post('edit-item/{id}', [OrderController::class, 'edit_item_submit'])->name('edit_item.submit');
+
+            Route::post('Product_Replaced_ajax', [OrderController::class, 'ProductReplaceAjax'])->name('ProductReplaceAjax');
+            Route::post('Product_delete_ajax', [OrderController::class, 'ProductDeleteAjax'])->name('ProductDeleteAjax');
+        });
+
+        Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
+
+            Route::get('list', [CustomerController::class, 'list'])->name('list');
+            Route::get('view/{user_id}', [CustomerController::class, 'view'])->name('view');
+            Route::post('search', [CustomerController::class, 'search'])->name('search');
+            Route::get('subscribed-emails', [CustomerController::class, 'subscribedEmails'])->name('subscribed_emails');
+            Route::delete('delete/{id}', [CustomerController::class, 'delete'])->name('delete');
+            Route::get('status/{id}/{status}', [CustomerController::class, 'status'])->name('status');
+            Route::get('export', [CustomerController::class, 'exportCustomer'])->name('export');
+
+            Route::get('select-list', [CustomerWalletController::class, 'getCustomers'])->name('select-list');
+
+                Route::group(['prefix' => 'wallet', 'as' => 'wallet.'], function () {
+                    Route::get('add-fund', [CustomerWalletController::class, 'addFundView'])->name('add-fund');
+                    Route::post('add-fund', [CustomerWalletController::class, 'addFund'])->name('add-fund-store');
+                    Route::get('report', [CustomerWalletController::class, 'report'])->name('report');
+
+                    Route::group(['prefix' => 'bonus', 'as' => 'bonus.'], function () {
+                        Route::get('index', [WalletBonusController::class, 'index'])->name('index');
+                        Route::post('store',  [WalletBonusController::class, 'store'])->name('store');
+                        Route::get('edit/{id}',  [WalletBonusController::class, 'edit'])->name('edit');
+                        Route::post('update/{id}',  [WalletBonusController::class, 'update'])->name('update');
+                        Route::get('status/{id}/{status}',  [WalletBonusController::class, 'status'])->name('status');
+                        Route::delete('delete/{id}',  [WalletBonusController::class, 'delete'])->name('delete');
+                    });
+            });
+        });
+
         Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
             Route::get('list', [ProductController::class, 'list'])->name('list');
             Route::get('add-new', [ProductController::class, 'index'])->name('add-new');
@@ -302,14 +373,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::group(['prefix' => 'third-party', 'as' => 'third-party.'], function () {
                     Route::get('map-api-settings',[BusinessSettingsController::class, 'mapApiSetting'])->name('map-api-settings');
                     Route::post('map-api-store',[BusinessSettingsController::class, 'mapApiStore'])->name('map-api-store');
-                    Route::get('social-media', [BusinessSettingsController::class, 'socialMedia'])->name('social-media');
-                    Route::get('fetch', [BusinessSettingsController::class, 'fetch'])->name('fetch');
-                    Route::post('social-media-store', [BusinessSettingsController::class, 'socialMediaStore'])->name('social-media-store');
-                    Route::post('social-media-edit', [BusinessSettingsController::class, 'socialMediaEdit'])->name('social-media-edit');
-                    Route::post('social-media-update', [BusinessSettingsController::class, 'socialMediaUpdate'])->name('social-media-update');
-                    Route::post('social-media-delete', [BusinessSettingsController::class, 'socialMediaDelete'])->name('social-media-delete');
-                    Route::post('social-media-status-update', [BusinessSettingsController::class, 'socialMediaStatusUpdate'])->name('social-media-status-update');
-                    Route::get('social-media-login', [BusinessSettingsController::class, 'socialMediaLogin'])->name('social-media-login');
+                    Route::get('social-media', [PageSetupController::class, 'socialMedia'])->name('social-media');
+                    Route::get('fetch', [PageSetupController::class, 'fetch'])->name('fetch');
+                    Route::post('social-media-store', [PageSetupController::class, 'socialMediaStore'])->name('social-media-store');
+                    Route::post('social-media-edit', [PageSetupController::class, 'socialMediaEdit'])->name('social-media-edit');
+                    Route::post('social-media-update', [PageSetupController::class, 'socialMediaUpdate'])->name('social-media-update');
+                    Route::post('social-media-delete', [PageSetupController::class, 'socialMediaDelete'])->name('social-media-delete');
+                    Route::post('social-media-status-update', [PageSetupController::class, 'socialMediaStatusUpdate'])->name('social-media-status-update');
+                    Route::get('social-media-login', [PageSetupController::class, 'socialMediaLogin'])->name('social-media-login');
                     Route::get('google-social-login/{status}', [BusinessSettingsController::class, 'googleSocialLogin'])->name('google-social-login');
                     Route::get('facebook-social-login/{status}', [BusinessSettingsController::class, 'facebookSocialLogin'])->name('facebook-social-login');
                     Route::post('update-apple-login', [BusinessSettingsController::class, 'updateAppleLogin'])->name('update-apple-login');
@@ -338,29 +409,29 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             });
 
             Route::group(['prefix' => 'page-setup', 'as' => 'page-setup.'], function () {
-                Route::get('terms-and-conditions', [BusinessSettingsController::class, 'termsAndConditions'])->name('terms-and-conditions');
-                Route::post('terms-and-conditions', [BusinessSettingsController::class, 'termsAndConditionsUpdate']);
+                Route::get('terms-and-conditions', [PageSetupController::class, 'termsAndConditions'])->name('terms-and-conditions');
+                Route::post('terms-and-conditions', [PageSetupController::class, 'termsAndConditionsUpdate']);
 
-                Route::get('privacy-policy', [BusinessSettingsController::class, 'privacyPolicy'])->name('privacy-policy');
-                Route::post('privacy-policy', [BusinessSettingsController::class, 'privacyPolicyUpdate']);
+                Route::get('privacy-policy', [PageSetupController::class, 'privacyPolicy'])->name('privacy-policy');
+                Route::post('privacy-policy', [PageSetupController::class, 'privacyPolicyUpdate']);
 
-                Route::get('about-us', [BusinessSettingsController::class, 'aboutUs'])->name('about-us');
-                Route::post('about-us', [BusinessSettingsController::class, 'aboutUsUpdate']);
+                Route::get('about-us', [PageSetupController::class, 'aboutUs'])->name('about-us');
+                Route::post('about-us', [PageSetupController::class, 'aboutUsUpdate']);
 
-                Route::get('faq', [BusinessSettingsController::class, 'faq'])->name('faq');
-                Route::post('faq', [BusinessSettingsController::class, 'faqUpdate']);
+                Route::get('faq', [PageSetupController::class, 'faq'])->name('faq');
+                Route::post('faq', [PageSetupController::class, 'faqUpdate']);
 
-                Route::get('cancellation-policy', [BusinessSettingsController::class, 'cancellationPolicy'])->name('cancellation-policy');
-                Route::post('cancellation-policy', [BusinessSettingsController::class, 'cancellationPolicyUpdate']);
-                Route::get('cancellation-policy/status/{status}', [BusinessSettingsController::class, 'cancellationPolicyStatus'])->name('cancellation-policy.status');
+                Route::get('cancellation-policy', [PageSetupController::class, 'cancellationPolicy'])->name('cancellation-policy');
+                Route::post('cancellation-policy', [PageSetupController::class, 'cancellationPolicyUpdate']);
+                Route::get('cancellation-policy/status/{status}', [PageSetupController::class, 'cancellationPolicyStatus'])->name('cancellation-policy.status');
 
-                Route::get('refund-policy', [BusinessSettingsController::class, 'refundPolicy'])->name('refund-policy');
-                Route::post('refund-policy', [BusinessSettingsController::class, 'refundPolicyUpdate']);
-                Route::get('refund-policy/status/{status}', [BusinessSettingsController::class, 'refundPolicyStatus'])->name('refund-policy.status');
+                Route::get('refund-policy', [PageSetupController::class, 'refundPolicy'])->name('refund-policy');
+                Route::post('refund-policy', [PageSetupController::class, 'refundPolicyUpdate']);
+                Route::get('refund-policy/status/{status}', [PageSetupController::class, 'refundPolicyStatus'])->name('refund-policy.status');
 
-                Route::get('return-policy', [BusinessSettingsController::class, 'returnPolicy'])->name('return-policy');
-                Route::post('return-policy', [BusinessSettingsController::class, 'returnPolicyUpdate']);
-                Route::get('return-policy/status/{status}', [BusinessSettingsController::class, 'returnPolicyStatus'])->name('return-policy.status');
+                Route::get('return-policy', [PageSetupController::class, 'returnPolicy'])->name('return-policy');
+                Route::post('return-policy', [PageSetupController::class, 'returnPolicyUpdate']);
+                Route::get('return-policy/status/{status}', [PageSetupController::class, 'returnPolicyStatus'])->name('return-policy.status');
 
             });
         });

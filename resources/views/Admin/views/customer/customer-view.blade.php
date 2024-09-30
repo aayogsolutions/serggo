@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Customer Details'))
 
@@ -8,7 +8,7 @@
             <div class="page-header border-bottom">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('customer') }}">
+                    <img src="{{asset('assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('customer') }}">
                 </span>
                     <span class="page-header-title pt-2">
                         {{translate('customer_Details')}}
@@ -45,16 +45,16 @@
 
             <div class="col-lg-6 col-md-6 col-sm-6">
                 <div class="resturant-card bg--2">
-                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/dashboard/1.png')}}" alt="{{ translate('image') }}">
+                    <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/1.png')}}" alt="{{ translate('image') }}">
                     <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('wallet')}} {{translate('balance')}}</div>
-                    <div class="for-card-count">{{ Helpers::set_symbol($customer->wallet_balance??0)}}</div>
+                    <div class="for-card-count">{{ Helpers_set_symbol($customer->wallet_balance??0)}}</div>
                 </div>
             </div>
 
 
             <div class="col-lg-6 col-md-6 col-sm-6">
                 <div class="resturant-card bg--3">
-                    <img class="resturant-icon" src="{{asset('/public/assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
+                    <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
                     <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('loyalty_point')}} {{translate('balance')}}</div>
                     <div class="for-card-count">{{$customer->loyalty_point??0}}</div>
                 </div>
@@ -104,7 +104,7 @@
                                     <td class=" text-center">
                                         <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">{{$order['id']}}</a>
                                     </td>
-                                    <td class="text-center">{{ Helpers::set_symbol($order['order_amount']) }}</td>
+                                    <td class="text-center">{{ Helpers_set_symbol($order['order_amount']) }}</td>
                                     <td>
                                         <div class="btn--container justify-content-center">
                                             <a class="action-btn"
@@ -125,7 +125,7 @@
                         </div>
                         @if(count($orders)==0)
                             <div class="text-center p-4">
-                                <img class="w-120px mb-3" src="{{asset('public/assets/admin')}}/svg/illustrations/sorry.svg" alt="{{ translate('image') }}">
+                                <img class="w-120px mb-3" src="{{asset('assets/admin')}}/svg/illustrations/sorry.svg" alt="{{ translate('image') }}">
                                 <p class="mb-0">{{ translate('No_data_to_show')}}</p>
                             </div>
                         @endif

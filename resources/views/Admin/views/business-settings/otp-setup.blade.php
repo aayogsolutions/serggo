@@ -1,10 +1,10 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('OTP Setup'))
 
 @section('content')
 <div class="content container-fluid">
-    @include('admin-views.business-settings.partial.business-settings-navmenu')
+    @include('Admin.views.business-settings.partial.business-settings-navmenu')
 
     @php($config=\App\CentralLogics\Helpers::get_business_settings('maintenance_mode'))
     <div class="tab-content">
@@ -15,7 +15,7 @@
                     <form action="{{route('admin.business-settings.store.otp-setup-update')}}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
-                            @php($maximum_otp_hit=\App\Model\BusinessSetting::where('key','maximum_otp_hit')->first()->value)
+                            @php($maximum_otp_hit=\App\Models\BusinessSetting::where('key','maximum_otp_hit')->first()->value)
                             <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label class="input-label" for="maximum_otp_hit">{{translate('maximum OTP submit attempt')}}
@@ -29,7 +29,7 @@
                                            name="maximum_otp_hit" class="form-control" placeholder="" required>
                                 </div>
                             </div>
-                            @php($otp_resend_time=\App\Model\BusinessSetting::where('key','otp_resend_time')->first()->value)
+                            @php($otp_resend_time=\App\Models\BusinessSetting::where('key','otp_resend_time')->first()->value)
                             <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label class="input-label" for="otp_resend_time">{{translate('OTP resend time')}}
@@ -44,7 +44,7 @@
                                            name="otp_resend_time" class="form-control" placeholder="" required>
                                 </div>
                             </div>
-                            @php($temporary_block_time=\App\Model\BusinessSetting::where('key','temporary_block_time')->first()->value)
+                            @php($temporary_block_time=\App\Models\BusinessSetting::where('key','temporary_block_time')->first()->value)
                             <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label class="input-label" for="temporary_block_time">{{translate('temporary_OTP_block_time')}}
@@ -60,7 +60,7 @@
                                 </div>
                             </div>
 
-                            @php($maximum_login_hit=\App\Model\BusinessSetting::where('key','maximum_login_hit')->first()->value)
+                            @php($maximum_login_hit=\App\Models\BusinessSetting::where('key','maximum_login_hit')->first()->value)
                             <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label class="input-label" for="maximum_otp_hit">{{translate('maximum Login Attempt')}}
@@ -74,7 +74,7 @@
                                            name="maximum_login_hit" class="form-control" placeholder="" required>
                                 </div>
                             </div>
-                            @php($temporary_login_block_time=\App\Model\BusinessSetting::where('key','temporary_login_block_time')->first()->value)
+                            @php($temporary_login_block_time=\App\Models\BusinessSetting::where('key','temporary_login_block_time')->first()->value)
                             <div class="col-md-4 col-sm-4">
                                 <div class="form-group">
                                     <label class="input-label" for="temporary_block_time">{{translate('temporary_login_block_time')}}

@@ -10,7 +10,13 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class AdminController extends Controller
 {
     public function login(){
-        return view('Admin.views.auth.login');
+        if(Auth::guard('admins')->check())
+        {
+            return redirect()->route('admin.dashboard');
+        }else{
+            return view('Admin.views.auth.login');
+        }
+       
     }
 
     public function login_submit(Request $request)
@@ -58,6 +64,15 @@ class AdminController extends Controller
         $data['failed'] = 1;
         $data['top_customer'] = 1;
         $data['top_customer'] = 1;
+        $data['pending'] = 1;
+        $data['confirmed'] = 1;
+        $data['processing'] = 1;
+        $data['out_for_delivery'] = 1;
+        $data['delivered'] = 1;
+        $data['canceled'] = 1;
+        $data['returned'] = 1;
+        $data['failed'] = 1;
+        
 
         $earning = [1,2,3,4,5,6,7,8,9,10,11,12,13];
 

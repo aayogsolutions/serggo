@@ -6,6 +6,7 @@ use App\Models\{
     CategoryDiscount
 };
 use Illuminate\Support\Facades\File;
+use App\Models\Currency;
 
 if(! function_exists('Helpers_get_business_settings')) {
     function Helpers_get_business_settings($name)
@@ -178,6 +179,15 @@ if(! function_exists('Helpers_set_price')) {
     }
 }
 
+if(! function_exists('Helpers_currency_symbol')) {
+    function Helpers_currency_symbol()
+    {
+        $currency_symbol = Helpers_get_business_settings("currency_code");
+        return $currency_symbol ?? "₹";
+    }
+
+}
+
 if(! function_exists('Helpers_send_push_notif_to_topic')) {
     function Helpers_send_push_notif_to_topic($data)
     {
@@ -185,11 +195,11 @@ if(! function_exists('Helpers_send_push_notif_to_topic')) {
         $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
         /*$topic = BusinessSetting::where(['key' => 'fcm_topic'])->first()->value;*/
         /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
-
         $url = "https://fcm.googleapis.com/fcm/send";
         $header = array("authorization: key=" . $key . "",
             "content-type: application/json"
         );
+
 
         $image = asset('storage/app/public/notification') . '/' . $data['image'];
         $postdata = '{

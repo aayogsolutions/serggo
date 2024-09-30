@@ -1,10 +1,10 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Cookies Setup'))
 
 @section('content')
 <div class="content container-fluid">
-    @include('admin-views.business-settings.partial.business-settings-navmenu')
+    @include('Admin.views.business-settings.partial.business-settings-navmenu')
 
     <div class="tab-content">
         <div class="tab-pane fade show active" id="business-setting">

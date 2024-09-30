@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Map API Settings'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.third-party-api-navmenu')
+            @include('Admin.views.business-settings.partial.third-party-api-navmenu')
         </div>
 
 
@@ -14,12 +14,12 @@
                 <form action="{{env('APP_MODE')!='demo'?route('admin.business-settings.web-app.third-party.map-api-store'):'javascript:'}}" method="post">
                     @csrf
                     <div class="row">
-                        @php($key=\App\Model\BusinessSetting::where('key','map_api_server_key')->first()?->value )
+                        @php($key=\App\Models\BusinessSetting::where('key','map_api_server_key')->first()?->value )
                         <div class="form-group col-md-6">
                             <label class="form-label">{{translate('map_api_server')}} {{translate('key')}}</label>
                             <textarea name="map_api_server_key" class="form-control">{{env('APP_MODE')!='demo'?$key:''}}</textarea>
                         </div>
-                        @php($key=\App\Model\BusinessSetting::where('key','map_api_client_key')->first()?->value)
+                        @php($key=\App\Models\BusinessSetting::where('key','map_api_client_key')->first()?->value)
                         <div class="form-group col-md-6">
                             <label class="form-label">{{translate('map_api_client')}} {{translate('key')}}</label>
                             <textarea name="map_api_client_key" class="form-control">{{env('APP_MODE')!='demo'?$key:''}}</textarea>

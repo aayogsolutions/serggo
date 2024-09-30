@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Earning Report'))
 
@@ -15,7 +15,7 @@
         <div class="page-header">
             <div class="media align-items-center mb-2">
                 <div class="">
-                    <img src="{{asset('public/assets/admin/img/image-4.png')}}" class="w--20" alt="">
+                    <img src="{{asset('assets/admin/img/image-4.png')}}" class="w--20" alt="">
                 </div>
 
                 <div class="media-body pl-3">
@@ -26,7 +26,7 @@
                             <div class="row align-items-center">
                                 <div class="col-auto">
                                     <span>{{translate('admin')}}:</span>
-                                    <a href="#"  class="text--primary-2">{{auth('admin')->user()->f_name.' '.auth('admin')->user()->l_name}}</a>
+                                    <a href="#"  class="text--primary-2">{{auth('admins')->user()->f_name.' '.auth('admins')->user()->l_name}}</a>
                                 </div>
 
                                 <div class="col-auto">
@@ -83,7 +83,7 @@
                     @php
                         $from = session('from_date');
                         $to = session('to_date');
-                        $totalTax=\App\Model\Order::where(['order_status'=>'delivered'])
+                        $totalTax=\App\Models\Order::where(['order_status'=>'delivered'])
                             ->whereBetween('created_at', [$from, $to])
                             ->sum('total_tax_amount');
 
@@ -91,7 +91,7 @@
                             $totalTax=0.01;
                         }
 
-                        $totalDeliveryCharge=\App\Model\Order::where(['order_status'=>'delivered'])
+                        $totalDeliveryCharge=\App\Models\Order::where(['order_status'=>'delivered'])
                             ->whereBetween('created_at', [$from, $to])
                             ->sum('delivery_charge');
 
@@ -99,7 +99,7 @@
                             $totalDeliveryCharge=0.01;
                         }
 
-                        $totalSold=\App\Model\Order::where(['order_status'=>'delivered'])
+                        $totalSold=\App\Models\Order::where(['order_status'=>'delivered'])
                             ->whereBetween('created_at', [$from, $to])
                             ->sum('order_amount');
 
@@ -119,7 +119,7 @@
                                             <div class="media-body">
                                                 <h4 class="mb-1">{{translate('total')}} {{translate('sold')}}</h4>
                                                 <span class="text-success">
-                                                <i class="tio-trending-up"></i> {{ Helpers::set_symbol(round(abs($totalSold))) }}
+                                                <i class="tio-trending-up"></i> {{ Helpers_set_symbol(round(abs($totalSold))) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -158,7 +158,7 @@
                                             <div class="media-body">
                                                 <h4 class="mb-1">{{translate('total')}} {{translate('tax')}}</h4>
                                                 <span class="text-danger">
-                                                <i class="tio-trending-up"></i> {{ Helpers::set_symbol(round(abs($totalTax))) }}
+                                                <i class="tio-trending-up"></i> {{ Helpers_set_symbol(round(abs($totalTax))) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -196,7 +196,7 @@
                                             <div class="media-body">
                                                 <h4 class="mb-1">{{translate('total')}} {{translate('delivery')}} {{translate('charge') }}</h4>
                                                 <span class="text-warning">
-                                                <i class="tio-trending-up"></i> {{ Helpers::set_symbol(round(abs($totalDeliveryCharge))) }}
+                                                <i class="tio-trending-up"></i> {{ Helpers_set_symbol(round(abs($totalDeliveryCharge))) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -233,7 +233,7 @@
                                             <div class="media-body">
                                                 <h4 class="mb-1">{{translate('total')}} {{translate('earning')}}</h4>
                                                 <span class="text-warning">
-                                                <i class="tio-trending-up"></i> {{ Helpers::set_symbol(round(abs($totalEarning))) }}
+                                                <i class="tio-trending-up"></i> {{ Helpers_set_symbol(round(abs($totalEarning))) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -267,10 +267,10 @@
         <div class="card mt-3">
             <div class="card-header">
                 @php
-                    $totalSold=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [date('y-01-01'), date('y-12-31')])->sum('order_amount')
+                    $totalSold=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [date('y-01-01'), date('y-12-31')])->sum('order_amount')
                 @endphp
                 <h6 class="card-subtitle mb-0">{{ translate('Total sale of ') }} {{date('Y')}} :<span
-                        class="h3 ml-sm-2"> {{ Helpers::set_symbol($totalSold) }}</span>
+                        class="h3 ml-sm-2"> {{ Helpers_set_symbol($totalSold) }}</span>
                 </h6>
             </div>
 
@@ -279,7 +279,7 @@
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $sold[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('order_amount');
+                    $sold[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('order_amount');
                 }
         @endphp
 
@@ -288,7 +288,7 @@
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $tax[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('total_tax_amount');
+                    $tax[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('total_tax_amount');
                 }
         @endphp
 
@@ -297,7 +297,7 @@
                 for ($i=1;$i<=12;$i++){
                     $from = date('Y-'.$i.'-01');
                     $to = date('Y-'.$i.'-30');
-                    $deliveryCharge[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('delivery_charge');
+                    $deliveryCharge[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('delivery_charge');
                 }
         @endphp
 
@@ -309,14 +309,14 @@
             for ($i=1;$i<=12;$i++){
                 $from = date('Y-'.$i.'-01');
                 $to = date('Y-'.$i.'-30');
-                $soldCal[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('order_amount');
-                $taxCal[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('total_tax_amount');
-                $deliveryCharge_cal[$i]=\App\Model\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('delivery_charge');
+                $soldCal[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('order_amount');
+                $taxCal[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('total_tax_amount');
+                $deliveryCharge_cal[$i]=\App\Models\Order::where(['order_status'=>'delivered'])->whereBetween('created_at', [$from, $to])->sum('delivery_charge');
                 $earning[$i] = $soldCal[$i] - $taxCal[$i] - $deliveryCharge_cal[$i];
             }
         @endphp
 
-        @php($currency_position = Helpers::get_business_settings('currency_symbol_position'))
+        @php($currency_position = Helpers_get_business_settings('currency_symbol_position'))
 
             <div class="card-body">
                 <div class="chartjs-custom">
@@ -391,7 +391,7 @@
                                   "fontColor": "#97a4af",
                                   "fontFamily": "Open Sans, sans-serif",
                                   "padding": 10,
-                                  "{{ $currency_position == 'left' ? 'prefix' : 'postfix'}}": " {{\App\CentralLogics\Helpers::currency_symbol()}}"
+                                  "{{ $currency_position == 'left' ? 'prefix' : 'postfix'}}": " {{\App\CentralLogics\Helpers_currency_symbol()}}"
                                 }
                               }],
                               "xAxes": [{
@@ -435,12 +435,12 @@
 
 @push('script_2')
 
-    <script src="{{asset('public/assets/admin')}}/vendor/chart.js/dist/Chart.min.js"></script>
+    <script src="{{asset('assets/admin')}}/vendor/chart.js/dist/Chart.min.js"></script>
     <script
-        src="{{asset('public/assets/admin')}}/vendor/chartjs-chart-matrix/dist/chartjs-chart-matrix.min.js"></script>
-    <script src="{{asset('public/assets/admin')}}/js/hs.chartjs-matrix.js"></script>
-    <script src="{{asset('public/assets/admin/js/flatpicker.js')}}"></script>
-    <script src="{{asset('public/assets/admin/js/earning.js')}}"></script>
+        src="{{asset('assets/admin')}}/vendor/chartjs-chart-matrix/dist/chartjs-chart-matrix.min.js"></script>
+    <script src="{{asset('assets/admin')}}/js/hs.chartjs-matrix.js"></script>
+    <script src="{{asset('assets/admin/js/flatpicker.js')}}"></script>
+    <script src="{{asset('assets/admin/js/earning.js')}}"></script>
 
     <script>
         $('#from_date,#to_date').change(function () {

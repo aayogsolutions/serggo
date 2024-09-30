@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('mail config'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.third-party-api-navmenu')
+            @include('Admin.views.business-settings.partial.third-party-api-navmenu')
         </div>
         <div class="row gx-2 gx-lg-3">
             <div class="col-xl-8">
@@ -48,7 +48,7 @@
                     </div>
                 </div>
             </div>
-            @php($config=\App\Model\BusinessSetting::where(['key'=>'mail_config'])->first())
+            @php($config=\App\Models\BusinessSetting::where(['key'=>'mail_config'])->first())
             @php($data=json_decode($config['value'],true))
             @php($status=$data['status']== 1 ? 0 : 1)
             <div class="col-sm-12">

@@ -91,9 +91,9 @@
                                         <label class="toggle-switch">
                                             <input type="checkbox"
                                                    class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $branch->id }}"
-                                                   data-route="{{ route('admin.branch.status', [$branch->id, $branch->status ? 0 : 1]) }}"
+                                                   data-route="{{ route('admin.branch.status', [$branch->id, $branch->status == 1 ? 0 : 1]) }}"
                                                    data-message="{{ $branch->status? translate('you_want_to_disable_this_branch'): translate('you_want_to_active_this_branch') }}"
-                                                {{ $branch->status ? 'checked' : '' }}>
+                                                {{ $branch->status == 0 ? 'checked' : '' }}>
                                             <span class="toggle-switch-label text">
                                         <span class="toggle-switch-indicator"></span>
                                     </span>

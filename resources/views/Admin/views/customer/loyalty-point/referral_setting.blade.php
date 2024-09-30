@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title',translate('Referral Income Setting'))
 
@@ -7,7 +7,7 @@
         <div class="page-header">
             <h1 class="page-header-title text-capitalize">
                 <div class="card-header-icon d-inline-flex mr-2 img">
-                    <img src="{{asset('/public/assets/admin/img/point.png')}}" alt="{{ translate('loyalty_point') }}" class="width-24">
+                    <img src="{{asset('assets/admin/img/point.png')}}" alt="{{ translate('loyalty_point') }}" class="width-24">
                 </div>
                 <span>
                     {{translate('Refferral_income_setting')}}

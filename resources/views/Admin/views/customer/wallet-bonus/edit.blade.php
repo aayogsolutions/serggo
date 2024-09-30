@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title',translate('Wallet Bonus Update'))
 
@@ -7,7 +7,7 @@
         <div class="mb-3">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/wallet.png')}}" class="width-24" alt="{{ translate('wallet') }}">
+                    <img src="{{asset('assets/admin/img/wallet.png')}}" class="width-24" alt="{{ translate('wallet') }}">
                 </span>
                 <span class="ml-2">{{translate('Wallet Bonus Update')}}</span>
             </h1>
@@ -45,7 +45,7 @@
                                 <div class="col-md-4 col-lg-4 col-sm-6">
                                     <div class="form-group">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('Bonus_Amount')}}
-                                            <span  class="d-none" id='currency_symbol'>({{ Helpers::currency_symbol() }})</span>
+                                            <span  class="d-none" id='currency_symbol'>({{ Helpers_currency_symbol() }})</span>
                                             <span id="percentage">(%)</span>
                                             <span class="input-label-secondary text--title" data-toggle="tooltip"
                                                 data-placement="right"
@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="col-md-4 col-lg-4 col-sm-6">
                                     <div class="form-group">
-                                        <label class="input-label" for="exampleFormControlInput1">{{translate('Minimum_Add_Money_Amount')}} ({{ Helpers::currency_symbol() }})
+                                        <label class="input-label" for="exampleFormControlInput1">{{translate('Minimum_Add_Money_Amount')}} ({{ Helpers_currency_symbol() }})
                                             <span
                                                 class="input-label-secondary text--title" data-toggle="tooltip"
                                                 data-placement="right"
@@ -74,7 +74,7 @@
                                 <div class="col-md-4 col-lg-4 col-sm-6" id="maximum_bonus_amount_div">
                                     <div class="form-group m-0">
                                         <label class="input-label" for="exampleFormControlInput1">
-                                            {{translate('Maximum_Bonus')}} ({{ Helpers::currency_symbol() }})
+                                            {{translate('Maximum_Bonus')}} ({{ Helpers_currency_symbol() }})
                                             <span
                                                 class="input-label-secondary text--title" data-toggle="tooltip"
                                                 data-placement="right"

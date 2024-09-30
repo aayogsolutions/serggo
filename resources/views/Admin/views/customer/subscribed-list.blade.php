@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Subscribed List'))
 
@@ -11,7 +11,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('employee') }}">
+                    <img src="{{asset('assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('employee') }}">
                 </span>
                 <span>
                     {{translate('Subscribed Customers')}} <span class="badge badge-soft-primary ml-2 badge-pill">{{ $newsletters->total() }}</span>
@@ -55,7 +55,7 @@
                                 {{$newsletters->firstitem()+$key}}
                             </td>
                             <td>
-                                <a href="mailto:{{$newsletter['email']}}?subject={{translate('Mail from '). Helpers::get_business_settings('restaurant_name')}}">{{$newsletter['email']}}</a>
+                                <a href="mailto:{{$newsletter['email']}}?subject={{translate('Mail from '). Helpers_get_business_settings('restaurant_name')}}">{{$newsletter['email']}}</a>
                             </td>
                             <td>{{date('Y/m/d '.config('timeformat'), strtotime($newsletter->created_at))}}</td>
                         </tr>
@@ -75,7 +75,7 @@
             </div>
             @if(count($newsletters) == 0)
                 <div class="text-center p-4">
-                    <img class="w-120px mb-3" src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
+                    <img class="w-120px mb-3" src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
                     <p class="mb-0">{{translate('No_data_to_show')}}</p>
                 </div>
             @endif

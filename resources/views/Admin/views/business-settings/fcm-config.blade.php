@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('FCM Settings'))
 
@@ -46,7 +46,7 @@
                     <form action="{{env('APP_MODE')!='demo'?route('admin.business-settings.web-app.third-party.update-fcm'):'javascript:'}}" method="post"
                           enctype="multipart/form-data">
                         @csrf
-                        @php($key=\App\Model\BusinessSetting::where('key','push_notification_key')->first()->value)
+                        @php($key=\App\Models\BusinessSetting::where('key','push_notification_key')->first()->value)
                         <div class="form-group">
                             <label class="input-label">{{translate('server key')}}</label>
                             <textarea name="push_notification_key" class="form-control"
@@ -54,7 +54,7 @@
                         </div>
 
                         <div class="row d-none">
-                            @php($projectId=\App\Model\BusinessSetting::where('key','fcm_project_id')->first()->value)
+                            @php($projectId=\App\Models\BusinessSetting::where('key','fcm_project_id')->first()->value)
                             <div class="col-md-12 col-12">
                                 <div class="form-group">
                                     <label class="input-label" for="exampleFormControlInput1">{{translate('FCM Project ID')}}</label>

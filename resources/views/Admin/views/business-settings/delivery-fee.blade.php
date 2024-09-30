@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('delivery fee setup'))
 
@@ -6,7 +6,7 @@
     <div class="content container-fluid">
         <div class="page-header">
 
-            @include('admin-views.business-settings.partial.business-settings-navmenu')
+            @include('Admin.views.business-settings.partial.business-settings-navmenu')
         </div>
         @php($config=\App\CentralLogics\Helpers::get_business_settings('maintenance_mode'))
         <div class="tab-content">
@@ -87,7 +87,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-12 mt-4">
-                                    @php($delivery=\App\Model\BusinessSetting::where('key','delivery_charge')->first()->value)
+                                    @php($delivery=\App\Models\BusinessSetting::where('key','delivery_charge')->first()->value)
                                     <label class="" for="exampleFormControlInput1">{{translate('default_delivery_charge')}} <span>({{ \App\CentralLogics\Helpers::currency_symbol() }})</span></label>
                                     <input type="number" min="0" step=".01" name="delivery_charge" value="{{$delivery}}" class="form-control" placeholder="EX: 100" required
                                            {{ $config['status']==1?'disabled':'' }} id="delivery_charge">

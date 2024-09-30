@@ -1,11 +1,11 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('main branch setup'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('admin-views.business-settings.partial.business-settings-navmenu')
+            @include('Admin.views.business-settings.partial.business-settings-navmenu')
         </div>
 
         <div class="tab-content">
@@ -167,7 +167,7 @@
 @push('script_2')
 
     <!-- Static Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ \App\Model\BusinessSetting::where('key', 'map_api_client_key')->first()?->value }}&libraries=places&v=3.45.8"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_client_key')->first()?->value }}&libraries=places&v=3.45.8"></script>
     <script>
         $( document ).ready(function() {
             function initAutocomplete() {

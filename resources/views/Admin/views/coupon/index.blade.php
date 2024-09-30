@@ -181,9 +181,9 @@
                                         <label class="toggle-switch my-0">
                                             <input type="checkbox"
                                                 class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $coupon->id }}"
-                                                   data-route="{{ route('admin.coupon.status', [$coupon->id, $coupon->status ? 0 : 1]) }}"
+                                                   data-route="{{ route('admin.coupon.status', [$coupon->id, $coupon->status == 1 ? 0 : 1]) }}"
                                                    data-message="{{ $coupon->status? translate('you_want_to_disable_this_coupon'): translate('you_want_to_active_this_coupon') }}"
-                                                {{ $coupon->status ? 'checked' : '' }}>
+                                                {{ $coupon->status == 0 ? 'checked' : '' }}>
                                             <span class="toggle-switch-label mx-auto text">
                                                 <span class="toggle-switch-indicator"></span>
                                             </span>

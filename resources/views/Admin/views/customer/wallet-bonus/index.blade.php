@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title',translate('Wallet Bonus Setup'))
 
@@ -7,7 +7,7 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/wallet.png')}}" class="width-24" alt="{{ translate('wallet') }}">
+                    <img src="{{asset('assets/admin/img/wallet.png')}}" class="width-24" alt="{{ translate('wallet') }}">
                 </span>
                 <span class="ml-2">{{translate('Wallet Bonus Setup')}}</span>
             </h1>
@@ -51,7 +51,7 @@
                                 <div class="col-md-4 col-lg-4 col-sm-6">
                                     <div class="form-group">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('Bonus_Amount')}}
-                                            <span  class="d-none" id='currency_symbol'>({{ Helpers::currency_symbol() }})</span>
+                                            <span  class="d-none" id='currency_symbol'>({{ Helpers_currency_symbol() }})</span>
                                             <span id="percentage">(%)</span>
                                             <span class="input-label-secondary text--title" data-toggle="tooltip"
                                                 data-placement="right"
@@ -65,7 +65,7 @@
                                 </div>
                                 <div class="col-md-4 col-lg-4 col-sm-6">
                                     <div class="form-group">
-                                        <label class="input-label" for="exampleFormControlInput1">{{translate('Minimum_Add_Money_Amount')}} ({{ Helpers::currency_symbol() }})
+                                        <label class="input-label" for="exampleFormControlInput1">{{translate('Minimum_Add_Money_Amount')}} ({{ Helpers_currency_symbol() }})
                                             <span
                                                 class="input-label-secondary text--title" data-toggle="tooltip"
                                                 data-placement="right"
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="col-md-4 col-lg-4 col-sm-6" id="maximum_bonus_amount_div">
                                     <div class="form-group">
-                                        <label class="input-label" for="exampleFormControlInput1">{{translate('Maximum_Bonus')}} ({{ Helpers::currency_symbol() }})
+                                        <label class="input-label" for="exampleFormControlInput1">{{translate('Maximum_Bonus')}} ({{ Helpers_currency_symbol() }})
                                             <span
                                                 class="input-label-secondary text--title" data-toggle="tooltip"
                                                 data-placement="right"
@@ -164,19 +164,19 @@
                                                 {{Str::limit($bonus['title'],25,'...')}}
                                             </span>
                                         </td>
-                                        <td>{{ translate('minimum_add_amount') }} -    {{Helpers::set_symbol($bonus['minimum_add_amount'])}} <br>
+                                        <td>{{ translate('minimum_add_amount') }} -    {{Helpers_set_symbol($bonus['minimum_add_amount'])}} <br>
 
-                                            {{ $bonus->bonus_type == 'percentage' ? translate('maximum_bonus') .' - '. Helpers::set_symbol($bonus['maximum_bonus_amount']) : ''}}</td>
-                                        <td>{{$bonus->bonus_type == 'amount'?Helpers::set_symbol($bonus['bonus_amount']): $bonus['bonus_amount'].'%'}}</td>
+                                            {{ $bonus->bonus_type == 'percentage' ? translate('maximum_bonus') .' - '. Helpers_set_symbol($bonus['maximum_bonus_amount']) : ''}}</td>
+                                        <td>{{$bonus->bonus_type == 'amount'?Helpers_set_symbol($bonus['bonus_amount']): $bonus['bonus_amount'].'%'}}</td>
                                         <td>{{ \Carbon\Carbon::parse($bonus->start_date)->format('d M Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($bonus->end_date)->format('d M Y') }}</td>
                                         <td>
                                             <label class="toggle-switch">
                                                 <input type="checkbox"
-                                                       data-route="{{ route('admin.customer.wallet.bonus.status', [$bonus->id, $bonus->status ? 0 : 1]) }}"
+                                                       data-route="{{ route('admin.customer.wallet.bonus.status', [$bonus->id, $bonus->status == 1 ? 0 : 1]) }}"
                                                        data-message="{{ $bonus->status? translate('you_want_to_disable_this_bonus'): translate('you_want_to_active_this_bonus') }}"
                                                        class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $bonus->id }}"
-                                                    {{ $bonus->status ? 'checked' : '' }}>
+                                                    {{ $bonus->status == 0 ? 'checked' : '' }}>
                                                 <span class="toggle-switch-label text">
                                                     <span class="toggle-switch-indicator"></span>
                                                 </span>
@@ -211,7 +211,7 @@
                         </div>
                         @if(count($bonuses) == 0)
                             <div class="text-center p-4">
-                                <img class="w-120px mb-3" src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
+                                <img class="w-120px mb-3" src="{{asset('assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
                                 <p class="mb-0">{{translate('No_data_to_show')}}</p>
                             </div>
                         @endif
@@ -232,7 +232,7 @@
                             <div class="item">
                                 <div class="mb-20">
                                     <div class="text-center">
-                                        <img src="{{asset('/public/assets/admin/img/image_127.png')}}" alt="{{ translate('image') }}" class="mb-20">
+                                        <img src="{{asset('assets/admin/img/image_127.png')}}" alt="{{ translate('image') }}" class="mb-20">
                                         <h5 class="modal-title my-3">{{translate('Wallet_bonus_is_only_applicable_when_a_customer_add_fund_to_wallet_via_outside_payment_gateway_!')}}</h5>
                                     </div>
                                     <ul class="list-unstyled">
@@ -251,5 +251,5 @@
 @endsection
 
 @push('script_2')
-    <script src="{{ asset('public/assets/admin/js/wallet-bonus.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/wallet-bonus.js') }}"></script>
 @endpush
