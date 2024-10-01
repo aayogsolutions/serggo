@@ -26,17 +26,18 @@ if(! function_exists('product_data_formatting')) {
                     $item->categorydiscountamount = Helpers_category_discount_calculate($item, $item->price);
                 }
 
-                foreach (json_decode($item->variations, true) as $var) {
-                    $variations[] = [
-                        'type' => $var->type,
-                        'price' => (float)$var->price,
-                        'stock' => isset($var->stock) ? (integer)$var->stock : (integer)0,
-                    ];
-                }
+                $item->variations = gettype($item->variations) == 'array' ? $item->variations : json_decode($item->variations);
+                // foreach (json_decode($item->variations, true) as $var) {
+                //     $variations[] = [
+                //         'type' => $var->type,
+                //         'price' => (float)$var->price,
+                //         'stock' => isset($var->stock) ? (integer)$var->stock : (integer)0,
+                //     ];
+                // }
 
                 if($reviews)
                 {
-                    $views = ProductReview::StatusStatic()->where('product_id',$data->id)->get();
+                    $views = ProductReview::StatusStatic()->where('product_id',$item->id)->get();
 
                     $item->reviewsCount = $views->count();
                     $item->reviewsAverage = $views->avg('rating');
@@ -48,13 +49,13 @@ if(! function_exists('product_data_formatting')) {
 
                     $item->reviews = $views;
                 }else{
-                    $views = ProductReview::StatusStatic()->where('product_id',$data->id)->get();
+                    $views = ProductReview::StatusStatic()->where('product_id',$item->id)->get();
 
                     $item->reviewsCount = $views->count();
                     $item->reviewsAverage = $views->avg('rating');
                 }
 
-                $item->variations = $variations;
+                // $item->variations = $variations;
 
                 array_push($storage, $item);
             }
