@@ -432,6 +432,8 @@ $(document).on('ready', function() {
         $.ajax({
             type: "get",
             url: "{{route('admin.product.get-categories')}}",
+            contentType: false,
+            processData: false,
             data: {
                 parent_id: $(this).val()
             },
@@ -475,6 +477,8 @@ function combination_update() {
     $.ajax({
         type: "POST",
         url: "{{route('admin.product.variant-combination')}}",
+        contentType: false,
+        processData: false,
         data: $('#product_form').serialize(),
         success: function(data) {
             $('#variant_combination').html(data.view);
