@@ -16,7 +16,7 @@
                         <div class="row">
                             <div class="col-md-4 pt-5">
                                 <?php
-                                $max_amount_status=\App\CentralLogics\Helpers::get_business_settings('maximum_amount_for_cod_order_status');
+                                $max_amount_status=Helpers_get_business_settings('maximum_amount_for_cod_order_status');
                                 $max_status = $max_amount_status == 1 ? 0 : 1;
                                 ?>
                                 <div class="form-group">
@@ -25,7 +25,7 @@
                                                 <span class="line--limit-1">
                                                     <strong>{{translate('Maximum Amount for COD Order Status')}}</strong>
                                                 </span>
-                                                <span class="form-label-secondary text-danger d-flex ml-1" data-toggle="tooltip" data-placement="right" data-original-title="{{translate('If this field is active the maximum amount for Cash on Delivery order is apply')}}"><img src="{{asset('public/assets/admin/img/info-circle.svg')}}" alt="info">
+                                                <span class="form-label-secondary text-danger d-flex ml-1" data-toggle="tooltip" data-placement="right" data-original-title="{{translate('If this field is active the maximum amount for Cash on Delivery order is apply')}}"><img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
                                                 </span>
                                             </span>
                                         <input type="checkbox" class="toggle-switch-input" name="maximum_amount_for_cod_order_status" {{ $max_amount_status == 1 ? 'checked' : '' }}>
@@ -35,7 +35,7 @@
                                     </label>
                                 </div>
                             </div>
-                            @php($maximum_amount_for_cod_order=\App\CentralLogics\Helpers::get_business_settings('maximum_amount_for_cod_order'))
+                            @php($maximum_amount_for_cod_order=Helpers_get_business_settings('maximum_amount_for_cod_order'))
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group mb-0">
                                     <label class="input-label text-capitalize">{{translate('Maximum Amount for COD Order')}}
@@ -49,18 +49,18 @@
                                 </div>
                             </div>
 
-                            @php($mov=\App\Models\BusinessSetting::where('key','minimum_order_value')->first()->value)
+                            @php($mov=Helpers_get_business_settings('minimum_order_value'))
                             <div class="col-md-4 col-sm-6">
                                 <div class="form-group">
-                                    <label class="input-label" for="exampleFormControlInput1">{{translate('min order value')}}( {{\App\CentralLogics\Helpers::currency_symbol()}} )</label>
+                                    <label class="input-label" for="exampleFormControlInput1">{{translate('min order value')}}( {{Helpers_currency_symbol()}} )</label>
                                     <input type="number" min="1" value="{{$mov}}"
                                          step="0.1"  name="minimum_order_value" class="form-control" placeholder="" required>
                                 </div>
                             </div>
-                            @if(Auth('admin')->id() == 1)
+                            @if(Auth('admins')->id() == 1)
                                 <div class="col-md-4 pt-5">
                                     <?php
-                                    $orderImageStatus=\App\CentralLogics\Helpers::get_business_settings('order_image_status');
+                                    $orderImageStatus=Helpers_get_business_settings('order_image_status');
                                     ?>
                                     <div class="form-group">
                                         <label class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
@@ -70,7 +70,7 @@
                                                     </span>
                                                     <span class="form-label-secondary text-danger d-flex ml-1" data-toggle="tooltip" data-placement="right"
                                                         data-original-title="{{translate('If this field is active the users can add image while placing an order')}}">
-                                                        <img src="{{asset('public/assets/admin/img/info-circle.svg')}}" alt="info">
+                                                        <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
                                                     </span>
                                                 </span>
                                             <input type="checkbox" class="toggle-switch-input" name="order_image_status" {{ $orderImageStatus == 1 ? 'checked' : '' }}>
@@ -80,7 +80,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                @php($orderImageLabelName=\App\CentralLogics\Helpers::get_business_settings('order_image_label_name'))
+                                @php($orderImageLabelName=Helpers_get_business_settings('order_image_label_name'))
                                 <div class="col-md-4 col-sm-6">
                                     <div class="form-group mb-0">
                                         <label class="input-label text-capitalize">{{translate('Order Image Label Name')}}

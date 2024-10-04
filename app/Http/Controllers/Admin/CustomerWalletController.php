@@ -34,7 +34,7 @@ class CustomerWalletController extends Controller
      */
     public function addFundView(): View|Factory|RedirectResponse|Application
     {
-        if($this->businessSetting->where('key','wallet_status')->first()->value != 1)
+        if(Helpers_get_business_settings('wallet_status'));
         {
             Toastr::error(translate('customer_wallet_status_is_disable'));
             return back();

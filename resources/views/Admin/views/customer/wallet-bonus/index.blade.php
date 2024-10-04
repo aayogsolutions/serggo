@@ -206,7 +206,7 @@
 
                         <div class="table-responsive mt-4 px-3">
                             <div class="d-flex justify-content-lg-end">
-                                {!! $bonuses->links() !!}
+                                {!! $bonuses->links('pagination::bootstrap-4') !!}
                             </div>
                         </div>
                         @if(count($bonuses) == 0)

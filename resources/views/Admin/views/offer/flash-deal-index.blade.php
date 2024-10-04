@@ -161,7 +161,7 @@
                 </table>
                 <table>
                     <tfoot>
-                    {!! $flashDeals->links() !!}
+                    {!! $flashDeals->links('pagination::bootstrap-4') !!}
                     </tfoot>
                 </table>
 

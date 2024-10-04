@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Add new Time Slot'))
 
@@ -9,7 +9,7 @@
 @section('content')
     <div class="content container-fluid">
 
-        @include('admin-views.business-settings.partial.business-settings-navmenu')
+        @include('Admin.views.business-settings.partial.business-settings-navmenu')
         <div class="card mb-2">
                     <div class="card-header">
                         <h5 class="card-title">
@@ -119,6 +119,12 @@
                     @endforeach
                     </tbody>
                 </table>
+                @if(count($timeSlots) == 0)
+                <div class="text-center p-4">
+                    <img class="w-120px mb-3" src="{{asset('/assets/admin/svg/illustrations/sorry.svg')}}" alt="{{ translate('image') }}">
+                    <p class="mb-0">{{translate('No_data_to_show')}}</p>
+                </div>
+                @endif
             </div>
         </div>
         <!-- End Table -->

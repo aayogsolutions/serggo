@@ -40,7 +40,7 @@ class NotificationController extends Controller
            $notifications = $this->notification;
         }
         $notifications = $notifications->latest()->paginate(Helpers_getPagination())->appends($queryParam);
-        return view('admin.views.notification.index', compact('notifications','search'));
+        return view('Admin.views.notification.index', compact('notifications','search'));
     }
 
 
@@ -88,7 +88,7 @@ class NotificationController extends Controller
     public function edit($id): View|Factory|Application
     {
         $notification = $this->notification->find($id);
-        return view('admin.views.notification.edit', compact('notification'));
+        return view('Admin.views.notification.edit', compact('notification'));
     }
 
     /**

@@ -60,7 +60,7 @@
                                         @if (!empty(json_decode($review->product['image'],true)))
                                         <a href="{{route('admin.product.view',[$review['product_id']])}}" class="short-media">
                                             <img
-                                                 src="{{$review->product->identityImageFullPath[0]}}">
+                                                 src="{{asset($review->product->image)}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                             <div class="text-cont line--limit-2 max-150px">
                                                 {{$review->product['name']}}
                                             </div>
@@ -114,7 +114,7 @@
                 <div class="page-area">
                     <table>
                         <tfoot>
-                        {!! $reviews->links() !!}
+                        {!! $reviews->links('pagination::bootstrap-4') !!}
                         </tfoot>
                     </table>
                 </div>

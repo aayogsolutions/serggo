@@ -10,7 +10,9 @@ use App\Models\{
     HomeBanner,
     HomeSliderBanner,
     Products,
-    Category
+    Category,
+    DisplaySection,
+    ProductCategoryBanner
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
@@ -25,7 +27,9 @@ class BannersController extends Controller
         private SplashBanner $splashbanner,
         private AuthBanners $authBanners,
         private HomeBanner $homebanner,
-        private HomeSliderBanner $homesilderbanner
+        private HomeSliderBanner $homesilderbanner,
+        private DisplaySection $displaysection,
+        private ProductCategoryBanner $productcategory,
     ) {}
 
     // Splash Banners
@@ -657,7 +661,7 @@ class BannersController extends Controller
             $banners = $this->homesilderbanner->orderBy('priority', 'asc');
         }
         $banners = $banners->paginate(Helpers_getPagination())->appends($queryParam);
-
+        
         $products = $this->product->status()->orderBy('name')->get();
         $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
 
@@ -826,5 +830,118 @@ class BannersController extends Controller
         $banner->delete();
         flash()->success(translate('Banner removed!'));
         return back();
+    }
+
+    // Sub-Categories Banner
+
+    /**
+     * @param Request $request
+     * @return Factory|View|Application
+     */
+    function SubcategoryIndex(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $category = $this->category->status()->where('parent_id',0)->with('banner')->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            });
+            $queryParam = ['search' => $request['search']];
+        } else {
+            $category = $this->category->status()->where('parent_id',0)->with('banner');
+        }
+        $categories = $category->paginate(Helpers_getPagination())->appends($queryParam);
+      
+        return view('Admin.views.banner.Subcategories.index', compact('categories', 'search'));
+    }
+
+     /**
+     * 
+     * @param $id
+     * @return Factory|View|Application
+     */
+    public function SubcategoryDetailSection($id) : View|Factory|Application
+    {
+        $subcategories = $this->category->status()->where('parent_id',$id)->get();
+        $category = $this->category->status()->where('id',$id)->with('banner', function($q){
+            $q->orderBy('priority','ASC');
+        })->first();
+
+        return view('Admin.views.banner.Subcategories.sub-index',compact('subcategories','category'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function SubcategoryAddContent(Request $request, $id): RedirectResponse
+    {
+        
+        $request->validate([
+            'image' => 'required',
+            'subcategory' => 'required',
+        ],[
+            'type.required' => translate('UI Type is required'),
+            'subcategory.required' => translate('subcategory is required'),
+        ]);
+
+        $file_size = getimagesize($request->file('image'));
+        // Width Check                Height Check
+        if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+            
+            $banner = $this->productcategory;
+            $banner->category_id = $id;
+            $banner->sub_category_id = $request->subcategory;
+            $banner->sub_category_detail = json_encode($this->category->find($request->subcategory));
+            $banner->attechment = Helpers_upload('Images/banners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+            $banner->save();
+            flash()->success(translate('Item Added successfully!'));
+            return redirect()->back();
+        }
+        flash()->error(translate('Image size is wrong.!'));
+        return redirect()->back();
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function SubcategoryPriority(Request $request): RedirectResponse
+    {
+        $banner = $this->productcategory->find($request->id);
+        $banner->priority = $request->priority;
+        $banner->save();
+
+        flash()->success(translate('priority updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function SubcategoryDelete(Request $request): RedirectResponse
+    {
+        $banner = $this->productcategory->find($request->id);
+
+        if ($banner->exists()) 
+        {
+            if(File::exists($banner->attechment))
+            {
+                File::delete($banner->attechment);
+            }
+            $banner->delete();
+
+            flash()->success(translate('Item removed!'));
+            return back();
+        }else{
+            
+            flash()->success(translate('Item not Exists!'));
+            return back();
+        }
     }
 }

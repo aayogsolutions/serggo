@@ -216,8 +216,8 @@
                                         for="exampleFormControlInput1">{{translate('discount_type')}}</label>
                                     <select name="discount_type" id="discount_type"
                                         class="form-control js-select2-custom">
-                                        <option value="percent">{{translate('percent')}}</option>
-                                        <option value="amount">{{translate('amount')}}</option>
+                                        <option value="percent" selected>{{translate('percent')}}</option>
+                                        <!-- <option value="amount">{{translate('amount')}}</option> -->
                                     </select>
                                 </div>
                             </div>
@@ -235,8 +235,8 @@
                                     <label class="input-label"
                                         for="exampleFormControlInput1">{{translate('tax_type')}}</label>
                                     <select name="tax_type" id="tax_type" class="form-control js-select2-custom">
-                                        <option value="percent">{{translate('percent')}}</option>
-                                        <option value="amount">{{translate('amount')}}</option>
+                                        <option value="percent" selected>{{translate('percent')}}</option>
+                                        <!-- <option value="amount">{{translate('amount')}}</option> -->
                                     </select>
                                 </div>
                             </div>

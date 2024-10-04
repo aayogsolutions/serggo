@@ -18,7 +18,7 @@
                                    data-route="{{ route('admin.business-settings.page-setup.return-policy.status', [$status['value'] == 1 ? 0 : 1]) }}"
                                    data-message="{{ $status['value']? translate('you want to disable this page'): translate('you want to active this page') }}"
                                    class="toggle-switch-input status-change-alert" id="stocksCheckbox"
-                                {{ $status['value'] == 1 ? 'checked' : '' }}>
+                                {{ $status['value'] == 0 ? 'checked' : '' }}>
                             <span class="toggle-switch-label text">
                                 <span class="toggle-switch-indicator"></span>
                             </span>

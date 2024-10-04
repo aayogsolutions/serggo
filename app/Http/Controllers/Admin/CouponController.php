@@ -45,7 +45,7 @@ class CouponController extends Controller
         $customers = $this->user->where('is_block', 0)->get();
         $coupons = $coupons->withCount('order')->latest()->paginate(Helpers_getPagination())->appends($queryParam);
 
-        return view('admin.views.coupon.index', compact('coupons','search', 'customers'));
+        return view('Admin.views.coupon.index', compact('coupons','search', 'customers'));
     }
 
     /**
@@ -105,7 +105,7 @@ class CouponController extends Controller
     {
         $coupon = $this->coupon->where(['id' => $id])->first();
         $customers = $this->user->where('is_block', 0)->get();
-        return view('admin.views.coupon.edit', compact('coupon','customers'));
+        return view('Admin.views.coupon.edit', compact('coupon','customers'));
     }
 
     /**
@@ -187,7 +187,7 @@ class CouponController extends Controller
         $coupon = $this->coupon->find($request->id);
 
         return response()->json([
-            'view' => view('admin.views.coupon.details-quick-view', compact('coupon'))->render(),
+            'view' => view('Admin.views.coupon.details-quick-view', compact('coupon'))->render(),
         ]);
     }
 }

@@ -61,7 +61,7 @@
                                 </div>
                             </div>
                             <div class="pt-4">
-                                {!!$products->withQueryString()->links()!!}
+                                {!!$products->withQueryString()->links('pagination::bootstrap-4')!!}
                             </div>
                         </div>
                     </div>

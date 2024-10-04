@@ -4,42 +4,30 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\CentralLogics\CustomerLogic;
-use App\CentralLogics\Helpers;
-use App\Models\Branch;
-use App\Models\BusinessSetting;
-use App\Models\DeliveryMan;
-use App\Models\LoyaltyTransaction;
-use App\Models\Order;
-use App\Models\Order_details;
-use App\Models\Products;
-use App\Models\OfflinePayment;
-use App\Models\OrderPartialPayment;
-use App\Models\Referral_setting;
-use App\Traits\HelperTrait;
-use App\User;
-use Box\Spout\Common\Exception\InvalidArgumentException;
-use Box\Spout\Common\Exception\IOException;
-use Box\Spout\Common\Exception\UnsupportedTypeException;
-use Box\Spout\Writer\Exception\WriterNotOpenedException;
-use Brian2694\Toastr\Facades\Toastr;
+use App\Models\{
+    Branch,
+    BusinessSetting,
+    LoyaltyTransaction,
+    Order,
+    Order_details,
+    Products,
+    OfflinePayment,
+    OrderPartialPayment,
+    Referral_setting,
+    User,
+};
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\{Factory,View};
+use Illuminate\Http\{JsonResponse,RedirectResponse};
 use Illuminate\Support\Facades\DB;
 use Rap2hpoutre\FastExcel\FastExcel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use function App\CentralLogics\translate;
 
 class OrderController extends Controller
 {
-    use HelperTrait;
     public function __construct(
         private Branch $branch,
         private BusinessSetting $business_setting,
-        private DeliveryMan $delivery_man,
         private Order $order,
         private Order_details $order_detail,
         private Products $product,
@@ -90,13 +78,13 @@ class OrderController extends Controller
             $queryParam['search'] = $search;
         }
 
-        $orders = $query->notPos()->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
+        $orders = $query->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
 
         $countData = [];
         $orderStatuses = ['pending', 'confirmed', 'processing', 'out_for_delivery', 'delivered', 'canceled', 'returned', 'failed'];
 
         foreach ($orderStatuses as $orderStatus) {
-            $countData[$orderStatus] = $this->order->notPos()->where('order_status', $orderStatus)
+            $countData[$orderStatus] = $this->order->where('order_status', $orderStatus)
                 ->when(!is_null($branchId) && $branchId != 'all', function ($query) use ($branchId) {
                     return $query->where('branch_id', $branchId);
                 })
@@ -107,7 +95,7 @@ class OrderController extends Controller
                 ->count();
         }
 
-        return view('admin-views.order.list', compact('orders', 'status', 'search', 'branches', 'branchId', 'startDate', 'endDate', 'countData'));
+        return view('Admin.views.order.list', compact('orders', 'status', 'search', 'branches', 'branchId', 'startDate', 'endDate', 'countData'));
     }
 
     /**
@@ -124,9 +112,9 @@ class OrderController extends Controller
             })->get();
 
         if (isset($order)) {
-            return view('admin-views.order.order-view', compact('order', 'deliverymanList'));
+            return view('Admin.views.order.order-view', compact('order', 'deliverymanList'));
         } else {
-            Toastr::info(translate('No more orders!'));
+            flash()->info(translate('No more orders!'));
             return back();
         }
     }
@@ -144,11 +132,11 @@ class OrderController extends Controller
                     ->orWhere('branch_id', 0);
             })->get();
 
-        $all_product = Product::all();
+        $all_product = Products::all();
         if (isset($order)) {
-            return view('admin-views.order.edit-order', compact('order', 'deliverymanList', 'all_product'));
+            return view('Admin.views.order.edit-order', compact('order', 'deliverymanList', 'all_product'));
         } else {
-            Toastr::info(translate('No more orders!'));
+            flash()->info(translate('No more orders!'));
             return back();
         }
     }
@@ -167,12 +155,12 @@ class OrderController extends Controller
             $order = $this->order->find($id);
             $status = $order->status;
             if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
-                Toastr::warning(translate('Order_can_not_edited_because_of its_status'));
+                flash()->warning(translate('Order_can_not_edited_because_of its_status'));
                 return back();
             }
 
             if($order->payment_method != 'cash_on_delivery'){
-                Toastr::warning(translate('Order_can_not_edited_directly_when_its_not_cash_on_delivery'));
+                flash()->warning(translate('Order_can_not_edited_directly_when_its_not_cash_on_delivery'));
                 return back();
             }
 
@@ -182,7 +170,7 @@ class OrderController extends Controller
 
                     if($request->alternate[$key] != 0){
 
-                        $alt_product_detail = Product::find($request->alternate[$key]);
+                        $alt_product_detail = Products::find($request->alternate[$key]);
 
                         $price = $alt_product_detail->price;
                         $tax_on_product = Helpers_tax_calculate($alt_product_detail, $price);
@@ -266,10 +254,10 @@ class OrderController extends Controller
                     Helpers_send_push_notif_to_device($customerFcmToken, $data);
                 }
             } catch (\Exception $e) {
-                Toastr::warning(\App\CentralLogics\translate('Notification failed for Customer!'));
+                flash()->warning(translate('Notification failed for Customer!'));
             }
 
-            Toastr::success(\App\CentralLogics\translate('Order Edited Successfully!'));
+            flash()->success(translate('Order Edited Successfully!'));
             return redirect(route('admin.orders.list', 'all'));
 
 
@@ -280,7 +268,7 @@ class OrderController extends Controller
             $order = $this->order->find($id);
             $status = $order->status;
             if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
-                Toastr::warning(translate('Order_can_not_edited_because_of its_status'));
+                flash()->warning(translate('Order_can_not_edited_because_of its_status'));
                 return back();
             }
 
@@ -294,7 +282,7 @@ class OrderController extends Controller
                     if($request->alternate[$key] != 0){
                         $value->alt_product_status = 'pending';
                     }
-                    $product_detail = Product::find($request->alternate[$key]);
+                    $product_detail = Products::find($request->alternate[$key]);
                     $value->alt_product_details = $product_detail;
                     $value->save();
                 }
@@ -327,10 +315,10 @@ class OrderController extends Controller
                     Helpers_send_push_notif_to_device($customerFcmToken, $data);
                 }
             } catch (\Exception $e) {
-                Toastr::warning(\App\CentralLogics\translate('Notification failed for Customer!'));
+                flash()->warning(translate('Notification failed for Customer!'));
             }
 
-            Toastr::success(\App\CentralLogics\translate('Order Edited Successfully!'));
+            flash()->success(translate('Order Edited Successfully!'));
             return redirect(route('admin.orders.list', 'all'));
         }
     }
@@ -359,22 +347,22 @@ class OrderController extends Controller
         $order = $this->order->find($request->id);
 
         if (in_array($order->order_status, ['returned', 'delivered', 'failed', 'canceled'])) {
-            Toastr::warning(translate('you_can_not_change_the_status_of ' . $order->order_status . ' order'));
+            flash()->warning(translate('you_can_not_change_the_status_of ' . $order->order_status . ' order'));
             return back();
         }
 
         if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') {
-            Toastr::warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
+            flash()->warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
             return back();
         }
 
         if ($request->order_status == 'delivered' && $order['transaction_reference'] == null && !in_array($order['payment_method'], ['cash_on_delivery', 'wallet_payment', 'offline_payment'])) {
-            Toastr::warning(translate('add_your_payment_reference_first'));
+            flash()->warning(translate('add_your_payment_reference_first'));
             return back();
         }
 
         if (($request->order_status == 'out_for_delivery' || $request->order_status == 'delivered') && $order['delivery_man_id'] == null && $order['order_type'] != 'self_pickup') {
-            Toastr::warning(translate('Please assign delivery man first!'));
+            flash()->warning(translate('Please assign delivery man first!'));
             return back();
         }
 
@@ -437,7 +425,7 @@ class OrderController extends Controller
                                 'is_stock_decreased' => 0,
                             ]);
                         } else {
-                            Toastr::warning(translate('Product_deleted'));
+                            flash()->warning(translate('Product_deleted'));
                         }
                     }
                 }
@@ -455,7 +443,7 @@ class OrderController extends Controller
                                 $type = json_decode($c['variation'])[0]->type;
                                 foreach (json_decode($product['variations'], true) as $var) {
                                     if ($type == $var['type'] && $var['stock'] < $c['quantity']) {
-                                        Toastr::error(translate('Stock is insufficient!'));
+                                        flash()->error(translate('Stock is insufficient!'));
                                         return back();
                                     }
                                 }
@@ -477,7 +465,7 @@ class OrderController extends Controller
                                 'is_stock_decreased' => 1,
                             ]);
                         } else {
-                            Toastr::warning(translate('Product_deleted'));
+                            flash()->warning(translate('Product_deleted'));
                         }
                     }
                 }
@@ -559,7 +547,7 @@ class OrderController extends Controller
                 Helpers_send_push_notif_to_device($customerFcmToken, $data);
             }
         } catch (\Exception $e) {
-            Toastr::warning(\App\CentralLogics\translate('Push notification failed for Customer!'));
+            flash()->warning(translate('Push notification failed for Customer!'));
         }
 
         if ($request->order_status == 'processing' && $order->delivery_man != null) {
@@ -584,11 +572,11 @@ class OrderController extends Controller
                     Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
                 }
             } catch (\Exception $e) {
-                Toastr::warning(\App\CentralLogics\translate('Push notification failed for DeliveryMan!'));
+                flash()->warning(translate('Push notification failed for DeliveryMan!'));
             }
         }
 
-        Toastr::success(translate('Order status updated!'));
+        flash()->success(translate('Order status updated!'));
         return back();
     }
 
@@ -647,10 +635,10 @@ class OrderController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            Toastr::warning(\App\CentralLogics\translate('Push notification failed for DeliveryMan!'));
+            flash()->warning(translate('Push notification failed for DeliveryMan!'));
         }
 
-        Toastr::success('Deliveryman successfully assigned/changed!');
+        flash()->success('Deliveryman successfully assigned/changed!');
         return response()->json(['status' => true], 200);
     }
 
@@ -663,12 +651,12 @@ class OrderController extends Controller
         $order = $this->order->find($request->id);
 
         if ($order->payment_method == 'offline_payment' && isset($order->offline_payment) && $order->offline_payment?->status != 1) {
-            Toastr::warning(translate('please_verify_your_offline_payment_verification'));
+            flash()->warning(translate('please_verify_your_offline_payment_verification'));
             return back();
         }
 
         if ($request->payment_status == 'paid' && $order['transaction_reference'] == null && $order['payment_method'] != 'cash_on_delivery') {
-            Toastr::warning(translate('Add your payment reference code first!'));
+            flash()->warning(translate('Add your payment reference code first!'));
             return back();
         }
 
@@ -701,7 +689,7 @@ class OrderController extends Controller
         }
         $order->payment_status = $request->payment_status;
         $order->save();
-        Toastr::success(translate('Payment status updated!'));
+        flash()->success(translate('Payment status updated!'));
         return back();
     }
 
@@ -734,7 +722,7 @@ class OrderController extends Controller
         ];
 
         DB::table('customer_addresses')->where('id', $id)->update($address);
-        Toastr::success(translate('Delivery Information updated!'));
+        flash()->success(translate('Delivery Information updated!'));
         return back();
     }
 
@@ -777,7 +765,7 @@ class OrderController extends Controller
     {
         $order = $this->order->where('id', $id)->first();
         $footer_text = $this->business_setting->where(['key' => 'footer_text'])->first();
-        return view('admin-views.order.invoice', compact('order', 'footer_text'));
+        return view('Admin.views.order.invoice', compact('order', 'footer_text'));
     }
 
     /**
@@ -791,7 +779,7 @@ class OrderController extends Controller
             'transaction_reference' => $request['transaction_reference'],
         ]);
 
-        Toastr::success(translate('Payment reference code is added!'));
+        flash()->success(translate('Payment reference code is added!'));
         return back();
     }
 
@@ -967,7 +955,7 @@ class OrderController extends Controller
             'data' => 'required'
         ]);
 
-        $product = Product::where('id', $request->data)->first();
+        $product = Products::where('id', $request->data)->first();
 
         $product['fullpath'] = $product->identityImageFullPath[0];
 
@@ -980,7 +968,7 @@ class OrderController extends Controller
             'data' => 'required'
         ]);
 
-        $order_detail = OrderDetail::where('id', $request->data)->first();
+        $order_detail = Order_Detail::where('id', $request->data)->first();
         $order = Order::find($order_detail->order_id);
 
         $qyt = $order_detail->quantity;
@@ -992,8 +980,26 @@ class OrderController extends Controller
 
         $order->save();
 
-        OrderDetail::where('id', $request->data)->first()->delete();
+        Order_Detail::where('id', $request->data)->first()->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    public function dynamic_key_replaced_message($message, $type, $order = null, $customer = null)
+    {
+        $customerName = '';
+        $deliverymanName = '';
+        $order_id = $order ? $order->id : '';
+
+        if ($type == 'order'){
+            $deliverymanName = $order->delivery_man ? $order->delivery_man->f_name. ' '. $order->delivery_man->l_name : '';
+            $customerName = $order->is_guest == 0 ? ($order->customer ? $order->customer->f_name. ' '. $order->customer->l_name : '') : 'Guest User';
+        }
+        if ($type == 'wallet'){
+            $customerName = $customer->f_name. ' '. $customer->l_name;
+        }
+        $storeName = Helpers_get_business_settings('app_name');
+        $value = Helpers_text_variable_data_format(value:$message, user_name: $customerName, store_name: $storeName, delivery_man_name: $deliverymanName, order_id: $order_id);
+        return $value;
     }
 }

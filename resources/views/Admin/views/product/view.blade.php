@@ -274,7 +274,7 @@
                 </div>
             </div>
             <div class="card-footer border-0">
-                {!! $reviews->links() !!}
+                {!! $reviews->links('pagination::bootstrap-4') !!}
             </div>
             @if(count($reviews) == 0)
                 <div class="text-center p-4">

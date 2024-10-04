@@ -76,6 +76,7 @@
                     </tr>
                     </thead>
                     <tbody id="set-rows">
+                    
                     @foreach($customers as $key=>$customer)
                         <tr>
                             <td>
@@ -84,11 +85,11 @@
                             <td class="table-column-pl-0">
                                 <a href="{{route('admin.customer.view',[$customer['id']])}}" class="product-list-media">
                                     <img class="rounded-full"
-                                         src="{{$customer->imageFullPath}}"
+                                         src="{{asset($customer->image)}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'"
                                         alt="{{ translate('customer') }}">
                                     <div class="table--media-body">
                                         <h5 class="title m-0">
-                                            {{$customer['f_name']." ".$customer['l_name']}}
+                                            {{$customer['name']}}
                                         </h5>
                                     </div>
                                 </a>
@@ -98,7 +99,7 @@
                                     <a href="mailto:{{$customer['email']}}">{{$customer['email']}}</a>
                                 </h5>
                                 <div>
-                                    <a href="Tel:{{$customer['phone']}}">{{$customer['phone']}}</a>
+                                    <a href="Tel:{{$customer['phone']}}">{{$customer['number']}}</a>
                                 </div>
                             </td>
                             <td>
@@ -112,7 +113,7 @@
                             </td>
                             <td>
                                 <div class="text-center">
-                                    {{ Helpers_set_symbol(\App\User::total_order_amount($customer->id)) }}
+                                    {{ Helpers_set_symbol(\App\Models\User::total_order_amount($customer->id)) }}
                                 </div>
                             </td>
                             <td>
@@ -156,7 +157,7 @@
             @endif
 
             <div class="card-footer">
-                {!! $customers->links() !!}
+                {!! $customers->links('pagination::bootstrap-4') !!}
             </div>
 
         </div>

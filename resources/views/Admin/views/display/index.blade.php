@@ -214,7 +214,7 @@
             </table>
             <table>
                 <tfoot>
-                    {!! $banners->links() !!}
+                    {!! $banners->links('pagination::bootstrap-4') !!}
                 </tfoot>
             </table>
 

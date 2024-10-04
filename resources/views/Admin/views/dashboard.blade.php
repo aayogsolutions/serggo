@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="row g-2" id="order_stats">
-                        @include('admin.views.partials._dashboard-order-stats',['data'=>$data])
+                        @include('Admin.views.partials._dashboard-order-stats',['data'=>$data])
                     </div>
                 </div>
             </div>
@@ -189,9 +189,7 @@
                 <script src="{{asset('assets/admin')}}/vendor/chartjs-plugin-datalabels/dist/chartjs-plugin-datalabels.min.js"></script>
                 <script src="{{asset('/assets/admin/js/apex-charts/apexcharts.js')}}"></script>
                 <script src="{{asset('/assets/admin/js/apex-charts/dashboard.js')}}"></script>
-            @endpush
-
-            @push('script_2')
+            
                 <script>
                     "use strict";
 
@@ -208,6 +206,60 @@
                         var earnType = $(this).data('earn-type');
                         earningStatisticsUpdate(earnType);
                     });
+
+                    var options = {
+                        series: [{
+                            name: "{{ translate('Orders') }}",
+                            data: [
+                                {{$orderStatisticsChart[1]}}, {{$orderStatisticsChart[2]}}, {{$orderStatisticsChart[3]}}, {{$orderStatisticsChart[4]}},
+                                {{$orderStatisticsChart[5]}}, {{$orderStatisticsChart[6]}}, {{$orderStatisticsChart[7]}}, {{$orderStatisticsChart[8]}},
+                                {{$orderStatisticsChart[9]}}, {{$orderStatisticsChart[10]}}, {{$orderStatisticsChart[11]}}, {{$orderStatisticsChart[12]}}
+                            ],
+                        }],
+                        chart: {
+                            height: 316,
+                            type: 'line',
+                            zoom: {
+                                enabled: false
+                            },
+                            toolbar: {
+                                show: false,
+                            },
+                            markers: {
+                                size: 5,
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false,
+                        },
+                        colors: ['#87bcbf', '#107980'],
+                        stroke: {
+                            curve: 'smooth',
+                            width: 3,
+                        },
+                        xaxis: {
+                            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        },
+                        grid: {
+                            show: true,
+                            padding: {
+                                bottom: 0
+                            },
+                            borderColor: "#d9e7ef",
+                            strokeDashArray: 7,
+                            xaxis: {
+                                lines: {
+                                    show: true
+                                }
+                            }
+                        },
+                        yaxis: {
+                            tickAmount: 4,
+                        }
+                    };
+
+                    var chart = new ApexCharts(document.querySelector("#line-chart-1"), options);
+                    chart.render();
 
                     var options = {
                         series: [{{$data['ongoing_count']}}, {{$data['delivered_count']}}, {{$data['pending_count']}}, {{$data['canceled']}}, {{$data['returned']}}, {{$data['failed']}}],
@@ -306,7 +358,7 @@
                         });
 
                         $.ajax({
-                            url: "{{route('admin.test')}}",
+                            url: "{{route('admin.order-stats')}}",
                             type: "post",
                             data: {
                                 statistics_type: type,
@@ -330,7 +382,7 @@
                     function orderStatisticsUpdate(value) {
 
                         $.ajax({
-                            url: '{{route('admin.test')}}',
+                            url: '{{route('admin.dashboard.order-statistics')}}',
                             type: 'GET',
                             data: {
                                 type: value
@@ -403,7 +455,7 @@
 
                     function earningStatisticsUpdate(value) {
                         $.ajax({
-                            url: '{{route('admin.test')}}',
+                            url: '{{route('admin.dashboard.earning-statistics')}}',
                             type: 'GET',
                             data: {
                                 type: value

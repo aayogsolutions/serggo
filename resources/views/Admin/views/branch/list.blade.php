@@ -124,7 +124,7 @@
                         </table>
                         <table>
                             <tfoot>
-                            {!! $branches->links() !!}
+                            {!! $branches->links('pagination::bootstrap-4') !!}
                             </tfoot>
                         </table>
                     </div>

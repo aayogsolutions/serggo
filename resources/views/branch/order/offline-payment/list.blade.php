@@ -160,7 +160,7 @@
             </div>
             <div class="card-footer border-0">
                 <div class="d-flex justify-content-center justify-content-sm-end">
-                    {!! $orders->links() !!}
+                    {!! $orders->links('pagination::bootstrap-4') !!}
                 </div>
             </div>
         </div>

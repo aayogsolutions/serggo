@@ -231,7 +231,7 @@
                     @endif
                 </div>
                     <div class="card-footer px-0">
-                        {!! $orders->links() !!}
+                        {!! $orders->links('pagination::bootstrap-4') !!}
                     </div>
             </div>
         </div>

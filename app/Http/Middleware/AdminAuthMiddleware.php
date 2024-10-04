@@ -18,7 +18,19 @@ class AdminAuthMiddleware
     {
         if(Auth::guard('admins')->check())
         {
-            return $next($request);
+            $user = auth('admins')->user();
+            if($user->role_id == 1){
+                return $next($request);
+            }
+            else{
+                if (isset($user) && $user->status == 1) {
+                    auth()->guard('admins')->logout();
+                    flash()->success(translate('Your Status is off'));
+                    return redirect()->route('admin.auth.login');
+                }
+                return $next($request);
+            }
+            
         }else{
             return redirect(route('admin.login'));
         }

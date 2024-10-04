@@ -205,6 +205,15 @@ class ApiAuthController extends Controller
             ], 406);
         }
 
+        if(User::where('email', $request->email)->exists())
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Email already Exists',
+                'data' => [],
+            ], 404);
+        }
+
         try {
             
             if(User::where('number', $request->number)->exists()){
@@ -215,6 +224,15 @@ class ApiAuthController extends Controller
 
                 if (!is_null($request->referred_by)) {
                     $referred = User::where('referral_code', $request->referred_by)->first();
+                    if(is_null($referred))
+                    {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Referral Code Not Exists',
+                            'data' => [],
+                        ], 404);
+                    }
+                    $refferal = Helpers_generate_referer_bonus($referred->id,$user->id);
                     $user->referred_by = $referred->id;
                 }
                 $user->referral_code = Helpers_generate_referer_code();
@@ -234,6 +252,7 @@ class ApiAuthController extends Controller
                     return response()->json([
                         'status' => true,
                         'Number verification' => $user->number_verify,
+                        'bonus' => $refferal,
                         'message' => 'Otp Sended',
                         'data' => [
                             'number' => $request->number,
@@ -242,9 +261,10 @@ class ApiAuthController extends Controller
                     ], 203);
                 }else{
                     $token = $user->createToken($user->name)->plainTextToken;
-
+                   
                     return response()->json([
                         'status' => true,
+                        'bonus' => $refferal,
                         'message' => 'login Successfully',
                         'data' => [
                             'token' => $token,
@@ -265,7 +285,16 @@ class ApiAuthController extends Controller
 
                 if (!is_null($request->referred_by)) {
                     $referred = User::where('referral_code', $request->referred_by)->first();
+                    if(is_null($referred))
+                    {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Referral Code Not Exists',
+                            'data' => [],
+                        ], 404);
+                    }
                     $user->referred_by = $referred->id;
+                    $refferal = Helpers_generate_referer_bonus($referred->id,$user->id);
                 }
                 $user->referral_code = Helpers_generate_referer_code();
                 $user->otp = $otp;
@@ -276,6 +305,7 @@ class ApiAuthController extends Controller
                 return response()->json([
                     'status' => true,
                     'Number verification' => $user->number_verify,
+                    'bonus' => $refferal,
                     'message' => 'Otp Sended',
                     'data' => [
                         'number' => $request->number,

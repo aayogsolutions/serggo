@@ -212,7 +212,7 @@
                         </table>
                         <table>
                             <tfoot>
-                            {!! $coupons->links() !!}
+                            {!! $coupons->links('pagination::bootstrap-4') !!}
                             </tfoot>
                         </table>
                         @if(count($coupons) == 0)

@@ -8,6 +8,7 @@ use App\Models\BusinessSetting;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Routing\Redirector;
+use App\Models\Branch;
 
 class BusinessSettingsController extends Controller
 {
@@ -27,20 +28,6 @@ class BusinessSettingsController extends Controller
         return view('Admin.views.business-settings.index', compact('logo', 'favIcon'));
     }
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function deliveryIndex(): Factory|View|Application
-    {
-        if (!$this->businessSettings->where(['key' => 'minimum_order_value'])->first()) {
-            BusinessSetting::updateOrInsert(['key' => 'minimum_order_value'], [
-                'value' => 1,
-            ]);
-        }
-
-        return view('admin.views.business-settings.delivery-fee');
-    }
-
     public function maintenanceMode(): \Illuminate\Http\JsonResponse
     {
         $mode = Helpers_get_business_settings('maintenance_mode');
@@ -56,6 +43,125 @@ class BusinessSettingsController extends Controller
         $mode->save();
         flash()->success('Maintenance Mode is Off.');
         return response()->json(['message' => translate('done')]);
+    }
+
+    public function businessSetup(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'footer_text'], [
+            'value' => $request['footer_text'],
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'app_name'], [
+            'value' => $request->app_name
+        ]);
+
+        $currentLogo = $this->businessSettings->where(['key' => 'logo'])->first();
+        $NewLogo = $request->file('logo');
+        if ($request->has('logo')) {
+            $imageName = Helpers_update('Images/Business/', $currentLogo->value, $NewLogo->getClientOriginalExtension(), $NewLogo);
+        } else {
+            $imageName = $currentLogo['value'];
+        }
+
+        BusinessSetting::updateOrInsert(['key' => 'logo'], [
+            'value' => $imageName,
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'phone'], [
+            'value' => $request['phone'],
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'email_address'], [
+            'value' => $request['email'],
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'address'], [
+            'value' => $request['address'],
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'pagination_limit'], [
+            'value' => $request['pagination_limit'],
+        ]);
+
+        $currentFavIcon = $this->businessSettings->where(['key' => 'fav_icon'])->first();
+        $newFavIcon = $request->file('fav_icon');
+        BusinessSetting::updateOrInsert(['key' => 'fav_icon'], [
+            'value' => $request->has('fav_icon') ? Helpers_update('Images/Business/', $currentFavIcon->value, $newFavIcon->getClientOriginalExtension(), $newFavIcon ) : $currentFavIcon->value
+        ]);
+
+        flash()->success(translate('Settings updated!'));
+        return back();
+    }
+
+    public function freeDeliveryStatus($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount_status'], [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
+    }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function partialPaymentStatus($status): JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'partial_payment'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => translate('partial payment status updated') ]);
+    }
+    
+    public function ReferralIncomeSetup()
+    {
+        return view('Admin.views.business-settings.refferal_income');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function ReferralIncomeSetupUpdate(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'refferal_bonus' => 'required'
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'refferal_bonus'], [
+            'value' => $request->refferal_bonus,
+        ]);
+
+        flash()->success(translate('updated_successfully'));
+        return back();
+    }
+
+
+
+
+
+
+
+
+
+    
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function deliveryIndex(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'minimum_order_value'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'minimum_order_value'], [
+                'value' => 1,
+            ]);
+        }
+
+        return view('admin.views.business-settings.delivery-fee');
     }
 
     public function currencySymbolPosition($side): \Illuminate\Http\JsonResponse
@@ -136,17 +242,7 @@ class BusinessSettingsController extends Controller
         return response()->json(['message' => translate('guest checkout status updated')]);
     }
 
-    /**
-     * @param $status
-     * @return JsonResponse
-     */
-    public function partialPaymentStatus($status): JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'partial_payment'], [
-            'value' => $status
-        ]);
-        return response()->json(['message' => translate('partial payment status updated') ]);
-    }
+    
 
     public function maximumAmountStatus($status): \Illuminate\Http\JsonResponse
     {
@@ -159,61 +255,8 @@ class BusinessSettingsController extends Controller
             'message' => translate('status updated')
         ]);
     }
-    public function freeDeliveryStatus($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount_status'], [
-            'value' => $status
-        ]);
 
-        return response()->json([
-            'status' => 1,
-            'message' => translate('status updated')
-        ]);
-    }
-
-    public function businessSetup(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'footer_text'], [
-            'value' => $request['footer_text'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'app_name'], [
-            'value' => $request->app_name
-        ]);
-
-        $currentLogo = $this->businessSettings->where(['key' => 'logo'])->first();
-        $NewLogo = $request->file('logo');
-        if ($request->has('logo')) {
-            $imageName = Helpers_update('Images/Business/', $currentLogo->value, $NewLogo->getClientOriginalExtension(), $NewLogo);
-        } else {
-            $imageName = $currentLogo['value'];
-        }
-
-        BusinessSetting::updateOrInsert(['key' => 'logo'], [
-            'value' => $imageName,
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'phone'], [
-            'value' => $request['phone'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'email_address'], [
-            'value' => $request['email'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'address'], [
-            'value' => $request['address'],
-        ]);
-
-        $currentFavIcon = $this->businessSettings->where(['key' => 'fav_icon'])->first();
-        $newFavIcon = $request->file('fav_icon');
-        BusinessSetting::updateOrInsert(['key' => 'fav_icon'], [
-            'value' => $request->has('fav_icon') ? Helpers_update('Images/Business/', $currentFavIcon->value, $newFavIcon->getClientOriginalExtension(), $newFavIcon ) : $currentFavIcon->value
-        ]);
-
-        flash()->success(translate('Settings updated!'));
-        return back();
-    }
+    
 
     /**
      * @return Application|Factory|View
@@ -1586,30 +1629,6 @@ class BusinessSettingsController extends Controller
         }
 
         flash()->success(translate('updated_successfully'));
-        return back();
-    }
-    
-    public function ReferralIncomeSetup()
-    {
-        return view('Admin.views.business-settings.refferal_income');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function ReferralIncomeSetupUpdate(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'days' => 'required'
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'reffral_income_distributing_days'], [
-            'value' => $request->days,
-        ]);
-
-        flash()->success(translate('updated_successfully'));
-        
         return back();
     }
 }

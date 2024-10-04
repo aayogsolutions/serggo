@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Add new banner'))
+@section('title', translate('home display content section'))
 
 @push('css')
 <style>
@@ -22,7 +22,7 @@
                 <img src="{{asset('assets/admin/img/banner.png')}}" class="w--20" alt="{{ translate('banner') }}">
             </span>
             <span>
-                {{translate('home silder banners setup')}}
+                {{translate('home display content section ')}}
             </span>
         </h1>
     </div>

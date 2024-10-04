@@ -153,7 +153,7 @@
 
                         <table>
                             <tfoot>
-                            {!! $notifications->links() !!}
+                            {!! $notifications->links('pagination::bootstrap-4') !!}
                             </tfoot>
                         </table>
                         @if(count($notifications)==0)

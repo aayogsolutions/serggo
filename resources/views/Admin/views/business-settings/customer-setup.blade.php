@@ -114,7 +114,7 @@
                                 <div class="col-sm-6 col-lg-4">
                                     <div class="form-group m-0">
                                         <label class="input-label"
-                                               for="loyalty_point_exchange_rate">{{ translate('1 '.\App\CentralLogics\Helpers::currency_code().' Equal To How Much Loyalty Points?') }}</label>
+                                               for="loyalty_point_exchange_rate">{{ translate('1 '. Helpers_currency_symbol() .' Equal To How Much Loyalty Points?') }}</label>
                                         <input type="number" class="form-control" name="loyalty_point_exchange_rate"
                                                value="{{ $data['loyalty_point_exchange_rate'] ?? '0' }}">
                                     </div>
@@ -152,7 +152,7 @@
                                 <div class="col-sm-6 col-12">
                                     <div class="form-group m-0">
                                         <label class="input-label"
-                                               for="referrer_earning_exchange_rate">{{ translate('One Referrer Equal To How Much ' .\App\CentralLogics\Helpers::currency_code())  }}</label>
+                                               for="referrer_earning_exchange_rate">{{ translate('One Referrer Equal To How Much ' .  Helpers_currency_symbol())  }}</label>
                                         <input type="number step=0.01" class="form-control" name="ref_earning_exchange_rate"
                                                value="{{ $data['ref_earning_exchange_rate'] ?? '0' }}">
                                     </div>

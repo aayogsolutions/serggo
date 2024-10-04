@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Limited Stocks'))
 
@@ -124,7 +124,7 @@
                         <div class="page-area">
                             <table>
                                 <tfoot class="border-top">
-                                {!! $products->links() !!}
+                                {!! $products->links('pagination::bootstrap-4') !!}
                                 </tfoot>
                             </table>
                         </div>

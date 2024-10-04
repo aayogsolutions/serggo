@@ -172,7 +172,7 @@
                 </div>
 
                 <div class="card-footer">
-                    {!! $transactions->links() !!}
+                    {!! $transactions->links('pagination::bootstrap-4') !!}
                 </div>
             </div>
         </div>

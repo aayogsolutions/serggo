@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('customer_addresses', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('user_id')->nullable();
+            $table->tinyInteger('is_primary')->comment('0 = primary | 1 = not');
             $table->string('address_type',100);
             $table->string('contact_person_number',20);
             $table->string('contact_person_name')->nullable();
@@ -22,7 +24,6 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
-            $table->bigInteger('user_id')->nullable();
             $table->timestamps();
         });
     }

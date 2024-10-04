@@ -35,46 +35,80 @@ class DashboardController extends Controller
     {
         if(isset($request->platform)){
 
-            $request->platform == 0 ? $limit = 7 : $limit = 10;
+            if($request->platform == 0)
+            {
+                $limit = 7;
+            }
+            else{
+                $limit = 10;
+            }
 
             try {
                 $maindata = $this->homebanner->status()->where('ui_type','user_product')->first();
-    
-                $data['tags'] = $this->tag->select('name')->orderBy('name','DESC')->get();
-                $data['brands'] = $this->brand->status()->orderBy('priority','ASC')->select('name','Image')->get();
-                $data['homesliderbanner'] = homesliderbanner_data_formatting($this->homesliderbanner->status()->where('ui_type','user_product')->orderBy('priority', 'asc')->limit(6)->get(), true);
-                $data['slider'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','slider')->orderBy('priority', 'asc')->with('childes')->get(), true);
-                $data['cart'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','cart')->orderBy('priority', 'asc')->with('childes',function($q) use ($limit){
-                    $q->limit($limit);
-                })->get(), true);
-                $data['box_section'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','box_section')->orderBy('priority', 'asc')->with('childes',function($q) use ($limit){
-                    $q->limit($limit);
-                })->get(), true);
-    
-                return response()->json([
-                    'status' => true,
-                    'data' => [
-                        'colorcode' => $maindata->background_color ?? '#fe2e2e',
-                        'fontcode' => $maindata->font_color ?? '#ffffff',
-                        'bannerType' => $maindata->attechment_type ?? 'not found',
-                        'banner' => $maindata->attechment ?? 'not found',
-                        'brands' => $data['brands'],
-                        'arraydata' => [
-                            'tags' => $data['tags'],
-                            'productslider' => $data['slider'],
-                            'cartsection' => $data['cart'],
-                            'bannerslider' => $data['homesliderbanner'],
-                            'boxsection' => $data['box_section'],
-                        ]
-                    ]
-                ],200);
             } catch (\Throwable $th) {
-                return response()->json([
-                    'status' => false,
-                    'error' => $th->getMessage(),
-                    'data' => []
-                ],409);
+                $maindata->background_color = null;
+                $maindata->font_color = null;
+                $maindata->attechment_type = null;
+                $maindata->attechment = null;
             }
+
+            try {
+                $data['tags'] = $this->tag->orderBy('name','DESC')->get('name');
+            } catch (\Throwable $th) {
+                $data['tags'] = [];
+            }
+
+            try {
+                $data['brands'] = $this->brand->status()->select('id','name','Image')->orderBy('priority','ASC')->get();
+            } catch (\Throwable $th) {
+                $data['brands'] = [];
+            }
+
+            try {
+                $data['homesliderbanner'] = homesliderbanner_data_formatting($this->homesliderbanner->status()->where('ui_type','user_product')->orderBy('priority', 'asc')->limit(6)->get(), true);
+            } catch (\Throwable $th) {
+                $data['homesliderbanner'] = [];
+            }
+
+            try {
+                $data['slider'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','slider')->orderBy('priority', 'asc')->with('childes')->get(), true);
+            } catch (\Throwable $th) {
+                $data['slider'] = [];
+            }
+
+            try {
+                $data['cart'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','cart')->orderBy('priority', 'asc')->with('childes',function($q) use ($limit){
+                    $q->take($limit);
+                })->get(), true);
+            } catch (\Throwable $th) {
+                $data['cart'] = [];
+            }
+
+            try {
+                $data['box_section'] = display_data_formatting($this->displaysection->status()->where('ui_type','user_product')->where('section_type','box_section')->orderBy('priority', 'asc')->with('childes',function($q) use ($limit){
+                    $q->take($limit);
+                })->get(), true);
+            } catch (\Throwable $th) {
+                $data['box_section'] = [];
+            }
+    
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'colorcode' => $maindata->background_color ?? '#fe2e2e',
+                    'fontcode' => $maindata->font_color ?? '#ffffff',
+                    'bannerType' => $maindata->attechment_type ?? 'not found',
+                    'banner' => $maindata->attechment ?? 'not found',
+                    'brands' => $data['brands'],
+                    'arraydata' => [
+                        'tags' => $data['tags'],
+                        'productslider' => $data['slider'],
+                        'cartsection' => $data['cart'],
+                        'bannerslider' => $data['homesliderbanner'],
+                        'boxsection' => $data['box_section'],
+                    ]
+                ]
+            ],200);
         }else{
             return response()->json([
                 'status' => false,

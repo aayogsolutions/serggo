@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('invoice'))
 
@@ -19,7 +19,7 @@
                 <div class="pt-3">
                     <div class="pt-3">
                         <img class="initial-38-2"
-                             src="{{ App\CentralLogics\Helpers::onErrorImage($logo, asset('storage/app/public/restaurant') . '/' . $logo, asset('/public/assets/admin/img/food.png'), 'restaurant/')}}"
+                             src="{{ App\CentralLogics\Helpers::onErrorImage($logo, asset('storage/app/public/restaurant') . '/' . $logo, asset('assets/admin/img/food.png'), 'restaurant/')}}"
                              alt="{{ translate('logo') }}">
                     </div>
                 </div>
@@ -183,7 +183,7 @@
 @endsection
 
 @push('script')
-    <script src="{{asset('public/assets/admin/js/jquery.js')}}"></script>
+    <script src="{{asset('assets/admin/js/jquery.js')}}"></script>
     <script>
         "use strict";
 

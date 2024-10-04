@@ -611,7 +611,7 @@ class ProductController extends Controller
      */
     public function bulkImportIndex(): View|Factory|Application
     {
-        return view('admin-views.product.bulk-import');
+        return view('Admin.views.product.bulk-import');
     }
 
     /**
@@ -671,7 +671,7 @@ class ProductController extends Controller
      */
     public function bulkExportIndex(): View|Factory|Application
     {
-        return view('admin-views.product.bulk-export-index');
+        return view('Admin.views.product.bulk-export-index');
     }
 
     /**
@@ -762,7 +762,7 @@ class ProductController extends Controller
 
         $products = $query->paginate(Helpers_getPagination())->appends($queryParam);
 
-        return view('admin-views.product.limited-stock', compact('products', 'search', 'stockLimit'));
+        return view('Admin.views.product.limited-stock', compact('products', 'search', 'stockLimit'));
     }
 
     /**
@@ -773,7 +773,7 @@ class ProductController extends Controller
     {
         $product = $this->product->find($request['id']);
         return response()->json([
-            'view' => view('admin-views.product.partials._update_stock', compact('product'))->render()
+            'view' => view('Admin.views.product.partials._update_stock', compact('product'))->render()
         ]);
     }
 

@@ -173,7 +173,7 @@
                 <div class="page-area">
                     <table>
                         <tfoot>
-                            {!! $categories->links() !!}
+                            {!! $categories->links('pagination::bootstrap-4') !!}
                         </tfoot>
                     </table>
                 </div>

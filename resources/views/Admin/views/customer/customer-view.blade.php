@@ -121,7 +121,7 @@
                             </tbody>
                         </table>
                         <div class="card-footer">
-                        {!! $orders->links() !!}
+                        {!! $orders->links('pagination::bootstrap-4') !!}
                         </div>
                         @if(count($orders)==0)
                             <div class="text-center p-4">

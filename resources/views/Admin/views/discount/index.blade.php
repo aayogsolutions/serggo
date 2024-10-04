@@ -58,22 +58,22 @@
                                         class="input-label-secondary">*</span></label>
                                 <select name="discount_type" class="form-control change-discount-type">
                                     <option value="percent">{{translate('percent')}}</option>
-                                    <option value="amount">{{translate('amount')}}</option>
+                                    <!-- <option value="amount">{{translate('amount')}}</option> -->
                                 </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group mb-0">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('discount_amount')}}</label>
-                                <input type="number" step="0.1" name="discount_amount" value="{{old('discount_amount')}}" class="form-control" placeholder="{{ translate('discount_amount') }}" required>
+                                <input type="number" step="0.1" name="discount_amount" value="{{old('discount_amount')}}" class="form-control" placeholder="{{ translate('discount_precent') }}" required>
                             </div>
                         </div>
-                        <div class="col-6" id="max_amount_div">
+                        <!-- <div class="col-6" id="max_amount_div">
                             <div class="form-group mb-0">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('maximum_amount')}}</label>
                                 <input type="number" step="0.1" name="maximum_amount" value="{{old('maximum_amount')}}" class="form-control" placeholder="{{ translate('maximum_amount') }}">
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="col-12">
                         <div class="btn--container justify-content-end">
@@ -113,7 +113,6 @@
                         <th class="border-0">{{translate('discount type')}}</th>
                         <th class="border-0">{{translate('discount on')}}</th>
                         <th class="border-0">{{translate('discount amount')}}</th>
-                        <th class="border-0">{{translate('maximum amount')}}</th>
                         <th class="border-0">{{translate('duration')}}</th>
                         <th class="text-center border-0">{{translate('status')}}</th>
                         <th class="text-center border-0">{{translate('action')}}</th>
@@ -130,16 +129,17 @@
                                     {{$discount['name']}}
                                 </span>
                             </td>
-                            <td>{{translate($discount->discount_type)}}</td>
-                            <td>{{$discount->category ? $discount->category->name:''}}</td>
+                            <td>
+                                {{translate($discount->discount_type)}}
+                            </td>
+                            <td>
+                                {{$discount->category ? $discount->category->name:''}}
+                            </td>
                             <td>
                                 {{ $discount->discount_type == 'percent' ? $discount->discount_amount . '%' : Helpers_set_symbol($discount->discount_amount)}}
                             </td>
-                            <td>{{$discount->discount_type == 'percent' ? Helpers_set_symbol($discount->maximum_amount) : '-'}}</td>
                             <td>
-                                
-                            {{Carbon\Carbon::parse($discount->start_date)->format('d M, Y')}} - {{Carbon\Carbon::parse($discount->expire_date)->format('d M, Y')}}
-                               
+                                {{Carbon\Carbon::parse($discount->start_date)->format('d M, Y')}} - {{Carbon\Carbon::parse($discount->expire_date)->format('d M, Y')}}   
                             </td>
                             <td>
                                 <label class="toggle-switch my-0">
@@ -175,7 +175,7 @@
                 </table>
                 <table>
                     <tfoot>
-                    {!! $discounts->links() !!}
+                    {!! $discounts->links('pagination::bootstrap-4') !!}
                     </tfoot>
                 </table>
 

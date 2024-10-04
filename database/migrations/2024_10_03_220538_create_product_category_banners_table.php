@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wallet_transactions', function (Blueprint $table) {
+        Schema::create('product_category_banners', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id');
-            $table->string('transactions_id');
-            $table->decimal('credit',24,2);
-            $table->decimal('debit',24,2);
-            $table->string('transactions_type');
-            $table->string('reference');
+            $table->integer('category_id');
+            $table->integer('sub_category_id');
+            $table->text('sub_category_detail');
+            $table->string('attechment');
+            $table->tinyInteger('priority')->default(0);
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wallet_transcations');
+        Schema::dropIfExists('product_category_banners');
     }
 };

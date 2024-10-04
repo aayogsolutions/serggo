@@ -386,12 +386,12 @@
                                 },
                                 "ticks": {
                                   "min": 0,
-                                  "max": {{\App\CentralLogics\Helpers::max_earning()}},
-                                  "stepSize": {{round(\App\CentralLogics\Helpers::max_earning()/5)}},
+                                  "max": {{Helpers_max_earning()}},
+                                  "stepSize": {{round(Helpers_max_earning()/5)}},
                                   "fontColor": "#97a4af",
                                   "fontFamily": "Open Sans, sans-serif",
                                   "padding": 10,
-                                  "{{ $currency_position == 'left' ? 'prefix' : 'postfix'}}": " {{\App\CentralLogics\Helpers_currency_symbol()}}"
+                                  "{{ $currency_position == 'left' ? 'prefix' : 'postfix'}}": " {{Helpers_currency_symbol()}}"
                                 }
                               }],
                               "xAxes": [{

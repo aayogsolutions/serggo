@@ -198,7 +198,7 @@
             </table>
             <table>
                 <tfoot>
-                    {!! $category_banners->links() !!}
+                    {!! $category_banners->links('pagination::bootstrap-4') !!}
                 </tfoot>
             </table>
 

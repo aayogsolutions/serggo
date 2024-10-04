@@ -3,10 +3,13 @@ use App\Models\{
     User,
     BusinessSetting,
     ProductReview,
-    CategoryDiscount
+    CategoryDiscount,
+    Order,
+    WalletTranscation,
 };
 use Illuminate\Support\Facades\File;
-use App\Models\Currency;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 if(! function_exists('Helpers_get_business_settings')) {
     function Helpers_get_business_settings($name)
@@ -133,7 +136,7 @@ if(! function_exists('Helpers_getPagination')) {
     function Helpers_getPagination()
     {
         $pagination_limit = Helpers_get_business_settings('pagination_limit');
-        $paginate = $pagination_limit->value ?? 10;
+        $paginate = $pagination_limit ?? 10;
         return $paginate; 
     }
 }
@@ -172,8 +175,8 @@ if(! function_exists('Helpers_rating_count')) {
 if(! function_exists('Helpers_set_price')) {
     function Helpers_set_price($amount)
     {
-        $decimal_point_settings = Helpers_get_business_settings('decimal_point_settings');
-        $amount = number_format($amount, gettype($decimal_point_settings) == "integer" ? $decimal_point_settings: 0, '.', '');
+        // $decimal_point_settings = Helpers_get_business_settings('decimal_point_settings');
+        $amount = number_format($amount, 2, '.', '');
 
         return $amount;
     }
@@ -280,14 +283,9 @@ if(! function_exists('Helpers_tax_calculate')) {
     function Helpers_tax_calculate($product, $price)
     {
         if ($product->tax_type == 'percent') {
-            $category_id = null;
-            foreach (json_decode($product->category_ids, true) as $cat) {
-                if ($cat->position == 1) {
-                    $category_id = ($cat->id);
-                }
-            }
+            $category_id = $product->category_id;
 
-            $category_discount = Helpers_category_discount_calculate($category_id, $price);
+            $category_discount = Helpers_category_discount_calculate($product, $price);
             $product_discount = Helpers_discount_calculate($product, $price);
             if ($category_discount >= $price) {
                 $discount = $product_discount;
@@ -311,6 +309,104 @@ if(! function_exists('Helpers_tax_calculate')) {
         } else {
             $price_tax = $product->tax;
         }
-        return $price_tax;
+        return Helpers_set_price($price_tax);
+    }
+}
+
+if(!function_exists('Helpers_max_orders')) {
+    function Helpers_max_orders()
+    {
+        $data = Order::select('id', 'created_at')
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('m');
+            });
+
+        $max = 0;
+        foreach ($data as $month) {
+            $count = 0;
+            foreach ($month as $order) {
+                $count += 1;
+            }
+            if ($count > $max) {
+                $max = $count;
+            }
+        }
+        return $max;
+    }
+}
+
+if(!function_exists('Helpers_max_earning')) {
+    function Helpers_max_earning()
+    {
+        $data = Order::where(['order_status' => 'delivered'])->select('id', 'created_at', 'order_amount')
+            ->get()
+            ->groupBy(function ($date) {
+                return Carbon::parse($date->created_at)->format('m');
+            });
+
+        $max = 0;
+        foreach ($data as $month) {
+            $count = 0;
+            foreach ($month as $order) {
+                $count += $order['order_amount'];
+            }
+            if ($count > $max) {
+                $max = $count;
+            }
+        }
+        return $max;
+    }
+}
+
+if(!function_exists('Helpers_generate_referer_bonus')) {
+    function Helpers_generate_referer_bonus($referred_by,$referred)
+    {
+        try {
+            $user = User::where('id',$referred_by)->first();
+
+            $amount = Helpers_get_business_settings('refferal_bonus');
+            
+            $transaction = new WalletTranscation();
+            $transaction->user_id = $user->id;
+            $transaction->transactions_id = Str::random('30');
+            $transaction->reference = $referred;
+            $transaction->transactions_type = 'refferal_bonus';
+            $transaction->debit = 0;
+            $transaction->credit = $amount;
+            $transaction->balance = $user->wallet_balance + $amount;
+            $transaction->save();
+
+            $user->wallet_balance = $user->wallet_balance + $amount;
+            $user->save();
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
+}
+if(!function_exists('Helpers_text_variable_data_format')) {
+    function Helpers_text_variable_data_format($value,$user_name=null,$store_name=null,$delivery_man_name=null,$transaction_id=null,$order_id=null)
+    {
+        $data = $value;
+        if ($value) {
+            if($user_name){
+                $data =  str_replace("{userName}", $user_name, $data);
+            }
+
+            if($store_name){
+                $data =  str_replace("{storeName}", $store_name, $data);
+            }
+
+            if($delivery_man_name){
+                $data =  str_replace("{deliveryManName}", $delivery_man_name, $data);
+            }
+
+            if($order_id){
+                $data =  str_replace("{orderId}", $order_id, $data);
+            }
+        }
+        return $data;
     }
 }

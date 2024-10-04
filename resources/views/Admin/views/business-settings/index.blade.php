@@ -5,8 +5,7 @@
 @section('content')
     <div class="content container-fluid">
         @include('Admin.views.business-settings.partial.business-settings-navmenu')
-
-        @php($config= Helpers_get_business_settings('maintenance_mode'))
+        
         <div class="tab-content">
             <div class="tab-pane fade show active" id="business-setting">
                 <div class="card mb-3">
@@ -84,6 +83,15 @@
                                         <input type="text" value="{{$footer_text}}"
                                             name="footer_text" class="form-control" placeholder=""
                                             required>
+                                    </div>
+                                </div>
+                                @php($pagination_limit = Helpers_get_business_settings('pagination_limit'))
+                                <div class="col-md-4 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="input-label" for="exampleFormControlInput1">
+                                            {{translate('pagination')}} {{translate('limit')}}
+                                        </label>
+                                        <input type="number" value="{{$pagination_limit}}" name="pagination_limit" class="form-control" placeholder="0" required>
                                     </div>
                                 </div>
                             </div>

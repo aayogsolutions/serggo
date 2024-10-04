@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ProductCategoryBanner;
 
 class Category extends Model
 {
@@ -12,6 +13,11 @@ class Category extends Model
     public function childes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    public function banner(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProductCategoryBanner::class, 'category_id');
     }
 
     public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -23,4 +29,6 @@ class Category extends Model
     {
         return $this->query()->where('status', 0);
     }
+
+    
 }

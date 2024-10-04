@@ -163,7 +163,7 @@
                 <div class="page-area px-4 py-4">
                     <div class="d-flex align-items-center justify-content-end">
                         <div>
-                            {!! $transactions->links() !!}
+                            {!! $transactions->links('pagination::bootstrap-4') !!}
                         </div>
                     </div>
                 </div>

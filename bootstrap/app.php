@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('branch', [
             BranchMiddleware::class,
         ]);
+       
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

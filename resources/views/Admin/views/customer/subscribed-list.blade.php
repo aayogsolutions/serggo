@@ -69,7 +69,7 @@
             <div class="card-footer">
                 <div class="row">
                     <div class="col-12">
-                        {!! $newsletters->links() !!}
+                        {!! $newsletters->links('pagination::bootstrap-4') !!}
                     </div>
                 </div>
             </div>

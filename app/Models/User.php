@@ -36,6 +36,10 @@ class User extends Authenticatable
         ];
     }
 
+    public function orders(){
+        return $this->hasMany(Order::class,'user_id','id');
+    }
+
     public function providers()
     {
         return $this->hasMany(providers::class,'user_id','id');
@@ -44,5 +48,20 @@ class User extends Authenticatable
     public function status()
     {
         return $this->query()->where('status', 0);
+    }
+
+    static function total_order_amount($customer_id)
+    {
+        $total_amount = 0;
+        $customer = User::where(['id' => $customer_id])->first();
+        foreach ($customer->orders as $order){
+            $total_amount += $order->order_amount;
+        }
+        return $total_amount;
+    }
+
+    public function address()
+    {
+        return $this->hasMany(CustomerAddresses::class,'user_id','id');
     }
 }

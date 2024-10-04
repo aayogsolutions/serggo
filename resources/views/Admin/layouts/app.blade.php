@@ -4,17 +4,8 @@
         <meta charset="utf-8">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
         <title>@yield('title')</title>
         
-        <link rel="stylesheet" href="{{asset('assets/back-end/css/vendor.min.css')}}">
-        <!-- <link rel="stylesheet" href="{{asset('assets/back-end/css/bootstrap.min.css')}}">
-        <link rel="stylesheet" href="{{asset('assets/back-end/css/google-fonts.css')}}"> -->
-        <link rel="stylesheet" href="{{asset('assets/back-end/css/custom.css')}}">
-        <!-- <link rel="stylesheet" href="{{asset('assets/back-end/vendor/icon-set/style.css')}}">
-        <link rel="stylesheet" href="{{asset('assets/back-end/css/theme.minc619.css?v=1.0')}}">
-        <link rel="stylesheet" href="{{asset('assets/back-end/css/daterangepicker.css')}}"> -->
-        <link rel="stylesheet" href="{{asset('assets/back-end/css/style.css')}}">
         @php($fevicon = Helpers_get_business_settings('fav_icon'))
         <link rel="icon" type="image/x-icon" href="{{ asset(Helpers_get_business_settings('fav_icon') )}}">
         <link rel="shortcut icon" href="{{ $fevicon != NULL ? asset(Helpers_get_business_settings('fav_icon')) : asset('assets/admin/img/400x400/img2.jpg') }}">
@@ -105,18 +96,6 @@
         <script src="{{asset('assets/admin')}}/js/sweet_alert.js"></script>
         <script src="{{asset('assets/admin')}}/js/toastr.js"></script>
         <script src="{{asset('assets/admin/js/owl.min.js')}}"></script>
-        <script src="{{asset('assets/back-end/js/vendor.min.js')}}"></script>
-        <script src="{{asset('assets/back-end/js/theme.min.js')}}"></script>
-        <script src="{{asset('assets/back-end/js/bootstrap.min.js')}}"></script>
-        <!-- <script src="{{asset('assets/back-end/js/sweet_alert.js')}}"></script> -->
-        <!-- <script src="{{asset('assets/back-end/js/toastr.js')}}"></script> -->
-        <script src="{{asset('js/lightbox.min.js')}}"></script>
-
-        <script src="{{asset('assets/back-end/js/moment.min.js')}}"></script>
-        <script src="{{asset('assets/back-end/js/daterangepicker.min.js')}}"></script>
-
-        <!-- <script src="{{asset('assets/back-end/js/custom.js')}}"></script> -->
-        <!-- <script src="{{asset('assets/back-end/js/app-script.js')}}"></script> -->
 
         @stack('script')
 

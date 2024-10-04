@@ -144,7 +144,7 @@
                     <div class="page-area">
                         <table>
                             <tfoot class="border-top">
-                                {!! $products->links() !!}
+                                {!! $products->links('pagination::bootstrap-4') !!}
                             </tfoot>
                         </table>
                     </div>

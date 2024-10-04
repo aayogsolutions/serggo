@@ -119,7 +119,7 @@
                 </table>
             </div>
             <div>
-                {{$employees->links()}}
+                {{$employees->links('pagination::bootstrap-4')}}
             </div>
             @if(count($employees)==0)
                 <div class="text-center p-4">

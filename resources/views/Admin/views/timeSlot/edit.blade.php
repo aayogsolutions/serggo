@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('Update Time Slot'))
 
@@ -19,7 +19,7 @@
                 </span>
             </h1>
         </div>
-        @include('admin-views.business-settings.partial.business-settings-navmenu')
+        @include('Admin.views.business-settings.partial.business-settings-navmenu')
         <!-- End Page Header -->
         <div class="card">
             <div class="card-body">

@@ -156,7 +156,7 @@
 
                     <table>
                         <tfoot>
-                            {!! $brands->links() !!}
+                            {!! $brands->links('pagination::bootstrap-4') !!}
                         </tfoot>
                     </table>
 

@@ -31,12 +31,21 @@ class Vendor extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'number_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
     }
 
-    public function status()
+    public function vendororders(){
+        return $this->hasMany(Order::class,'vender_id','id');
+    }
+
+    static function total_order_amount($vendor_id)
     {
-        return $this->query()->where('status', 0);
+        $total_amount = 0;
+        $vendor = Vendor::where(['id' => $vendor_id])->with('vendororders')->first();
+        foreach ($vendor->vendororders as $order)
+        {
+            $total_amount += $order->order_amount;
+        }
+        return $total_amount;
     }
 }

@@ -221,9 +221,6 @@
                                             <option value="percent" {{$product['discount_type']=='percent'?'selected':''}}>
                                                 {{translate('percent')}}
                                             </option>
-                                            <option value="amount" {{$product['discount_type']=='amount'?'selected':''}}>
-                                                {{translate('amount')}}
-                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -243,9 +240,6 @@
                                         <select name="tax_type" id="tax_type" class="form-control js-select2-custom">
                                             <option
                                                 value="percent" {{$product['tax_type']=='percent'?'selected':''}}>{{translate('percent')}}
-                                            </option>
-                                            <option
-                                                value="amount" {{$product['tax_type']=='amount'?'selected':''}}>{{translate('amount')}}
                                             </option>
                                         </select>
                                     </div>

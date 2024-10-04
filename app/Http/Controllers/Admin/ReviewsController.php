@@ -45,7 +45,7 @@ class ReviewsController extends Controller
             $reviews = $this->review->with(['product','customer']);
         }
          $reviews = $reviews->latest()->paginate(Helpers_getPagination())->appends($queryParam);
-        return view('admin.views.reviews.list',compact('reviews','search'));
+        return view('Admin.views.reviews.list',compact('reviews','search'));
     }
 
     /**

@@ -80,7 +80,7 @@
 
                 <table>
                     <tfoot>
-                    {!! $tags->links() !!}
+                    {!! $tags->links('pagination::bootstrap-4') !!}
                     </tfoot>
                 </table>
 

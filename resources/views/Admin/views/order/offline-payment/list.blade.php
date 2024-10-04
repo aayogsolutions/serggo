@@ -1,4 +1,4 @@
-@extends('layouts.admin.app')
+@extends('Admin.layouts.app')
 
 @section('title', translate('verify_offline_payments'))
 @push('css_or_js')
@@ -13,7 +13,7 @@
         <div class="page-header">
             <h1 class="mb-0 page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/all_orders.png')}}" class="w--20" alt="">
+                    <img src="{{asset('assets/admin/img/all_orders.png')}}" class="w--20" alt="">
                 </span>
                 <span class="">
                     {{translate('verify_offline_payments')}}
@@ -160,7 +160,7 @@
                 </div>
                 @if(count($orders)==0)
                     <div class="text-center p-4">
-                        <img class="w-120px mb-3" src="{{asset('public/assets/admin')}}/svg/illustrations/sorry.svg" alt="Image Description">
+                        <img class="w-120px mb-3" src="{{asset('assets/admin')}}/svg/illustrations/sorry.svg" alt="Image Description">
                         <p class="mb-0">{{ translate('No_data_to_show')}}</p>
                     </div>
                 @endif
@@ -168,7 +168,7 @@
 
             <div class="card-footer border-0">
                 <div class="d-flex justify-content-center justify-content-sm-end">
-                    {!! $orders->links() !!}
+                    {!! $orders->links('pagination::bootstrap-4') !!}
                 </div>
             </div>
         </div>

@@ -58,7 +58,6 @@ class DiscountController extends Controller
             'expire_date' => 'required',
             'discount_type' => 'required',
             'discount_amount' => 'required',
-            'maximum_amount' => 'required_if:discount_type,percent',
         ],[
             'name.required'=>translate('Name is required'),
             'category_id.required'=>translate('Category select is required'),
@@ -66,7 +65,6 @@ class DiscountController extends Controller
             'expire_date.required'=>translate('Expire date select is required'),
             'category_id.unique'=>translate('Discount on this Category is already exist'),
             'discount_type.required'=>translate('Discount type is required'),
-            'discount_amount.required'=>translate('Discount amount is required'),
         ]);
 
         if ($request->discount_type === 'percent' && $request->discount_amount > 100){
@@ -81,7 +79,7 @@ class DiscountController extends Controller
         $discount->expire_date = $request->expire_date;
         $discount->discount_type = $request->discount_type;
         $discount->discount_amount = $request->discount_amount;
-        $discount->maximum_amount = $request->discount_type == 'percent' ? $request->maximum_amount : 0;
+        $discount->maximum_amount = 0;
         $discount->save();
         flash()->success(translate('Discount added successfully!'));
         return back();
@@ -95,7 +93,7 @@ class DiscountController extends Controller
     {
         $discount = $this->categoryDiscount->find($id);
         $categories = $this->category->where(['parent_id'=>0])->orderBy('name')->get();
-        return view('admin.views.discount.edit', compact('discount', 'categories'));
+        return view('Admin.views.discount.edit', compact('discount', 'categories'));
     }
 
     /**
@@ -142,7 +140,7 @@ class DiscountController extends Controller
         $discount->expire_date = $request->expire_date;
         $discount->discount_type = $request->discount_type;
         $discount->discount_amount = $request->discount_amount;
-        $discount->maximum_amount = $request->discount_type == 'percent' ? $request->maximum_amount : 0;
+        $discount->maximum_amount = 0;
         $discount->save();
         flash()->success(translate('Discount updated successfully!'));
         return redirect()->route('admin.discount.add-new');

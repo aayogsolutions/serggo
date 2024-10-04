@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('provider_name')->nullable();
             $table->string('longitude')->nullable();
             $table->string('latitude')->nullable();
-            $table->tinyInteger('is_block', false)->default(0)->comment("0 = no | 1 = yes");
+            $table->tinyInteger('is_block')->default(0)->comment('0 = active | 1 = inactive');
             $table->rememberToken();
             $table->timestamps();
         });

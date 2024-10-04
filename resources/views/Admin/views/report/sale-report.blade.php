@@ -148,7 +148,7 @@
                     </table>
                     <div class="card-footer border-0">
                         <div class="d-flex justify-content-center justify-content-sm-end">
-                            {!! $orderDetails->links() !!}
+                            {!! $orderDetails->links('pagination::bootstrap-4') !!}
                         </div>
                     </div>
                     @if(count($orderDetails) === 0)

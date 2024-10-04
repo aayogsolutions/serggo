@@ -353,7 +353,7 @@
                     </table>
                     <table>
                         <tfoot>
-                        {!! $orders->links() !!}
+                        {!! $orders->links('pagination::bootstrap-4') !!}
                         </tfoot>
                     </table>
                 </div>

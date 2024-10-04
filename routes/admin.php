@@ -25,17 +25,26 @@ use App\Http\Controllers\Admin\{
     CustomerController,
     CustomerWalletController,
     OrderController,
+    VendorController,
+    ServicemenController,
+    DashboardController,
+    TimeSlotController,
 };
+
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/', [AdminController::class,'login'])->name('login');
     Route::post('/', [AdminController::class,'login_submit'])->name('login.submit');
 
     Route::group(['middleware' => 'Admin-auth'], function(){
-        Route::get('/dashboard', [AdminController::class,'dashboard'])->name('dashboard');
+
         Route::get('/logout', [AdminController::class,'logout'])->name('auth.logout');
-    
         Route::get('/test', [AdminController::class,'test'])->name('test');
+
+        Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+        Route::post('order-stats', [DashboardController::class, 'orderStats'])->name('order-stats');
+        Route::get('dashboard/earning-statistics', [DashboardController::class, 'getEarningStatistics'])->name('dashboard.earning-statistics');
+        Route::get('dashboard/order-statistics', [DashboardController::class, 'getOrderStatistics'])->name('dashboard.order-statistics');
 
         Route::get('settings', [SystemController::class, 'settings'])->name('settings');
         Route::post('settings', [SystemController::class, 'settingsUpdate'])->name('UpdateSettings');
@@ -100,6 +109,28 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::delete('delete/{id}', [BannersController::class, 'HomeSliderDelete'])->name('delete');
                 Route::get('priority', [BannersController::class, 'HomeSliderPriority'])->name('priority');
             });
+
+            Route::group(['prefix' => 'subcategory-banners', 'as' => 'subcategory_banners.'], function () {
+
+                Route::get('add', [BannersController::class, 'SubcategoryIndex'])->name('add');
+                Route::get('subcategory-detail/{id}', [BannersController::class, 'SubcategoryDetailSection'])->name('detail.section');
+                Route::post('add-content/{id}', [BannersController::class, 'SubcategoryAddContent'])->name('add.content');
+                Route::get('priority', [BannersController::class, 'SubcategoryPriority'])->name('priority');
+                Route::delete('delete/{id}', [BannersController::class, 'SubcategoryDelete'])->name('delete');
+
+
+
+
+                Route::get('edit/{id}', [BannersController::class, 'SubcategoryEdit'])->name('edit');
+    
+                
+                Route::post('section-item', [BannersController::class, 'ProductCategoryDetailItem'])->name('detail.item');
+                Route::post('update-section', [BannersController::class, 'ProductCategoryUpdateSection'])->name('update.section');
+                Route::post('update-item', [BannersController::class, 'ProductCategoryUpdateItem'])->name('update.item');
+    
+                
+                Route::delete('delete-content/{id}', [BannersController::class, 'ProductCategoryDeleteContent'])->name('delete.content');
+            });   
         });
 
         Route::group(['prefix' => 'display', 'as' => 'display.'], function () {
@@ -186,6 +217,25 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', [BranchController::class, 'status'])->name('status');
         });
 
+        Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
+          
+            Route::get('list', [VendorController::class, 'list'])->name('list');
+            Route::get('view/{user_id}', [VendorController::class, 'view'])->name('view');
+            // Route::post('search', [CustomerController::class, 'search'])->name('search');
+            // Route::get('subscribed-emails', [CustomerController::class, 'subscribedEmails'])->name('subscribed_emails');
+            
+            Route::get('status/{id}/{status}', [VendorController::class, 'status'])->name('status');
+            // Route::get('export', [CustomerController::class, 'exportCustomer'])->name('export');
+        });
+
+        Route::group(['prefix' => 'service_men', 'as' => 'service_men.'], function () {
+          
+            Route::get('list', [ServicemenController::class, 'list'])->name('list');
+            Route::get('view/{user_id}', [ServicemenController::class, 'view'])->name('view');
+            Route::get('status/{id}/{status}', [ServicemenController::class, 'status'])->name('status');
+            
+        });
+
         Route::group(['prefix' => 'reviews', 'as' => 'reviews.'], function () {
             Route::get('list', [ReviewsController::class, 'list'])->name('list');
             Route::get('status/{id}/{status}', [ReviewsController::class, 'status'])->name('status');
@@ -234,19 +284,19 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::get('select-list', [CustomerWalletController::class, 'getCustomers'])->name('select-list');
 
-                Route::group(['prefix' => 'wallet', 'as' => 'wallet.'], function () {
-                    Route::get('add-fund', [CustomerWalletController::class, 'addFundView'])->name('add-fund');
-                    Route::post('add-fund', [CustomerWalletController::class, 'addFund'])->name('add-fund-store');
-                    Route::get('report', [CustomerWalletController::class, 'report'])->name('report');
+            Route::group(['prefix' => 'wallet', 'as' => 'wallet.'], function () {
+                Route::get('add-fund', [CustomerWalletController::class, 'addFundView'])->name('add-fund');
+                Route::post('add-fund', [CustomerWalletController::class, 'addFund'])->name('add-fund-store');
+                Route::get('report', [CustomerWalletController::class, 'report'])->name('report');
 
-                    Route::group(['prefix' => 'bonus', 'as' => 'bonus.'], function () {
-                        Route::get('index', [WalletBonusController::class, 'index'])->name('index');
-                        Route::post('store',  [WalletBonusController::class, 'store'])->name('store');
-                        Route::get('edit/{id}',  [WalletBonusController::class, 'edit'])->name('edit');
-                        Route::post('update/{id}',  [WalletBonusController::class, 'update'])->name('update');
-                        Route::get('status/{id}/{status}',  [WalletBonusController::class, 'status'])->name('status');
-                        Route::delete('delete/{id}',  [WalletBonusController::class, 'delete'])->name('delete');
-                    });
+                Route::group(['prefix' => 'bonus', 'as' => 'bonus.'], function () {
+                    Route::get('index', [WalletBonusController::class, 'index'])->name('index');
+                    Route::post('store',  [WalletBonusController::class, 'store'])->name('store');
+                    Route::get('edit/{id}',  [WalletBonusController::class, 'edit'])->name('edit');
+                    Route::post('update/{id}',  [WalletBonusController::class, 'update'])->name('update');
+                    Route::get('status/{id}/{status}',  [WalletBonusController::class, 'status'])->name('status');
+                    Route::delete('delete/{id}',  [WalletBonusController::class, 'delete'])->name('delete');
+                });
             });
         });
 
@@ -342,14 +392,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('referral-income-setup', [BusinessSettingsController::class, 'ReferralIncomeSetup'])->name('referral-income-setup');
                 Route::post('referral-income-setup-update', [BusinessSettingsController::class, 'ReferralIncomeSetupUpdate'])->name('referral-income-setup-update');
 
-                // Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
-                //     Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
-                //     Route::post('store', [TimeSlotController::class, 'store'])->name('store');
-                //     Route::get('update/{id}', [TimeSlotController::class, 'edit'])->name('update');
-                //     Route::post('update/{id}', [TimeSlotController::class, 'update']);
-                //     Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
-                //     Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
-                // });
+                Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
+                    Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
+                    Route::post('store', [TimeSlotController::class, 'store'])->name('store');
+                    Route::get('update/{id}', [TimeSlotController::class, 'edit'])->name('update');
+                    Route::post('update/{id}', [TimeSlotController::class, 'update']);
+                    Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
+                    Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
+                });
             });
 
             Route::group(['prefix'=>'web-app','as'=>'web-app.'], function() {

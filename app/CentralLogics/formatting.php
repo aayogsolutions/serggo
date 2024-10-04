@@ -14,16 +14,23 @@ if(! function_exists('product_data_formatting')) {
             foreach ($data as $item) {
                 
                 $variations = [];
-                $item->brand_name = json_decode($item->brand_name);
-                $item->image = json_decode($item->image);
-                $item->attributes = json_decode($item->attributes);
-                $item->choice_options = json_decode($item->choice_options);
-                $item->tags = json_decode($item->tags);
-                $item->productdiscountamount = Helpers_discount_calculate($item, $item->price);
-                if(isset($item->category_id))
+                $item->brand_name = gettype($item->brand_name) == 'array' ? $item->brand_name : json_decode($item->brand_name);
+                $item->image =  gettype($item->image) == 'array' ? $item->image : json_decode($item->image);
+                $item->attributes = gettype($item->attributes) == 'array' ? $item->attributes : json_decode($item->attributes);
+                $item->choice_options = gettype($item->choice_options) == 'array' ? $item->choice_options : json_decode($item->choice_options);
+                $item->tags = gettype($item->tags) == 'array' ? $item->tags : json_decode($item->tags);
+                
+                $category_discount = CategoryDiscount::Active()->where('category_id', $item->category_id)->first();
+                if(!is_null($category_discount))
                 {
-                    $item->category_discount = CategoryDiscount::Active()->where('category_id', $item->category_id)->first();
-                    $item->categorydiscountamount = Helpers_category_discount_calculate($item, $item->price);
+                    if($category_discount->discount_amount > $item->discount)
+                    {
+                        $item->productdiscount = $category_discount->discount_amount;
+                    }else{
+                        $item->productdiscount = $item->discount;
+                    }
+                }else{
+                    $item->productdiscount = $item->discount;
                 }
 
                 $item->variations = gettype($item->variations) == 'array' ? $item->variations : json_decode($item->variations);
@@ -69,11 +76,18 @@ if(! function_exists('product_data_formatting')) {
             $data->attributes = gettype($data->attributes) == 'array' ? $data->attributes : json_decode($data->attributes);
             $data->choice_options = gettype($data->choice_options) == 'array' ? $data->choice_options : json_decode($data->choice_options);
             $data->tags = gettype($data->tags) == 'array' ? $data->tags : json_decode($data->tags);
-            $data->productdiscountamount = Helpers_discount_calculate($data, $data->price);
-            if(isset($data->category_id))
+
+            $category_discount = CategoryDiscount::Active()->where('category_id', $data->category_id)->first();
+            if(!is_null($category_discount))
             {
-                $data->category_discount = CategoryDiscount::Active()->where('category_id', $data->category_id)->first();
-                $data->categorydiscountamount = Helpers_category_discount_calculate($data, $data->price);
+                if($category_discount->discount_amount > $data->discount)
+                {
+                    $data->productdiscount = $category_discount->discount_amount;
+                }else{
+                    $data->productdiscount = $data->discount;
+                }
+            }else{
+                $data->productdiscount = $data->discount;
             }
 
             if($reviews)

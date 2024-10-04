@@ -66,22 +66,22 @@
                                         class="input-label-secondary">*</span></label>
                                 <select name="discount_type" class="form-control change-discount-type" id="discount_type">
                                     <option value="percent" {{ $discount['discount_type'] == 'percent'? 'selected' : '' }}>{{translate('percent')}}</option>
-                                    <option value="amount" {{ $discount['discount_type'] == 'amount'? 'selected' : '' }}>{{translate('amount')}}</option>
+                                    <!-- <option value="amount" {{ $discount['discount_type'] == 'amount'? 'selected' : '' }}>{{translate('amount')}}</option> -->
                                 </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group mb-0">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('discount_amount')}}</label>
-                                <input type="number" step="0.1" name="discount_amount" value="{{$discount['discount_amount']}}" class="form-control" placeholder="{{ translate('discount_amount') }}" required>
+                                <input type="number" step="0.1" name="discount_amount" value="{{$discount['discount_amount']}}" class="form-control" placeholder="{{ translate('discount_precent') }}" required>
                             </div>
                         </div>
-                        <div class="col-6" id="max_amount_div">
+                        <!-- <div class="col-6" id="max_amount_div">
                             <div class="form-group mb-0">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('maximum_amount')}}</label>
                                 <input type="number" step="0.1" name="maximum_amount" value="{{$discount['maximum_amount']}}" class="form-control" placeholder="{{ translate('maximum_amount') }}">
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="col-12">
                         <div class="btn--container justify-content-end">

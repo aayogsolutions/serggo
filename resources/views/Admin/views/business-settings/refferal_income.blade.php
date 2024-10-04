@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Reffral Income Distributing setting'))
+@section('title', translate('Reffral Income setting'))
 
 @section('content')
     <div class="content container-fluid">
@@ -13,18 +13,18 @@
                             <span class="card-header-icon mb-1 mr-2">
                                 <img src="{{asset('public/assets/admin/img/bag.png')}}" class="w--17" alt="">
                             </span>
-                            <span>{{translate('Reffral Income Distributing setting')}}</span>
+                            <span>{{translate('Reffral Income setting')}}</span>
                         </h5>
                     </div>
                     <div class="card-body">
                         <form action="{{route('admin.business-settings.store.referral-income-setup-update')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-                                @php($value = Helpers_get_business_settings('Helpers_get_business_settings'))
+                                @php($value = Helpers_get_business_settings('refferal_bonus'))
                                 <div class="col-md-4 col-sm-6">
                                     <div class="form-group">
-                                        <label class="input-label" for="exampleFormControlInput1">{{translate('How many Days')}}</label>
-                                        <input type="number" value="{{$value}}" name="days" class="form-control" placeholder="" required>
+                                        <label class="input-label" for="exampleFormControlInput1">{{translate('refferal_bonus')}}</label>
+                                        <input type="number" value="{{$value}}" name="refferal_bonus" class="form-control" placeholder="" required>
                                     </div>
                                 </div>
                             </div>

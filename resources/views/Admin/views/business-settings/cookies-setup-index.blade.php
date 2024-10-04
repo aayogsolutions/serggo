@@ -10,7 +10,7 @@
         <div class="tab-pane fade show active" id="business-setting">
             <form action="{{route('admin.business-settings.store.cookies-setup-update')}}" method="post" enctype="multipart/form-data">
                 @csrf
-                @php($cookies=\App\CentralLogics\Helpers::get_business_settings('cookies'))
+                @php($cookies=Helpers_get_business_settings('cookies'))
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
                         <div class="card">

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('branch_id');
             $table->enum('order_type',['goods','service']);
             $table->decimal('order_amount',24,2);
-            $table->string('order_status')->default('pending');
+            $table->string('order_status')->default('pending')->comment('[pending,confirmed,packing,out_for_delivery,delivered,canceled,returned,failed]');
             $table->enum('order_approval',['pending','accepted','rejected'])->default('pending');
             $table->enum('editable',[0,1,2])->default(0)->comment('0 => N/A|| 1 => Edit processing || 2=> edit Accepted');
             $table->enum('edit_status',['pending','accepted','rejected'])->nullable();

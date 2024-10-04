@@ -372,8 +372,8 @@ ini_set('memory_limit', '-1');
                                 },
                                 "ticks": {
                                   "min": 0,
-                                  "max": {{\App\CentralLogics\Helpers::max_orders()}},
-                                  "stepSize": {{round(\App\CentralLogics\Helpers::max_orders()/4)}},
+                                  "max": {{Helpers_max_orders()}},
+                                  "stepSize": {{round(Helpers_max_orders()/4)}},
                                   "fontColor": "#97a4af",
                                   "fontFamily": "Open Sans, sans-serif",
                                   "padding": 10,

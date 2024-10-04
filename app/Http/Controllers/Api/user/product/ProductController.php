@@ -337,7 +337,8 @@ class ProductController extends Controller
             foreach ($brands_product1['array'] as $key => $value) {
                 $brandProduct[] = $value;
             }
-                    
+            
+            $brandProduct = product_data_formatting($brandProduct,true);
             return response()->json([
                 'status' => true,
                 'message' => 'Brands Details',

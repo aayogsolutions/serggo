@@ -109,7 +109,7 @@
 
                         <div class="table-responsive mt-4 px-3">
                             <div class="d-flex justify-content-lg-end">
-                                {!! $methods->links() !!}
+                                {!! $methods->links('pagination::bootstrap-4') !!}
                             </div>
                         </div>
 
