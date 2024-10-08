@@ -8,7 +8,7 @@
             <div class="page-header border-bottom">
                 <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('Service_men') }}">
+                    <img src="{{asset('assets/admin/img/employee.png')}}" class="w--20" alt="{{ translate('service_mens') }}">
                 </span>
                     <span class="page-header-title pt-2">
                         {{translate('Service_men_Details')}}
@@ -20,20 +20,20 @@
         <div class="d-print-none pb-2">
             <div class="row align-items-center">
                 <div class="col-auto mb-2 mb-sm-0">
-                    <h1 class="page-header-title">{{translate('Service_men')}} {{translate('id')}} #{{$Service_men['id']}}</h1>
+                    <h1 class="page-header-title">{{translate('service_mens')}} {{translate('id')}} #{{$service_mens['id']}}</h1>
                     <span class="d-block">
-                        <i class="tio-date-range"></i> {{translate('joined_at')}} : {{date('d M Y '.config('timeformat'),strtotime($Service_men['created_at']))}}
+                        <i class="tio-date-range"></i> {{translate('joined_at')}} : {{date('d M Y '.config('timeformat'),strtotime($service_mens['created_at']))}}
                     </span>
                 </div>
 
                 <div class="col-auto ml-auto">
                     <a class="btn btn-icon btn-sm btn-soft-secondary rounded-circle mr-1"
-                       href="{{route('admin.service_men.view',[$Service_men['id']-1])}}"
-                       data-toggle="tooltip" data-placement="top" title="{{ translate('Previous Service_men') }}">
+                       href="{{route('admin.service_men.view',[$service_mens['id']-1])}}"
+                       data-toggle="tooltip" data-placement="top" title="{{ translate('Previous service_mens') }}">
                         <i class="tio-arrow-backward"></i>
                     </a>
                     <a class="btn btn-icon btn-sm btn-soft-secondary rounded-circle"
-                       href="{{route('admin.service_men.view',[$Service_men['id']+1])}}" data-toggle="tooltip"
+                       href="{{route('admin.service_men.view',[$service_mens['id']+1])}}" data-toggle="tooltip"
                        data-placement="top" title="{{ translate('Next Service_men') }}">
                         <i class="tio-arrow-forward"></i>
                     </a>
@@ -47,7 +47,7 @@
                 <div class="resturant-card bg--2">
                     <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/1.png')}}" alt="{{ translate('image') }}">
                     <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('wallet')}} {{translate('balance')}}</div>
-                    <div class="for-card-count">{{ Helpers_set_symbol($Service_men->wallet_balance??0)}}</div>
+                    <div class="for-card-count">{{ Helpers_set_symbol($service_mens->wallet_balance??0)}}</div>
                 </div>
             </div>
 
@@ -55,8 +55,8 @@
             <div class="col-lg-6 col-md-6 col-sm-6">
                 <div class="resturant-card bg--3">
                     <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
-                    <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('loyalty_point')}} {{translate('balance')}}</div>
-                    <div class="for-card-count">{{$Service_men->loyalty_point??0}}</div>
+                    <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('Services')}} </div>
+                    <div class="for-card-count">{{$service_mens->loyalty_point??0}}</div>
                 </div>
             </div>
         </div>
@@ -145,67 +145,42 @@
                                 <i class="tio-user"></i>
                             </span>
                             <span>
-                                @if($Service_men)
-                                    {{$Service_men['name']}}
+                                @if($service_mens)
+                                    {{$service_mens['name']}}
                                     @else
-                                    {{ translate('Service_men') }}
+                                    {{ translate('service_mens') }}
                                 @endif
                             </span>
                         </h4>
                     </div>
-
-                    @if($Service_men)
+                
+                    @if($service_mens)
                         <div class="card-body">
                             <div class="media align-items-center customer--information-single" href="javascript:">
                                 <div class="avatar avatar-circle">
                                     <img
                                         class="avatar-img"
-                                        src="{{$Service_men->imageFullPath}}"
-                                        alt="{{ translate('Service_men') }}">
+                                        src="{{asset($service_mens->image)}}"
+                                        alt="{{ translate('service_mens') }}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                 </div>
                                 <div class="media-body">
                                     <ul class="list-unstyled m-0">
                                         <li class="pb-1">
                                             <i class="tio-email mr-2"></i>
-                                            <a href="mailto:{{$Service_men['email']}}">{{$Service_men['email']}}</a>
+                                            <a href="mailto:{{$service_mens['email']}}">{{$service_mens['email']}}</a>
                                         </li>
                                         <li class="pb-1">
                                             <i class="tio-call-talking-quiet mr-2"></i>
-                                            <a href="Tel:{{$Service_men['phone']}}">{{$Service_men['phone']}}</a>
+                                            <a href="Tel:{{$service_mens['phone']}}">{{$service_mens['number']}}</a>
                                         </li>
                                         <li class="pb-1">
                                             <i class="tio-shopping-basket-outlined mr-2"></i>
-                                            {{$Service_men->orders->count()}} {{translate('orders')}}
+                                            {{$service_mens->vendororders->count()}} {{translate('orders')}}
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                             <hr>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5>{{translate('contact')}} {{translate('info')}}</h5>
-                            </div>
-                            @foreach($Service_men->address as $address)
-                                <ul class="list-unstyled list-unstyled-py-2">
-                                    @if($address['contact_person_number'])
-                                        <li>
-                                            <i class="tio-call-talking-quiet mr-2"></i>
-                                            {{$address['contact_person_number']}}
-                                        </li>
-                                    @endif
-                                    <li class="quick--address-bar">
-                                        <div class="quick-icon badge-soft-secondary">
-                                            <i class="tio-home"></i>
-                                        </div>
-                                        <div class="info">
-                                            <h6>{{ translate($address['address_type'])}}</h6>
-                                            <a target="_blank" href="http://maps.google.com/maps?z=12&t=m&q=loc:{{$address['latitude']}}+{{$address['longitude']}}" class="text--title">
-                                                {{$address['address']}}
-                                            </a>
-                                        </div>
-                                    </li>
-                                </ul>
-                            @endforeach
-
                         </div>
                 @endif
                 </div>

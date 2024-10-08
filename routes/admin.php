@@ -111,25 +111,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             });
 
             Route::group(['prefix' => 'subcategory-banners', 'as' => 'subcategory_banners.'], function () {
-
                 Route::get('add', [BannersController::class, 'SubcategoryIndex'])->name('add');
                 Route::get('subcategory-detail/{id}', [BannersController::class, 'SubcategoryDetailSection'])->name('detail.section');
                 Route::post('add-content/{id}', [BannersController::class, 'SubcategoryAddContent'])->name('add.content');
                 Route::get('priority', [BannersController::class, 'SubcategoryPriority'])->name('priority');
                 Route::delete('delete/{id}', [BannersController::class, 'SubcategoryDelete'])->name('delete');
-
-
-
-
-                Route::get('edit/{id}', [BannersController::class, 'SubcategoryEdit'])->name('edit');
-    
-                
-                Route::post('section-item', [BannersController::class, 'ProductCategoryDetailItem'])->name('detail.item');
-                Route::post('update-section', [BannersController::class, 'ProductCategoryUpdateSection'])->name('update.section');
-                Route::post('update-item', [BannersController::class, 'ProductCategoryUpdateItem'])->name('update.item');
-    
-                
-                Route::delete('delete-content/{id}', [BannersController::class, 'ProductCategoryDeleteContent'])->name('delete.content');
             });   
         });
 
@@ -282,7 +268,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', [CustomerController::class, 'status'])->name('status');
             Route::get('export', [CustomerController::class, 'exportCustomer'])->name('export');
 
-            Route::get('select-list', [CustomerWalletController::class, 'getCustomers'])->name('select-list');
+            // Route::get('select-list', [CustomerWalletController::class, 'getCustomers'])->name('select-list');
 
             Route::group(['prefix' => 'wallet', 'as' => 'wallet.'], function () {
                 Route::get('add-fund', [CustomerWalletController::class, 'addFundView'])->name('add-fund');

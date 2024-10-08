@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('customer_addresses', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->nullable();
-            $table->tinyInteger('is_primary')->comment('0 = primary | 1 = not');
+            $table->bigInteger('user_id');
             $table->string('address_type',100);
             $table->string('contact_person_number',20);
-            $table->string('contact_person_name')->nullable();
-            $table->string('road')->nullable();
-            $table->string('house')->nullable();
-            $table->string('floor')->nullable();
-            $table->string('address')->nullable();
+            $table->string('contact_person_name');
+            $table->string('landmark')->nullable();
+            $table->string('house_road')->nullable();
+            $table->string('address1')->nullable();
+            $table->string('address2')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
             $table->timestamps();

@@ -106,7 +106,7 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    {{ $product->total_sold }}
+                                    {{ $product->total_sale }}
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <label class="toggle-switch my-0">

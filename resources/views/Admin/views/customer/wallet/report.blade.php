@@ -45,8 +45,7 @@
                                 <select name="transaction_type" id="" class="form-control h--45px" title="{{translate('select')}} {{translate('transaction_type')}}">
                                     <option value="">{{translate('all')}}</option>
                                     <option value="add_fund_by_admin" {{isset($transactionStatus) && $transactionStatus=='add_fund_by_admin'?'selected':''}} >{{translate('add_fund_by_admin')}}</option>
-                                    <option value="referral_order_place" {{isset($transactionStatus) && $transactionStatus=='referral_order_place	'?'selected':''}}>{{translate('referral_order_place')}}</option>
-                                    <option value="loyalty_point_to_wallet" {{isset($transactionStatus) && $transactionStatus=='loyalty_point_to_wallet'?'selected':''}}>{{translate('loyalty_point_to_wallet')}}</option>
+                                    <option value="referral_order_place" {{isset($transactionStatus) && $transactionStatus=='user_referral_bonus	'?'selected':''}}>{{translate('user_referral_bonus')}}</option>
                                     <option value="order_place" {{isset($transactionStatus) && $transactionStatus=='order_place'?'selected':''}}>{{translate('order_place')}}</option>
                                 </select>
                             </div>
@@ -54,9 +53,10 @@
                         <div class="col-sm-6 col-12">
                             <div class="mb-3">
                                 <select id='customer' name="customer_id" data-placeholder="{{translate('select_customer')}}" class="js-data-example-ajax form-control h--45px" title="{{translate('select_customer')}}">
-                                    @if (request()->get('customer_id') && $customerInfo = \App\User::find(request()->get('customer_id')))
-                                        <option value="{{$customerInfo->id}}" selected>{{$customerInfo->f_name.' '.$customerInfo->l_name}}({{$customerInfo->phone}})</option>
-                                    @endif
+                                <option value="">---{{translate('select')}}---</option>
+                                    @foreach($all_user as $value)
+                                        <option value="{{$value->id}}">{{$value->name}} ({{$value->number}})</option>                                   
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -133,13 +133,14 @@
                         </tr>
                         </thead>
                         <tbody>
+                     
                         @foreach($transactions as $k=>$walletTransaction)
                             <tr scope="row">
                                 <td >{{$k+$transactions->firstItem()}}</td>
-                                <td>{{$walletTransaction->transaction_id}}</td>
+                                <td>{{$walletTransaction->transactions_id}}</td>
                                 <td>
                                     <a href="{{route('admin.customer.view',['user_id'=>$walletTransaction->user_id])}}">
-                                        {{Str::limit($walletTransaction->user?$walletTransaction->user->f_name.' '.$walletTransaction->user->l_name:translate('not_found'),20,'...')}}
+                                        {{Str::limit($walletTransaction->transaction->name?$walletTransaction->transaction->name:translate('No Name'),20,'...')}}
                                     </a>
                                 </td>
                                 <td>{{$walletTransaction->credit}}</td>
@@ -153,7 +154,7 @@
                                                 ?'info'
                                                 :'success'))
                                         }}">
-                                        {{ translate($walletTransaction->transaction_type)}}
+                                        {{ translate($walletTransaction->transactions_type)}}
                                     </span>
                                 </td>
                                 <td>{{date('Y/m/d '.config('timeformat'), strtotime($walletTransaction->created_at))}}</td>
@@ -183,33 +184,7 @@
             <script>
                 "use strict";
 
-                $(document).on('ready', function () {
-                    $('.js-data-example-ajax').select2({
-                        ajax: {
-                            url: '{{route('admin.customer.select-list')}}',
-                            data: function (params) {
-                                return {
-                                    q: params.term, // search term
-                                    all:true,
-                                    page: params.page
-                                };
-                            },
-                            processResults: function (data) {
-                                return {
-                                    results: data
-                                };
-                            },
-                            __port: function (params, success, failure) {
-                                var $request = $.ajax(params);
-
-                                $request.then(success);
-                                $request.fail(failure);
-
-                                return $request;
-                            }
-                        }
-                    });
-                });
+             
 
                 $('#from_date,#to_date').change(function () {
                     let fr = $('#from_date').val();

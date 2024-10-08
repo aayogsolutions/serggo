@@ -37,6 +37,10 @@ class Vendor extends Authenticatable
     public function vendororders(){
         return $this->hasMany(Order::class,'vender_id','id');
     }
+    
+    public function products(){
+        return $this->hasMany(Products::class,'vender_id','id');
+    }
 
     static function total_order_amount($vendor_id)
     {

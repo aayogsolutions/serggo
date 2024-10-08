@@ -1,14 +1,18 @@
 <?php
 
 use App\Http\Controllers\Api\user\BannerController;
+use App\Http\Controllers\Api\user\InformationController;
 use App\Http\Controllers\Api\user\product\CartController;
 use App\Http\Controllers\Api\user\product\WishlistController;
 use App\Http\Controllers\Api\auth\{
     ApiAuthController
 };
 use App\Http\Controllers\Api\user\product\{
+    CategoryCntroller,
+    CustomerController,
     DashboardController,
-    ProductController
+    ProductController,
+    AddressController
 };
 use App\Http\Controllers\Api\user\service\{
     DashboardController as ServiceDashboardController,
@@ -35,15 +39,27 @@ Route::group(['prefix' => 'banner'], function() {
     Route::get('/splash/{ui}',[BannerController::class, 'Splash']);
 });
 
+Route::group(['prefix' => 'information'], function() {
+
+    Route::get('/about-us',[InformationController::class, 'AboutUs']);
+    Route::get('/term-conditions',[InformationController::class, 'TermConditions']);
+    Route::get('/privacy-policy',[InformationController::class, 'PrivacyPolicy']);
+    
+});
+
 Route::group(['prefix' => 'product'], function(){
 
     Route::get('/dashboard', [DashboardController::class,'Index']);
     Route::get('/category_display/{ui}', [DashboardController::class,'CategoryDisplay']);
     Route::post('/display_section_details', [ProductController::class,'Display']);
+    
 
     Route::get('/product_details', [ProductController::class,'Index']);
     Route::get('/brand_details', [ProductController::class,'BrandSelected']);
-    
+    Route::get('/category_detail', [CategoryCntroller::class,'CategoryDetails']);
+    Route::get('/subcategory_detail', [CategoryCntroller::class,'SubCategoryDetails']);
+
+    Route::get('/search', [ProductController::class,'Search']);
 });
 
 Route::group(['prefix' => 'service'], function(){
@@ -58,10 +74,22 @@ Route::group(['prefix' => 'vender'], function(){
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
 
-    Route::group(['prefix' => 'product'], function(){
+    Route::group(['prefix' => 'user'], function(){
+
+        Route::get('/profile', [CustomerController::class,'Profile']);
+        Route::post('/profile', [CustomerController::class,'ProfileSubmit']);
 
         Route::get('/cart', [CartController::class,'cart']);
         Route::get('/wishlist', [WishlistController::class,'wishlist']);
+        Route::get('/transaction', [CustomerController::class,'transaction']);
+
+            Route::group(['prefix' => 'address'], function(){
+
+                Route::get('/list', [AddressController::class,'addresslist']);
+                Route::post('/store', [AddressController::class,'addressStore']);
+                Route::post('/update/{id}', [AddressController::class,'addressUpdate']);
+                Route::post('/delete/{id}', [AddressController::class,'addressDelete']);
+            });
     });
 });
 

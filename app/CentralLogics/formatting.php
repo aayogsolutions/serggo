@@ -1,5 +1,7 @@
 <?php
+use Illuminate\Support\Arr;
 use App\Models\{
+    Brands,
     Products,
     CategoryDiscount,
     ProductReview,
@@ -7,14 +9,19 @@ use App\Models\{
 };
 
 if(! function_exists('product_data_formatting')) {
-    function product_data_formatting($data, $multi_data = false, $reviews = false)
+    function product_data_formatting($data, $multi_data = false, $reviews = false,$brands = false)
     {
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
                 
                 $variations = [];
-                $item->brand_name = gettype($item->brand_name) == 'array' ? $item->brand_name : json_decode($item->brand_name);
+                if($brands)
+                {
+                    $item->brand_name = Brands::find($item->brand_id);
+                }else{
+                    $item->brand_name = gettype($item->brand_name) == 'array' ? $item->brand_name : json_decode($item->brand_name);
+                }
                 $item->image =  gettype($item->image) == 'array' ? $item->image : json_decode($item->image);
                 $item->attributes = gettype($item->attributes) == 'array' ? $item->attributes : json_decode($item->attributes);
                 $item->choice_options = gettype($item->choice_options) == 'array' ? $item->choice_options : json_decode($item->choice_options);
@@ -70,8 +77,12 @@ if(! function_exists('product_data_formatting')) {
         } else {
 
             $variations = [];
-
-            $data->brand_name = gettype($data->brand_name) == 'array' ? $data->brand_name : json_decode($data->brand_name);
+            if($brands)
+            {
+                $data->brand_name = Brands::find($data->brand_id);
+            }else{
+                $data->brand_name = gettype($data->brand_name) == 'array' ? $data->brand_name : json_decode($data->brand_name);
+            }
             $data->image =  gettype($data->image) == 'array' ? $data->image : json_decode($data->image);
             $data->attributes = gettype($data->attributes) == 'array' ? $data->attributes : json_decode($data->attributes);
             $data->choice_options = gettype($data->choice_options) == 'array' ? $data->choice_options : json_decode($data->choice_options);
@@ -198,5 +209,21 @@ if(! function_exists('display_data_formatting')) {
         }
 
         return $data;
+    }
+}
+
+if(! function_exists('sort_multidimensional_array')) {
+    function sort_multidimensional_array($array, $key)
+    {
+        foreach ($array as $key => $value) {
+            $b[$key] = strtolower($value[$key]);
+        }
+        arsort($b);
+
+        foreach ($b as $key => $value) {
+            $c[] = $array[$key];
+        }
+        dd($c);
+        return $c;
     }
 }

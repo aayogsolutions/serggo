@@ -30,7 +30,7 @@ Route::get('/ApiLogin', function(){
         'status' => false,
         'message' => 'Login Required',
         'data' => [],
-    ],204);
+    ],401);
 })->name('login');
 
 

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->integer('brand_id')->nullable();
             $table->text('brand_name')->nullable();
             $table->string('brandname_if_other')->nullable();
             $table->bigInteger('admin_id')->nullable();
@@ -25,7 +26,7 @@ return new class extends Migration
             $table->text('tags')->nullable();
             $table->decimal('tax',8,2)->default(0);
             $table->string('tax_type')->default('precent');
-            $table->tinyInteger('status')->default(2)->comment('0 = active | 1 = inactive | 2 = pending');
+            $table->tinyInteger('status')->default(2)->comment('0 = active | 1 = inactive | 2 = pending | 3 = rejected');
             $table->string('attributes')->nullable();
             $table->bigInteger('category_id')->nullable();
             $table->bigInteger('sub_category_id')->nullable();

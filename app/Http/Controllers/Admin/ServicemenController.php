@@ -65,14 +65,14 @@ class ServicemenController extends Controller
      */
     public function view(Request $request, $id): Factory|View|Application|RedirectResponse
     {
-        $vendor = $this->vendor->where('id',$id)->with('vendororders')->first();
-        if (isset($vendor)) {
+        $service_mens = $this->vendor->where('id',$id)->with('vendororders')->first();
+        if (isset($service_mens)) {
             $queryParam = [];
             $search = $request['search'];
             if($request->has('search'))
             {
                 $key = explode(' ', $request['search']);
-                $orders = $this->order->where(['user_id' => $id])
+                $orders = $this->order->where(['service_man_id' => $id])
                     ->where(function ($q) use ($key) {
                         foreach ($key as $value) {
                             $q->orWhere('id', 'like', "%{$value}%")
@@ -85,7 +85,7 @@ class ServicemenController extends Controller
             }
             $orders = $orders->latest()->paginate(Helpers_getPagination())->appends($queryParam);
             
-            return view('Admin.views.service_men.view', compact('vendor', 'orders', 'search'));
+            return view('Admin.views.service_men.view', compact('service_mens', 'orders', 'search'));
         }
         flash()->error(translate('Service_men not found!'));
         return back();

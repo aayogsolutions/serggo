@@ -16,11 +16,11 @@
                 </h1>
             </div>
         </div>
-
+      
         <div class="d-print-none pb-2">
             <div class="row align-items-center">
                 <div class="col-auto mb-2 mb-sm-0">
-                    <h1 class="page-header-title">{{translate('customer')}} {{translate('id')}} #{{$customer['id']}}</h1>
+                    <h1 class="page-header-title">{{translate('customer')}} {{translate('id')}} #{{$customer->id}}</h1>
                     <span class="d-block">
                         <i class="tio-date-range"></i> {{translate('joined_at')}} : {{date('d M Y '.config('timeformat'),strtotime($customer['created_at']))}}
                     </span>
@@ -134,7 +134,6 @@
             </div>
 
 
-
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
@@ -144,7 +143,7 @@
                             </span>
                             <span>
                                 @if($customer)
-                                    {{$customer['f_name'].' '.$customer['l_name']}}
+                                    {{$customer->name}}
                                     @else
                                     {{ translate('customer') }}
                                 @endif
@@ -158,8 +157,8 @@
                                 <div class="avatar avatar-circle">
                                     <img
                                         class="avatar-img"
-                                        src="{{$customer->imageFullPath}}"
-                                        alt="{{ translate('customer') }}">
+                                        src="{{asset($customer->image)}}"
+                                        alt="{{ translate('customer') }}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                 </div>
                                 <div class="media-body">
                                     <ul class="list-unstyled m-0">
@@ -169,7 +168,7 @@
                                         </li>
                                         <li class="pb-1">
                                             <i class="tio-call-talking-quiet mr-2"></i>
-                                            <a href="Tel:{{$customer['phone']}}">{{$customer['phone']}}</a>
+                                            <a href="Tel:{{$customer['phone']}}">{{$customer['number']}}</a>
                                         </li>
                                         <li class="pb-1">
                                             <i class="tio-shopping-basket-outlined mr-2"></i>
@@ -182,7 +181,8 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5>{{translate('contact')}} {{translate('info')}}</h5>
                             </div>
-                            @foreach($customer->addresses as $address)
+                            
+                            @foreach($customer->address as $address)
                                 <ul class="list-unstyled list-unstyled-py-2">
                                     @if($address['contact_person_number'])
                                         <li>
@@ -195,9 +195,9 @@
                                             <i class="tio-home"></i>
                                         </div>
                                         <div class="info">
-                                            <h6>{{ translate($address['address_type'])}}</h6>
-                                            <a target="_blank" href="http://maps.google.com/maps?z=12&t=m&q=loc:{{$address['latitude']}}+{{$address['longitude']}}" class="text--title">
-                                                {{$address['address']}}
+                                            <h6>{{ translate($address->address_type)}}</h6>
+                                            <a target="_blank" href="javascript:void(0)" class="text--title">
+                                                {{$address->house_road}} {{$address->address1}} {{$address->address2}} {{$address->city}}
                                             </a>
                                         </div>
                                     </li>

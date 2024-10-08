@@ -422,7 +422,6 @@ $(document).on('ready', function() {
     });
 
     $('#get_category').change(function(){
-
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -433,11 +432,13 @@ $(document).on('ready', function() {
             type: "get",
             url: "{{route('admin.product.get-categories')}}",
             contentType: false,
-            processData: false,
             data: {
-                parent_id: $(this).val()
+                parent_id: $('#get_category').val()
             },
             success: function(data) {
+                console.log(data.options);
+                console.log(data.option);
+                console.log($('#get_category').val());
                 $('#sub-categories').html(data.options);
             }
         });
@@ -477,8 +478,6 @@ function combination_update() {
     $.ajax({
         type: "POST",
         url: "{{route('admin.product.variant-combination')}}",
-        contentType: false,
-        processData: false,
         data: $('#product_form').serialize(),
         success: function(data) {
             $('#variant_combination').html(data.view);

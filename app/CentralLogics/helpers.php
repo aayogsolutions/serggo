@@ -80,6 +80,17 @@ if(! function_exists('translate')) {
     }
 }
 
+if(! function_exists('Helpers_generate_transction_id')) {
+    function Helpers_generate_transction_id()
+    {
+        $id = Str::random(30);
+        if (WalletTranscation::where('transactions_id',$id)->exists()) {
+            Helpers_generate_transction_id();
+        }
+        return $id;
+    }
+}
+
 if(! function_exists('Helpers_error_processor')) {
     function Helpers_error_processor($validator)
     {
@@ -371,7 +382,7 @@ if(!function_exists('Helpers_generate_referer_bonus')) {
             $transaction->user_id = $user->id;
             $transaction->transactions_id = Str::random('30');
             $transaction->reference = $referred;
-            $transaction->transactions_type = 'refferal_bonus';
+            $transaction->transactions_type = 'refferal_user_bonus';
             $transaction->debit = 0;
             $transaction->credit = $amount;
             $transaction->balance = $user->wallet_balance + $amount;

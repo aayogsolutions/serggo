@@ -69,7 +69,8 @@
                             {{translate('#')}}
                         </th>
                         <th class="table-column-pl-0">{{translate('Service_men name')}}</th>
-                        <th>{{translate('contact info')}}</th>
+                        <th class="text-center">{{translate('Contact Info')}}</th>
+                        <th class="text-center">{{translate('Wallet balance')}}</th>
                         <th class="text-center">{{translate('Total Orders')}}</th>
                         <th class="text-center">{{translate('Total Order Amount')}}</th>
                         <th class="text-center">{{translate('status')}}</th>
@@ -94,15 +95,15 @@
                                 </div>
                             </a>
                         </td>
-                        <td>
-                            <h5 class="m-0">
+                        <td class="text-center">
+                            <h5 class="m-0 ">
                                 <a href="mailto:{{$service_men['email']}}">{{$service_men['email']}}</a>
                             </h5>
                             <div>
                                 <a href="Tel:{{$service_men['phone']}}">{{$service_men['number']}}</a>
                             </div>
                         </td>
-                        <td>
+                        <td class="text-center">
                             {{$service_men['wallet_balance']}}
                         </td>
                         <td>
@@ -116,7 +117,9 @@
                         </td>
                         <td>
                             <div class="text-center">
-                                {{ Helpers_set_symbol(\App\Models\User::total_order_amount($service_men->id)) }}
+
+                                {{ Helpers_set_symbol(\App\Models\Vender::total_order_amount($service_men->id)) }}
+
                             </div>
                         </td>
                         <td>

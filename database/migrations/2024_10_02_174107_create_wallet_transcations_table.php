@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('credit',24,2);
             $table->decimal('debit',24,2);
             $table->string('transactions_type');
-            $table->string('reference');
+            $table->string('reference')->nullabe();
             $table->decimal('balance',24,2);
             $table->timestamps();
         });

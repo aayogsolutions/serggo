@@ -248,7 +248,7 @@
                                         </a>
                                     </li>
 
-                                    <li class="nav-item {{Request::is('admin/tag*')?'active':''}}">
+                                    <li class="nav-item {{Request::is('admin/product/tag/add-new*')?'active':''}}">
                                         <a class="nav-link"
                                             href="{{route('admin.product.tag.add-new')}}"
                                             title="{{translate('product tag')}}">
@@ -473,7 +473,7 @@
                         </li>
                         @endif
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['vender_list']))
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/customer/loyalty-point*')?'active':''}}">
+                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/vendor/list*')?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
                                 href="{{route('admin.vendor.list')}}" title="{{translate('vender list')}}">
                                 <i class="tio-medal nav-icon"></i>
@@ -484,7 +484,7 @@
                         </li>
                         @endif
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['serviceman_list']))
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/customer/loyalty-point*')?'active':''}}">
+                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/service_men/list*')?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
                                 href="{{route('admin.service_men.list')}}" title="{{translate('service men list')}}">
                                 <i class="tio-medal nav-icon"></i>

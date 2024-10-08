@@ -37,4 +37,9 @@ class Products extends Model
     {
         return $this->query()->where('status', 0);
     }
+
+    public function products(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Vendor::class, 'id');
+    }
 }

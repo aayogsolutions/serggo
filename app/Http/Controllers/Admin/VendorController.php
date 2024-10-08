@@ -67,14 +67,15 @@ class VendorController extends Controller
      */
     public function view(Request $request, $id): Factory|View|Application|RedirectResponse
     {
-        $vendor = $this->vendor->where('id',$id)->with('vendororders')->first();
+        $vendor = $this->vendor->where('id',$id)->with(['vendororders','Products'])->first();
+        
         if (isset($vendor)) {
             $queryParam = [];
             $search = $request['search'];
             if($request->has('search'))
             {
                 $key = explode(' ', $request['search']);
-                $orders = $this->order->where(['user_id' => $id])
+                $orders = $this->order->where(['vender_id' => $id])
                     ->where(function ($q) use ($key) {
                         foreach ($key as $value) {
                             $q->orWhere('id', 'like', "%{$value}%")

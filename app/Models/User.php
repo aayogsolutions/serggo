@@ -45,9 +45,14 @@ class User extends Authenticatable
         return $this->hasMany(providers::class,'user_id','id');
     }
 
+    public function transaction()
+    {
+        return $this->hasMany(WalletTranscation::class,'user_id','id');
+    }
+
     public function status()
     {
-        return $this->query()->where('status', 0);
+        return $this->query()->where('is_block', 0);
     }
 
     static function total_order_amount($customer_id)

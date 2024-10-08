@@ -54,6 +54,7 @@ class ProductController extends Controller
         }
         return response()->json([
             'options' => $result,
+            'option' => $request->parent_id,
         ]);
     }
 
@@ -130,27 +131,6 @@ class ProductController extends Controller
             $imageData = json_encode([]);
         }
 
-        // $category = [];
-        // if ($request->category_id != null) {
-        //     $category[] = [
-        //         'id' => $request->category_id,
-        //         'position' => 1,
-        //     ];
-        // }
-        // if ($request->sub_category_id != null) {
-        //     $category[] = [
-        //         'id' => $request->sub_category_id,
-        //         'position' => 2,
-        //     ];
-        // }
-        // if ($request->sub_sub_category_id != null) {
-        //     $category[] = [
-        //         'id' => $request->sub_sub_category_id,
-        //         'position' => 3,
-        //     ];
-        // }
-
-
         $choiceOptions = [];
         if ($request->has('choice')) {
             foreach ($request->choice_no as $key => $no) {
@@ -215,6 +195,7 @@ class ProductController extends Controller
         $product = $this->product;
         $product->name = $request->name;
         $product->brand_name = json_encode($this->brand->find($request->brand));
+        $product->brand_id = $request->brand;
         if(isset($request->otherbrand) && !is_null($request->otherbrand))
         {
             $product->brandname_if_other = $request->otherbrand;
@@ -234,7 +215,7 @@ class ProductController extends Controller
         $product->discount_type = $request->discount_type;
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
-        $product->status = $request->status? $request->status : 0 ;
+        $product->status = 0;
         $product->tags = json_encode($request->tag_name);
         
         $product->save();
@@ -252,7 +233,7 @@ class ProductController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $query = $this->product->where(function ($q) use ($key) {
+            $query = $this->product->whereNotIn('status',[2])->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('id', 'like', "%{$value}%")
                         ->orWhere('name', 'like', "%{$value}%");
@@ -260,19 +241,9 @@ class ProductController extends Controller
             })->latest();
             $queryParam = ['search' => $request['search']];
         }else{
-            $query = $this->product->latest();
+            $query = $this->product->whereNotIn('status',[2])->latest();
         }
         $products = $query->with('order_details.order')->paginate(Helpers_getPagination())->appends($queryParam);
-
-        foreach ($products as $product) {
-            $totalSold = 0;
-            foreach ($product->order_details as $detail) {
-                if ($detail->order->order_status == 'delivered'){
-                    $totalSold += $detail->quantity;
-                }
-            }
-             $product->total_sold = $totalSold;
-        }
 
         return view('Admin.views.product.list', compact('products','search'));
     }
@@ -482,6 +453,7 @@ class ProductController extends Controller
 
         $product->name = $request->name;
         $product->brand_name = json_encode($this->brand->find($request->brand));
+        $product->brand_id = $request->brand;
         if(isset($request->otherbrand) && !is_null($request->otherbrand))
         {
             $product->brandname_if_other = $request->otherbrand;
@@ -507,80 +479,6 @@ class ProductController extends Controller
         return response()->json([], 200);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public function ProductAjax(Request $request)
-    {
-        $request->validate([
-            'data' => 'required'
-        ]);
-
-        $product = Products::all();
-        return $product;
-    }
-
-    public function ProductDataAjax(Request $request)
-    {
-        $request->validate([
-            'data' => 'required'
-        ]);
-
-        $product = Products::where('id', $request->data)->first();
-
-        return $product;
-    }
-    
-
-
-
-    
-
-    
-
-    
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function dailyNeeds(Request $request): JsonResponse
-    {
-        $product = $this->product->find($request->id);
-        $product->daily_needs = $request->status;
-        $product->save();
-        return response()->json([], 200);
-    }
-
-    
-
     /**
      * @param Request $request
      * @return RedirectResponse
@@ -603,8 +501,6 @@ class ProductController extends Controller
         flash()->success(translate('Product removed!'));
         return back();
     }
-
-    
 
     /**
      * @return Factory|View|Application
@@ -646,7 +542,7 @@ class ProductController extends Controller
                 'price' => $collection['price'],
                 'variations' => json_encode([]),
                 'tax' => $collection['tax'],
-                'status' => 1,
+                'status' => 0,
                 'attributes' => json_encode([]),
                 'category_ids' => json_encode([['id' => (string)$collection['category_id'], 'position' => 0], ['id' => (string)$collection['sub_category_id'], 'position' => 1]]),
                 'choice_options' => json_encode([]),
@@ -736,6 +632,74 @@ class ProductController extends Controller
 
         }
         return (new FastExcel($storage))->download('products.xlsx');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function ProductAjax(Request $request)
+    {
+        $request->validate([
+            'data' => 'required'
+        ]);
+
+        $product = Products::all();
+        return $product;
+    }
+
+    public function ProductDataAjax(Request $request)
+    {
+        $request->validate([
+            'data' => 'required'
+        ]);
+
+        $product = Products::where('id', $request->data)->first();
+
+        return $product;
+    }
+    
+
+
+
+    
+
+    
+
+    
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function dailyNeeds(Request $request): JsonResponse
+    {
+        $product = $this->product->find($request->id);
+        $product->daily_needs = $request->status;
+        $product->save();
+        return response()->json([], 200);
     }
 
     /**

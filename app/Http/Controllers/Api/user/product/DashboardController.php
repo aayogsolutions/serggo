@@ -134,12 +134,20 @@ class DashboardController extends Controller
             {
                 $data = category_data_formatting($this->displaycategory->status()->where('ui_type','user_product')->get(),true);
 
+                
+                if(!empty($data))
+                {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Display Data',
+                        'data' => $data
+                    ],200);
+                }
                 return response()->json([
-                    'status' => true,
-                    'data' => [
-                        'banners' => $data,
-                    ]
-                ],200);
+                    'status' => false,
+                    'message' => 'Data not found',
+                    'data' => []
+                ],404);
 
             }else{
                 return response()->json([

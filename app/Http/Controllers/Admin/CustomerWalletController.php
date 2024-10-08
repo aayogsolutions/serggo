@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\CentralLogics\CustomerLogic;
 use App\CentralLogics\Helpers;
 use App\Models\BusinessSetting;
-use App\Models\WalletTranscations;
+use App\Models\WalletTranscation;
 use App\Traits\HelperTrait;
 use App\Models\User;
 use Brian2694\Toastr\Facades\Toastr;
@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class CustomerWalletController extends Controller
 {
@@ -25,7 +26,7 @@ class CustomerWalletController extends Controller
     public function __construct(
         private User $user,
         private BusinessSetting $businessSetting,
-        private WalletTranscations $walletTransaction
+        private WalletTranscation $walletTransaction
     ){}
 
 
@@ -34,67 +35,44 @@ class CustomerWalletController extends Controller
      */
     public function addFundView(): View|Factory|RedirectResponse|Application
     {
-        if(Helpers_get_business_settings('wallet_status'));
-        {
-            Toastr::error(translate('customer_wallet_status_is_disable'));
-            return back();
-        }
-        return view('Admin.views.customer.wallet.add-fund');
+
+        // if(Helpers_get_business_settings('wallet_status'));
+        // {
+        //     flash()->error(translate('customer_wallet_status_is_disable'));
+        //     return back();
+        // }
+        $all_user = $this->user->status()->get();
+
+        return view('Admin.views.customer.wallet.add-fund',compact('all_user'));
     }
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return RedirectResponse
      */
-    public function addFund(Request $request): JsonResponse
+    public function addFund(Request $request): RedirectResponse
     {
+      
         $validator = Validator::make($request->all(), [
             'customer_id'=>'exists:users,id',
             'amount'=>'numeric|min:.01',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => Helpers_error_processor($validator)]);
-        }
+         $customer = User::find($request->customer_id);
+         $customer->wallet_balance += $request->amount;
+         $customer->save();
 
-        $customer = User::find($request->customer_id);
-        $customerFcmToken = $customer ? $customer->cm_firebase_token : '';
-        $customerLanguageCode = $customer ? $customer->language_code : 'en';
-
-        $walletTransaction = CustomerLogic::create_wallet_transaction($request->customer_id, $request->amount, 'add_fund_by_admin',$request->referance);
-
-        if($walletTransaction)
-        {
-            $message = Helpers_order_status_update_message('add_fund_wallet');
-
-            if ($customerLanguageCode != 'en'){
-                $message = $this->translate_message($customerLanguageCode, 'add_fund_wallet');
-            }
-            $value = $this->dynamic_key_replaced_message(message: $message, type: 'wallet', customer: $customer);
-
-            try {
-                if ($value) {
-                    $data = [
-                        'title' => translate('wallet'),
-                        'description' => Helpers_set_symbol($request->amount) . ' ' . $value,
-                        'order_id' => '',
-                        'image' => '',
-                        'type' => 'order_status',
-                    ];
-                    if (isset($customerFcmToken)) {
-                        Helpers_send_push_notif_to_device($customerFcmToken, $data);
-                    }
-                }
-            } catch (\Exception $e) {
-                Toastr::warning(translate('Push notification send failed for Customer!'));
-            }
-
-            return response()->json([], 200);
-        }
-
-        return response()->json(['errors'=>[
-            'message'=>translate('failed_to_create_transaction')
-        ]], 200);
+         $transactions = new WalletTranscation();
+         $transactions->user_id = $request->customer_id;
+         $transactions->transactions_id = Helpers_generate_transction_id();
+         $transactions->credit = $request->amount;
+         $transactions->debit = 0;
+         $transactions->transactions_type = "Add_fund_by_admin";
+         $transactions->reference = $request->referance;
+         $transactions->balance = $customer->wallet_balance;
+        $transactions->save();
+         flash()->success(translate('Add Fund successfully!'));
+         return back();
     }
 
     /**
@@ -116,7 +94,7 @@ class CustomerWalletController extends Controller
             })
             ->get();
 
-        $transactions = $this->walletTransaction
+        $transactions = $this->walletTransaction->with('transaction')
             ->when(($request->from && $request->to),function($query)use($request){
                 $query->whereBetween('created_at', [$request->from.' 00:00:00', $request->to.' 23:59:59']);
             })
@@ -128,30 +106,29 @@ class CustomerWalletController extends Controller
             })
             ->latest()
             ->paginate(Helpers_getPagination());
-
-
-        return view('Admin.views.customer.wallet.report', compact('data','transactions'));
+       
+        $all_user = $this->user->status()->get();
+        return view('Admin.views.customer.wallet.report', compact('data','transactions','all_user'));
     }
 
     /**
      * @param Request $request
      * @return JsonResponse
      */
-    public function getCustomers(Request $request): JsonResponse
-    {
-        $key = explode(' ', $request['q']);
-        $data = $this->user->where(function ($q) use ($key) {
-                foreach ($key as $value) {
-                    $q->orWhere('f_name', 'like', "%{$value}%")
-                        ->orWhere('l_name', 'like', "%{$value}%")
-                        ->orWhere('phone', 'like', "%{$value}%");
-                }
-            })
-            ->limit(8)
-            ->get([DB::raw('id, CONCAT(f_name, " ", l_name, " (", phone ,")") as text')]);
+    // public function getCustomers(Request $request): JsonResponse
+    // {
+    //     $key = explode(' ', $request['q']);
+    //     $data = $this->user->where(function ($q) use ($key) {
+    //             foreach ($key as $value) {
+    //                 $q->orWhere('name', 'like', "%{$value}%")
+    //                     ->orWhere('number', 'like', "%{$value}%");
+    //             }
+    //         })
+    //         ->limit(8)
+    //         ->get([DB::raw('id, CONCAT(name, " (", number ,")") as text')]);
+        
+    //     if($request->all) $data[]=(object)['id'=>false, 'text'=>translate('all')];
 
-        if($request->all) $data[]=(object)['id'=>false, 'text'=>translate('all')];
-
-        return response()->json($data);
-    }
+    //     return response()->json($data);
+    // }
 }

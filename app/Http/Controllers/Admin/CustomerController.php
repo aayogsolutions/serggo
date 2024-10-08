@@ -45,9 +45,8 @@ class CustomerController extends Controller
             $customers = $this->user->with(['orders'])->
                     where(function ($q) use ($key) {
                         foreach ($key as $value) {
-                            $q->orWhere('f_name', 'like', "%{$value}%")
-                                ->orWhere('l_name', 'like', "%{$value}%")
-                                ->orWhere('phone', 'like', "%{$value}%")
+                            $q->orWhere('name', 'like', "%{$value}%")
+                                ->orWhere('number', 'like', "%{$value}%")
                                 ->orWhere('email', 'like', "%{$value}%");
                         }
             });
@@ -67,7 +66,11 @@ class CustomerController extends Controller
      */
     public function view(Request $request, $id): Factory|View|Application|RedirectResponse
     {
-        $customer = $this->user->find($id);
+    //    $user_id = User::find($id);
+        $customer = User::where('id', $id)->with('address')->first();
+        // dd($customer);
+        // $customer = User::find($id)->address;
+     
         if (isset($customer)) {
             $queryParam = [];
             $search = $request['search'];

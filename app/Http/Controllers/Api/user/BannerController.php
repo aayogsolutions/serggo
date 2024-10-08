@@ -30,10 +30,20 @@ class BannerController extends Controller
             if($section == 'login' || $section == 'signup' || $section == 'verify')
             {
                 $data = $this->authbanner->status()->where('ui_type', 'user')->where('section_type',$section)->first();
+
+                if(!is_null($data))
+                {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Banner Data',
+                        'data' => $data
+                    ],200);
+                }
                 return response()->json([
-                    'status' => true,
-                    'data' => $data
-                ],200);
+                    'status' => false,
+                    'message' => 'Data not found',
+                    'data' => []
+                ],404);
             }else{
                 return response()->json([
                     'status' => false,
@@ -45,10 +55,20 @@ class BannerController extends Controller
             if($section == 'login' || $section == 'signup' || $section == 'verify')
             {
                 $data = $this->authbanner->status()->where('ui_type', 'vender')->where('section_type',$section)->first();
+
+                if(!is_null($data))
+                {
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Banner Data',
+                        'data' => $data
+                    ],200);
+                }
                 return response()->json([
-                    'status' => true,
-                    'data' => $data
-                ],200);
+                    'status' => false,
+                    'message' => 'Data not found',
+                    'data' => []
+                ],404);
             }else{
                 return response()->json([
                     'status' => false,
@@ -75,17 +95,37 @@ class BannerController extends Controller
         if($ui == 'user')
         {
             $data = $this->splashBanner->status()->where('ui_type', 'user')->first();
+
+            if(!is_null($data))
+            {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Banner Data',
+                    'data' => $data
+                ],200);
+            }
             return response()->json([
-                'status' => true,
-                'data' => $data
-            ],200);
+                'status' => false,
+                'message' => 'Data not found',
+                'data' => []
+            ],404);
 
         }elseif ($ui == 'vender') {
             $data = $this->splashBanner->status()->where('ui_type', 'vender')->first();
+            
+            if(!is_null($data))
+            {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Banner Data',
+                    'data' => $data
+                ],200);
+            }
             return response()->json([
-                'status' => true,
-                'data' => $data
-            ],200);
+                'status' => false,
+                'message' => 'Data not found',
+                'data' => []
+            ],404);
 
         }else{
             return response()->json([

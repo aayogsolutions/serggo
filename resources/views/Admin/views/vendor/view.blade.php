@@ -51,12 +51,11 @@
                 </div>
             </div>
 
-
             <div class="col-lg-6 col-md-6 col-sm-6">
                 <div class="resturant-card bg--3">
                     <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
-                    <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('loyalty_point')}} {{translate('balance')}}</div>
-                    <div class="for-card-count">{{$vendor->loyalty_point??0}}</div>
+                    <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('product listed')}} </div>
+                    <div class="for-card-count"> {{$vendor->Products->count() ? $vendor->Products->count() : 0}}</div>
                 </div>
             </div>
         </div>
@@ -151,15 +150,14 @@
                             </span>
                         </h4>
                     </div>
-
+                  
                     @if($vendor)
                         <div class="card-body">
                             <div class="media align-items-center customer--information-single" href="javascript:">
                                 <div class="avatar avatar-circle">
                                     <img
-                                        class="avatar-img"
-                                        src="{{$vendor->imageFullPath}}"
-                                        alt="{{ translate('vendor') }}">
+                                        class="avatar-img" src="{{asset($vendor->image)}}"
+                                        alt="{{ translate('vendor') }}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                 </div>
                                 <div class="media-body">
                                     <ul class="list-unstyled m-0">
@@ -169,7 +167,7 @@
                                         </li>
                                         <li class="pb-1">
                                             <i class="tio-call-talking-quiet mr-2"></i>
-                                            <a href="Tel:{{$vendor['phone']}}">{{$vendor['phone']}}</a>
+                                            <a href="Tel:{{$vendor['number']}}">{{$vendor['number']}}</a>
                                         </li>
                                         <li class="pb-1">
                                             <i class="tio-shopping-basket-outlined mr-2"></i>
@@ -179,9 +177,6 @@
                                 </div>
                             </div>
                             <hr>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5>{{translate('contact')}} {{translate('info')}}</h5>
-                            </div>
                         </div>
                     @endif
                 </div>

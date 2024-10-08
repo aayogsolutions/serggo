@@ -140,7 +140,56 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
+    /**
+     * @return Application|Factory|View
+     */
+    public function orderSetup(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'minimum_order_value'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'minimum_order_value'], [
+                'value' => 1,
+            ]);
+        }
 
+        return view('Admin.views.business-settings.order-setup-index');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function orderSetupUpdate(Request $request): RedirectResponse
+    {
+
+        $request->validate([
+            'order_image_label_name' => 'required_if:order_image_status,on|max:30',
+        ]);
+
+        $status = $request->maximum_amount_for_cod_order_status ? 0 : 1;
+
+        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
+            'value' => $status
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order'], [
+            'value' => $request['maximum_amount_for_cod_order'],
+        ]);
+
+        flash()->success(translate('order_settings_updated_successfully'));
+        return back();
+    }
+
+    public function maximumAmountStatus($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
+    }
 
 
 
@@ -244,17 +293,7 @@ class BusinessSettingsController extends Controller
 
     
 
-    public function maximumAmountStatus($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
-            'value' => $status
-        ]);
-
-        return response()->json([
-            'status' => 1,
-            'message' => translate('status updated')
-        ]);
-    }
+    
 
     
 
@@ -1540,57 +1579,7 @@ class BusinessSettingsController extends Controller
         flash()->success(translate('customer_settings_updated_successfully'));
         return back();
     }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function orderSetup(): Factory|View|Application
-    {
-        if (!$this->businessSettings->where(['key' => 'minimum_order_value'])->first()) {
-            BusinessSetting::updateOrInsert(['key' => 'minimum_order_value'], [
-                'value' => 1,
-            ]);
-        }
-
-        return view('Admin.views.business-settings.order-setup-index');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function orderSetupUpdate(Request $request): RedirectResponse
-    {
-
-        $request->validate([
-            'order_image_label_name' => 'required_if:order_image_status,on|max:30',
-        ]);
-
-       $status = $request->maximum_amount_for_cod_order_status ? 1 : 0;
-       $orderImageStatus = $request->order_image_status ? 1 : 0;
-        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
-            'value' => $status
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order'], [
-            'value' => $request['maximum_amount_for_cod_order'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'minimum_order_value'], [
-            'value' => $request['minimum_order_value'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'order_image_status'], [
-            'value' => $orderImageStatus
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'order_image_label_name'], [
-            'value' => $request['order_image_label_name'],
-        ]);
-
-        flash()->success(translate('order_settings_updated_successfully'));
-        return back();
-    }
+    
 
     /**
      * @return Application|Factory|View

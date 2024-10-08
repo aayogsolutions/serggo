@@ -7,17 +7,20 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\{
+    Category,
     Products,
     DisplaySection,
     DisplaySectionContent,
     HomeSliderBanner
 };
+use Illuminate\Support\Arr;
 
 class ProductController extends Controller
 {
     public function __construct(
 
         private Products $product,
+        private Category $category,
         private DisplaySection $display_section,
         private DisplaySectionContent $displaysectioncontent,
         private HomeSliderBanner $homesliderbanner,
@@ -41,9 +44,11 @@ class ProductController extends Controller
             ], 406);
         }
         
+        $childes_ids = [];
+        $childes = [];
         $product = $this->product->status()->where('id',$request->product_id)->first();
 
-        if(!is_null($product)) 
+        if(!empty($product)) 
         {
             $data = product_data_formatting($product, false, true);
 
@@ -51,81 +56,109 @@ class ProductController extends Controller
 
             $relatedproduct = [];
             try {
-                $sectionid = $this->display_section->status()->where([
-                    ['ui_type','=','user_product'],
-                    ['section_type','=','cart'],
-                ])->get('id');
     
-                if(!is_null($sectionid))
+                $rproducts = $this->product->status()->where('sub_category_id',$data->sub_category_id)->whereNotIn('id', [$data->id])->orderBy('total_sale','DESC')->limit(4)->get();
+
+                if(!empty($rproducts))
                 {
-                    foreach ($sectionid as $key => $value) {
-                        $section_id[] = $value->id;
-                    };
-        
-                    $item_ids = $this->displaysectioncontent->whereIn('section_id',$section_id)->whereNotIn('item_id', [$request->product_id])->groupBy('item_id')->get('item_id');
-                    $products = $this->product->status()->where('category_id',$data->category_id)->whereNotIn('id', [$request->product_id])->orderBy('total_sale','DESC')->get();
-                    
-                    
-                    if(!is_null($item_ids) && !is_null($products))
+                    if(count($rproducts) < 4)
                     {
-                        $filtered_data = $this->search_product($item_ids ,$products);
-                        $relatedproducts = $filtered_data['data'];
-                        foreach ($filtered_data['array'] as $key => $value) {
-                            $relatedproducts[] = $value;
-                        }
+                        $mrproducts = $this->product->status()->where('category_id',$data->category_id)->whereNotIn('id', [$data->id])->orderBy('total_sale','DESC')->limit(4)->get();
 
-                        if(count($relatedproducts) < 4)
-                        {
-                            $allproducts = $this->product->status()->whereNotIn('id', [$request->product_id])->orderBy('total_sale','DESC')->get();
-
-                            foreach ($allproducts as $key => $value) {
-                                if(count($relatedproducts) <= 3)
-                                {
-                                    $relatedproducts[] = $value;
-                                }else{
-                                    break;
-                                }
-                            }
-
-                            $relatedproduct = $relatedproducts;
-                        }else{
-                            foreach ($relatedproducts as $key => $value) {
-                                if($key <= 3)
-                                {
-                                    $relatedproduct[] = $value;
-                                }else{
-                                    break;
-                                }
-                            }
-                        }
-                    }else{
-                        $allproducts = $this->product->status()->whereNotIn('id', [$request->product_id])->orderBy('total_sale','DESC')->get();
-
-                        foreach ($allproducts as $key => $value) {
-                            if($key <= 3)
+                        foreach ($mrproducts as $key => $value) {
+                            if(count($rproducts) < 4)
                             {
-                                $relatedproduct[] = $value;
+                                $rproducts[] = $value;
+                            }else{
+                                break;
+                            }
+                        }
+
+                        if(count($rproducts) < 4)
+                        {
+                            $mrproducts = $this->product->status()->whereNotIn('category_id', [$data->category_id])->orderBy('total_sale','DESC')->limit(4)->get();
+
+                            foreach ($mrproducts as $key => $value) {
+                                if(count($rproducts) < 4)
+                                {
+                                    $rproducts[] = $value;
+                                }else{
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    $rproducts = $this->product->status()->where('category_id',$data->category_id)->whereNotIn('id', [$data->id])->orderBy('total_sale','DESC')->limit(4)->get();
+
+                    if(count($rproducts) < 4)
+                    {
+                        $mrproducts = $this->product->status()->whereNotIn('category_id', [$data->category_id])->orderBy('total_sale','DESC')->limit(4)->get();
+
+                        foreach ($mrproducts as $key => $value) {
+                            if(count($rproducts) < 4)
+                            {
+                                $rproducts[] = $value;
                             }else{
                                 break;
                             }
                         }
                     }
-                }else{
-                    $allproducts = $this->product->status()->whereNotIn('id', [$request->product_id])->orderBy('total_sale','DESC')->get();
-
-                    foreach ($allproducts as $key => $value) {
-                        if($key <= 3)
-                        {
-                            $relatedproduct[] = $value;
-                        }else{
-                            break;
-                        }
-                    }
+                    
                 }
-                $relatedproduct = product_data_formatting($relatedproduct,true);
+                $relatedproduct = product_data_formatting($rproducts,true,false,true);
             } catch (\Throwable $th) {
+                $relatedproduct = [];
             }
             //  More Related Product End....! 
+
+            //  More Related Slider Display....! 
+            $Cartmainsection = [];
+
+            try {
+                
+                $Cartmainsection = $this->display_section->status()->where([
+                    ['ui_type','=','user_product'],
+                    ['section_type','=','cart'],
+                ])->orderBy('priority', 'ASC')->first();
+                
+                if(!empty($Cartmainsection))
+                {
+                    $cartsectionid = $this->display_section->status()->where([
+                        ['ui_type','=','user_product'],
+                        ['section_type','=','cart'],
+                    ])->get('id');
+
+                    if(!empty($cartsectionid))
+                    {
+                        foreach ($cartsectionid as $key => $value) {
+                            $cartsection_ids[] = $value->id;
+                        }
+
+                        $cart_section_product = $this->displaysectioncontent->whereIn('section_id',$cartsection_ids)->whereNotIn('item_id' , [$data->id])->get();
+
+                        foreach ($cart_section_product as $key => $v)
+                        {
+                            if(count($childes_ids) < 4)
+                            {
+                                if(!in_array($v->item_id,$childes_ids))
+                                {
+                                    $childes[] = $v;
+                                    $childes_ids[] = $v->item_id;
+                                }
+                            }
+                        }
+                        
+                        $Cartmainsection->childes = $childes;
+                    }else{
+
+                    }
+                }
+                
+            } catch (\Throwable $th) {
+                $Cartmainsection = [];
+            }
+            //  More Related Slider Display End....!
 
             //  More Related Slider Display....! 
 
@@ -137,7 +170,7 @@ class ProductController extends Controller
                     ['section_type','=','slider'],
                 ])->get('id');
     
-                if(!is_null($sectionid))
+                if(!empty($sectionid))
                 {
                     foreach ($sectionid as $key => $value) {
                         $section_ids[] = $value->id;
@@ -146,14 +179,14 @@ class ProductController extends Controller
                     $section_items_product1 = $this->displaysectioncontent->whereIn('section_id',$section_ids)->where('item_type' , 'product')->where('item_id' , $data->id)->get();
                     $section_items_category_id = $this->product->status()->where('category_id', $data->category_id)->whereNotIn('id', [$request->product_id])->get('id');
         
-                    if(!is_null($section_items_category_id))
+                    if(!empty($section_items_category_id))
                     {
                         foreach ($section_items_category_id as $key => $value) {
                             $section_items_category_ids[] = $value->id;
                         };
                         $section_items_product2 = $this->displaysectioncontent->whereIn('section_id',$section_ids)->whereIn('item_id',$section_items_category_ids)->get();
             
-                        if(!is_null($section_items_product2))
+                        if(!empty($section_items_product2))
                         {
                             foreach ($section_items_product2 as $key => $value) {
                                 $section_items_product1[] = $value;
@@ -162,7 +195,7 @@ class ProductController extends Controller
         
                         $section_items_product3 = $this->displaysectioncontent->whereIn('section_id',$section_ids)->whereNotIn('item_id',$section_items_category_ids)->whereNotIn('item_id',[$request->product_id])->get();
         
-                        if(!is_null($section_items_product3))
+                        if(!empty($section_items_product3))
                         {
                             foreach ($section_items_product3 as $key => $value) {
                                 $section_items_product1[] = $value;
@@ -181,7 +214,7 @@ class ProductController extends Controller
                         $section_items_product_final = $section_items_product1;
                     }
     
-                    if(!is_null($section_items_product_final))
+                    if(!empty($section_items_product_final))
                     {
                         $section_items_product = homesliderbanner_data_formatting($section_items_product_final, true);
                     }
@@ -202,7 +235,7 @@ class ProductController extends Controller
                     $homesliderbanner_data3 = $this->homesliderbanner->status()->where('item_type' , 'product')->whereNotIn('item_id' , [$data->id])->get();
                     $homesliderbanner_data4 = $this->homesliderbanner->status()->where('item_type' , 'category')->whereNotIn('item_id' , [$data->category_id])->get();
 
-                    if(!is_null($homesliderbanner_data1))
+                    if(!empty($homesliderbanner_data1))
                     {
                         foreach ($homesliderbanner_data1 as $key => $value) {
                             if($key <= 8){
@@ -210,7 +243,7 @@ class ProductController extends Controller
                             }
                         }
                     }
-                    if(!is_null($homesliderbanner_data2))
+                    if(!empty($homesliderbanner_data2))
                     {
                         foreach ($homesliderbanner_data2 as $key => $value) {
                             if($key <= 8){
@@ -218,7 +251,7 @@ class ProductController extends Controller
                             }
                         }
                     }
-                    if(!is_null($homesliderbanner_data4))
+                    if(!empty($homesliderbanner_data4))
                     {
                         foreach ($homesliderbanner_data4 as $key => $value) {
                             if($key <= 8){
@@ -226,7 +259,7 @@ class ProductController extends Controller
                             }
                         }
                     }
-                    if(!is_null($homesliderbanner_data3))
+                    if(!empty($homesliderbanner_data3))
                     {
                         foreach ($homesliderbanner_data3 as $key => $value) {
                             if($key <= 8){
@@ -235,7 +268,7 @@ class ProductController extends Controller
                         }
                     }
 
-                    if(!is_null($sliderbanner))
+                    if(!empty($sliderbanner))
                     {
                         $sliderbanner = homesliderbanner_data_formatting($sliderbanner, true);
                     }
@@ -251,6 +284,7 @@ class ProductController extends Controller
                     'product_details' => $data,
                     'more_option' => [
                         'related' => $relatedproduct,
+                        'cart' => $Cartmainsection,
                         'silderbannersection' => $sliderbanner,
                         'sildersection' => $section_items_product,
                     ],
@@ -259,7 +293,8 @@ class ProductController extends Controller
         }else {
             return response()->json([
                 'status' => false,
-                'message' => 'Product Not exists'
+                'message' => 'Product Not exists',
+                'data' => []
             ],404);
         }
     }
@@ -283,7 +318,7 @@ class ProductController extends Controller
         }
 
         $section = $this->display_section->find($request->section_id);
-        if(!is_null($section)) {
+        if(!empty($section)) {
 
             try {
                 $data = display_data_formatting($section);
@@ -304,8 +339,9 @@ class ProductController extends Controller
         }else {
             return response()->json([
                 'status' => false,
-                'message' => 'Section data not available'
-            ]);
+                'message' => 'Section data not available',
+                'data' => []
+            ],404);
         }
     }
 
@@ -327,14 +363,13 @@ class ProductController extends Controller
             ], 406);
         }
         $brandProduct = [];
-        $brandedProduct = $this->product->status()->orderby('total_sale','DESC')->get();
+        $brandedProduct_brand = $this->product->status()->orwhere('brand_id',$request->brand_id)->orderby('total_sale','DESC')->get()->toArray();
+        $brandedProduct_nonbrand = $this->product->status()->orwhere('brand_id',$request->brand_id)->orderby('total_sale','DESC')->get();
 
-        if(!is_null($brandedProduct))
+        if(!empty($brandedProduct_brand) && $brandedProduct_brand != [])
         {
-
-            $brands_product1 = $this->search_brand($request->brand_id,$brandedProduct);
-            $brandProduct = $brands_product1['data'];
-            foreach ($brands_product1['array'] as $key => $value) {
+            $brandProduct = $brandedProduct_brand;
+            foreach ($brandedProduct_nonbrand as $key => $value) {
                 $brandProduct[] = $value;
             }
             
@@ -343,17 +378,109 @@ class ProductController extends Controller
                 'status' => true,
                 'message' => 'Brands Details',
                 'data' => [
-                    'products' => $brandProduct
+                    'products' => $brandProduct,
                 ]
             ], 200);
         }else{
             return response()->json([
-                'status' => true,
+                'status' => false,
                 'message' => 'No Details Available',
                 'data' => []
-            ], 200);
+            ], 404);
+        }
+    }
+
+      /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function Search(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'key' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
         }
 
+        $keys = explode(' ', $request->key);
+        $matches = array();
+        $category_id = array();
+
+        // Finding Tags
+
+        $all = $this->product->status()->select('id','tags')->get();
+        foreach ($all as $a)
+        {
+            $a->tags = json_decode($a->tags);
+            foreach ($a->tags as $key => $tag) 
+            {
+                foreach ($keys as $key => $value) 
+                {
+                    // dump($a->id, $value,stripos($tag, $value));
+                    if (stripos($tag, $value) !== false)
+                    {
+                        //if $c starts with $input, add to matches list
+                        $matches[] = $a->id;
+                        break;
+                    }
+                }
+            }
+        }
+        $matches = array_unique($matches);
+        $matches = array_values($matches);
+
+        // Finding Categorys
+
+        $category_ids = $this->category->status()->where(['position' => 0])->where(function ($q) use ($keys) 
+        {
+            foreach ($keys as $value) 
+            {
+                $q->orWhere('name', 'like', "%{$value}%");
+            }
+        })->get('id');
+        
+        foreach ($category_ids as $key => $value) 
+        {
+            $category_id[] = $value->id;
+        }
+
+        $product2 = $this->product->status()->whereIn('category_id',$category_id)->get();
+        
+
+        // Finding Products
+        
+        $products1 = $this->product->status()->whereIn('id',$matches)->orWhere(function ($q) use ($keys) 
+        {
+            foreach ($keys as $value) 
+            {
+                $q->orWhere('name', 'like', "%{$value}%");
+            }
+        })->orderBy('total_sale','DESC')->get();
+
+        $products = Arr::collapse([$products1,$product2]);
+
+        $products = array_values(array_unique($products, SORT_REGULAR));
+        
+        if(!empty($products))
+        {
+            return response()->json([
+                'status' => true,
+                'message' => 'Product Details',
+                'data' => product_data_formatting($products,true),
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'Data not found',
+                'data' => [],
+            ], 404);
+        }
         
     }
   

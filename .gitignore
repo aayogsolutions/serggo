@@ -6,6 +6,7 @@
 /storage/*.key
 /vendor
 /resources/views/Admin/Allviews
+/database/factories
 UpdatesDue.txt
 Api_routes.txt
 .env
