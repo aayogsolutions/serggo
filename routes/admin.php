@@ -299,7 +299,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::post('update/{id}', [ProductController::class, 'update'])->name('update');
             Route::delete('delete/{id}', [ProductController::class, 'delete'])->name('delete');
-            
+
+            Route::get('pending-list', [ProductController::class, 'PendingList'])->name('pending-list');
+            Route::get('approval-list', [ProductController::class, 'ApprovalList'])->name('approval-list');
+            Route::get('rejected-list', [ProductController::class, 'RejectedList'])->name('rejected-list');
+            Route::get('product-view/{id}', [ProductController::class, 'AllListView'])->name('all-view');
 
             Route::get('bulk-import', [ProductController::class, 'bulkImportIndex'])->name('bulk-import');
             Route::post('bulk-import', [ProductController::class, 'bulkImportProduct']);

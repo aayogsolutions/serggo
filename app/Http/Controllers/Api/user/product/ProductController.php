@@ -363,8 +363,8 @@ class ProductController extends Controller
             ], 406);
         }
         $brandProduct = [];
-        $brandedProduct_brand = $this->product->status()->orwhere('brand_id',$request->brand_id)->orderby('total_sale','DESC')->get()->toArray();
-        $brandedProduct_nonbrand = $this->product->status()->orwhere('brand_id',$request->brand_id)->orderby('total_sale','DESC')->get();
+        $brandedProduct_brand = $this->product->status()->where('brand_id',$request->brand_id)->orderby('total_sale','DESC')->get();
+        $brandedProduct_nonbrand = $this->product->status()->whereNotIn('brand_id',[$request->brand_id])->orderby('total_sale','DESC')->get();
 
         if(!empty($brandedProduct_brand) && $brandedProduct_brand != [])
         {

@@ -38,7 +38,7 @@ class Vendor extends Authenticatable
         return $this->hasMany(Order::class,'vender_id','id');
     }
     
-    public function products(){
+    public function vendorproducts(){
         return $this->hasMany(Products::class,'vender_id','id');
     }
 
@@ -52,4 +52,10 @@ class Vendor extends Authenticatable
         }
         return $total_amount;
     }
+
+    public function vendors(){
+        return $this->hasone(Products::class,'vender_id','id');
+    }
+
+   
 }

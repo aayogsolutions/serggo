@@ -9,13 +9,15 @@ use App\Models\{
     BusinessSetting,
     Category,
     Products,
-    ProductReview
+    ProductReview,
+    Vendor
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\{JsonResponse,RedirectResponse};
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class ProductController extends Controller
 {
@@ -25,6 +27,7 @@ class ProductController extends Controller
         private Products $product,
         private Brands $brand,
         private ProductReview $review,
+        private Vendor $vendor,
     ){}
 
     /**
@@ -500,6 +503,98 @@ class ProductController extends Controller
         $product->delete();
         flash()->success(translate('Product removed!'));
         return back();
+    }
+
+    /**
+     * @return Factory|View|Application
+     */
+    public function PendingList(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query = $this->product->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('name', 'like', "%{$value}%");
+                }
+            })->latest();
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $query = $this->product->where('status', 2)->latest();
+        }
+        $products = $query->with('vendors')->paginate(Helpers_getPagination())->appends($queryParam);
+
+        return view('Admin.views.product.pending-list', compact('products','search'));
+    }
+
+    
+    /**
+     * @return Factory|View|Application
+     */
+    public function ApprovalList(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query = $this->vendor->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('name', 'like', "%{$value}%");
+                }
+            })->latest();
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $query = $this->vendor->latest();
+        }
+        $vendors = $query->with('vendorproducts' , function($qurey){
+            $qurey->where(['status' => 0]);
+        })->paginate(Helpers_getPagination())->appends($queryParam);
+        
+        return view('Admin.views.product.approval-list', compact('vendors','search'));
+    }
+    
+    /**
+     * @return Factory|View|Application
+     */
+    public function RejectedList(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query = $this->vendor->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                    ->orWhere('name', 'like', "%{$value}%");
+                }
+            })->latest();
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $query = $this->vendor->latest();
+        }
+        $vendors = $query->with('vendorproducts' , function($qurey){
+            $qurey->where(['status' => 3]);
+        })->paginate(Helpers_getPagination())->appends($queryParam);
+
+        return view('Admin.views.product.rejected-list', compact('vendors','search'));
+    }
+
+    /**
+     * @param $id
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function AllListView($id): View|Factory|RedirectResponse|Application
+    {
+        $product = $this->product->where(['id' => $id])->first();
+        if (!$product){
+            flash()->error(translate('product not found'));
+            return back();
+        }
+
+        return view('Admin.views.product.product-approval-view', compact('product'));
     }
 
     /**

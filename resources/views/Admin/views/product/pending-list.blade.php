@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Product List'))
+@section('title', translate('Product Approval List'))
 
 @section('content')
 <div class="content container-fluid product-list-page">
@@ -11,7 +11,7 @@
                 <img src="{{asset('assets/admin/img/products.png')}}" class="w--24" alt="" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
             </span>
             <span>
-                {{ translate('product List') }}
+                {{ translate('product Approval List') }}
                 <span class="badge badge-soft-secondary">{{ $products->total() }}</span>
             </span>
         </h1>
@@ -37,7 +37,7 @@
                                 </div>
                             </div>
                         </form>
-                        <div class="hs-unfold mr-2">
+                        <!-- <div class="hs-unfold mr-2">
                             <a class="js-hs-unfold-invoker btn btn-sm btn-outline-primary-2 dropdown-toggle min-height-40" href="javascript:;"
                                 data-hs-unfold-options='{
                                             "target": "#usersExportDropdown",
@@ -66,30 +66,33 @@
                                     class="tio-add"></i>
                                 {{translate('add new product')}}
                             </a>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="table-responsive datatable-custom">
                     <table class="table table-borderless table-thead-bordered table-nowrap table-align-middle card-table">
                         <thead class="thead-light">
                             <tr>
-                                <th>{{translate('#')}}</th>
-                                <th>{{translate('product_name')}}</th>
-                                <th>{{translate('selling_price')}}</th>
-                                <th class="text-center">{{translate('total_sale')}}</th>
-                                <th class="text-center">{{translate('status')}}</th>
+                                <th class="text-center">{{translate('#')}}</th>
+                                <th class="text-center">{{translate('product_name')}}</th>
+                                <th class="text-center">{{translate('selling_price')}}</th>
+                                <th class="text-center">{{translate('vendor info')}}</th>
+                                <th class="text-center">{{translate('tax')}}(%)</th>
+                                <th class="text-center">{{translate('discount')}}(%)</th>
+                                <th class="text-center">{{translate('total_stock')}}</th>
                                 <th class="text-center">{{translate('action')}}</th>
                             </tr>
                         </thead>
 
                         <tbody id="set-rows">
+                       
                             @foreach($products as $key=>$product)
                             <tr>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     {{$products->firstItem()+$key}}
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
-                                    <a href="{{ route('admin.product.view',$product->id) }}" class="product-list-media">
+                                    <a href="javascript:void(0)" class="product-list-media">
                                         @if (!empty(json_decode($product['image'],true)))
                                         <img src="{{ asset(json_decode($product->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         @else
@@ -106,25 +109,29 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    {{ $product->total_sale }}
+                                    <a href="javascript:void(0)" class="product-list-media">
+                                        <img class="rounded-full" src="{{ asset($product->vendors->image)}}" alt="{{ translate('vendor') }}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                        <h6 class="name line--limit-2">
+                                            {{\Illuminate\Support\Str::limit($product->vendors->name, 20, $end='...')}}
+                                        </h6>
+                                    </a>
                                 </td>
-                                <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
-                                    <label class="toggle-switch my-0">
-                                        <input type="checkbox"
-                                            onclick="status_change_alert('{{ route('admin.product.status', [$product->id, $product->status == 1 ? 0 : 1]) }}', '{{ $product->status? translate('you want to disable this product'): translate('you want to active this product') }}', event)"
-                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}"
-                                            {{ $product->status == 0 ? 'checked' : '' }}>
-                                        <span class="toggle-switch-label mx-auto text">
-                                            <span class="toggle-switch-indicator"></span>
-                                        </span>
-                                    </label>
+                                <td class="text-center">
+                                    {{$product->tax}} %
                                 </td>
+                                <td class="text-center">
+                                    {{$product->discount}} %
+                                </td>
+                                <td class="text-center">
+                                    {{$product->total_stock}}
+                                </td>
+                                
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <!-- Dropdown -->
                                     <div class="btn--container justify-content-center">
                                         <a class="action-btn"
-                                            href="{{route('admin.product.edit',[$product['id']])}}">
-                                            <i class="tio-edit"></i></a>
+                                            href="{{route('admin.product.all-view',[$product['id']])}}">
+                                            <i class="tio-invisible"></i></a>
                                         <a class="action-btn btn--danger btn-outline-danger" href="javascript:"
                                             onclick="form_alert('product-{{$product['id']}}','{{ translate("Want to delete this") }}')">
                                             <i class="tio-delete-outlined"></i>
@@ -163,7 +170,7 @@
 </div>
 @endsection
 
-@push('script_2')
+@push('script')
 <script>
     function status_change_alert(url, message, e) {
         e.preventDefault();
