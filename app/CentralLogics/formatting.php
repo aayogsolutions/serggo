@@ -14,6 +14,7 @@ if(! function_exists('product_data_formatting')) {
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
+                
                 $variations = [];
                 if($brands)
                 {

@@ -56,8 +56,10 @@ Route::group(['prefix' => 'product'], function(){
 
     Route::get('/product_details', [ProductController::class,'Index']);
     Route::get('/brand_details', [ProductController::class,'BrandSelected']);
-    Route::get('/category_detail', [CategoryCntroller::class,'CategoryDetails']);
-    Route::get('/subcategory_detail', [CategoryCntroller::class,'SubCategoryDetails']);
+    Route::get('/category_inside/assets', [CategoryCntroller::class,'CategoryDetailsAssets']);
+    Route::get('/category_inside', [CategoryCntroller::class,'CategoryDetails']);
+    Route::get('/subcategory_inside/assets', [CategoryCntroller::class,'SubCategoryDetailsAssets']);
+    Route::get('/subcategory_inside', [CategoryCntroller::class,'SubCategoryDetails']);
 
     Route::get('/search', [ProductController::class,'Search']);
 });

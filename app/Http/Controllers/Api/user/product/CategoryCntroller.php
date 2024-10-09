@@ -20,7 +20,7 @@ class CategoryCntroller extends Controller
         private Products $product,
     ){}
 
-     /**
+    /**
      * 
      * @return JsonResponse
      * 
@@ -39,26 +39,24 @@ class CategoryCntroller extends Controller
             ], 406);
         }
 
-        $tags = ['Top Rated','New item','Trending','Instant deliver','Low price','Top Brands','Discounted'];
-
-        try {
-            $category = $this->category->where('id', $request->category_id)->with('banner')->first();
+        // try {
+        //     $category = $this->category->where('id', $request->category_id)->with('banner')->first();
             
-            if(is_null($category))
-            {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data not exists',
-                    'data' => []
-                ],404);
-            }
-            foreach ($category->banner as $key => $value)
-            {
-                $value->sub_category_detail = json_decode($value->sub_category_detail,true);
-            }
-        } catch (\Throwable $th) {
-            $category = [];
-        }
+        //     if(is_null($category))
+        //     {
+        //         return response()->json([
+        //             'status' => false,
+        //             'message' => 'Data not exists',
+        //             'data' => []
+        //         ],404);
+        //     }
+        //     foreach ($category->banner as $key => $value)
+        //     {
+        //         $value->sub_category_detail = json_decode($value->sub_category_detail,true);
+        //     }
+        // } catch (\Throwable $th) {
+        //     $category = [];
+        // }
 
         if($request->screen == 'new' || $request->screen == 'toprated')
         {
@@ -157,14 +155,61 @@ class CategoryCntroller extends Controller
             'status' => true,
             'message' => 'category Details',
             'data' => [
-                'tags' => $tags,
-                'category' => $category,
                 'products' => $product
             ]
         ],200);
     }
 
-     /**
+    /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function CategoryDetailsAssets(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'category_id' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $category = $this->category->where('id', $request->category_id)->with('banner')->first();
+            
+            if(is_null($category))
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data not exists',
+                    'data' => []
+                ],404);
+            }
+            foreach ($category->banner as $key => $value)
+            {
+                $value->sub_category_detail = json_decode($value->sub_category_detail,true);
+            }
+        } catch (\Throwable $th) {
+            $category = [];
+        }
+
+        $tags = ['Top Rated','New item','Trending','Instant deliver','Low price','Top Brands','Discounted'];
+
+        return response()->json([
+            'status' => true,
+            'message' => 'category Assets',
+            'data' => [
+                'tags' => $tags,
+                'category' => $category,
+            ]
+        ],200);
+    }
+
+    /**
      * 
      * @return JsonResponse
      * 
@@ -183,25 +228,25 @@ class CategoryCntroller extends Controller
             ], 406);
         }
 
-        $tags = ['Top Rated','New item','Trending','Instant deliver','Low price','Top Brands','Discounted'];
+        // $tags = ['Top Rated','New item','Trending','Instant deliver','Low price','Top Brands','Discounted'];
 
-        try {
-            $subcategory = $this->category->where([
-                ['id','=', $request->subcategory_id],
-                ['position','=',1]    
-            ])->first();
+        // try {
+        //     $subcategory = $this->category->where([
+        //         ['id','=', $request->subcategory_id],
+        //         ['position','=',1]    
+        //     ])->first();
 
-            if(is_null($subcategory))
-            {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data not exists',
-                    'data' => []
-                ],404);
-            }
-        } catch (\Throwable $th) {
-            $subcategory = [];
-        }
+        //     if(is_null($subcategory))
+        //     {
+        //         return response()->json([
+        //             'status' => false,
+        //             'message' => 'Data not exists',
+        //             'data' => []
+        //         ],404);
+        //     }
+        // } catch (\Throwable $th) {
+        //     $subcategory = [];
+        // }
 
         if($request->screen == 'new' || $request->screen == 'toprated')
         {
@@ -300,9 +345,55 @@ class CategoryCntroller extends Controller
             'status' => true,
             'message' => 'Sub Category Details',
             'data' => [
+                'products' => $product
+            ]
+        ],200);
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function SubCategoryDetailsAssets(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'subcategory_id' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        $tags = ['Top Rated','New item','Trending','Instant deliver','Low price','Top Brands','Discounted'];
+
+        try {
+            $subcategory = $this->category->where([
+                ['id','=', $request->subcategory_id],
+                ['position','=',1]    
+            ])->first();
+
+            if(is_null($subcategory))
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data not exists',
+                    'data' => []
+                ],404);
+            }
+        } catch (\Throwable $th) {
+            $subcategory = [];
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sub Category Assets',
+            'data' => [
                 'tags' => $tags,
                 'subcategory' => $subcategory,
-                'products' => $product
             ]
         ],200);
     }
