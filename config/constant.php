@@ -43,4 +43,5 @@ const MANAGEMENT_SECTION = [
     'business_setup' => 'business_setup',
     'branch_setup' => 'branch_setup',
     'pages_media' => 'pages_media',
+    '3rd_party' => '3rd_party'
 ];

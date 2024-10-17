@@ -37,22 +37,22 @@
             </a>
         </li>
         @if(auth('admins')->id() == 1)
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link {{Request::is('admin/business-settings/store/cookies-setup')?'active':''}}" href="{{route('admin.business-settings.store.cookies-setup')}}">
                     {{translate('Cookies Setup')}}
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link {{Request::is('admin/business-settings/store/otp-setup')?'active':''}}" href="{{route('admin.business-settings.store.otp-setup')}}">
-                    {{translate('OTP and Login Setup')}}
+                    {{translate('OTP Setup')}}
                 </a>
             </li>
         @endif
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link {{Request::is('admin/business-settings/store/customer-setup')?'active':''}}" href="{{route('admin.business-settings.store.customer-setup')}}">
                 {{translate('customers')}}
             </a>
-        </li>
+        </li> -->
         <li class="nav-item">
             <a class="nav-link {{Request::is('admin/business-settings/store/order-setup')?'active':''}}" href="{{route('admin.business-settings.store.order-setup')}}">
                 {{translate('orders')}}

@@ -3,9 +3,13 @@
 /public/build
 /public/hot
 /public/storage
+/database/factories
+/database/migrations
+/database/seeders
 /storage/*.key
 /vendor
 /resources/views/Admin/Allviews
+/resources/views/Admin/views/business-settings - Copy
 UpdatesDue.txt
 Api_routes.txt
 .env

@@ -26,7 +26,8 @@ class ApiAuthController extends Controller
 
         $usercheck = User::where('number', $request->number)->exists();
 
-
+        $timer = Helpers_get_business_settings('otp_resend_time');
+        
         if ($usercheck) {
             // user exist;
             $otp = rand(1000, 9999);
@@ -43,6 +44,7 @@ class ApiAuthController extends Controller
             return response()->json([
                 'status' => true,
                 'Registration' => $user->registration,
+                'Resend_timer' => ($timer == null && $timer == "" ? 60 : $timer),
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,
@@ -65,6 +67,7 @@ class ApiAuthController extends Controller
             return response()->json([
                 'status' => true,
                 'Registration' => $user->registration,
+                'Resend_timer' => ($timer == null && $timer == "" ? 60 : $timer),
                 'message' => 'Otp Sended',
                 'data' => [
                     'number' => $request->number,

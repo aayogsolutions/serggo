@@ -2,13 +2,8 @@
 
 @section('title', translate('Add new Time Slot'))
 
-@push('css_or_js')
-
-@endpush
-
 @section('content')
     <div class="content container-fluid">
-
         @include('Admin.views.business-settings.partial.business-settings-navmenu')
         <div class="card mb-2">
                     <div class="card-header">
@@ -71,52 +66,52 @@
 
                     <tbody>
 
-                    @foreach($timeSlots as $key=>$timeSlot)
-                        <tr>
-                            <td class="text-center">{{$key+1}}</td>
-                            <td class="text-center">
-                                <div>{{ date(config('time_format'), strtotime($timeSlot['start_time'])) }}</div>
-                            </td>
-                            <td class="text-center">
-                                <div>{{ date(config('time_format'), strtotime($timeSlot['end_time'])) }}</div>
-                            </td>
-                            <td class="text-center">
-                                @php
-                                    $start_time = new DateTime($timeSlot['start_time']);
-                                    $duration = $start_time->diff(new DateTime($timeSlot['end_time']));
-                                    echo $duration->h.' hours '. $duration->i. ' minutes';
-                                @endphp
-                            </td>
-                            <td>
-                                <label class="toggle-switch my-0">
-                                    <input type="checkbox"
-                                        onclick="status_change_alert('{{ route('admin.business-settings.store.timeSlot.status', [$timeSlot->id, $timeSlot->status ? 0 : 1]) }}', '{{ $timeSlot->status? translate('you_want_to_disable_this_timeSlot'): translate('you_want_to_active_this_timeslot') }}', event)"
-                                        class="toggle-switch-input" id="stocksCheckbox{{ $timeSlot->id }}"
-                                        {{ $timeSlot->status ? 'checked' : '' }}>
-                                    <span class="toggle-switch-label mx-auto text">
-                                        <span class="toggle-switch-indicator"></span>
-                                    </span>
-                                </label>
-                            </td>
-                            <td>
-                                <!-- Dropdown -->
-                                <div class="btn--container justify-content-center">
-                                    <a class="action-btn"
-                                        href="{{route('admin.business-settings.store.timeSlot.update',[$timeSlot['id']])}}">
-                                    <i class="tio-edit"></i></a>
-                                    <a class="action-btn btn--danger btn-outline-danger" href="javascript:"
-                                        onclick="form_alert('timeSlot-{{$timeSlot['id']}}','{{ translate("Want to delete this") }}')">
-                                        <i class="tio-delete-outlined"></i>
-                                    </a>
-                                </div>
-                                <form action="{{route('admin.business-settings.store.timeSlot.delete',[$timeSlot['id']])}}"
-                                        method="post" id="timeSlot-{{$timeSlot['id']}}">
-                                    @csrf @method('delete')
-                                </form>
-                                <!-- End Dropdown -->
-                            </td>
-                        </tr>
-                    @endforeach
+                        @foreach($timeSlots as $key=>$timeSlot)
+                            <tr>
+                                <td class="text-center">{{$key+1}}</td>
+                                <td class="text-center">
+                                    <div>{{ Carbon\Carbon::parse($timeSlot->start_time)->format('H:i:s A') }}</div>
+                                </td>
+                                <td class="text-center">
+                                    <div>{{ Carbon\Carbon::parse($timeSlot->end_time)->format('H:i:s A') }}</div>
+                                </td>
+                                <td class="text-center">
+                                    @php
+                                        $start_time = new DateTime($timeSlot['start_time']);
+                                        $duration = $start_time->diff(new DateTime($timeSlot['end_time']));
+                                        echo $duration->h.' hours '. $duration->i. ' minutes';
+                                    @endphp
+                                </td>
+                                <td>
+                                    <label class="toggle-switch my-0">
+                                        <input type="checkbox"
+                                            onclick="status_change_alert('{{ route('admin.business-settings.store.timeSlot.status', [$timeSlot->id, $timeSlot->status ? 0 : 1]) }}', '{{ $timeSlot->status? translate('you_want_to_disable_this_timeSlot'): translate('you_want_to_active_this_timeslot') }}', event)"
+                                            class="toggle-switch-input" id="stocksCheckbox{{ $timeSlot->id }}"
+                                            {{ $timeSlot->status ? 'checked' : '' }}>
+                                        <span class="toggle-switch-label mx-auto text">
+                                            <span class="toggle-switch-indicator"></span>
+                                        </span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <!-- Dropdown -->
+                                    <div class="btn--container justify-content-center">
+                                        <a class="action-btn"
+                                            href="{{route('admin.business-settings.store.timeSlot.update',[$timeSlot['id']])}}">
+                                        <i class="tio-edit"></i></a>
+                                        <a class="action-btn btn--danger btn-outline-danger" href="javascript:"
+                                            onclick="form_alert('timeSlot-{{$timeSlot['id']}}','{{ translate("Want to delete this") }}')">
+                                            <i class="tio-delete-outlined"></i>
+                                        </a>
+                                    </div>
+                                    <form action="{{route('admin.business-settings.store.timeSlot.delete',[$timeSlot['id']])}}"
+                                            method="post" id="timeSlot-{{$timeSlot['id']}}">
+                                        @csrf @method('delete')
+                                    </form>
+                                    <!-- End Dropdown -->
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
                 @if(count($timeSlots) == 0)

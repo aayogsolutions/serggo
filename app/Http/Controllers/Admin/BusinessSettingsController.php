@@ -28,6 +28,10 @@ class BusinessSettingsController extends Controller
         return view('Admin.views.business-settings.index', compact('logo', 'favIcon'));
     }
 
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
     public function maintenanceMode(): \Illuminate\Http\JsonResponse
     {
         $mode = Helpers_get_business_settings('maintenance_mode');
@@ -45,6 +49,22 @@ class BusinessSettingsController extends Controller
         return response()->json(['message' => translate('done')]);
     }
 
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function partialPaymentStatus($status): JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'partial_payment'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => translate('partial payment status updated') ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function businessSetup(Request $request): \Illuminate\Http\RedirectResponse
     {
         BusinessSetting::updateOrInsert(['key' => 'footer_text'], [
@@ -53,18 +73,6 @@ class BusinessSettingsController extends Controller
 
         BusinessSetting::updateOrInsert(['key' => 'app_name'], [
             'value' => $request->app_name
-        ]);
-
-        $currentLogo = $this->businessSettings->where(['key' => 'logo'])->first();
-        $NewLogo = $request->file('logo');
-        if ($request->has('logo')) {
-            $imageName = Helpers_update('Images/Business/', $currentLogo->value, $NewLogo->getClientOriginalExtension(), $NewLogo);
-        } else {
-            $imageName = $currentLogo['value'];
-        }
-
-        BusinessSetting::updateOrInsert(['key' => 'logo'], [
-            'value' => $imageName,
         ]);
 
         BusinessSetting::updateOrInsert(['key' => 'phone'], [
@@ -83,41 +91,36 @@ class BusinessSettingsController extends Controller
             'value' => $request['pagination_limit'],
         ]);
 
+        $currentLogo = $this->businessSettings->where(['key' => 'logo'])->first();
+        if ($request->has('logo')) {
+            $NewLogo = $request->file('logo');
+            $imageName = Helpers_update('Images/Business/', $currentLogo->value, $NewLogo->getClientOriginalExtension(), $NewLogo);
+        } else {
+            $imageName = $currentLogo['value'];
+        }
+        BusinessSetting::updateOrInsert(['key' => 'logo'], [
+            'value' => $imageName,
+        ]);
+
         $currentFavIcon = $this->businessSettings->where(['key' => 'fav_icon'])->first();
-        $newFavIcon = $request->file('fav_icon');
+        if ($request->has('fav_icon')) {
+            $newFavIcon = $request->file('fav_icon');
+            $FavName = Helpers_update('Images/Business/', $currentFavIcon->value, $newFavIcon->getClientOriginalExtension(), $newFavIcon);
+        } else {
+            $FavName = $currentFavIcon['value'];
+        }
         BusinessSetting::updateOrInsert(['key' => 'fav_icon'], [
-            'value' => $request->has('fav_icon') ? Helpers_update('Images/Business/', $currentFavIcon->value, $newFavIcon->getClientOriginalExtension(), $newFavIcon ) : $currentFavIcon->value
+            'value' => $FavName
         ]);
 
         flash()->success(translate('Settings updated!'));
         return back();
     }
 
-    public function freeDeliveryStatus($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount_status'], [
-            'value' => $status
-        ]);
-
-        return response()->json([
-            'status' => 1,
-            'message' => translate('status updated')
-        ]);
-    }
-
     /**
-     * @param $status
-     * @return JsonResponse
+     * @return Application|Factory|View
      */
-    public function partialPaymentStatus($status): JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'partial_payment'], [
-            'value' => $status
-        ]);
-        return response()->json(['message' => translate('partial payment status updated') ]);
-    }
-    
-    public function ReferralIncomeSetup()
+    public function ReferralIncomeSetup(): View|Factory|Application
     {
         return view('Admin.views.business-settings.refferal_income');
     }
@@ -143,61 +146,11 @@ class BusinessSettingsController extends Controller
     /**
      * @return Application|Factory|View
      */
-    public function orderSetup(): Factory|View|Application
+    public function mainBranchSetup(): View|Factory|Application
     {
-        if (!$this->businessSettings->where(['key' => 'minimum_order_value'])->first()) {
-            BusinessSetting::updateOrInsert(['key' => 'minimum_order_value'], [
-                'value' => 1,
-            ]);
-        }
-
-        return view('Admin.views.business-settings.order-setup-index');
+        $main_branch = Branch::where(['id' => 1])->first();
+        return view('Admin.views.business-settings.main-branch-setup', compact('main_branch'));
     }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function orderSetupUpdate(Request $request): RedirectResponse
-    {
-
-        $request->validate([
-            'order_image_label_name' => 'required_if:order_image_status,on|max:30',
-        ]);
-
-        $status = $request->maximum_amount_for_cod_order_status ? 0 : 1;
-
-        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
-            'value' => $status
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order'], [
-            'value' => $request['maximum_amount_for_cod_order'],
-        ]);
-
-        flash()->success(translate('order_settings_updated_successfully'));
-        return back();
-    }
-
-    public function maximumAmountStatus($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
-            'value' => $status
-        ]);
-
-        return response()->json([
-            'status' => 1,
-            'message' => translate('status updated')
-        ]);
-    }
-
-
-
-
-
-
-
-    
 
     /**
      * @return Application|Factory|View
@@ -210,180 +163,303 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
-        return view('admin.views.business-settings.delivery-fee');
-    }
-
-    public function currencySymbolPosition($side): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'currency_symbol_position'], [
-            'value' => $side
-        ]);
-        return response()->json(['message' => 'Symbol position is ' . $side]);
-    }
-
-    public function phoneVerificationStatus($status): \Illuminate\Http\JsonResponse
-    {
-        $emailStatus = BusinessSetting::where('key','email_verification')->first()->value;
-
-        if ($emailStatus == 1){
-            return response()->json([
-                'status' => 0,
-                'message' => 'Both email and phone verification can not be active at a time!'
+        if (!$this->businessSettings->where(['key' => 'delivery_management'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'delivery_management'], [
+                'value' => json_encode([
+                    "status" => 1,
+                    "min_shipping_charge" => 0,
+                    "shipping_per_km" => 0
+                ]),
             ]);
         }
 
-        BusinessSetting::updateOrInsert(['key' => 'phone_verification'], [
-            'value' => $status
-        ]);
+        $config = json_decode($this->businessSettings->where(['key' => 'delivery_management'])->first()->value);
 
-        return response()->json([
-            'status' => 1,
-            'message' => translate('Phone verification status updated')
-        ]);
-    }
-
-    public function emailVerificationStatus($status): \Illuminate\Http\JsonResponse
-    {
-        $phoneStatus = BusinessSetting::where('key','phone_verification')->first()->value;
-
-        if ($phoneStatus == 1){
-            return response()->json([
-                'status' => 0,
-                'message' => 'Both email and phone verification can not be active at a time!'
-            ]);
-        }
-
-        BusinessSetting::updateOrInsert(['key' => 'email_verification'], [
-            'value' => $status
-        ]);
-
-        return response()->json([
-            'status' => 1,
-            'message' => 'Email verification status updated'
-        ]);
-    }
-
-    public function selfPickupStatus($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'self_pickup'], [
-            'value' => $status
-        ]);
-        return response()->json(['message' => translate('Pickup status updated')]);
-    }
-
-    public function deliverymanSelfRegistrationStatus($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'dm_self_registration'], [
-            'value' => $status
-        ]);
-        return response()->json(['message' => translate('Delivery man self registration status updated')]);
+        return view('admin.views.business-settings.delivery-fee',compact('config'));
     }
 
     /**
      * @param $status
      * @return JsonResponse
      */
-    public function guestCheckoutStatus($status): JsonResponse
+    public function freeDeliveryStatus($status): \Illuminate\Http\JsonResponse
     {
-        BusinessSetting::updateOrInsert(['key' => 'guest_checkout'], [
+        BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount_status'], [
             'value' => $status
         ]);
-        return response()->json(['message' => translate('guest checkout status updated')]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
     }
 
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function deliverySetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        if ($request['shipping_status'] == 0) {
+            $request->validate([
+                'min_shipping_charge' => 'required',
+                'shipping_per_km' => 'required',
+            ],
+            [
+                'min_shipping_charge.required' => translate('Minimum shipping charge is required while shipping method is active'),
+                'shipping_per_km.required' => translate('Shipping charge per Kilometer is required while shipping method is active'),
+            ]);
+        }else{
+            if($request->delivery_charge == null) {
+                $request['delivery_charge'] = $this->businessSettings->where(['key' => 'default_delivery_charge'])->first()->value;
+            }
     
+            BusinessSetting::updateOrInsert(['key' => 'default_delivery_charge'], [
+                'value' => $request->delivery_charge,
+            ]);
+        }
 
-    
+        $delivery_management = Helpers_get_business_settings('delivery_management');
+        // dd($delivery_management);
+        if($request['min_shipping_charge'] == null) {
+            $request['min_shipping_charge'] = $delivery_management['min_shipping_charge'];
+        }
+        if($request['shipping_per_km'] == null) {
+            $request['shipping_per_km'] = $delivery_management['shipping_per_km'];
+        }
 
-    
+        BusinessSetting::updateOrInsert(['key' => 'delivery_management'], [
+            'value' => json_encode([
+                'status'  => $request['shipping_status'],
+                'min_shipping_charge' => $request['min_shipping_charge'],
+                'shipping_per_km' => $request['shipping_per_km'],
+            ]),
+        ]);
+        
+
+        BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount'], [
+            'value' => $request['free_delivery_over_amount'],
+        ]);
+
+        flash()->success(translate('Settings Updated'));
+        return back();
+    }
 
     /**
      * @return Application|Factory|View
      */
-    public function mailIndex(): Factory|View|Application
+    public function productSetup(): Factory|View|Application
     {
-        return view('Admin.views.business-settings.mail-index');
+        return view('Admin.views.business-settings.product-setup-index');
     }
 
-    public function mailSend(Request $request): \Illuminate\Http\JsonResponse
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function productSetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $responseFlag = 0;
-        try {
-            $emailServices = Helpers_get_business_settings('mail_config');
-
-            if (isset($emailServices['status']) && $emailServices['status'] == 1) {
-                Mail::to($request->email)->send(new \App\Mail\TestEmailSender());
-                $responseFlag = 1;
-            }
-        } catch (\Exception $exception) {
-            $responseFlag = 2;
-        }
-
-        return response()->json(['success' => $responseFlag]);
-    }
-
-    public function mailConfig(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $data = Helpers_get_business_settings('mail_config');
-
-        $this->businessSettings->where(['key' => 'mail_config'])->update([
-            'value' => json_encode([
-                "status" => $data['status'],
-                "name"       => $request['name'],
-                "host"       => $request['host'],
-                "driver"     => $request['driver'],
-                "port"       => $request['port'],
-                "username"   => $request['username'],
-                "email_id"   => $request['email'],
-                "encryption" => $request['encryption'],
-                "password"   => $request['password'],
-            ]),
+        BusinessSetting::updateOrInsert(['key' => 'product_gst_tax_status'], [
+            'value' => $request['product_vat_tax_status'],
         ]);
-        flash()->success(translate('Configuration updated successfully!'));
 
+        flash()->success(translate('Settings updated!'));
         return back();
     }
 
-    public function mailConfigStatus($status): \Illuminate\Http\JsonResponse
+    /**
+     * @return Application|Factory|View
+     */
+    public function cookiesSetup(): Factory|View|Application
     {
-        $data = Helpers_get_business_settings('mail_config');
-        $data['status'] = $status == '1' ? 1 : 0;
+        if (!$this->businessSettings->where(['key' => 'cookies'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'cookies'],
+            [
+                'value' => json_encode([
+                    "status" => 1,
+                    "text" => ''
+                ]),
+            ]);
+        }
 
-        $this->businessSettings->where(['key' => 'mail_config'])->update([
-            'value' => $data,
-        ]);
-        return response()->json(['message' => 'Mail config status updated']);
+        $cookies = Helpers_get_business_settings('cookies');
+
+        return view('Admin.views.business-settings.cookies-setup-index',compact('cookies'));
     }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function cookiesStatus($status): \Illuminate\Http\JsonResponse
+    {
+        $cookies = Helpers_get_business_settings('cookies');
+
+        BusinessSetting::updateOrInsert(['key' => 'cookies'], 
+        [
+            'value' => json_encode([
+                'status' => $status,
+                'text' => $cookies['text'],
+            ])
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function cookiesSetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $cookies = Helpers_get_business_settings('cookies');
+
+        BusinessSetting::updateOrInsert(['key' => 'cookies'], [
+            'value' => json_encode([
+                'status' => $cookies['status'],
+                'text' => $request['text'],
+            ])
+        ]);
+
+        flash()->success(translate('Settings updated!'));
+        return back();
+    }
+
+/**
+     * @return Application|Factory|View
+     */
+    public function OTPSetup(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'otp_resend_time'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'otp_resend_time'],
+            [
+                'value' => 60,
+            ]);
+        }
+
+        $timer = Helpers_get_business_settings('otp_resend_time');
+
+        return view('Admin.views.business-settings.otp-setup', compact('timer'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function OTPSetupUpdate(Request $request): RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'otp_resend_time'], [
+            'value' => $request['otp_resend_time'],
+        ]);
+
+        flash()->success(translate('Settings updated!'));
+        return back();
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function orderSetup(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'maximum_amount_for_cod_order_status'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
+                'value' => 1,
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'maximum_amount_for_cod_order'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order'], [
+                'value' => 0,
+            ]);
+        }
+
+        $status = Helpers_get_business_settings('maximum_amount_for_cod_order_status');
+        $amount = Helpers_get_business_settings('maximum_amount_for_cod_order');
+
+        return view('Admin.views.business-settings.order-setup-index',compact('status','amount'));
+    }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function orderStatus($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], 
+        [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function orderSetupUpdate(Request $request): RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order'], [
+            'value' => $request['amount'],
+        ]);
+
+        flash()->success(translate('order_settings_updated_successfully'));
+        return back();
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function customerSetup(): Factory|View|Application
+    {
+        $data = $this->businessSettings->where('key','like','wallet_%')
+            ->orWhere('key','like','loyalty_%')
+            ->orWhere('key','like','ref_earning_%')
+            ->orWhere('key','like','add_fund_to_wallet%')
+            ->orWhere('key','like','ref_earning_%')->get();
+        $data = array_column($data->toArray(), 'value','key');
+
+        return view('Admin.views.business-settings.customer-setup', compact('data'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function customerSetupUpdate(Request $request): RedirectResponse
+    {
+
+        $this->businessSettings->updateOrInsert(['key' => 'wallet_status'], [
+            'value' => $request['customer_wallet']??0
+        ]);
+
+        $this->businessSettings->updateOrInsert(['key' => 'add_fund_to_wallet'], [
+            'value' => $request['add_fund_to_wallet']??0
+        ]);
+
+        flash()->success(translate('customer_settings_updated_successfully'));
+        return back();
+    }
+
+
 
     /**
      * @return Application|Factory|View
      */
     public function paymentIndex(): Factory|View|Application
     {
-        $published_status = 0; // Set a default value
-        $payment_published_status = config('get_payment_publish_status');
-        if (isset($payment_published_status[0]['is_published'])) {
-            $published_status = $payment_published_status[0]['is_published'];
-        }
-
-        $routes = config('addon_admin_routes');
-        $desiredName = 'payment_setup';
-        $payment_url = '';
-
-        foreach ($routes as $routeArray) {
-            foreach ($routeArray as $route) {
-                if ($route['name'] === $desiredName) {
-                    $payment_url = $route['url'];
-                    break 2;
-                }
-            }
-        }
 
         $data_values = AddonSetting::whereIn('settings_type', ['payment_config'])
             ->whereIn('key_name', ['ssl_commerz','paypal','stripe','razor_pay','senang_pay','paystack','paymob_accept','flutterwave','bkash','mercadopago'])
             ->get();
 
-        return view('Admin.views.business-settings.payment-index', compact('published_status', 'payment_url', 'data_values'));
+        return view('Admin.views.3rd_party.payment-index', compact('data_values'));
     }
 
     public function paymentUpdate(Request $request, $name): \Illuminate\Http\RedirectResponse
@@ -763,6 +839,213 @@ class BusinessSettingsController extends Controller
         return back();
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    public function maximumAmountStatus($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
+    }
+
+
+
+
+
+
+
+    
+
+    
+
+    public function currencySymbolPosition($side): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'currency_symbol_position'], [
+            'value' => $side
+        ]);
+        return response()->json(['message' => 'Symbol position is ' . $side]);
+    }
+
+    public function phoneVerificationStatus($status): \Illuminate\Http\JsonResponse
+    {
+        $emailStatus = BusinessSetting::where('key','email_verification')->first()->value;
+
+        if ($emailStatus == 1){
+            return response()->json([
+                'status' => 0,
+                'message' => 'Both email and phone verification can not be active at a time!'
+            ]);
+        }
+
+        BusinessSetting::updateOrInsert(['key' => 'phone_verification'], [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('Phone verification status updated')
+        ]);
+    }
+
+    public function emailVerificationStatus($status): \Illuminate\Http\JsonResponse
+    {
+        $phoneStatus = BusinessSetting::where('key','phone_verification')->first()->value;
+
+        if ($phoneStatus == 1){
+            return response()->json([
+                'status' => 0,
+                'message' => 'Both email and phone verification can not be active at a time!'
+            ]);
+        }
+
+        BusinessSetting::updateOrInsert(['key' => 'email_verification'], [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Email verification status updated'
+        ]);
+    }
+
+    public function selfPickupStatus($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'self_pickup'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => translate('Pickup status updated')]);
+    }
+
+    public function deliverymanSelfRegistrationStatus($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'dm_self_registration'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => translate('Delivery man self registration status updated')]);
+    }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function guestCheckoutStatus($status): JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'guest_checkout'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => translate('guest checkout status updated')]);
+    }
+
+    
+
+    
+
+    
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function mailIndex(): Factory|View|Application
+    {
+        return view('Admin.views.business-settings.mail-index');
+    }
+
+    public function mailSend(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $responseFlag = 0;
+        try {
+            $emailServices = Helpers_get_business_settings('mail_config');
+
+            if (isset($emailServices['status']) && $emailServices['status'] == 1) {
+                Mail::to($request->email)->send(new \App\Mail\TestEmailSender());
+                $responseFlag = 1;
+            }
+        } catch (\Exception $exception) {
+            $responseFlag = 2;
+        }
+
+        return response()->json(['success' => $responseFlag]);
+    }
+
+    public function mailConfig(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = Helpers_get_business_settings('mail_config');
+
+        $this->businessSettings->where(['key' => 'mail_config'])->update([
+            'value' => json_encode([
+                "status" => $data['status'],
+                "name"       => $request['name'],
+                "host"       => $request['host'],
+                "driver"     => $request['driver'],
+                "port"       => $request['port'],
+                "username"   => $request['username'],
+                "email_id"   => $request['email'],
+                "encryption" => $request['encryption'],
+                "password"   => $request['password'],
+            ]),
+        ]);
+        flash()->success(translate('Configuration updated successfully!'));
+
+        return back();
+    }
+
+    public function mailConfigStatus($status): \Illuminate\Http\JsonResponse
+    {
+        $data = Helpers_get_business_settings('mail_config');
+        $data['status'] = $status == '1' ? 1 : 0;
+
+        $this->businessSettings->where(['key' => 'mail_config'])->update([
+            'value' => $data,
+        ]);
+        return response()->json(['message' => 'Mail config status updated']);
+    }
+
+    
 
     /**
      * @return Application|Factory|View
@@ -1221,63 +1504,6 @@ class BusinessSettingsController extends Controller
 
     }
 
-  
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function mainBranchSetup(): View|Factory|Application
-    {
-        $main_branch = Branch::where(['id' => 1])->first();
-        return view('Admin.views.business-settings.main-branch-setup', compact('main_branch'));
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function deliverySetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        if($request->delivery_charge == null) {
-            $request->delivery_charge = $this->businessSettings->where(['key' => 'delivery_charge'])->first()->value;
-        }
-
-        BusinessSetting::updateOrInsert(['key' => 'delivery_charge'], [
-            'value' => $request->delivery_charge,
-        ]);
-
-        if ($request['shipping_status'] == 1) {
-            $request->validate([
-                'min_shipping_charge' => 'required',
-                'shipping_per_km' => 'required',
-            ],
-                [
-                    'min_shipping_charge.required' => translate('Minimum shipping charge is required while shipping method is active'),
-                    'shipping_per_km.required' => translate('Shipping charge per Kilometer is required while shipping method is active'),
-                ]);
-        }
-        if($request['min_shipping_charge'] == null) {
-            $request['min_shipping_charge'] = Helpers_get_business_settings('delivery_management')['min_shipping_charge'];
-        }
-        if($request['shipping_per_km'] == null) {
-            $request['shipping_per_km'] = Helpers_get_business_settings('delivery_management')['shipping_per_km'];
-        }
-        BusinessSetting::updateOrInsert(['key' => 'delivery_management'], [
-            'value' => json_encode([
-                'status'  => $request['shipping_status'],
-                'min_shipping_charge' => $request['min_shipping_charge'],
-                'shipping_per_km' => $request['shipping_per_km'],
-            ]),
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount'], [
-            'value' => $request['free_delivery_over_amount'],
-        ]);
-
-        flash()->success(translate('Settings Updated'));
-        return back();
-    }
-
     /**
      * @return Application|Factory|View
      */
@@ -1355,107 +1581,6 @@ class BusinessSettingsController extends Controller
     /**
      * @return Application|Factory|View
      */
-    public function productSetup(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.product-setup-index');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function productSetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'minimum_stock_limit'], [
-            'value' => $request['minimum_stock_limit'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'product_vat_tax_status'], [
-            'value' => $request['product_vat_tax_status'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'featured_product_status'], [
-            'value' => $request['featured_product_status'] ? 1 : 0,
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'trending_product_status'], [
-            'value' => $request['trending_product_status'] ? 1 : 0,
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'most_reviewed_product_status'], [
-            'value' => $request['most_reviewed_product_status'] ? 1 : 0,
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'recommended_product_status'], [
-            'value' => $request['recommended_product_status'] ? 1 : 0,
-        ]);
-
-        flash()->success(translate('Settings updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function cookiesSetup(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.cookies-setup-index');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function cookiesSetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'cookies'], [
-            'value' => json_encode([
-                'status' => $request['status'],
-                'text' => $request['text'],
-            ])
-        ]);
-
-        flash()->success(translate('Settings updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function OTPSetup(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.otp-setup');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function OTPSetupUpdate(Request $request): RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'maximum_otp_hit'], [
-            'value' => $request['maximum_otp_hit'],
-        ]);
-        BusinessSetting::updateOrInsert(['key' => 'otp_resend_time'], [
-            'value' => $request['otp_resend_time'],
-        ]);
-        BusinessSetting::updateOrInsert(['key' => 'temporary_block_time'], [
-            'value' => $request['temporary_block_time'],
-        ]);
-        BusinessSetting::updateOrInsert(['key' => 'maximum_login_hit'], [
-            'value' => $request['maximum_login_hit'],
-        ]);
-        BusinessSetting::updateOrInsert(['key' => 'temporary_login_block_time'], [
-            'value' => $request['temporary_login_block_time'],
-        ]);
-
-        flash()->success(translate('Settings updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
     public function chatIndex(): Factory|View|Application
     {
         if (!$this->businessSettings->where(['key' => 'whatsapp'])->first()) {
@@ -1520,63 +1645,6 @@ class BusinessSettingsController extends Controller
         ]);
 
         flash()->success(translate('Settings updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function customerSetup(): Factory|View|Application
-    {
-        $data = $this->businessSettings->where('key','like','wallet_%')
-            ->orWhere('key','like','loyalty_%')
-            ->orWhere('key','like','ref_earning_%')
-            ->orWhere('key','like','add_fund_to_wallet%')
-            ->orWhere('key','like','ref_earning_%')->get();
-        $data = array_column($data->toArray(), 'value','key');
-
-        return view('Admin.views.business-settings.customer-setup', compact('data'));
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function customerSetupUpdate(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'loyalty_point_exchange_rate'=>'nullable|numeric',
-            'ref_earning_exchange_rate'=>'nullable|numeric',
-            'loyalty_point_minimum_point'=>'numeric|min:0|not_in:0',
-        ]);
-
-        $this->businessSettings->updateOrInsert(['key' => 'wallet_status'], [
-            'value' => $request['customer_wallet']??0
-        ]);
-        $this->businessSettings->updateOrInsert(['key' => 'loyalty_point_status'], [
-            'value' => $request['customer_loyalty_point']??0
-        ]);
-        $this->businessSettings->updateOrInsert(['key' => 'ref_earning_status'], [
-            'value' => $request['ref_earning_status'] ?? 0
-        ]);
-        $this->businessSettings->updateOrInsert(['key' => 'loyalty_point_exchange_rate'], [
-            'value' => $request['loyalty_point_exchange_rate'] ?? 0
-        ]);
-        $this->businessSettings->updateOrInsert(['key' => 'ref_earning_exchange_rate'], [
-            'value' => $request['ref_earning_exchange_rate'] ?? 0
-        ]);
-        $this->businessSettings->updateOrInsert(['key' => 'loyalty_point_percent_on_item_purchase'], [
-            'value' => $request['loyalty_point_percent_on_item_purchase']??0
-        ]);
-        $this->businessSettings->updateOrInsert(['key' => 'loyalty_point_minimum_point'], [
-            'value' => $request['minimun_transfer_point']??1
-        ]);
-
-        $this->businessSettings->updateOrInsert(['key' => 'add_fund_to_wallet'], [
-            'value' => $request['add_fund_to_wallet']??0
-        ]);
-
-        flash()->success(translate('customer_settings_updated_successfully'));
         return back();
     }
     

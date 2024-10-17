@@ -5,7 +5,6 @@ function readURL(input) {
         reader.onload = function (e) {
             $('#viewer').attr('src', e.target.result);
         }
-
         reader.readAsDataURL(input.files[0]);
     }
 }
@@ -59,6 +58,7 @@ $( document ).ready(function() {
                 }
             });
         });
+        
         // Create the search box and link it to the UI element.
         const input = document.getElementById("pac-input");
         const searchBox = new google.maps.places.SearchBox(input);

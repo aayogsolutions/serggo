@@ -671,6 +671,47 @@
                             </ul>
                         </li>
                         @endif
+                        @if(Auth('admins')->id() == 1)
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['3rd_party']))
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/business-settings/web-app/payment-method*')
+                                    || Request::is('admin/business-settings/web-app/third-party/fcm*')
+                                    || Request::is('admin/business-settings/web-app/third-party*')
+                                    || Request::is('admin/business-settings/web-app/mail-config*')
+                                    || Request::is('admin/business-settings/web-app/sms-module*') ? 'active' : '' }}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:" title="{{translate('3rd Party')}}">
+                                        <i class="tio-website nav-icon"></i>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                            {{translate('3rd Party')}}
+                                        </span>
+                                    </a>
+                                    <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/business-settings/web-app/payment-method*')
+                                        || Request::is('admin/business-settings/web-app/third-party/fcm*')
+                                        || Request::is('admin/business-settings/web-app/third-party*')
+                                        || Request::is('admin/business-settings/web-app/mail-config*')
+                                        || Request::is('admin/business-settings/web-app/sms-module*') ?'block':'none'}}">
+                                        <li class="nav-item {{Request::is('admin/business-settings/web-app/payment-method')
+                                            || Request::is('admin/business-settings/web-app/sms-module*') ?'active':''}}">
+
+                                            <a class="nav-link " href="{{route('admin.business-settings.web-app.payment-method')}}"
+                                            title="{{translate('3rd party configuration')}}"
+                                            >
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span
+                                                    class="text-truncate">{{translate('3rd party configuration')}}</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item {{Request::is('admin/business-settings/web-app/third-party/fcm*')?'active':''}}">
+                                            <a class="nav-link " href="{{route('admin.business-settings.web-app.third-party.fcm-index')}}"
+                                            title="{{translate('Push Notification')}}"
+                                            >
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span class="text-truncate">{{translate('Push Notification')}}</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endif
+                        @endif
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['pages_media']))
                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/business-settings/page-setup/*')?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"

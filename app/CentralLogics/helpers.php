@@ -197,7 +197,7 @@ if(! function_exists('Helpers_currency_symbol')) {
     function Helpers_currency_symbol()
     {
         $currency_symbol = Helpers_get_business_settings("currency_code");
-        return $currency_symbol ?? "₹";
+        return ($currency_symbol == "" && $currency_symbol == null) ? "₹" : $currency_symbol;
     }
 
 }

@@ -1,18 +1,20 @@
 <?php
 
-use App\Http\Controllers\Api\user\BannerController;
-use App\Http\Controllers\Api\user\InformationController;
-use App\Http\Controllers\Api\user\product\CartController;
-use App\Http\Controllers\Api\user\product\WishlistController;
+use App\Http\Controllers\Api\user\{
+    BannerController,
+    InformationController
+};
 use App\Http\Controllers\Api\auth\{
     ApiAuthController
 };
 use App\Http\Controllers\Api\user\product\{
+    AddressController,
     CategoryCntroller,
     CustomerController,
+    CartController,
     DashboardController,
     ProductController,
-    AddressController
+    WishlistController
 };
 use App\Http\Controllers\Api\user\service\{
     DashboardController as ServiceDashboardController,
@@ -22,15 +24,15 @@ use App\Http\Controllers\Api\vender\{
 };
 use Illuminate\Support\Facades\Route;
 
+
 Route::group(['prefix' => 'auth'], function() {
 
     Route::post('/',[ApiAuthController::class, 'OTPRequest']);
     Route::get('/resendOtp/{number}',[ApiAuthController::class, 'resendOtp']);
-    Route::post('/otpsubmit',[ApiAuthController::class, 'OTPSubmit']);
-    
-    Route::post('/register', [ApiAuthController::class,'registeruser']);
-    
     Route::post('/signup/{provider}', [ApiAuthController::class,'SignupWithSocial']);
+    Route::post('/otpsubmit',[ApiAuthController::class, 'OTPSubmit']);
+
+    Route::post('/register', [ApiAuthController::class,'registeruser']);
 });
 
 Route::group(['prefix' => 'banner'], function() {
@@ -52,7 +54,6 @@ Route::group(['prefix' => 'product'], function(){
     Route::get('/dashboard', [DashboardController::class,'Index']);
     Route::get('/category_display/{ui}', [DashboardController::class,'CategoryDisplay']);
     Route::post('/display_section_details', [ProductController::class,'Display']);
-    
 
     Route::get('/product_details', [ProductController::class,'Index']);
     Route::get('/brand_details', [ProductController::class,'BrandSelected']);

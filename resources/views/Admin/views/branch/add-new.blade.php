@@ -148,10 +148,9 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6" id="location_map_div">
-                                            <input id="pac-input" class="controls rounded" data-toggle="tooltip"
-                                                   data-placement="right"
-                                                   data-original-title="{{ translate('search_your_location_here') }}"
-                                                   type="text" placeholder="{{ translate('search_here') }}" />
+                                            <input id="pac-input" class="controls rounded" data-toggle="tooltip" data-placement="right"
+                                                data-original-title="{{ translate('search_your_location_here') }}" type="text" 
+                                                placeholder="{{ translate('search_here') }}" />
                                             <div id="location_map_canvas" class="overflow-hidden rounded h-100"></div>
                                         </div>
                                     </div>

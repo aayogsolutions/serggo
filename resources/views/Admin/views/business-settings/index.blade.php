@@ -94,6 +94,28 @@
                                         <input type="number" value="{{$pagination_limit}}" name="pagination_limit" class="form-control" placeholder="0" required>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    @php($partial_payment = Helpers_get_business_settings('partial_payment'))
+                                    @php($partial_payment_status = $partial_payment == 0 ? 1 : 0)
+                                    <div class="form-group">
+                                        <label class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control"
+                                               onclick="partial_payment_status('{{route('admin.business-settings.store.partial-payment',[$partial_payment_status])}}')">
+                                            <span class="pr-1 d-flex align-items-center switch--label">
+                                                <span class="line--limit-1">
+                                                    <strong>{{translate('partial_payment')}}</strong>
+                                                </span>
+                                                <span class="form-label-secondary text-danger d-flex ml-1" data-toggle="tooltip" data-placement="right"
+                                                      data-original-title="{{translate('When this option is enabled, users may pay up to a certain amount using their wallet balance.')}}">
+                                                    <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
+                                                </span>
+                                            </span>
+                                            <input type="checkbox" name="partial_payment" class="toggle-switch-input" {{ $partial_payment == 0 ? 'checked' : '' }}>
+                                            <span class="toggle-switch-label text">
+                                                <span class="toggle-switch-indicator"></span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                             @if(Auth('admins')->id() == 1)
                                 <div class="row">

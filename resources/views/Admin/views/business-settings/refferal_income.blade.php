@@ -23,7 +23,13 @@
                                 @php($value = Helpers_get_business_settings('refferal_bonus'))
                                 <div class="col-md-4 col-sm-6">
                                     <div class="form-group">
-                                        <label class="input-label" for="exampleFormControlInput1">{{translate('refferal_bonus')}}</label>
+                                        <label class="input-label" for="exampleFormControlInput1">
+                                            {{translate('refferal_bonus')}}
+                                            <span class="form-label-secondary text-danger d-inline ml-1" data-toggle="tooltip" data-placement="right"
+                                                    data-original-title="{{translate('Set the amount of Reffral Bounce. When Someone Join with Reffral Code. Who is Referred New Joinee get this bounce ')}}">
+                                                <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
+                                            </span>
+                                        </label>
                                         <input type="number" value="{{$value}}" name="refferal_bonus" class="form-control" placeholder="" required>
                                     </div>
                                 </div>

@@ -287,6 +287,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         });
 
         Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
+            
             Route::get('list', [ProductController::class, 'list'])->name('list');
             Route::get('add-new', [ProductController::class, 'index'])->name('add-new');
             Route::get('get-categories', [ProductController::class, 'getCategories'])->name('get-categories');
@@ -304,12 +305,25 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('approval-list', [ProductController::class, 'ApprovalList'])->name('approval-list');
             Route::get('rejected-list', [ProductController::class, 'RejectedList'])->name('rejected-list');
             Route::get('product-view/{id}', [ProductController::class, 'AllListView'])->name('all-view');
-
+            
             Route::get('bulk-import', [ProductController::class, 'bulkImportIndex'])->name('bulk-import');
             Route::post('bulk-import', [ProductController::class, 'bulkImportProduct']);
             Route::get('bulk-export-index', [ProductController::class, 'bulkExportIndex'])->name('bulk-export-index');
             Route::get('bulk-export', [ProductController::class, 'bulkExportProduct'])->name('bulk-export');
             Route::get('remove-image/{id}/{name}', [ProductController::class, 'removeImage'])->name('remove-image');
+
+            Route::group(['prefix' => 'tag', 'as' => 'tag.'], function () {
+                Route::get('add-new', [TagController::class, 'index'])->name('add-new');
+                Route::post('store', [TagController::class, 'store'])->name('store');
+                Route::get('edit/{id}', [TagController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [TagController::class, 'update'])->name('update');
+                Route::delete('delete/{id}', [TagController::class, 'delete'])->name('delete');
+                Route::get('status/{id}/{status}', [TagController::class, 'status'])->name('status');
+            });
+
+
+
+
             Route::post('daily-needs', [ProductController::class, 'dailyNeeds'])->name('daily-needs');
             Route::get('limited-stock', [ProductController::class, 'limitedStock'])->name('limited-stock');
             Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');
@@ -321,14 +335,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('Product_data_ajax', [ProductController::class, 'ProductDataAjax'])->name('ProductDataAjax');
             Route::post('Edit_product_column', [ProductController::class, 'Edit_product_column'])->name('Edit_product_column');
 
-            Route::group(['prefix' => 'tag', 'as' => 'tag.'], function () {
-                Route::get('add-new', [TagController::class, 'index'])->name('add-new');
-                Route::post('store', [TagController::class, 'store'])->name('store');
-                Route::get('edit/{id}', [TagController::class, 'edit'])->name('edit');
-                Route::post('update/{id}', [TagController::class, 'update'])->name('update');
-                Route::delete('delete/{id}', [TagController::class, 'delete'])->name('delete');
-                Route::get('status/{id}/{status}', [TagController::class, 'status'])->name('status');
-            });
+            
         });
 
         Route::group(['prefix' => 'employee', 'as' => 'employee.'], function () {
@@ -353,35 +360,48 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::group(['prefix' => 'business-settings', 'as' => 'business-settings.'], function () {
 
             Route::group(['prefix'=>'store','as'=>'store.'], function() {
-                Route::get('ecom-setup', [BusinessSettingsController::class, 'businessSettingsIndex'])->name('ecom-setup');
-                Route::get('delivery-setup', [BusinessSettingsController::class, 'deliveryIndex'])->name('delivery-setup');
-                Route::post('delivery-setup-update', [BusinessSettingsController::class, 'deliverySetupUpdate'])->name('delivery-setup-update');
-                Route::post('update-setup', [BusinessSettingsController::class, 'businessSetup'])->name('update-setup');
-                Route::get('maintenance-mode', [BusinessSettingsController::class, 'maintenanceMode'])->name('maintenance-mode');
-                Route::get('currency-position/{position}', [BusinessSettingsController::class, 'currencySymbolPosition'])->name('currency-position');
-                Route::get('self-pickup/{status}', [BusinessSettingsController::class, 'selfPickupStatus'])->name('self-pickup');
-                // Route::get('location-setup', [LocationSettingsController::class, 'locationIndex'])->name('location-setup');
-                // Route::post('update-location', [LocationSettingsController::class, 'locationSetup'])->name('update-location');
-                Route::get('main-branch-setup', [BusinessSettingsController::class, 'mainBranchSetup'])->name('main-branch-setup');
-                Route::get('product-setup', [BusinessSettingsController::class, 'productSetup'])->name('product-setup');
-                Route::post('product-setup-update', [BusinessSettingsController::class, 'productSetupUpdate'])->name('product-setup-update');
-                Route::get('cookies-setup', [BusinessSettingsController::class, 'cookiesSetup'])->name('cookies-setup');
-                Route::post('cookies-setup-update', [BusinessSettingsController::class, 'cookiesSetupUpdate'])->name('cookies-setup-update');
-                Route::get('max-amount-status/{status}', [BusinessSettingsController::class, 'maximumAmountStatus'])->name('max-amount-status');
-                Route::get('free-delivery-status/{status}', [BusinessSettingsController::class, 'freeDeliveryStatus'])->name('free-delivery-status');
-                Route::get('dm-self-registration/{status}', [BusinessSettingsController::class, 'deliverymanSelfRegistrationStatus'])->name('dm-self-registration');
-                Route::get('otp-setup', [BusinessSettingsController::class, 'OTPSetup'])->name('otp-setup');
-                Route::post('otp-setup-update', [BusinessSettingsController::class, 'OTPSetupUpdate'])->name('otp-setup-update');
-                Route::get('guest-checkout/{status}', [BusinessSettingsController::class, 'guestCheckoutStatus'])->name('guest-checkout');
-                Route::get('partial-payment/{status}', [BusinessSettingsController::class, 'partialPaymentStatus'])->name('partial-payment');
-                Route::get('customer-setup', [BusinessSettingsController::class, 'customerSetup'])->name('customer-setup');
-                Route::post('customer-setup-update', [BusinessSettingsController::class, 'customerSetupUpdate'])->name('customer-setup-update');
-                Route::get('order-setup', [BusinessSettingsController::class, 'orderSetup'])->name('order-setup');
-                Route::post('order-setup-update', [BusinessSettingsController::class, 'orderSetupUpdate'])->name('order-setup-update');
 
+                // Business Setting
+                Route::get('ecom-setup', [BusinessSettingsController::class, 'businessSettingsIndex'])->name('ecom-setup');
+                Route::get('maintenance-mode', [BusinessSettingsController::class, 'maintenanceMode'])->name('maintenance-mode');
+                Route::get('partial-payment/{status}', [BusinessSettingsController::class, 'partialPaymentStatus'])->name('partial-payment');
+                Route::post('update-setup', [BusinessSettingsController::class, 'businessSetup'])->name('update-setup');
+
+                // Refferal Income
                 Route::get('referral-income-setup', [BusinessSettingsController::class, 'ReferralIncomeSetup'])->name('referral-income-setup');
                 Route::post('referral-income-setup-update', [BusinessSettingsController::class, 'ReferralIncomeSetupUpdate'])->name('referral-income-setup-update');
 
+                // Main Branch Setup
+                Route::get('main-branch-setup', [BusinessSettingsController::class, 'mainBranchSetup'])->name('main-branch-setup');
+
+                // Delivery Setup
+                Route::get('delivery-setup', [BusinessSettingsController::class, 'deliveryIndex'])->name('delivery-setup');
+                Route::post('delivery-setup-update', [BusinessSettingsController::class, 'deliverySetupUpdate'])->name('delivery-setup-update');
+                Route::get('free-delivery-status/{status}', [BusinessSettingsController::class, 'freeDeliveryStatus'])->name('free-delivery-status');
+
+                // Product Setup
+                Route::get('product-setup', [BusinessSettingsController::class, 'productSetup'])->name('product-setup');
+                Route::post('product-setup-update', [BusinessSettingsController::class, 'productSetupUpdate'])->name('product-setup-update');
+
+                //Cookies Setup
+                Route::get('cookies-setup', [BusinessSettingsController::class, 'cookiesSetup'])->name('cookies-setup');
+                Route::get('cookies-status/{status}', [BusinessSettingsController::class, 'cookiesStatus'])->name('cookies-status');
+                Route::post('cookies-setup-update', [BusinessSettingsController::class, 'cookiesSetupUpdate'])->name('cookies-setup-update');
+
+                // Otp Setup
+                Route::get('otp-setup', [BusinessSettingsController::class, 'OTPSetup'])->name('otp-setup');
+                Route::post('otp-setup-update', [BusinessSettingsController::class, 'OTPSetupUpdate'])->name('otp-setup-update');
+
+                // Order Setup
+                Route::get('order-setup', [BusinessSettingsController::class, 'orderSetup'])->name('order-setup');
+                Route::get('order-status/{status}', [BusinessSettingsController::class, 'orderStatus'])->name('order-status');
+                Route::post('order-setup-update', [BusinessSettingsController::class, 'orderSetupUpdate'])->name('order-setup-update');
+
+                // Customer Setup
+                Route::get('customer-setup', [BusinessSettingsController::class, 'customerSetup'])->name('customer-setup');
+                Route::post('customer-setup-update', [BusinessSettingsController::class, 'customerSetupUpdate'])->name('customer-setup-update');
+
+                // Timr Slot Setup
                 Route::group(['prefix' => 'timeSlot', 'as' => 'timeSlot.'], function () {
                     Route::get('add-new', [TimeSlotController::class, 'index'])->name('add-new');
                     Route::post('store', [TimeSlotController::class, 'store'])->name('store');
@@ -390,17 +410,29 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                     Route::get('status/{id}/{status}', [TimeSlotController::class, 'status'])->name('status');
                     Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
                 });
+
+
+                // Route::get('currency-position/{position}', [BusinessSettingsController::class, 'currencySymbolPosition'])->name('currency-position');
+                // Route::get('self-pickup/{status}', [BusinessSettingsController::class, 'selfPickupStatus'])->name('self-pickup');
+                // Route::get('location-setup', [LocationSettingsController::class, 'locationIndex'])->name('location-setup');
+                // Route::post('update-location', [LocationSettingsController::class, 'locationSetup'])->name('update-location');
+                // Route::get('max-amount-status/{status}', [BusinessSettingsController::class, 'maximumAmountStatus'])->name('max-amount-status');
+                // Route::get('dm-self-registration/{status}', [BusinessSettingsController::class, 'deliverymanSelfRegistrationStatus'])->name('dm-self-registration');
+                // Route::get('guest-checkout/{status}', [BusinessSettingsController::class, 'guestCheckoutStatus'])->name('guest-checkout');
             });
 
             Route::group(['prefix'=>'web-app','as'=>'web-app.'], function() {
+                
+                Route::get('payment-method', [BusinessSettingsController::class, 'paymentIndex'])->name('payment-method');
+                Route::post('payment-method-update/{payment_method}', [BusinessSettingsController::class, 'paymentUpdate'])->name('payment-method-update');
+                Route::post('payment-config-update', [BusinessSettingsController::class, 'paymentConfigUpdate'])->name('payment-config-update');
+
                 Route::get('mail-config', [BusinessSettingsController::class, 'mailIndex'])->name('mail-config');
                 Route::post('mail-config', [BusinessSettingsController::class, 'mailConfig']);
                 Route::get('mail-config/status/{status}', [BusinessSettingsController::class, 'mailConfigStatus'])->name('mail-config.status');
                 Route::post('mail-send', [BusinessSettingsController::class, 'mailSend'])->name('mail-send');
 
-                Route::get('payment-method', [BusinessSettingsController::class, 'paymentIndex'])->name('payment-method');
-                Route::post('payment-method-update/{payment_method}', [BusinessSettingsController::class, 'paymentUpdate'])->name('payment-method-update');
-                Route::post('payment-config-update', [BusinessSettingsController::class, 'paymentConfigUpdate'])->name('payment-config-update');
+                
 
 
                 Route::group(['prefix'=>'system-setup','as'=>'system-setup.'], function() {

@@ -1,11 +1,11 @@
-@extends('Admin.layouts.app')
+@extends('layouts.admin.app')
 
 @section('title', translate('Payment Setup'))
 
 @section('content')
     <div class="content container-fluid">
         <div class="page-header">
-            @include('Admin.views.business-settings.partial.third-party-api-navmenu')
+            @include('admin-views.business-settings.partial.third-party-api-navmenu')
         </div>
         <div class="row g-3">
             <div class="col-md-4">
@@ -140,26 +140,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row">
-            @if($published_status == 1)
-                <div class="col-12 mb-3">
-                    <div class="card">
-                        <div class="card-body d-flex justify-content-around">
-                            <h4 class="text-danger mt-3">
-                                <i class="tio-info-outined"></i>
-                                {{ translate('Your current payment settings are disabled, because you have enabled
-                                payment gateway addon, To visit your currently active payment gateway settings please follow
-                                the link.') }}
-                            </h4>
-                            <span>
-                            <a href="{{!empty($payment_url) ? $payment_url : ''}}" class="btn btn-outline-primary"><i class="tio-settings mr-1"></i>{{translate('settings')}}</a>
-                        </span>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
 
         <div class="row digital_payment_methods mt-3 g-3" id="payment-gatway-cards">
