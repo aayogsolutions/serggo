@@ -1,7 +1,7 @@
 
 <h1 class="page-header-title">
     <span class="page-header-icon">
-        <img src="{{asset('/public/assets/admin/img/third-party.png')}}" class="w--20" alt="">
+        <img src="{{asset('assets/admin/img/third-party.png')}}" class="w--20" alt="">
     </span>
     <span>
         {{translate('Third Party')}}
@@ -18,31 +18,31 @@
             {{translate('Social Media Login')}}
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link {{Request::is('admin/business-settings/web-app/mail-config')?'active':''}}" href="{{route('admin.business-settings.web-app.mail-config')}}">
+    <!-- <li class="nav-item">
+        <a class="nav-link {{Request::is('admin/business-settings/web-app/mail-config')?'active':''}}" href="{{('admin.business-settings.web-app.mail-config')}}">
             {{translate('Mail Config')}}
         </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {{Request::is('admin/business-settings/web-app/sms-module')?'active':''}}" href="{{route('admin.business-settings.web-app.sms-module')}}">
+    </li> -->
+    <!-- <li class="nav-item">
+        <a class="nav-link {{Request::is('admin/business-settings/web-app/sms-module')?'active':''}}" href="{{('admin.business-settings.web-app.sms-module')}}">
             {{translate('SMS Config')}}
         </a>
-    </li>
+    </li> -->
     <li class="nav-item">
         <a class="nav-link {{Request::is('admin/business-settings/web-app/third-party/map-api-settings')?'active':''}}" href="{{route('admin.business-settings.web-app.third-party.map-api-settings')}}">
             {{translate('Google Map APIs')}}
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link {{Request::is('admin/business-settings/web-app/third-party/recaptcha*')?'active':''}}" href="{{route('admin.business-settings.web-app.third-party.recaptcha_index')}}">
+    <!-- <li class="nav-item">
+        <a class="nav-link {{Request::is('admin/business-settings/web-app/third-party/recaptcha*')?'active':''}}" href="{{('admin.business-settings.web-app.third-party.recaptcha_index')}}">
             {{translate('Recaptcha')}}
         </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {{Request::is('admin/business-settings/web-app/third-party/chat-index*')?'active':''}}" href="{{route('admin.business-settings.web-app.third-party.chat-index')}}">
+    </li> -->
+    <!-- <li class="nav-item">
+        <a class="nav-link {{Request::is('admin/business-settings/web-app/third-party/chat-index*')?'active':''}}" href="{{('admin.business-settings.web-app.third-party.chat-index')}}">
             {{translate('Social Media Chat')}}
         </a>
-    </li>
+    </li> -->
     <li class="nav-item">
         <a class="nav-link {{Request::is('admin/business-settings/web-app/third-party/firebase-otp-verification*')?'active':''}}" href="{{route('admin.business-settings.web-app.third-party.firebase-otp-verification')}}">
             {{translate('Firebase OTP Verification')}}

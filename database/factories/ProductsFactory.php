@@ -27,11 +27,11 @@ class ProductsFactory extends Factory
         return [
             'brand_id' => fake()->randomElement($brandIds),
             'brand_name' => fake()->paragraph(),
-            'admin_id' => 1,
-            // 'vender_id' => fake()->randomElement($vendorIds),
+            // 'admin_id' => 1,
+            'vender_id' => fake()->randomElement($vendorIds),
             'name' => fake()->word(),
             'description' => fake()->paragraph(),
-            'image' => '["Images\/productImages\/2024-09-29-66f8f2ca9d35f.jpeg","Images\/productImages\/2024-09-29-66f8f2ca9d71e.jpeg","Images\/productImages\/2024-09-29-66f8f2ca9d9b2.jpeg"]',
+            'image' => '["Images\/productImages\/2024-09-29-66f8f2ab92d25.jpeg","Images\/productImages\/2024-09-29-66f8f319e2aac.jpeg","Images\/productImages\/2024-09-30-66fa9b3221d41.jpg"]',
             'price' => fake()->numberBetween(1,500),
             'variations' => '[{"type":"whit","price":45000,"stock":1},{"type":"black","price":45000,"stock":2}]',
             'tags' => '["'.fake()->word().'","'.fake()->word().'","'.fake()->word().'","'.fake()->word().'"]',
@@ -47,6 +47,9 @@ class ProductsFactory extends Factory
             'unit' => fake()->randomElement(['pc','kg']),
             'total_stock' => fake()->numberBetween(1,500),
             'total_sale' => fake()->numberBetween(1,500),
+            'installation_name' => fake()->word(),
+            'installation_charges' => fake()->numberBetween(1,500),
+            'installation_description' => fake()->paragraph(),
             'is_featured' => 1,
         ];
     }

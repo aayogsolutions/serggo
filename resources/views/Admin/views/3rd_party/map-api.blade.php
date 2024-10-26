@@ -1,0 +1,39 @@
+@extends('Admin.layouts.app')
+
+@section('title', translate('Map API Settings'))
+
+@section('content')
+    <div class="content container-fluid">
+        <div class="page-header">
+            @include('Admin.views.3rd_party.partial.third-party-api-navmenu')
+        </div>
+
+
+        <div class="card">
+            <div class="card-body">
+                <form action="{{route('admin.business-settings.web-app.third-party.map-api-store')}}" method="post">
+                    @csrf
+                    <div class="row">
+                        @php($key=\App\Models\BusinessSetting::where('key','map_api_server_key')->first()?->value )
+                        <div class="form-group col-md-6">
+                            <label class="form-label">{{translate('map_api_server')}} {{translate('key')}}</label>
+                            <textarea name="map_api_server_key" class="form-control">{{env('APP_MODE')!='demo'?$key:''}}</textarea>
+                        </div>
+                        @php($key=\App\Models\BusinessSetting::where('key','map_api_client_key')->first()?->value)
+                        <div class="form-group col-md-6">
+                            <label class="form-label">{{translate('map_api_client')}} {{translate('key')}}</label>
+                            <textarea name="map_api_client_key" class="form-control">{{env('APP_MODE')!='demo'?$key:''}}</textarea>
+                        </div>
+                    </div>
+                    <div class="btn--container justify-content-end">
+                        <button class="btn btn--reset" type="reset">{{translate('reset')}}</button>
+                        <button type="{{env('APP_MODE')!='demo'?'submit':'button'}}" class="btn btn-primary call-demo">{{translate('save')}}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+@endsection
+
+

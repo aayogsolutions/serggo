@@ -20,7 +20,7 @@ class VendorFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->email(),
             'number' => fake()->unique()->numberBetween(8000000000,9999999999),
-            'role' => fake()->randomElement([0,1]),
+            'role' => fake()->randomElement([1,2]),
             'referral_code' => fake()->unique()->word(),
         ];
     }

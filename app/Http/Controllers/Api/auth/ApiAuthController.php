@@ -217,6 +217,8 @@ class ApiAuthController extends Controller
             ], 404);
         }
 
+        $refferal = 0;
+        
         try {
             
             if(User::where('number', $request->number)->exists()){

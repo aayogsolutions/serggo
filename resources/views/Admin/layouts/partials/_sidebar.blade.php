@@ -47,133 +47,143 @@
 
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['order_management']))
                         <li class="nav-item">
-                            <small
-                                class="nav-subtitle">{{translate('order_management')}}</small>
+                            <small class="nav-subtitle">
+                                {{translate('order_management')}}
+                            </small>
                             <small class="tio-more-horizontal nav-subtitle-replacer"></small>
                         </li>
-                        @if(Helpers_module_permission_check(MANAGEMENT_SECTION['manage_order']))
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/orders*')?'active':''}}">
-                            <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
-                                href="javascript:" title="{{translate('orders')}}">
-                                <i class="tio-shopping-cart nav-icon"></i>
-                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                    {{translate('orders')}}
-                                </span>
-                            </a>
-                            <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                style="display: {{Request::is('admin/order*')?'block':'none'}}">
-                                <li class="nav-item {{Request::is('admin/orders/list/all')?'active':''}}">
-                                    <a class="nav-link" href="{{route('admin.orders.list',['all'])}}"
-                                        title="{{translate('all_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate sidebar--badge-container">
-                                            <span>{{translate('all')}}</span>
-                                            <span class="badge badge-info badge-pill ml-1">
-                                                23
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['manage_order']))
+                            <li class="navbar-vertical-aside-has-menu {{Request::is('admin/orders*')?'active':''}}">
+                                <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
+                                    href="javascript:" title="{{translate('orders')}}">
+                                    <i class="tio-shopping-cart nav-icon"></i>
+                                    <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                        {{translate('orders')}}
+                                    </span>
+                                </a>
+                                <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
+                                    style="display: {{Request::is('admin/order*')?'block':'none'}}">
+                                    <li class="nav-item {{Request::is('admin/orders/list/all')?'active':''}}">
+                                        <a class="nav-link" href="{{route('admin.orders.list',['all'])}}"
+                                            title="{{translate('all_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                <span>{{translate('all')}}</span>
+                                                <span class="badge badge-info badge-pill ml-1">
+                                                    23
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/pending')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['pending'])}}"
-                                        title="{{translate('pending_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate sidebar--badge-container">
-                                            <span>{{translate('pending')}}</span>
-                                            <span class="badge badge-soft-info badge-pill ml-1">
-                                                62
+                                        </a>
+                                    </li>
+                                    <!-- <li class="nav-item {{Request::is('admin/orders/list/pending')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['pending'])}}"
+                                            title="{{translate('pending_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                <span>{{translate('pending')}}</span>
+                                                <span class="badge badge-soft-info badge-pill ml-1">
+                                                    62
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/confirmed')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['confirmed'])}}"
-                                        title="{{translate('confirmed_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate sidebar--badge-container">
-                                            <span>{{translate('confirmed')}}</span>
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                                01
+                                        </a>
+                                    </li> -->
+                                    <li class="nav-item {{Request::is('admin/orders/list/confirmed')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['confirmed'])}}"
+                                            title="{{translate('confirmed_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                <span>{{translate('confirmed')}}</span>
+                                                <span class="badge badge-soft-success badge-pill ml-1">
+                                                    01
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/processing')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['processing'])}}"
-                                        title="{{translate('processing_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate  sidebar--badge-container">
-                                            <span>{{translate('packaging')}}</span>
-                                            <span class="badge badge-soft-warning badge-pill ml-1">
-                                                06
+                                        </a>
+                                    </li>
+                                    <li class="nav-item {{Request::is('admin/orders/list/processing')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['processing'])}}"
+                                            title="{{translate('processing_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate  sidebar--badge-container">
+                                                <span>{{translate('packaging')}}</span>
+                                                <span class="badge badge-soft-warning badge-pill ml-1">
+                                                    06
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/out_for_delivery')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['out_for_delivery'])}}"
-                                        title="{{translate('out_for_delivery_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate  sidebar--badge-container">
-                                            <span>{{translate('out_for_delivery')}}</span>
-                                            <span class="badge badge-soft-warning badge-pill ml-1">
-                                                05
+                                        </a>
+                                    </li>
+                                    <li class="nav-item {{Request::is('admin/orders/list/out_for_delivery')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['out_for_delivery'])}}"
+                                            title="{{translate('out_for_delivery_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate  sidebar--badge-container">
+                                                <span>{{translate('out_for_delivery')}}</span>
+                                                <span class="badge badge-soft-warning badge-pill ml-1">
+                                                    05
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/delivered')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['delivered'])}}"
-                                        title="{{translate('delivered_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate  sidebar--badge-container">
-                                            <span>{{translate('delivered')}}</span>
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                                25
+                                        </a>
+                                    </li>
+                                    <li class="nav-item {{Request::is('admin/orders/list/delivered')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['delivered'])}}"
+                                            title="{{translate('delivered_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate  sidebar--badge-container">
+                                                <span>{{translate('delivered')}}</span>
+                                                <span class="badge badge-soft-success badge-pill ml-1">
+                                                    25
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/returned')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['returned'])}}"
-                                        title="{{translate('returned_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate  sidebar--badge-container">
-                                            <span>{{translate('returned')}}</span>
-                                            <span class="badge badge-soft-danger badge-pill ml-1">
-                                                00
+                                        </a>
+                                    </li>
+                                    <li class="nav-item {{Request::is('admin/orders/list/returned')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['returned'])}}"
+                                            title="{{translate('returned_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate  sidebar--badge-container">
+                                                <span>{{translate('returned')}}</span>
+                                                <span class="badge badge-soft-danger badge-pill ml-1">
+                                                    00
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/orders/list/failed')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['failed'])}}"
-                                        title="{{translate('failed_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate  sidebar--badge-container">
-                                            <span>{{translate('failed')}}</span>
-                                            <span class="badge badge-soft-danger badge-pill ml-1">
-                                                10
+                                        </a>
+                                    </li>
+                                    <li class="nav-item {{Request::is('admin/orders/list/failed')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['failed'])}}"
+                                            title="{{translate('failed_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate  sidebar--badge-container">
+                                                <span>{{translate('failed')}}</span>
+                                                <span class="badge badge-soft-danger badge-pill ml-1">
+                                                    10
+                                                </span>
                                             </span>
-                                        </span>
-                                    </a>
-                                </li>
+                                        </a>
+                                    </li>
 
-                                <li class="nav-item {{Request::is('admin/orders/list/canceled')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.orders.list',['canceled'])}}"
-                                        title="{{translate('canceled_orders')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate  sidebar--badge-container">
-                                            <span>{{translate('canceled')}}</span>
-                                            <span class="badge badge-soft-light badge-pill ml-1">
-                                                15
+                                    <li class="nav-item {{Request::is('admin/orders/list/canceled')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['canceled'])}}"
+                                            title="{{translate('canceled_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate  sidebar--badge-container">
+                                                <span>{{translate('canceled')}}</span>
+                                                <span class="badge badge-soft-light badge-pill ml-1">
+                                                    15
+                                                </span>
                                             </span>
-                                        </span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endif
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['Approval_Request']))
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/approval-request*')?'active':''}}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.orders.approval_request')}}"
+                                    title="{{translate('approval_request')}}">
+                                        <i class="tio-layers-outlined nav-icon"></i>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('approval_request')}}</span>
                                     </a>
                                 </li>
-                            </ul>
-                        </li>
-                        @endif
+                            @endif
                         @endif
 
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['product_management']))
@@ -248,6 +258,15 @@
                                         </a>
                                     </li>
 
+                                    <li class="nav-item {{Request::is('admin/installation*')?'active':''}}">
+                                        <a class="nav-link"
+                                            href="{{route('admin.installation.add-new')}}"
+                                            title="{{translate('product installation')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">{{translate('product installation')}}</span>
+                                        </a>
+                                    </li>
+
                                     <li class="nav-item {{Request::is('admin/product/tag/add-new*')?'active':''}}">
                                         <a class="nav-link"
                                             href="{{route('admin.product.tag.add-new')}}"
@@ -294,8 +313,8 @@
                                         <i class="tio-category nav-icon"></i>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('Vendors Products')}}</span>
                                     </a>
-                                    <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/category*')?'block':'none'}}">
-                                        <li class="nav-item {{Request::is('admin/category/add')?'active':''}}">
+                                    <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/product/vendor*')?'block':'none'}}">
+                                        <li class="nav-item {{Request::is('admin/product/vendor/pending-list')?'active':''}}">
                                             <a class="nav-link " href="{{route('admin.product.pending-list')}}" title="{{translate('categories')}}">
                                                 <span class="tio-circle nav-indicator-icon"></span>
                                                 <span class="text-truncate">
@@ -304,7 +323,7 @@
                                             </a>
                                         </li>
 
-                                        <li class="nav-item {{Request::is('admin/category/add-sub-category')?'active':''}}">
+                                        <li class="nav-item {{Request::is('admin/product/vendor/approval-list')?'active':''}}">
                                             <a class="nav-link " href="{{route('admin.product.approval-list')}}" title="{{translate('sub_categories')}}">
                                                 <span class="tio-circle nav-indicator-icon"></span>
                                                 <span class="text-truncate">
@@ -313,7 +332,7 @@
                                             </a>
                                         </li>
 
-                                        <li class="nav-item {{Request::is('admin/category/add')?'active':''}}">
+                                        <li class="nav-item {{Request::is('admin/product/vendor/rejected-list')?'active':''}}">
                                             <a class="nav-link " href="{{route('admin.product.rejected-list')}}" title="{{translate('categories')}}">
                                                 <span class="tio-circle nav-indicator-icon"></span>
                                                 <span class="text-truncate">
@@ -412,7 +431,7 @@
                                     </ul>
                                 </li>
                             @endif
-                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['coupons']))
+                            <!-- @if(Helpers_module_permission_check(MANAGEMENT_SECTION['coupons']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/coupon*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link"
                                         href="{{route('admin.coupon.add-new')}}"
@@ -422,7 +441,7 @@
                                             class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('coupons')}}</span>
                                     </a>
                                 </li>
-                            @endif
+                            @endif -->
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['send_notification']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/notification*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link"
@@ -641,36 +660,7 @@
                             </a>
                         </li>
                         @endif
-                        @if(Helpers_module_permission_check(MANAGEMENT_SECTION['branch_setup']))
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/branch*')?'active':''}}">
-                            <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
-                                href="javascript:"
-                                title="{{translate('Branch Setup')}}">
-                                <i class="tio-shop nav-icon"></i>
-                                <span
-                                    class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('Branch Setup')}}</span>
-                            </a>
-                            <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                style="display: {{Request::is('admin/branch*')?'block':'none'}}">
-                                <li class="nav-item {{Request::is('admin/branch/add-new')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.branch.add-new')}}"
-                                        title="{{translate('add New')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span
-                                            class="text-truncate">{{translate('Add New')}}</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/branch/list')?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.branch.list')}}"
-                                        title="{{translate('list')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span
-                                            class="text-truncate">{{translate('list')}}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        @endif
+
                         @if(Auth('admins')->id() == 1)
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['3rd_party']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/business-settings/web-app/payment-method*')

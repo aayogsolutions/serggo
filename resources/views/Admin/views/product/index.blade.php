@@ -94,6 +94,19 @@
                         <div class="col-sm-6">
                             <div class="form-group">
                                 <label class="input-label"
+                                    for="exampleFormControlInput1">{{translate('Installation')}}</label>
+                                <select name="installation" class="form-control js-select2-custom" id="selectbrand">
+                                    <option value="">---{{translate('select')}}---</option>
+                                    @foreach($Installations as $value)
+                                    <option value="{{$value['id']}}" data-name="{{$value['name']}}">
+                                      {{translate(Str::limit($value['installation_name'], $limit = 20, $end = '...'))}} ● {{translate(Helpers_set_symbol($value['installation_charges']))}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="input-label"
                                     for="exampleFormControlInput1">{{translate('brands')}}</label>
                                 <select name="brand" class="form-control js-select2-custom" id="selectbrand">
                                     <option value="">---{{translate('select')}}---</option>

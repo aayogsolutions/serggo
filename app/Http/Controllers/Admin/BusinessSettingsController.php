@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\{Request,JsonResponse,RedirectResponse};
 use App\Models\BusinessSetting;
+use App\Models\PaymentGateways;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Routing\Redirector;
@@ -25,7 +26,16 @@ class BusinessSettingsController extends Controller
 
         $favIcon = Helpers_get_business_settings('fav_icon');
 
-        return view('Admin.views.business-settings.index', compact('logo', 'favIcon'));
+        if (!$this->businessSettings->where(['key' => 'partial_payment'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'partial_payment'],
+            [
+                'value' => 1,
+            ]);
+        }
+
+        $partial_payment = Helpers_get_business_settings('partial_payment');
+
+        return view('Admin.views.business-settings.index', compact('logo', 'favIcon', 'partial_payment'));
     }
 
     /**
@@ -146,15 +156,6 @@ class BusinessSettingsController extends Controller
     /**
      * @return Application|Factory|View
      */
-    public function mainBranchSetup(): View|Factory|Application
-    {
-        $main_branch = Branch::where(['id' => 1])->first();
-        return view('Admin.views.business-settings.main-branch-setup', compact('main_branch'));
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
     public function deliveryIndex(): Factory|View|Application
     {
         if (!$this->businessSettings->where(['key' => 'minimum_order_value'])->first()) {
@@ -174,7 +175,7 @@ class BusinessSettingsController extends Controller
         }
 
         $config = json_decode($this->businessSettings->where(['key' => 'delivery_management'])->first()->value);
-
+        
         return view('admin.views.business-settings.delivery-fee',compact('config'));
     }
 
@@ -264,6 +265,49 @@ class BusinessSettingsController extends Controller
         ]);
 
         flash()->success(translate('Settings updated!'));
+        return back();
+    }
+
+     /**
+     * @return Application|Factory|View
+     */
+    public function firebaseMessageConfigIndex(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'firebase_message_config'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'firebase_message_config'], [
+                'value' => json_encode([
+                    'apiKey' => '',
+                    'authDomain' => '',
+                    'projectId' => '',
+                    'storageBucket' => '',
+                    'messagingSenderId' => '',
+                    'appId' => '',
+                ]),
+            ]);
+        }
+        $firebasemessageconfig = Helpers_get_business_settings('firebase_message_config');
+        return View('Admin.views.business-settings.firebase-config-index',compact('firebasemessageconfig'));
+    }
+
+    public function firebaseMessageConfig(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'firebase_message_config'], [
+            'key' => 'firebase_message_config',
+            'value' => json_encode([
+                'apiKey' => $request['apiKey'],
+                'authDomain' => $request['authDomain'],
+                'projectId' => $request['projectId'],
+                'storageBucket' => $request['storageBucket'],
+                'messagingSenderId' => $request['messagingSenderId'],
+                'appId' => $request['appId'],
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        self::firebaseMessageConfigFileGen();
+
+        flash()->success(translate('Config Updated Successfully'));
         return back();
     }
 
@@ -448,18 +492,30 @@ class BusinessSettingsController extends Controller
     }
 
 
-
     /**
      * @return Application|Factory|View
      */
     public function paymentIndex(): Factory|View|Application
     {
 
-        $data_values = AddonSetting::whereIn('settings_type', ['payment_config'])
-            ->whereIn('key_name', ['ssl_commerz','paypal','stripe','razor_pay','senang_pay','paystack','paymob_accept','flutterwave','bkash','mercadopago'])
-            ->get();
+        $data_values = PaymentGateways::whereIn('settings_type', ['payment_config'])->get();
 
-        return view('Admin.views.3rd_party.payment-index', compact('data_values'));
+        if (!$this->businessSettings->where(['key' => 'cash_on_delivery'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'cash_on_delivery'], [
+                'value' => 0,
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'digital_payment'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'digital_payment'], [
+                'value' => 1,
+            ]);
+        }
+
+        $cod = Helpers_get_business_settings('cash_on_delivery');
+        $digital_payment = Helpers_get_business_settings('digital_payment');
+        
+        return view('Admin.views.3rd_party.payment-index', compact('data_values','cod','digital_payment'));
     }
 
     public function paymentUpdate(Request $request, $name): \Illuminate\Http\RedirectResponse
@@ -499,26 +555,6 @@ class BusinessSettingsController extends Controller
             } else {
                 BusinessSetting::where(['key' => 'digital_payment'])->update([
                     'key'        => 'digital_payment',
-                    'value'      => json_encode([
-                        'status' => $request['status'],
-                    ]),
-                    'updated_at' => now(),
-                ]);
-            }
-        } elseif ($name == 'offline_payment') {
-            $payment = $this->businessSettings->where('key', 'offline_payment')->first();
-            if (!isset($payment)) {
-                BusinessSetting::insert([
-                    'key'        => 'offline_payment',
-                    'value'      => json_encode([
-                        'status' => $request['status'],
-                    ]),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            } else {
-                BusinessSetting::where(['key' => 'offline_payment'])->update([
-                    'key'        => 'offline_payment',
                     'value'      => json_encode([
                         'status' => $request['status'],
                     ]),
@@ -808,7 +844,7 @@ class BusinessSettingsController extends Controller
 
         $request->validate(array_merge($validation, $additionalData));
 
-        $settings = AddonSetting::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->first();
+        $settings = PaymentGateways::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->first();
 
         $additionalDataImage = $settings['additional_data'] != null ? json_decode($settings['additional_data']) : null;
 
@@ -825,7 +861,7 @@ class BusinessSettingsController extends Controller
 
         $validator = Validator::make($request->all(), array_merge($validation, $additionalData));
 
-        AddonSetting::updateOrCreate(['key_name' => $request['gateway'], 'settings_type' => 'payment_config'], [
+        PaymentGateways::updateOrCreate(['key_name' => $request['gateway'], 'settings_type' => 'payment_config'], [
             'key_name' => $request['gateway'],
             'live_values' => $validator->validate(),
             'test_values' => $validator->validate(),
@@ -838,6 +874,416 @@ class BusinessSettingsController extends Controller
         flash()->success(GATEWAYS_DEFAULT_UPDATE_200['message']);
         return back();
 
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function mapApiSetting(): Factory|View|Application
+    {
+        return view('Admin.views.3rd_party.map-api');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function mapApiStore(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'map_api_server_key'], [
+            'value' => $request['map_api_server_key'],
+        ]);
+        BusinessSetting::updateOrInsert(['key' => 'map_api_client_key'], [
+            'value' => $request['map_api_client_key'],
+        ]);
+        flash()->success(translate('Map API updated successfully'));
+        return back();
+    }
+
+    //3rd party
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function socialMediaLogin(): Factory|View|Application
+    {
+        $apple = BusinessSetting::where('key', 'apple_login')->first();
+        if (!$apple) {
+            BusinessSetting::updateOrInsert(['key' => 'apple_login'], [
+                'value' => '{"login_medium":"apple","client_id":"","client_secret":"","team_id":"","key_id":"","service_file":"","redirect_url":"","status":""}',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $apple = BusinessSetting::where('key', 'apple_login')->first();
+        }
+        $appleLoginService = json_decode($apple->value, true);
+
+        return view('Admin.views.business-settings.social-media-login', compact('appleLoginService'));
+    }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function googleSocialLogin($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'google_social_login'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => 'Status updated']);
+    }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function facebookSocialLogin($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'facebook_social_login'], [
+            'value' => $status
+        ]);
+        return response()->json(['message' => 'Status updated']);
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function firebaseOTPVerification(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'firebase_otp_verification'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'firebase_otp_verification'], [
+                'value' => json_encode([
+                    'status'  => 1,
+                    'web_api_key' => '',
+                ]),
+            ]);
+        }
+
+        $firebaseOtp = Helpers_get_business_settings('firebase_otp_verification');
+       
+        return view('Admin.views.3rd_party.firebase-otp-verification',compact('firebaseOtp'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function firebaseOTPVerificationUpdate(Request $request): RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'firebase_otp_verification'], [
+            'value' => json_encode([
+                'status'  => $request->has('status') ? 0 : 1,
+                'web_api_key' => $request['web_api_key'],
+            ]),
+        ]);
+
+        if ($request->has('status')){
+            foreach (['twilio','nexmo','2factor','msg91', 'signal_wire', 'alphanet_sms','sms_to','akandit_sms','global_sms','releans','paradox','hubtel','viatech','019_sms'] as $gateway) {
+                $keep = PaymentGateways::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->first();
+                if (isset($keep)) {
+                    $hold = json_decode($keep->live_values);
+                    $hold->status = 1;
+                    PaymentGateways::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->update([
+                        'live_values' => json_encode($hold),
+                        'test_values' => json_encode($hold),
+                        'is_active' => 1,
+                    ]);
+                }
+            }
+        }
+
+        flash()->success(translate('updated_successfully'));
+        return back();
+    }
+
+
+     /**
+     * @return Application|Factory|View
+     */
+    public function fcmIndex(): View|Factory|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'order_pending_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'order_pending_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $order_pending_message = Helpers_get_business_settings('order_pending_message');
+
+        if (!$this->businessSettings->where(['key' => 'order_confirmation_msg'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'order_confirmation_msg',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $order_confirmation_msg = Helpers_get_business_settings('order_confirmation_msg');
+
+        if (!$this->businessSettings->where(['key' => 'order_processing_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'order_processing_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $order_processing_message = Helpers_get_business_settings('order_processing_message');
+
+        if (!$this->businessSettings->where(['key' => 'out_for_delivery_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'out_for_delivery_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $out_for_delivery_message = Helpers_get_business_settings('out_for_delivery_message');
+
+        if (!$this->businessSettings->where(['key' => 'order_delivered_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'order_delivered_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $order_delivered_message = Helpers_get_business_settings('order_delivered_message');
+
+        if (!$this->businessSettings->where(['key' => 'delivery_boy_assign_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'delivery_boy_assign_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $delivery_boy_assign_message = Helpers_get_business_settings('delivery_boy_assign_message');
+
+        if (!$this->businessSettings->where(['key' => 'delivery_boy_start_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'delivery_boy_start_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $delivery_boy_start_message = Helpers_get_business_settings('delivery_boy_start_message');
+
+        if (!$this->businessSettings->where(['key' => 'delivery_boy_delivered_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'delivery_boy_delivered_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $delivery_boy_delivered_message = Helpers_get_business_settings('delivery_boy_delivered_message');
+
+        if (!$this->businessSettings->where(['key' => 'customer_notify_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'customer_notify_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $customer_notify_message = Helpers_get_business_settings('customer_notify_message');
+
+        if (!$this->businessSettings->where(['key' => 'returned_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'returned_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $returned_message = Helpers_get_business_settings('returned_message');
+        
+        if (!$this->businessSettings->where(['key' => 'failed_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'failed_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $failed_message = Helpers_get_business_settings('failed_message');
+        
+        if (!$this->businessSettings->where(['key' => 'canceled_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'canceled_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $canceled_message = Helpers_get_business_settings('canceled_message');
+
+        if (!$this->businessSettings->where(['key' => 'deliveryman_order_processing_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'deliveryman_order_processing_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $deliveryman_order_processing_message = Helpers_get_business_settings('deliveryman_order_processing_message');
+
+        if (!$this->businessSettings->where(['key' => 'add_fund_wallet_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'add_fund_wallet_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $add_fund_wallet_message = Helpers_get_business_settings('add_fund_wallet_message');
+
+        if (!$this->businessSettings->where(['key' => 'add_fund_wallet_bonus_message'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'add_fund_wallet_bonus_message',
+                'value' => json_encode([
+                    'status' => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $add_fund_wallet_bonus_message = Helpers_get_business_settings('add_fund_wallet_bonus_message');
+
+        return view('Admin.views.3rd_party.fcm-index',
+            compact('order_pending_message',
+            'order_confirmation_msg',
+            'order_processing_message',
+            'out_for_delivery_message',
+            'order_delivered_message',
+            'delivery_boy_assign_message',
+            'delivery_boy_start_message',
+            'delivery_boy_delivered_message',
+            'customer_notify_message',
+            'returned_message',
+            'failed_message',
+            'canceled_message',
+            'deliveryman_order_processing_message',
+            'add_fund_wallet_message',
+            'add_fund_wallet_bonus_message'
+        ));
+    }
+
+    
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function updateFcm(Request $request): RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'fcm_project_id'], [
+            'value' => $request['fcm_project_id'],
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'push_notification_key'], [
+            'value' => $request['push_notification_key'],
+        ]);
+
+        flash()->success(translate('Settings updated!'));
+        return back();
+    }
+
+
+       /**
+     * @return Application|Factory|View
+     */
+    public function fcmConfig(): View|Factory|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'fcm_topic'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'fcm_topic',
+                'value' => '',
+            ]);
+        }
+        if (!$this->businessSettings->where(['key' => 'fcm_project_id'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'fcm_project_id',
+                'value' => '',
+            ]);
+        }
+        if (!$this->businessSettings->where(['key' => 'push_notification_key'])->first()) {
+            $this->businessSettings->insert([
+                'key' => 'push_notification_key',
+                'value' => '',
+            ]);
+        }
+
+        return view('Admin.views.3rd_party.fcm-config');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function updateFcmMessages(Request $request): RedirectResponse
+    {
+        // dd($request->all());
+        $this->updateOrInsertMessage('order_pending_message', 'pending_status','pending_message', $request);
+        $this->updateOrInsertMessage('order_confirmation_msg', 'confirm_status','confirm_message', $request);
+        $this->updateOrInsertMessage('order_processing_message', 'processing_status','processing_message' , $request);
+        $this->updateOrInsertMessage('out_for_delivery_message', 'out_for_delivery_status','out_for_delivery_message' , $request);
+        $this->updateOrInsertMessage('order_delivered_message', 'delivered_status','delivered_message' , $request);
+        $this->updateOrInsertMessage('delivery_boy_assign_message', 'delivery_boy_assign_status','delivery_boy_assign_message' , $request);
+        $this->updateOrInsertMessage('delivery_boy_start_message', 'delivery_boy_start_status','delivery_boy_start_message' , $request);
+        $this->updateOrInsertMessage('delivery_boy_delivered_message', 'delivery_boy_delivered_status','delivery_boy_delivered_message' , $request);
+        $this->updateOrInsertMessage('customer_notify_message', 'customer_notify_status','customer_notify_message' , $request);
+        $this->updateOrInsertMessage('returned_message', 'returned_status','returned_message' , $request);
+        $this->updateOrInsertMessage('failed_message', 'failed_status','failed_message' , $request);
+        $this->updateOrInsertMessage('canceled_message', 'canceled_status','canceled_message' , $request);
+        $this->updateOrInsertMessage('deliveryman_order_processing_message', 'dm_order_processing_status','dm_order_processing_message' , $request);
+        $this->updateOrInsertMessage('add_fund_wallet_message', 'add_fund_status','add_fund_message' , $request);
+        $this->updateOrInsertMessage('add_fund_wallet_bonus_message', 'add_fund_bonus_status','add_fund_bonus_message' , $request);
+
+        flash()->success(translate('Message updated!'));
+        return back();
+    }
+    
+
+    /**
+     * @param $business_key
+     * @param $status_key
+     * @param $default_message_key
+     * @param $multi_lang_message_key
+     * @param $request
+     * @return void
+     */
+    private function updateOrInsertMessage($business_key, $status_key , $default_message_key, $request): void
+    {
+        
+        $status = $request->$status_key == 1 ? 1 : 0;
+        $message = $request[$default_message_key];
+
+        $this->businessSettings->updateOrInsert(['key' => $business_key], [
+            'value' => json_encode([
+                'status' => $status,
+                'message' => $message,
+            ]),
+        ]);
+
+        $setting = $this->businessSettings->where('key', $business_key)->first();
+      
     }
 
 
@@ -1106,266 +1552,10 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
- 
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function fcmIndex(): View|Factory|Application
-    {
-        if (!$this->businessSettings->where(['key' => 'order_pending_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'order_pending_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
+    
 
-        if (!$this->businessSettings->where(['key' => 'order_confirmation_msg'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'order_confirmation_msg',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'order_processing_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'order_processing_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'out_for_delivery_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'out_for_delivery_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'order_delivered_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'order_delivered_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'delivery_boy_assign_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'delivery_boy_assign_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'delivery_boy_start_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'delivery_boy_start_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'delivery_boy_delivered_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'delivery_boy_delivered_message',
-                'value' => json_encode([
-                    'status'  => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        if (!$this->businessSettings->where(['key' => 'customer_notify_message'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'customer_notify_message',
-                'value' => json_encode([
-                    'status' => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-        if (!$this->businessSettings->where(['key' => 'returned_message'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'returned_message',
-                'value' => json_encode([
-                    'status' => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }if (!$this->businessSettings->where(['key' => 'failed_message'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'failed_message',
-                'value' => json_encode([
-                    'status' => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }if (!$this->businessSettings->where(['key' => 'canceled_message'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'canceled_message',
-                'value' => json_encode([
-                    'status' => 0,
-                    'message' => '',
-                ]),
-            ]);
-        }
-
-        return view('Admin.views.business-settings.fcm-index');
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function fcmConfig(): View|Factory|Application
-    {
-        if (!$this->businessSettings->where(['key' => 'fcm_topic'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'fcm_topic',
-                'value' => '',
-            ]);
-        }
-        if (!$this->businessSettings->where(['key' => 'fcm_project_id'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'fcm_project_id',
-                'value' => '',
-            ]);
-        }
-        if (!$this->businessSettings->where(['key' => 'push_notification_key'])->first()) {
-            $this->businessSettings->insert([
-                'key' => 'push_notification_key',
-                'value' => '',
-            ]);
-        }
-
-        return view('Admin.views.business-settings.fcm-config');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function updateFcm(Request $request): RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'fcm_project_id'], [
-            'value' => $request['fcm_project_id'],
-        ]);
-
-        BusinessSetting::updateOrInsert(['key' => 'push_notification_key'], [
-            'value' => $request['push_notification_key'],
-        ]);
-
-        flash()->success(translate('Settings updated!'));
-        return back();
-    }
-
-    /**
-     * @param $business_key
-     * @param $status_key
-     * @param $default_message_key
-     * @param $multi_lang_message_key
-     * @param $request
-     * @return void
-     */
-    private function updateOrInsertMessage($business_key, $status_key , $default_message_key, $multi_lang_message_key, $request): void
-    {
-        $status = $request[$status_key] == 1 ? 1 : 0;
-        $message = $request[$default_message_key];
-
-        $this->businessSettings->updateOrInsert(['key' => $business_key], [
-            'value' => json_encode([
-                'status' => $status,
-                'message' => $message,
-            ]),
-        ]);
-
-        $setting = $this->businessSettings->where('key', $business_key)->first();
-
-        foreach ($request->lang as $index => $lang) {
-            if ($lang === 'default') {
-                continue;
-            }
-            $messageValue = $request[$multi_lang_message_key][$index - 1] ?? null;
-            if ($messageValue !== null) {
-                Translation::updateOrInsert(
-                    [
-                        'translationable_type' => 'App\Model\BusinessSetting',
-                        'translationable_id' => $setting->id,
-                        'locale' => $lang,
-                        'key' => $multi_lang_message_key,
-                    ],
-                    ['value' => $messageValue]
-                );
-            }
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function updateFcmMessages(Request $request): RedirectResponse
-    {
-        $this->updateOrInsertMessage('order_pending_message', 'pending_status','pending_message' ,'order_pending_message', $request);
-        $this->updateOrInsertMessage('order_confirmation_msg', 'confirm_status','confirm_message' ,'order_confirmation_message', $request);
-        $this->updateOrInsertMessage('order_processing_message', 'processing_status','processing_message' ,'order_processing_message', $request);
-        $this->updateOrInsertMessage('out_for_delivery_message', 'out_for_delivery_status','out_for_delivery_message' ,'order_out_for_delivery_message', $request);
-        $this->updateOrInsertMessage('order_delivered_message', 'delivered_status','delivered_message' ,'order_delivered_message', $request);
-        $this->updateOrInsertMessage('delivery_boy_assign_message', 'delivery_boy_assign_status','delivery_boy_assign_message' ,'assign_deliveryman_message', $request);
-        $this->updateOrInsertMessage('delivery_boy_start_message', 'delivery_boy_start_status','delivery_boy_start_message' ,'deliveryman_start_message', $request);
-        $this->updateOrInsertMessage('delivery_boy_delivered_message', 'delivery_boy_delivered_status','delivery_boy_delivered_message' ,'deliveryman_delivered_message', $request);
-        $this->updateOrInsertMessage('customer_notify_message', 'customer_notify_status','customer_notify_message' ,'customer_notification_message', $request);
-        $this->updateOrInsertMessage('returned_message', 'returned_status','returned_message' ,'return_order_message', $request);
-        $this->updateOrInsertMessage('failed_message', 'failed_status','failed_message' ,'failed_order_message', $request);
-        $this->updateOrInsertMessage('canceled_message', 'canceled_status','canceled_message' ,'canceled_order_message', $request);
-        $this->updateOrInsertMessage('deliveryman_order_processing_message', 'dm_order_processing_status','dm_order_processing_message' ,'deliveryman_order_processing_message', $request);
-        $this->updateOrInsertMessage('add_fund_wallet_message', 'add_fund_status','add_fund_message' ,'add_fund_wallet_message', $request);
-        $this->updateOrInsertMessage('add_fund_wallet_bonus_message', 'add_fund_bonus_status','add_fund_bonus_message' ,'add_fund_wallet_bonus_message', $request);
-
-        flash()->success(translate('Message updated!'));
-        return back();
-    }
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function mapApiSetting(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.map-api');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function mapApiStore(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'map_api_server_key'], [
-            'value' => $request['map_api_server_key'],
-        ]);
-        BusinessSetting::updateOrInsert(['key' => 'map_api_client_key'], [
-            'value' => $request['map_api_client_key'],
-        ]);
-        flash()->success(translate('Map API updated successfully'));
-        return back();
-    }
+    
 
     /**
      * @param Request $request
@@ -1444,35 +1634,7 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function firebaseMessageConfigIndex(): Factory|View|Application
-    {
-        return View('Admin.views.business-settings.firebase-config-index');
-    }
-
-    public function firebaseMessageConfig(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'firebase_message_config'], [
-            'key' => 'firebase_message_config',
-            'value' => json_encode([
-                'apiKey' => $request['apiKey'],
-                'authDomain' => $request['authDomain'],
-                'projectId' => $request['projectId'],
-                'storageBucket' => $request['storageBucket'],
-                'messagingSenderId' => $request['messagingSenderId'],
-                'appId' => $request['appId'],
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        self::firebaseMessageConfigFileGen();
-
-        flash()->success(translate('Config Updated Successfully'));
-        return back();
-    }
+   
 
     /**
      * @return void
@@ -1504,48 +1666,7 @@ class BusinessSettingsController extends Controller
 
     }
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function socialMediaLogin(): Factory|View|Application
-    {
-        $apple = BusinessSetting::where('key', 'apple_login')->first();
-        if (!$apple) {
-            BusinessSetting::updateOrInsert(['key' => 'apple_login'], [
-                'value' => '{"login_medium":"apple","client_id":"","client_secret":"","team_id":"","key_id":"","service_file":"","redirect_url":"","status":""}',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $apple = BusinessSetting::where('key', 'apple_login')->first();
-        }
-        $appleLoginService = json_decode($apple->value, true);
 
-        return view('Admin.views.business-settings.social-media-login', compact('appleLoginService'));
-    }
-
-    /**
-     * @param $status
-     * @return JsonResponse
-     */
-    public function googleSocialLogin($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'google_social_login'], [
-            'value' => $status
-        ]);
-        return response()->json(['message' => 'Status updated']);
-    }
-
-    /**
-     * @param $status
-     * @return JsonResponse
-     */
-    public function facebookSocialLogin($status): \Illuminate\Http\JsonResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'facebook_social_login'], [
-            'value' => $status
-        ]);
-        return response()->json(['message' => 'Status updated']);
-    }
 
     /**
      * @param Request $request
@@ -1649,43 +1770,5 @@ class BusinessSettingsController extends Controller
     }
     
 
-    /**
-     * @return Application|Factory|View
-     */
-    public function firebaseOTPVerification(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.firebase-otp-verification');
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function firebaseOTPVerificationUpdate(Request $request): RedirectResponse
-    {
-        BusinessSetting::updateOrInsert(['key' => 'firebase_otp_verification'], [
-            'value' => json_encode([
-                'status'  => $request->has('status') ? 1 : 0,
-                'web_api_key' => $request['web_api_key'],
-            ]),
-        ]);
-
-        if ($request->has('status')){
-            foreach (['twilio','nexmo','2factor','msg91', 'signal_wire', 'alphanet_sms'] as $gateway) {
-                $keep = AddonSetting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->first();
-                if (isset($keep)) {
-                    $hold = $keep->live_values;
-                    $hold['status'] = 0;
-                    AddonSetting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->update([
-                        'live_values' => $hold,
-                        'test_values' => $hold,
-                        'is_active' => 0,
-                    ]);
-                }
-            }
-        }
-
-        flash()->success(translate('updated_successfully'));
-        return back();
-    }
+    
 }

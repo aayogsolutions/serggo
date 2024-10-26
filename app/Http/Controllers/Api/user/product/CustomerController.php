@@ -38,9 +38,7 @@ class CustomerController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'User Not Found',
-                'data' => [
-
-                ]
+                'data' => []
             ], 406);
         }
     }
@@ -72,6 +70,14 @@ class CustomerController extends Controller
             $user = $this->user->find($id);
             $user->name = $request->name;
             $user->email = $request->email;
+            if(isset($request->gst_name) && !is_null($request->gst_name))
+            {
+                $user->gst_name = $request->gst_name;
+            }
+            if(isset($request->gst_number) && !is_null($request->gst_number))
+            {
+                $user->gst_number = $request->gst_number;
+            }
             if(Auth::user()->number != $request->number)
             {
                 $otp = rand(1000, 9999);
@@ -151,5 +157,55 @@ class CustomerController extends Controller
                 'data' => []
             ],409);
         }          
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function UserLocation(Request $request) : JsonResponse
+    {   
+        $validator = Validator::make($request->all(), [
+            'longitude' => 'required',
+            'latitude' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+        
+        try {
+            $id = Auth::user()->id;
+            $user = User::find($id);
+
+            if($user->exists())
+            {
+                $user->latitude = $request->latitude;
+                $user->longitude = $request->longitude;
+                $user->save();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data updated Successfully',
+                    'data' => $user
+                ],200); 
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found',
+                    'data' => []
+                ],404); 
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Unexpected error',
+                'data' => []
+            ],409);
+        }
+       
     }
 }

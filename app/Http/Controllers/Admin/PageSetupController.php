@@ -353,4 +353,45 @@ class PageSetupController extends Controller
         ], 200);
     }
 
+    /**
+     * @return Application|Factory|View
+     */
+    public function socialMediaLogin(): Factory|View|Application
+    {
+        $apple = BusinessSetting::where('key', 'apple_login')->first();
+        if (!$apple) {
+            BusinessSetting::updateOrInsert(['key' => 'apple_login'], [
+                'value' => '{"login_medium":"apple","client_id":"","client_secret":"","team_id":"","key_id":"","service_file":"","redirect_url":"","status":""}',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $apple = BusinessSetting::where('key', 'apple_login')->first();
+        }
+        $appleLoginService = json_decode($apple->value, true);
+
+        $google = BusinessSetting::where('key', 'google_social_login')->first();
+        if (!$google) {
+            BusinessSetting::updateOrInsert(['key' => 'google_social_login'], [
+                'value' => '1',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $google = BusinessSetting::where('key', 'apple_login')->first();
+        }
+        $googleLoginService = json_decode($google->value, true);
+
+        $facebook = BusinessSetting::where('key', 'facebook_social_login')->first();
+        if (!$facebook) {
+            BusinessSetting::updateOrInsert(['key' => 'facebook_social_login'], [
+                'value' => '1',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $facebook = BusinessSetting::where('key', 'facebook_social_login')->first();
+        }
+        $facebookLoginService = json_decode($facebook->value, true);
+
+        return view('Admin.views.3rd_party.social-media-login', compact('appleLoginService','googleLoginService','facebookLoginService'));
+    }
+
 }

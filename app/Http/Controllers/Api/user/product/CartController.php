@@ -23,7 +23,7 @@ class CartController extends Controller
      * @return JsonResponse
      * 
      */
-    public function cart(Request $request) : JsonResponse
+    public function Cart(Request $request) : JsonResponse
     {
          $validator = Validator::make($request->all(), [
             'user_id' => 'required|numeric',

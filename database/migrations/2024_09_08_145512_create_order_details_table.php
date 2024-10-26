@@ -26,9 +26,11 @@ return new class extends Migration
             $table->text('variation')->nullable();
             $table->string('variant')->nullable();
             $table->string('unit')->nullable();
+            $table->bigInteger('service_man_id')->nullable();
             $table->decimal('discount_on_product',8,2)->nullable();
             $table->string('discount_type')->default('amount');
             $table->tinyInteger('is_stock_decreased')->default(0)->comment('0 = decreased | 1 = not_decreased');
+            $table->decimal('installastion_amount',15,2)->default(0);
             $table->enum('gst_status',['included','excluded'])->default('excluded');
             $table->timestamps();
         });

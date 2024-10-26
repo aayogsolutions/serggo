@@ -17,7 +17,7 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $categoryIds = Category::where('status',0)->orwhere('position',0)->pluck('id')->toArray();
+        $categoryIds = Category::where('status', 0)->orwhere('position',0)->pluck('id')->toArray();
         return [
             // Category..!
             // 'name' => fake()->word(),

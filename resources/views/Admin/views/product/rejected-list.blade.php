@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Product Approval List'))
+@section('title', translate('Product Rejected List'))
 
 @section('content')
 <div class="content container-fluid product-list-page">
@@ -11,7 +11,7 @@
                 <img src="{{asset('assets/admin/img/products.png')}}" class="w--24" alt="" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
             </span>
             <span>
-                {{ translate('product Approval List') }}
+                {{ translate('product Rejected List') }}
                 <span class="badge badge-soft-secondary">{{ $vendors->total() }}</span>
             </span>
         </h1>
@@ -45,7 +45,7 @@
                             <tr>
                                 <th class="text-center">{{translate('#')}}</th>
                                 <th class="text-center">{{translate('vender_info')}}</th>
-                                <th class="">{{translate('approved_products')}}</th>
+                                <th class="">{{translate('rejected_products')}}</th>
                                 <th class="text-center">{{translate('joined_at')}}</th>
                             </tr>
                         </thead>
@@ -67,7 +67,12 @@
                                 </td>
                                 <td class="text-center pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <div class="max-85 text-right">
-                                        {{ $vendor->vendorproducts->count() }}
+                                       @if( $vendor->vendorproducts->count() > 0)
+                                        <a class="action-btn"
+                                            href="{{route('admin.product.rejected-products-list')}}">{{ $vendor->vendorproducts->count() }}</a>
+                                        @else
+                                            <div class="action-btn">{{ $vendor->vendorproducts->count() }}</div>
+                                        @endif                                        
                                     </div>
                                 </td>
                                 <td class="text-center">

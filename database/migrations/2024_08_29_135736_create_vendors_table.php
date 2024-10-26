@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->enum('role',['0' , '1'])->comment('0 = vender | 1 = service');
             $table->double('wallet_balance')->default(0);
-            $table->string('kyc_id',10)->nullable();
+            $table->tinyInteger('is_verify',10)->default(1)->comment('0 = verify | 1 = unverify');
             $table->string('referral_code')->unique();
             $table->string('referred_by')->nullable();
             $table->string('provider_id')->nullable();

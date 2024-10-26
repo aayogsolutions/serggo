@@ -40,7 +40,7 @@
                                            title="{{ translate('The maximum amount for Cash on Delivery order.') }}"></i>
                                     </label>
                                     <input type="number" value="{{$amount}}"  step="0.1" name="amount" class="form-control" placeholder=""
-                                           {{ $status == 1 ? 'readonly' : '' }} required>
+                                           {{ $status == 1 ? 'readonly required' : '' }} >
                                 </div>
                             </div>
                         </div>

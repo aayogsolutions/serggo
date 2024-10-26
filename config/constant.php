@@ -6,12 +6,12 @@ const ACTIVE = 'active';
 const INACTIVE = 'inactive';
 
 //management section
-
 const MANAGEMENT_SECTION = [
     'dashboard_management' => 'dashboard_management',
 
     'order_management' => 'order_management',
     'manage_order' => 'manage_order',
+    'Approval_Request' => 'Approval_Request',
 
     'product_management' => 'product_management',
     'brand_setup' => 'brand_setup',

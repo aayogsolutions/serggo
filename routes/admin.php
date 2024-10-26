@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\{
     BrandsController,
     DisplayController,
     TagController,
-    BranchController,
     DiscountController,
     CouponController,
     NotificationController,
@@ -29,8 +28,9 @@ use App\Http\Controllers\Admin\{
     ServicemenController,
     DashboardController,
     TimeSlotController,
+    SMSModuleController,
+    InstallationChargesController
 };
-
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/', [AdminController::class,'login'])->name('login');
@@ -193,14 +193,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', [AttributeController::class, 'status'])->name('status');
         });
 
-        Route::group(['prefix' => 'branch', 'as' => 'branch.'], function () {
-            Route::get('add-new', [BranchController::class, 'index'])->name('add-new');
-            Route::get('list', [BranchController::class, 'list'])->name('list');
-            Route::post('store', [BranchController::class, 'store'])->name('store');
-            Route::get('edit/{id}', [BranchController::class, 'edit'])->name('edit');
-            Route::post('update/{id}', [BranchController::class, 'update'])->name('update');
-            Route::delete('delete/{id}', [BranchController::class, 'delete'])->name('delete');
-            Route::get('status/{id}/{status}', [BranchController::class, 'status'])->name('status');
+        Route::group(['prefix' => 'installation', 'as' => 'installation.'], function () {
+            Route::get('add-new', [InstallationChargesController::class, 'index'])->name('add-new');
+            Route::post('store', [InstallationChargesController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [InstallationChargesController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [InstallationChargesController::class, 'update'])->name('update');
+            Route::delete('delete/{id}', [InstallationChargesController::class, 'delete'])->name('delete');
+            Route::get('status/{id}/{status}', [InstallationChargesController::class, 'status'])->name('status');
         });
 
         Route::group(['prefix' => 'vendor', 'as' => 'vendor.'], function () {
@@ -256,6 +255,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::post('Product_Replaced_ajax', [OrderController::class, 'ProductReplaceAjax'])->name('ProductReplaceAjax');
             Route::post('Product_delete_ajax', [OrderController::class, 'ProductDeleteAjax'])->name('ProductDeleteAjax');
+
+            Route::get('approval-request', [OrderController::class, 'ApprovalRequest'])->name('approval_request');
+
         });
 
         Route::group(['prefix' => 'customer', 'as' => 'customer.'], function () {
@@ -301,16 +303,24 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('update/{id}', [ProductController::class, 'update'])->name('update');
             Route::delete('delete/{id}', [ProductController::class, 'delete'])->name('delete');
 
-            Route::get('pending-list', [ProductController::class, 'PendingList'])->name('pending-list');
-            Route::get('approval-list', [ProductController::class, 'ApprovalList'])->name('approval-list');
-            Route::get('rejected-list', [ProductController::class, 'RejectedList'])->name('rejected-list');
-            Route::get('product-view/{id}', [ProductController::class, 'AllListView'])->name('all-view');
             
             Route::get('bulk-import', [ProductController::class, 'bulkImportIndex'])->name('bulk-import');
             Route::post('bulk-import', [ProductController::class, 'bulkImportProduct']);
             Route::get('bulk-export-index', [ProductController::class, 'bulkExportIndex'])->name('bulk-export-index');
             Route::get('bulk-export', [ProductController::class, 'bulkExportProduct'])->name('bulk-export');
-            Route::get('remove-image/{id}/{name}', [ProductController::class, 'removeImage'])->name('remove-image');
+            Route::get('remove-image/{id}/{images}/{product?}/{name?}', [ProductController::class, 'removeImage'])->name('remove-image');
+
+            Route::group(['prefix' => 'vendor'],function(){
+                Route::get('pending-list', [ProductController::class, 'PendingList'])->name('pending-list');
+
+                Route::get('approval-list', [ProductController::class, 'ApprovalList'])->name('approval-list');
+                Route::get('approved-products-list/{id}', [ProductController::class, 'ApprovedProductList'])->name('approved-products-list');
+
+                Route::get('rejected-list', [ProductController::class, 'RejectedList'])->name('rejected-list');
+                Route::get('rejected-products-list/{id}', [ProductController::class, 'RejectedProductList'])->name('rejected-products-list');
+
+                Route::get('product-view/{id}', [ProductController::class, 'AllListView'])->name('all-view');
+            });
 
             Route::group(['prefix' => 'tag', 'as' => 'tag.'], function () {
                 Route::get('add-new', [TagController::class, 'index'])->name('add-new');
@@ -371,9 +381,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('referral-income-setup', [BusinessSettingsController::class, 'ReferralIncomeSetup'])->name('referral-income-setup');
                 Route::post('referral-income-setup-update', [BusinessSettingsController::class, 'ReferralIncomeSetupUpdate'])->name('referral-income-setup-update');
 
-                // Main Branch Setup
-                Route::get('main-branch-setup', [BusinessSettingsController::class, 'mainBranchSetup'])->name('main-branch-setup');
-
                 // Delivery Setup
                 Route::get('delivery-setup', [BusinessSettingsController::class, 'deliveryIndex'])->name('delivery-setup');
                 Route::post('delivery-setup-update', [BusinessSettingsController::class, 'deliverySetupUpdate'])->name('delivery-setup-update');
@@ -382,6 +389,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 // Product Setup
                 Route::get('product-setup', [BusinessSettingsController::class, 'productSetup'])->name('product-setup');
                 Route::post('product-setup-update', [BusinessSettingsController::class, 'productSetupUpdate'])->name('product-setup-update');
+
+                //firebase configuration
+                Route::get('firebase-message-config', [BusinessSettingsController::class, 'firebaseMessageConfigIndex'])->name('firebase_message_config_index');
+                Route::post('firebase-message-config', [BusinessSettingsController::class, 'firebaseMessageConfig'])->name('firebase_message_config');
 
                 //Cookies Setup
                 Route::get('cookies-setup', [BusinessSettingsController::class, 'cookiesSetup'])->name('cookies-setup');
@@ -423,28 +434,48 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::group(['prefix'=>'web-app','as'=>'web-app.'], function() {
                 
+                // Payment Methods
                 Route::get('payment-method', [BusinessSettingsController::class, 'paymentIndex'])->name('payment-method');
                 Route::post('payment-method-update/{payment_method}', [BusinessSettingsController::class, 'paymentUpdate'])->name('payment-method-update');
                 Route::post('payment-config-update', [BusinessSettingsController::class, 'paymentConfigUpdate'])->name('payment-config-update');
 
-                Route::get('mail-config', [BusinessSettingsController::class, 'mailIndex'])->name('mail-config');
-                Route::post('mail-config', [BusinessSettingsController::class, 'mailConfig']);
-                Route::get('mail-config/status/{status}', [BusinessSettingsController::class, 'mailConfigStatus'])->name('mail-config.status');
-                Route::post('mail-send', [BusinessSettingsController::class, 'mailSend'])->name('mail-send');
-
-                
-
-
+                // Firebase Config
                 Route::group(['prefix'=>'system-setup','as'=>'system-setup.'], function() {
-                    Route::get('app-setting', [BusinessSettingsController::class, 'appSettingIndex'])->name('app_setting');
-                    Route::post('app-setting', [BusinessSettingsController::class, 'appSettingUpdate']);
-                    Route::get('firebase-message-config', [BusinessSettingsController::class, 'firebaseMessageConfigIndex'])->name('firebase_message_config_index');
-                    Route::post('firebase-message-config', [BusinessSettingsController::class, 'firebaseMessageConfig'])->name('firebase_message_config');
+                    // Route::get('app-setting', [BusinessSettingsController::class, 'appSettingIndex'])->name('app_setting');
+                    // Route::post('app-setting', [BusinessSettingsController::class, 'appSettingUpdate']);
+                   
                 });
 
+                // SMS Config
+                // Route::get('sms-module', [SMSModuleController::class, 'smsIndex'])->name('sms-module');
+                // Route::post('sms-module-update/{sms_module}', [SMSModuleController::class, 'smsUpdate'])->name('sms-module-update');
+
+
+                // Route::get('mail-config', [BusinessSettingsController::class, 'mailIndex'])->name('mail-config');
+                // Route::post('mail-config', [BusinessSettingsController::class, 'mailConfig']);
+                // Route::get('mail-config/status/{status}', [BusinessSettingsController::class, 'mailConfigStatus'])->name('mail-config.status');
+                // Route::post('mail-send', [BusinessSettingsController::class, 'mailSend'])->name('mail-send');
+
                 Route::group(['prefix' => 'third-party', 'as' => 'third-party.'], function () {
+    
+                    //social media method
+                    Route::get('social-media-login', [PageSetupController::class, 'socialMediaLogin'])->name('social-media-login');
+                    Route::get('google-social-login/{status}', [BusinessSettingsController::class, 'googleSocialLogin'])->name('google-social-login');
+                    Route::get('facebook-social-login/{status}', [BusinessSettingsController::class, 'facebookSocialLogin'])->name('facebook-social-login');
+
+                    //Google Map Api 
                     Route::get('map-api-settings',[BusinessSettingsController::class, 'mapApiSetting'])->name('map-api-settings');
                     Route::post('map-api-store',[BusinessSettingsController::class, 'mapApiStore'])->name('map-api-store');
+
+                    //firebase otp varification
+                    Route::get('firebase-otp-verification', [BusinessSettingsController::class, 'firebaseOTPVerification'])->name('firebase-otp-verification');
+
+                    //push notification
+                    Route::get('fcm-index', [BusinessSettingsController::class, 'fcmIndex'])->name('fcm-index');
+                    Route::post('update-fcm', [BusinessSettingsController::class, 'updateFcm'])->name('update-fcm');
+                    Route::get('fcm-config', [BusinessSettingsController::class, 'fcmConfig'])->name('fcm-config');
+                    Route::post('update-fcm-messages', [BusinessSettingsController::class, 'updateFcmMessages'])->name('update-fcm-messages');
+                    
                     Route::get('social-media', [PageSetupController::class, 'socialMedia'])->name('social-media');
                     Route::get('fetch', [PageSetupController::class, 'fetch'])->name('fetch');
                     Route::post('social-media-store', [PageSetupController::class, 'socialMediaStore'])->name('social-media-store');
@@ -452,19 +483,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                     Route::post('social-media-update', [PageSetupController::class, 'socialMediaUpdate'])->name('social-media-update');
                     Route::post('social-media-delete', [PageSetupController::class, 'socialMediaDelete'])->name('social-media-delete');
                     Route::post('social-media-status-update', [PageSetupController::class, 'socialMediaStatusUpdate'])->name('social-media-status-update');
-                    Route::get('social-media-login', [PageSetupController::class, 'socialMediaLogin'])->name('social-media-login');
-                    Route::get('google-social-login/{status}', [BusinessSettingsController::class, 'googleSocialLogin'])->name('google-social-login');
-                    Route::get('facebook-social-login/{status}', [BusinessSettingsController::class, 'facebookSocialLogin'])->name('facebook-social-login');
+                    
                     Route::post('update-apple-login', [BusinessSettingsController::class, 'updateAppleLogin'])->name('update-apple-login');
                     Route::get('recaptcha', [BusinessSettingsController::class, 'recaptchaIndex'])->name('recaptcha_index');
                     Route::post('recaptcha-update', [BusinessSettingsController::class, 'recaptchaUpdate'])->name('recaptcha_update');
-                    Route::get('fcm-index', [BusinessSettingsController::class, 'fcmIndex'])->name('fcm-index');
-                    Route::get('fcm-config', [BusinessSettingsController::class, 'fcmConfig'])->name('fcm-config');
-                    Route::post('update-fcm', [BusinessSettingsController::class, 'updateFcm'])->name('update-fcm');
-                    Route::post('update-fcm-messages', [BusinessSettingsController::class, 'updateFcmMessages'])->name('update-fcm-messages');
                     Route::get('chat-index', [BusinessSettingsController::class, 'chatIndex'])->name('chat-index');
                     Route::post('update-chat', [BusinessSettingsController::class, 'updateChat'])->name('update-chat');
-                    Route::get('firebase-otp-verification', [BusinessSettingsController::class, 'firebaseOTPVerification'])->name('firebase-otp-verification');
                     Route::post('firebase-otp-verification-update', [BusinessSettingsController::class, 'firebaseOTPVerificationUpdate'])->name('firebase-otp-verification-update');
 
                     // Route::group(['prefix' => 'offline-payment', 'as' => 'offline-payment.'], function(){

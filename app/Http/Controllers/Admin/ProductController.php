@@ -10,7 +10,8 @@ use App\Models\{
     Category,
     Products,
     ProductReview,
-    Vendor
+    Vendor,
+    InstallationCharges
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
@@ -28,6 +29,7 @@ class ProductController extends Controller
         private Brands $brand,
         private ProductReview $review,
         private Vendor $vendor,
+        private InstallationCharges $Installation,
     ){}
 
     /**
@@ -37,7 +39,8 @@ class ProductController extends Controller
     {
         $categories = $this->category->status()->where('position' , 0)->get();
         $brand = $this->brand->status()->get();
-        return view('Admin.views.product.index', compact('categories','brand'));
+        $Installations = $this->Installation->status()->get();
+        return view('Admin.views.product.index', compact('categories','brand','Installations'));
     }
 
     /**
@@ -108,6 +111,7 @@ class ProductController extends Controller
             'total_stock' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:0',
             'brand' => 'required',
+           
         ], [
             'name.required' => translate('Product name is required!'),
             'category_id.required' => translate('category  is required!'),
@@ -194,6 +198,8 @@ class ProductController extends Controller
         if ($validator->getMessageBag()->count() > 0) {
             return response()->json(['errors' => Helpers_error_processor($validator)]);
         }
+      
+        $installations = $this->Installation->find($request->installation);
 
         $product = $this->product;
         $product->name = $request->name;
@@ -216,6 +222,9 @@ class ProductController extends Controller
         $product->tax_type = $request->tax_type;
         $product->discount = $request->discount_type == 'amount' ? $request->discount : $request->discount;
         $product->discount_type = $request->discount_type;
+        $product->installation_name = $installations->installation_name;
+        $product->installation_description = $installations->installation_description;
+        $product->installation_charges = $installations->installation_charges;
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = 0;
@@ -286,21 +295,36 @@ class ProductController extends Controller
     public function edit($id): View|Factory|Application
     {
         $product = $this->product->find($id);
+
+        $product->brand_name = json_encode($this->brand->find($product->brand_id));
+       
         $categories = $this->category->where(['parent_id' => 0])->get();
         $subcategories = $this->category->status()->where('parent_id' , $product->category_id)->get();
         $brand = $this->brand->status()->get();
-        return view('Admin.views.product.edit', compact('product', 'categories','subcategories','brand'));
+        $installationsall = $this->Installation->status()->get();
+        $Installations = $this->Installation->where([
+            ['installation_name','=',$product->installation_name ],                                                   
+            ['installation_charges','=',$product->installation_charges],
+            ['installation_description','=',$product->installation_description] 
+        ])->first();
+    
+
+        return view('Admin.views.product.edit', compact('product', 'categories','subcategories','brand','Installations','installationsall'));
     }
 
     /**
      * @param $id
+     * @param $images
+     * @param $products
      * @param $name
      * @return RedirectResponse
      */
-    public function removeImage($id, $name): \Illuminate\Http\RedirectResponse
+    public function removeImage($id, $images, $products, $name): \Illuminate\Http\RedirectResponse
     {
-        if (File::exists($name)) {
-            File::delete($name);
+        if (File::exists("Images/productImages/".$name))
+        {
+            File::delete("Images/productImages/".$name);
+            $name = "Images/productImages/".$name;
         }
 
         $product = $this->product->find($id);
@@ -477,6 +501,13 @@ class ProductController extends Controller
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = $request->status? $request->status:0;
+        if(isset($request->installation) && !is_null($request->installation))
+        {
+            $Installations = $this->Installation->find($request->installation);
+            $product->installation_name = $Installations->installation_name; 
+            $product->installation_charges = $Installations->installation_charges; 
+            $product->installation_description = $Installations->installation_description; 
+        }
         $product->save();
         
         return response()->json([], 200);
@@ -514,7 +545,7 @@ class ProductController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $query = $this->product->where(function ($q) use ($key) {
+            $query = $this->product->where('status', 2)->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('id', 'like', "%{$value}%")
                         ->orWhere('name', 'like', "%{$value}%");
@@ -539,22 +570,59 @@ class ProductController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $query = $this->vendor->where(function ($q) use ($key) {
+            $query = $this->vendor->where('role','=','0')->where(function ($q) use ($key) {
                 foreach ($key as $value) {
-                    $q->orWhere('id', 'like', "%{$value}%")
+                    $q->orWhere('email', 'like', "%{$value}%")
                         ->orWhere('name', 'like', "%{$value}%");
                 }
             })->latest();
             $queryParam = ['search' => $request['search']];
         }else{
-            $query = $this->vendor->latest();
+            $query = $this->vendor->where('role','=','0')->latest();
         }
+        
         $vendors = $query->with('vendorproducts' , function($qurey){
-            $qurey->where(['status' => 0]);
+            $qurey->WhereIn('status' , [0,1]);
         })->paginate(Helpers_getPagination())->appends($queryParam);
         
         return view('Admin.views.product.approval-list', compact('vendors','search'));
     }
+
+    /**
+     * @return Factory|View|Application
+     */
+    public function ApprovedProductList(Request $request,$id): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        $key = explode(' ', $request['search']);
+        $queryParam = ['search' => $request['search']];
+        // dd($key);
+        $vendor = $this->vendor->find($id);
+
+        $vendor->setRelation('vendorproducts',function($query) use ($key){
+                $query->when($key != '' && $key != null, function ($q) use ($key){
+                    foreach ($key as $value) {
+                        $q->orWhere('id', 'like', "%{$value}%")
+                            ->orWhere('name', 'like', "%{$value}%");
+                    }
+                });
+            },$vendor->vendorproducts()->paginate(Helpers_getPagination()));
+        // ->with('vendorproducts',function($query) use ($key){
+        //     $query->when($key != '' && $key != null, function ($q) use ($key){
+        //         foreach ($key as $value) {
+        //             $q->orWhere('id', 'like', "%{$value}%")
+        //                 ->orWhere('name', 'like', "%{$value}%");
+        //         }
+        //     });
+        // })->paginate(Helpers_getPagination())->appends($queryParam)
+        
+
+        dd($vendor);
+        return view('Admin.views.product.approved-products-list', compact('vendor','search'));
+    }
+
+
     
     /**
      * @return Factory|View|Application
@@ -565,21 +633,45 @@ class ProductController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $query = $this->vendor->where(function ($q) use ($key) {
+            $query = $this->vendor->where('role','=','0')->where(function ($q) use ($key) {
                 foreach ($key as $value) {
-                    $q->orWhere('id', 'like', "%{$value}%")
+                    $q->orWhere('email', 'like', "%{$value}%")
                     ->orWhere('name', 'like', "%{$value}%");
                 }
             })->latest();
             $queryParam = ['search' => $request['search']];
         }else{
-            $query = $this->vendor->latest();
+            $query = $this->vendor->where('role','=','0')->latest();
         }
         $vendors = $query->with('vendorproducts' , function($qurey){
             $qurey->where(['status' => 3]);
         })->paginate(Helpers_getPagination())->appends($queryParam);
 
         return view('Admin.views.product.rejected-list', compact('vendors','search'));
+    }
+
+    /**
+     * @return Factory|View|Application
+     */
+    public function RejectedProductList(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query = $this->product->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('name', 'like', "%{$value}%");
+                }
+            })->latest();
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $query = $this->product->where('status', 2)->latest();
+        }
+        $products = $query->with('vendors')->paginate(Helpers_getPagination())->appends($queryParam);
+
+        return view('Admin.views.product.rejected-products-list', compact('products','search'));
     }
 
     /**

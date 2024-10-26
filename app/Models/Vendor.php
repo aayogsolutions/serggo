@@ -34,6 +34,16 @@ class Vendor extends Authenticatable
         ];
     }
 
+    public function status()
+    {
+        return $this->query()->where('is_block', 0);
+    }
+
+    public function verify()
+    {
+        return $this->query()->where('is_verify', 0);
+    }
+    
     public function vendororders(){
         return $this->hasMany(Order::class,'vender_id','id');
     }

@@ -1002,4 +1002,68 @@ class OrderController extends Controller
         $value = Helpers_text_variable_data_format(value:$message, user_name: $customerName, store_name: $storeName, delivery_man_name: $deliverymanName, order_id: $order_id);
         return $value;
     }
+
+    /**
+     * @param Request $request
+     * @param $status
+     * @return Factory|View|Application
+     */
+    public function ApprovalRequest(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+
+        $branches = $this->branch->all();
+        $branchId = $request['branch_id'];
+        $startDate = $request['start_date'];
+        $endDate = $request['end_date'];
+
+        $this->order->where(['checked' => 0])->update(['checked' => 1]);
+
+        $query = $this->order->with(['customer', 'branch'])
+            ->when((!is_null($branchId) && $branchId != 'all'), function ($query) use ($branchId) {
+                return $query->where('branch_id', $branchId);
+            })->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
+                return $query->whereDate('created_at', '>=', $startDate)
+                    ->whereDate('created_at', '<=', $endDate);
+            });
+
+        
+        // if ($status != 'all') {
+        //     $query->where(['order_status' => $status]);
+        // }
+
+        $queryParam = ['branch_id' => $branchId, 'start_date' => $startDate, 'end_date' => $endDate];
+
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('order_status', 'like', "%{$value}%")
+                        ->orWhere('payment_status', 'like', "{$value}%");
+                }
+            });
+            $queryParam['search'] = $search;
+        }
+
+        $orders = $query->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
+
+        $countData = [];
+        $orderStatuses = ['pending', 'confirmed', 'processing', 'out_for_delivery', 'delivered', 'canceled', 'returned', 'failed'];
+
+        foreach ($orderStatuses as $orderStatus) {
+            $countData[$orderStatus] = $this->order->where('order_status', $orderStatus)
+                ->when(!is_null($branchId) && $branchId != 'all', function ($query) use ($branchId) {
+                    return $query->where('branch_id', $branchId);
+                })
+                ->when(!is_null($startDate) && !is_null($endDate), function ($query) use ($startDate, $endDate) {
+                    return $query->whereDate('created_at', '>=', $startDate)
+                        ->whereDate('created_at', '<=', $endDate);
+                })
+                ->count();
+        }
+
+        return view('Admin.views.order.order-approval.list', compact('orders',  'search', 'branches', 'branchId', 'startDate', 'endDate', 'countData'));
+    }
 }

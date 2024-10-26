@@ -67,7 +67,12 @@
                                 </td>
                                 <td class="text-center pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <div class="max-85 text-right">
-                                        {{ $vendor->vendorproducts->count() }}
+                                        @if($vendor->vendorproducts->count() > 0)
+                                        <a class="action-btn"
+                                            href="{{route('admin.product.approved-products-list',[$vendor['id']])}}">{{ $vendor->vendorproducts->count() }}</a>
+                                        @else
+                                            <div class="action-btn">{{ $vendor->vendorproducts->count() }}</div>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="text-center">

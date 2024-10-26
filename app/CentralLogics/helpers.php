@@ -16,14 +16,14 @@ if(! function_exists('Helpers_get_business_settings')) {
     {
         if(BusinessSetting::where(['key' => $name])->exists()){
             $data = BusinessSetting::where(['key' => $name])->first();
-            $config = json_decode($data['value'], true);
+            $config = json_decode($data->value, true);
             if (is_null($config)) {
                 $config = $data->value;
             }
             
         }else{
             BusinessSetting::updateOrInsert(['key' => $name], [
-                'value' => ''
+                'value' => null
             ]);
             $config = null;
         }
@@ -147,8 +147,8 @@ if(! function_exists('Helpers_getPagination')) {
     function Helpers_getPagination()
     {
         $pagination_limit = Helpers_get_business_settings('pagination_limit');
-        $paginate = $pagination_limit ?? 10;
-        return $paginate; 
+        $paginate = $pagination_limit == null || $pagination_limit == '' ? 10 : $pagination_limit;
+        return $paginate;
     }
 }
 
@@ -201,6 +201,18 @@ if(! function_exists('Helpers_currency_symbol')) {
     }
 
 }
+
+if(! function_exists('Helpers_onErrorImage')) {
+    function Helpers_onErrorImage($data, $src, $error_src ,$path)
+    {
+        if(isset($data) && strlen($data) >1 && File::exists($path.$data)){
+            return $src;
+        }
+        return $error_src;
+    }
+
+}
+
 
 if(! function_exists('Helpers_send_push_notif_to_topic')) {
     function Helpers_send_push_notif_to_topic($data)

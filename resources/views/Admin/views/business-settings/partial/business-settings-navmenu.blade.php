@@ -16,11 +16,11 @@
                 {{translate('reffreal income Settings')}}
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link {{Request::is('admin/business-settings/store/main-branch-setup')?'active':''}}" href="{{route('admin.business-settings.store.main-branch-setup')}}">
+        <!-- <li class="nav-item">
+            <a class="nav-link {{Request::is('admin/business-settings/store/main-branch-setup')?'active':''}}" href="{{('admin.business-settings.store.main-branch-setup')}}">
                 {{translate('Main Branch Setup')}}
             </a>
-        </li>
+        </li> -->
         <li class="nav-item">
             <a class="nav-link {{Request::is('admin/business-settings/store/timeSlot*')?'active':''}}" href="{{route('admin.business-settings.store.timeSlot.add-new')}}">
                 {{translate('Delivery Time Slot')}}
@@ -36,6 +36,11 @@
                 {{translate('Product Setup')}}
             </a>
         </li>
+        <li class="nav-item">
+                <a class="nav-link {{Request::is('admin/business-settings/store/firebase-configuration')?'active':''}}" href="{{route('admin.business-settings.store.firebase_message_config_index')}}">
+                    {{ translate('Firebase Configuration') }}
+                </a>
+            </li>
         @if(auth('admins')->id() == 1)
             <!-- <li class="nav-item">
                 <a class="nav-link {{Request::is('admin/business-settings/store/cookies-setup')?'active':''}}" href="{{route('admin.business-settings.store.cookies-setup')}}">

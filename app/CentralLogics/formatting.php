@@ -5,8 +5,10 @@ use App\Models\{
     Products,
     CategoryDiscount,
     ProductReview,
-    User
+    User,
+    UserWishlist
 };
+use Illuminate\Support\Facades\Auth;
 
 if(! function_exists('product_data_formatting')) {
     function product_data_formatting($data, $multi_data = false, $reviews = false,$brands = false)
@@ -48,6 +50,18 @@ if(! function_exists('product_data_formatting')) {
                 //         'stock' => isset($var->stock) ? (integer)$var->stock : (integer)0,
                 //     ];
                 // }
+
+                try {
+
+                    if(UserWishlist::where([['user_id','=',auth('sanctum')->user()->id],['product_id','=',$item->id]])->exists())
+                    {
+                        $item->liked = true;
+                    }else{
+                        $item->liked = false;
+                    }
+                } catch (\Throwable $th) {
+                    $item->liked = false;
+                }
 
                 if($reviews)
                 {
@@ -99,6 +113,18 @@ if(! function_exists('product_data_formatting')) {
                 }
             }else{
                 $data->productdiscount = $data->discount;
+            }
+
+            try {
+
+                if(UserWishlist::where([['user_id','=',auth('sanctum')->user()->id],['product_id','=',$data->id]])->exists())
+                {
+                    $data->liked = true;
+                }else{
+                    $data->liked = false;
+                }
+            } catch (\Throwable $th) {
+                $data->liked = false; 
             }
 
             if($reviews)
@@ -154,11 +180,11 @@ if(! function_exists('homesliderbanner_data_formatting')) {
         if ($multi_data == true) {
             foreach ($data as $item) {
                 if($item->item_type == 'product')
-                    {
-                        $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? product_data_formatting($item->item_detail) : product_data_formatting(json_decode($item->item_detail));
-                    }else{
-                        $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : json_decode($item->item_detail);
-                    }
+                {
+                    $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? product_data_formatting($item->item_detail) : product_data_formatting(json_decode($item->item_detail));
+                }else{
+                    $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : json_decode($item->item_detail);
+                }
                 // $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : product_data_formatting(json_decode($item->item_detail));
                 
                 array_push($storage, $item);
@@ -166,11 +192,11 @@ if(! function_exists('homesliderbanner_data_formatting')) {
             $data = $storage;
         } else {
             if($data->item_type == 'product')
-                {
-                    $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? product_data_formatting($data->item_detail) : product_data_formatting(json_decode($data->item_detail));
-                }else{
-                    $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
-                }
+            {
+                $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? product_data_formatting($data->item_detail) : product_data_formatting(json_decode($data->item_detail));
+            }else{
+                $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
+            }
             // $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
             
         }

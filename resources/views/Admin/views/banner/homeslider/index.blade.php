@@ -25,7 +25,7 @@
         <div class="page-header">
             <h1 class="page-header-title">
                 <span class="page-header-icon">
-                    <img src="{{asset('public/assets/admin/img/banner.png')}}" class="w--20" alt="{{ translate('banner') }}">
+                    <img src="{{asset('assets/admin/img/banner.png')}}" class="w--20" alt="{{ translate('banner') }}">
                 </span>
                 <span>
                     {{translate('banner setup')}}

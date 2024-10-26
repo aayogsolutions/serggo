@@ -95,7 +95,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    @php($partial_payment = Helpers_get_business_settings('partial_payment'))
                                     @php($partial_payment_status = $partial_payment == 0 ? 1 : 0)
                                     <div class="form-group">
                                         <label class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control"

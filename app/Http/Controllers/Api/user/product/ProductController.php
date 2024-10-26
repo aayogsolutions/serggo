@@ -14,6 +14,7 @@ use App\Models\{
     HomeSliderBanner
 };
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -50,8 +51,8 @@ class ProductController extends Controller
 
         if(!empty($product)) 
         {
-            $data = product_data_formatting($product, false, true);
-
+            $data = product_data_formatting($product, false, true, true);
+            
             // More Related Product....!
 
             $relatedproduct = [];
@@ -150,6 +151,8 @@ class ProductController extends Controller
                         }
                         
                         $Cartmainsection->childes = $childes;
+
+                        $Cartmainsection = display_data_formatting($Cartmainsection);
                     }else{
 
                     }
@@ -163,7 +166,6 @@ class ProductController extends Controller
             //  More Related Slider Display....! 
 
             $section_items_product = [];
-
             try {
                 $sectionid = $this->display_section->status()->where([
                     ['ui_type','=','user_product'],
@@ -177,13 +179,14 @@ class ProductController extends Controller
                     };
                     
                     $section_items_product1 = $this->displaysectioncontent->whereIn('section_id',$section_ids)->where('item_type' , 'product')->where('item_id' , $data->id)->get();
-                    $section_items_category_id = $this->product->status()->where('category_id', $data->category_id)->whereNotIn('id', [$request->product_id])->get('id');
+                    $section_items_category_id = $this->product->status()->where('category_id', $data->category_id)->whereNotIn('id', [$request->product_id])->get('id')->toArray();
         
-                    if(!empty($section_items_category_id))
+                    if(!is_null($section_items_category_id) && $section_items_category_id != [])
                     {
                         foreach ($section_items_category_id as $key => $value) {
                             $section_items_category_ids[] = $value->id;
                         };
+                        
                         $section_items_product2 = $this->displaysectioncontent->whereIn('section_id',$section_ids)->whereIn('item_id',$section_items_category_ids)->get();
             
                         if(!empty($section_items_product2))

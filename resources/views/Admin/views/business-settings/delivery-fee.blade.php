@@ -42,7 +42,7 @@
                                 </div>
                                 <div class="col-md-6 col-sm-6 pt-5">
                                     <?php
-                                        $free_delivery_status= Helpers_get_business_settings('free_delivery_over_amount_status') ?? 1;
+                                        $free_delivery_status = Helpers_get_business_settings('free_delivery_over_amount_status') ?? 1;
                                         $deliveryStatus = $free_delivery_status == 1 ? 0 : 1;
                                     ?>
                                     <div class="form-group">
@@ -102,8 +102,7 @@
                                                title="{{ translate('If the order amount exceeds this amount the delivery fee will be free.') }}"></i>
 
                                         </label>
-                                        <input type="number" value="{{$free_delivery_over_amount}}" name="free_delivery_over_amount" class="form-control" placeholder=""
-                                               {{ $free_delivery_status == 1 ? 'readonly' : '' }} required>
+                                        <input type="number" value="{{$free_delivery_over_amount}}" name="free_delivery_over_amount" class="form-control" placeholder="" {{ $free_delivery_status == 1 ? 'readonly required' : '' }}>
                                     </div>
                                 </div>
                             </div>

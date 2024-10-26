@@ -18,7 +18,6 @@ Route::get('/optimize', function () {
 });
 
 require "admin.php";
-require "branch.php";
  
 Route::get('/', function(){
     return redirect(route('admin.login'));
@@ -32,8 +31,6 @@ Route::get('/ApiLogin', function(){
         'data' => [],
     ],401);
 })->name('login');
-
-
 
 Route::post('/', function(Request $request){
     $name = Helpers_upload('admin/', 'png', $request->file('image'));

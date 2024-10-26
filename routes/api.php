@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\user\product\{
     CustomerController,
     CartController,
     DashboardController,
+    OrderController,
     ProductController,
     WishlistController
 };
@@ -32,7 +33,7 @@ Route::group(['prefix' => 'auth'], function() {
     Route::post('/signup/{provider}', [ApiAuthController::class,'SignupWithSocial']);
     Route::post('/otpsubmit',[ApiAuthController::class, 'OTPSubmit']);
 
-    Route::post('/register', [ApiAuthController::class,'registeruser']);
+    Route::put('/register', [ApiAuthController::class,'registeruser']);
 });
 
 Route::group(['prefix' => 'banner'], function() {
@@ -79,20 +80,35 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
 
     Route::group(['prefix' => 'user'], function(){
 
+        Route::post('/user-location', [CustomerController::class,'UserLocation']);
+
         Route::get('/profile', [CustomerController::class,'Profile']);
         Route::post('/profile', [CustomerController::class,'ProfileSubmit']);
 
-        Route::get('/cart', [CartController::class,'cart']);
-        Route::get('/wishlist', [WishlistController::class,'wishlist']);
+        Route::group(['prefix' => 'product'], function(){
+            
+            Route::get('/cart', [CartController::class,'Cart']);
+            Route::get('/favorite', [WishlistController::class,'Favorite']);
+        });
+        
         Route::get('/transaction', [CustomerController::class,'transaction']);
 
-            Route::group(['prefix' => 'address'], function(){
+        Route::group(['prefix' => 'address'], function(){
 
-                Route::get('/list', [AddressController::class,'addresslist']);
-                Route::post('/store', [AddressController::class,'addressStore']);
-                Route::post('/update/{id}', [AddressController::class,'addressUpdate']);
-                Route::post('/delete/{id}', [AddressController::class,'addressDelete']);
-            });
+            Route::get('/list', [AddressController::class,'addresslist']);
+            Route::post('/store', [AddressController::class,'addressStore']);
+            Route::post('/update/{id}', [AddressController::class,'addressUpdate']);
+            Route::post('/delete/{id}', [AddressController::class,'addressDelete']);
+        });
+    });
+
+    Route::group(['prefix' => 'order'], function(){
+
+        Route::group(['prefix' => 'product'], function(){
+
+            Route::get('checkout',[OrderController::class,'Checkout']);
+            Route::post('place-order',[OrderController::class,'PlaceOrder']);
+        });
     });
 });
 
