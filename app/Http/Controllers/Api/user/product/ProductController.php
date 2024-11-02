@@ -27,7 +27,7 @@ class ProductController extends Controller
         private HomeSliderBanner $homesliderbanner,
     ){}
 
-     /**
+    /**
      * 
      * @return JsonResponse
      * 
@@ -302,7 +302,7 @@ class ProductController extends Controller
         }
     }
       
-      /**
+    /**
      * 
      * @return JsonResponse
      * 
@@ -348,7 +348,7 @@ class ProductController extends Controller
         }
     }
 
-      /**
+    /**
      * 
      * @return JsonResponse
      * 
@@ -393,7 +393,7 @@ class ProductController extends Controller
         }
     }
 
-      /**
+    /**
      * 
      * @return JsonResponse
      * 
@@ -479,12 +479,39 @@ class ProductController extends Controller
             ], 200);
         }else{
             return response()->json([
-                'status' => false,
+                'status' => true,
                 'message' => 'Data not found',
                 'data' => [],
-            ], 404);
+            ], 200);
         }
         
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function DeliveryTimeLine(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'products' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data Provided',
+            'data' => '2 Hours'
+        ], 200);
     }
   
     protected function search_brand($ids,$array)

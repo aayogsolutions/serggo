@@ -132,7 +132,19 @@ class BusinessSettingsController extends Controller
      */
     public function ReferralIncomeSetup(): View|Factory|Application
     {
-        return view('Admin.views.business-settings.refferal_income');
+
+        if (!$this->businessSettings->where(['key' => 'refferal_info'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'refferal_info'], [
+                'value' => json_encode([
+                    "bonus" => 0,
+                    "content" => '',
+                ]),
+            ]);
+        }
+
+        $value = json_decode($this->businessSettings->where(['key' => 'refferal_info'])->first()->value);
+
+        return view('Admin.views.business-settings.refferal_income',compact('value'));
     }
 
     /**
@@ -142,11 +154,15 @@ class BusinessSettingsController extends Controller
     public function ReferralIncomeSetupUpdate(Request $request): RedirectResponse
     {
         $request->validate([
-            'refferal_bonus' => 'required'
+            'bonus' => 'required',
+            'content' => 'required',
         ]);
 
-        BusinessSetting::updateOrInsert(['key' => 'refferal_bonus'], [
-            'value' => $request->refferal_bonus,
+        BusinessSetting::updateOrInsert(['key' => 'refferal_info'], [
+            'value' => json_encode([
+                "bonus" => $request->bonus,
+                "content" => $request->content,
+            ]),
         ]);
 
         flash()->success(translate('updated_successfully'));

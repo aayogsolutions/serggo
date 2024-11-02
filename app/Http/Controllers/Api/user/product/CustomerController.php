@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
+use App\Models\BusinessSetting;
 use App\Models\User;
 use App\Models\WalletTranscation;
 use Illuminate\Http\Request;
@@ -207,5 +208,32 @@ class CustomerController extends Controller
             ],409);
         }
        
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ReferralInfo(Request $request) : JsonResponse
+    {
+        if (!BusinessSetting::where(['key' => 'refferal_info'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'refferal_info'], [
+                'value' => json_encode([
+                    "bonus" => 0,
+                    "content" => '',
+                ]),
+            ]);
+        }
+
+        $content = json_decode(BusinessSetting::where(['key' => 'refferal_info'])->first()->value)->content;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Referral Info',
+            'data' => [
+                'code' => Auth::user()->referral_code,
+                'content' => $content,
+            ]
+        ],200);
     }
 }

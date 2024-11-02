@@ -64,6 +64,8 @@ Route::group(['prefix' => 'product'], function(){
     Route::get('/subcategory_inside', [CategoryCntroller::class,'SubCategoryDetails']);
 
     Route::get('/search', [ProductController::class,'Search']);
+
+    Route::get('/selection/deliver/timeline', [ProductController::class,'DeliveryTimeLine']);
 });
 
 Route::group(['prefix' => 'service'], function(){
@@ -80,19 +82,30 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
 
     Route::group(['prefix' => 'user'], function(){
 
+        // User Location Routes
         Route::post('/user-location', [CustomerController::class,'UserLocation']);
 
+        // User Profiles Routes
         Route::get('/profile', [CustomerController::class,'Profile']);
         Route::post('/profile', [CustomerController::class,'ProfileSubmit']);
+        
+        // Referral Info Route
+        Route::get('/referral/info', [CustomerController::class,'ReferralInfo']);
 
         Route::group(['prefix' => 'product'], function(){
             
             Route::get('/cart', [CartController::class,'Cart']);
+
+
+            // Product Favorite Routes
             Route::get('/favorite', [WishlistController::class,'Favorite']);
+            Route::get('/favorite/list', [WishlistController::class,'FavoriteList']);
         });
         
+        // Wallet Transaction info
         Route::get('/transaction', [CustomerController::class,'transaction']);
 
+        // User Address Routes
         Route::group(['prefix' => 'address'], function(){
 
             Route::get('/list', [AddressController::class,'addresslist']);

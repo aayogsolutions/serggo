@@ -20,7 +20,6 @@
                         <form action="{{route('admin.business-settings.store.referral-income-setup-update')}}" method="post" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-                                @php($value = Helpers_get_business_settings('refferal_bonus'))
                                 <div class="col-md-4 col-sm-6">
                                     <div class="form-group">
                                         <label class="input-label" for="exampleFormControlInput1">
@@ -30,7 +29,19 @@
                                                 <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
                                             </span>
                                         </label>
-                                        <input type="number" value="{{$value}}" name="refferal_bonus" class="form-control" placeholder="" required>
+                                        <input type="number" value="{{$value->bonus}}" name="bonus" class="form-control" placeholder="" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 col-sm-6">
+                                    <div class="form-group">
+                                        <label class="input-label" for="exampleFormControlInput1">
+                                            {{translate('Refferal Content')}}
+                                            <span class="form-label-secondary text-danger d-inline ml-1" data-toggle="tooltip" data-placement="right"
+                                                    data-original-title="{{translate('Set the Content for refferal which is displayed when user share our app link to other in scail media')}}">
+                                                <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
+                                            </span>
+                                        </label>
+                                        <textarea name="content" class="form-control" placeholder="Enter Content" required>{{$value->content}}</textarea>
                                     </div>
                                 </div>
                             </div>

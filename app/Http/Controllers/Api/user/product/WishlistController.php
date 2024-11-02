@@ -18,7 +18,7 @@ class WishlistController extends Controller
         private UserWishlist $productwishlist,
     ){}
 
-     /**
+    /**
      * 
      * @return JsonResponse
      * 
@@ -75,5 +75,42 @@ class WishlistController extends Controller
                 'data' => []
             ]);
         }
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function FavoriteList(Request $request) : JsonResponse
+    {
+        try {
+            $user_id = Auth::user()->id;
+
+            $list = $this->productwishlist->where(['user_id' => $user_id])->pluck('product_id')->toArray();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unexpected Error',
+                'data' => [$th->getMessage(),$list]
+            ],404);
+        }
+
+        if($list == [])
+        {
+            return response()->json([
+                'status' => true,
+                'message' => 'List Is empty',
+                'data' => []
+            ],200);
+        }
+
+        $product = product_data_formatting($this->product->whereIn('id' , $list)->Orderby('total_sale','DESC')->get(),true,false,true);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Favorite List',
+            'data' => $product
+        ]);
     }
 }
