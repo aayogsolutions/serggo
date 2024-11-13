@@ -70,23 +70,23 @@
                                             <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('all')}}</span>
                                                 <span class="badge badge-info badge-pill ml-1">
-                                                    23
+                                                    {{ App\Models\Order::all()->count() }}
                                                 </span>
                                             </span>
                                         </a>
                                     </li>
-                                    <!-- <li class="nav-item {{Request::is('admin/orders/list/pending')?'active':''}}">
+                                    <li class="nav-item {{Request::is('admin/orders/list/pending')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['pending'])}}"
                                             title="{{translate('pending_orders')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('pending')}}</span>
                                                 <span class="badge badge-soft-info badge-pill ml-1">
-                                                    62
+                                                    {{ App\Models\Order::where('order_status','pending')->count() }}
                                                 </span>
                                             </span>
                                         </a>
-                                    </li> -->
+                                    </li>
                                     <li class="nav-item {{Request::is('admin/orders/list/confirmed')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.orders.list',['confirmed'])}}"
                                             title="{{translate('confirmed_orders')}}">
@@ -94,7 +94,7 @@
                                             <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('confirmed')}}</span>
                                                 <span class="badge badge-soft-success badge-pill ml-1">
-                                                    01
+                                                    {{ App\Models\Order::where('order_status','confirmed')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -106,7 +106,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('packaging')}}</span>
                                                 <span class="badge badge-soft-warning badge-pill ml-1">
-                                                    06
+                                                    {{ App\Models\Order::where('order_status','packing')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -118,7 +118,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('out_for_delivery')}}</span>
                                                 <span class="badge badge-soft-warning badge-pill ml-1">
-                                                    05
+                                                    {{ App\Models\Order::where('order_status','out_for_delivery')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -130,7 +130,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('delivered')}}</span>
                                                 <span class="badge badge-soft-success badge-pill ml-1">
-                                                    25
+                                                    {{ App\Models\Order::where('order_status','delivered')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -142,7 +142,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('returned')}}</span>
                                                 <span class="badge badge-soft-danger badge-pill ml-1">
-                                                    00
+                                                    {{ App\Models\Order::where('order_status','returned')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -154,7 +154,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('failed')}}</span>
                                                 <span class="badge badge-soft-danger badge-pill ml-1">
-                                                    10
+                                                    {{ App\Models\Order::where('order_status','failed')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -167,7 +167,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('canceled')}}</span>
                                                 <span class="badge badge-soft-light badge-pill ml-1">
-                                                    15
+                                                    {{ App\Models\Order::where('order_status','canceled')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -176,7 +176,7 @@
                             </li>
                             @endif
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['Approval_Request']))
-                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/approval-request*')?'active':''}}">
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/orders/approval-request*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.orders.approval_request')}}"
                                     title="{{translate('approval_request')}}">
                                         <i class="tio-layers-outlined nav-icon"></i>
@@ -343,6 +343,81 @@
                                     </ul>
                                 </li>
                             @endif
+                        @endif
+
+                        @if(Helpers_module_permission_check(MANAGEMENT_SECTION['service_management']))
+                            <li class="nav-item">
+                                <small
+                                    class="nav-subtitle">{{translate('service_management')}} </small>
+                                <small class="tio-more-horizontal nav-subtitle-replacer"></small>
+                            </li>
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['category_setup']))
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/category*')?'active':''}}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:" title="{{translate('category setup')}}">
+                                        <i class="tio-category nav-icon"></i>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('category setup')}}</span>
+                                    </a>
+                                    <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/service/category*')?'block':'none'}}">
+                                        <li class="nav-item {{Request::is('admin/service/category/add')?'active':''}}">
+                                            <a class="nav-link " href="{{route('admin.service.category.add')}}" title="{{translate('categories')}}">
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span class="text-truncate">
+                                                    {{translate('categories')}}
+                                                </span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item {{Request::is('admin/service/category/add-sub-category')?'active':''}}">
+                                            <a class="nav-link " href="{{route('admin.service.category.add-sub-category')}}" title="{{translate('sub_categories')}}">
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span class="text-truncate">
+                                                    {{translate('sub_categories')}}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endif
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['service_setup']))
+                            <li class="navbar-vertical-aside-has-menu {{Request::is('admin/service*') || Request::is('admin/attribute*')?'active':''}}">
+                                <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
+                                    href="javascript:"
+                                    title="{{translate('service setup')}}">
+                                    <i class="tio-premium-outlined nav-icon"></i>
+                                    <span
+                                        class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('service setup')}}</span>
+                                </a>
+                                <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
+                                    style="display: {{Request::is('admin/service*') || Request::is('admin/service/attribute*') ? 'block' : 'none'}}">
+                                    <li class="nav-item {{Request::is('admin/service/attribute*')?'active':''}}">
+                                        <a class="nav-link"
+                                            href="#"
+                                            title="{{translate('service attribute')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">{{translate('service attribute')}}</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item {{Request::is('admin/service/tag/add-new*')?'active':''}}">
+                                        <a class="nav-link"
+                                            href="#"
+                                            title="{{translate('service tag')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">{{translate('service tag')}}</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item {{Request::is('admin/service/product/list*')?'active':''}} {{Request::is('admin/service/product/add-new')?'active':''}}">
+                                        <a class="nav-link " href="#"
+                                            title="{{translate('list')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">{{translate('service list')}}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endif
+                        
                         @endif
 
                         @if(Helpers_module_permission_check(MANAGEMENT_SECTION['promotion_management']))

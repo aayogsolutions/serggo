@@ -14,7 +14,9 @@ use App\Models\{
     OfflinePayment,
     OrderPartialPayment,
     Referral_setting,
+    TimeSlot,
     User,
+    Vendor,
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
@@ -31,7 +33,8 @@ class OrderController extends Controller
         private Order $order,
         private Order_details $order_detail,
         private Products $product,
-        private User $user
+        private User $user,
+        private TimeSlot $timeslots
     ) {
     }
 
@@ -44,18 +47,14 @@ class OrderController extends Controller
     {
         $queryParam = [];
         $search = $request['search'];
-
-        $branches = $this->branch->all();
-        $branchId = $request['branch_id'];
+        
         $startDate = $request['start_date'];
         $endDate = $request['end_date'];
 
         $this->order->where(['checked' => 0])->update(['checked' => 1]);
 
-        $query = $this->order->with(['customer', 'branch'])
-            ->when((!is_null($branchId) && $branchId != 'all'), function ($query) use ($branchId) {
-                return $query->where('branch_id', $branchId);
-            })->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
+        $query = $this->order->where('order_approval','accepted')->with(['customer'])
+            ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
                 return $query->whereDate('created_at', '>=', $startDate)
                     ->whereDate('created_at', '<=', $endDate);
             });
@@ -63,8 +62,6 @@ class OrderController extends Controller
         if ($status != 'all') {
             $query->where(['order_status' => $status]);
         }
-
-        $queryParam = ['branch_id' => $branchId, 'start_date' => $startDate, 'end_date' => $endDate];
 
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
@@ -85,17 +82,13 @@ class OrderController extends Controller
 
         foreach ($orderStatuses as $orderStatus) {
             $countData[$orderStatus] = $this->order->where('order_status', $orderStatus)
-                ->when(!is_null($branchId) && $branchId != 'all', function ($query) use ($branchId) {
-                    return $query->where('branch_id', $branchId);
-                })
                 ->when(!is_null($startDate) && !is_null($endDate), function ($query) use ($startDate, $endDate) {
                     return $query->whereDate('created_at', '>=', $startDate)
                         ->whereDate('created_at', '<=', $endDate);
-                })
-                ->count();
+            })->count();
         }
 
-        return view('Admin.views.order.list', compact('orders', 'status', 'search', 'branches', 'branchId', 'startDate', 'endDate', 'countData'));
+        return view('Admin.views.order.list', compact('orders', 'status', 'search','startDate', 'endDate', 'countData'));
     }
 
     /**
@@ -117,6 +110,106 @@ class OrderController extends Controller
             flash()->info(translate('No more orders!'));
             return back();
         }
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Factory|View|Application
+     */
+    public function ApprovalRequest(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        
+        $startDate = $request['start_date'];
+        $endDate = $request['end_date'];
+
+        $this->order->where(['checked' => 1])->update(['checked' => 0]);
+
+        $query = $this->order->with(['customer','OrderDetails','vendororders'])->where(['order_status' => 'pending'])->where(['order_approval' => 'pending']);
+
+        $queryParam = ['start_date' => $startDate, 'end_date' => $endDate];
+
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('order_status', 'like', "%{$value}%")
+                        ->orWhere('payment_status', 'like', "{$value}%");
+                }
+            });
+            $queryParam['search'] = $search;
+        }
+
+        $orders = $query->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
+
+        
+        return view('Admin.views.order.order-approval.list', compact('orders',  'search'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $status
+     * @return Factory|View|Application
+     */
+    public function ApprovalRequestView($id): View|Factory|Application
+    {
+        $order = $this->order->with(['customer','OrderDetails','vendororders'])->where(['id' => $id])->first();
+        $timeslots = $this->timeslots->where(['status' => 1,])->get();
+        $serviceman = Vendor::where(['role' => 1])->where('is_block',0)->get();
+        return view('Admin.views.order.order-approval.approval_page', compact('order','timeslots', 'serviceman'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return jsonResponse
+     */
+    public function ApprovalRequestAction(Request $request,$id): jsonResponse
+    {
+        $request->validate([
+            'deliveryDate' => 'nullable|date',
+            'timeSlot' => 'nullable',
+        ]);
+        $order = $this->order->find($id);
+
+        if(!empty($request->delivery_date) && $request->delivery_date != null) {
+            $order->delivery_date = $request->delivery_date;
+        }
+
+        if(!empty($request->timeSlot) && $request->timeSlot != null) {
+            $order->delivery_timeslot_id = $request->timeSlot;
+        }
+
+        if($request->status == 'accept') {
+            $order->order_approval = 'accepted';
+            $order->order_status = 'confirmed';
+            flash()->success(translate('Order Accepted'));
+        }elseif ($request->status == 'reject') {
+            $order->order_approval = 'rejected';
+            $order->order_status = 'rejected';
+            flash()->warning(translate('Order Rejected'));
+        }
+        $order->save();
+        
+        
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param $status
+     * @return JsonResponse
+     */
+    public function UpdateServiceMen($id): JsonResponse
+    {
+        return response()->json([
+            'status' => true,
+        ]);
     }
 
     /**
@@ -324,27 +417,12 @@ class OrderController extends Controller
     }
 
     /**
-     * @param $order
-     * @param $amount
-     * @return void
-     */
-    private function calculateRefundAmount($order, $amount): void
-    {
-        $customer = $this->user->find($order['user_id']);
-        $wallet = CustomerLogic::create_wallet_transaction($customer->id, $amount, 'refund', $order['id']);
-        if ($wallet) {
-            $customer->wallet_balance += $amount;
-        }
-        $customer->save();
-    }
-
-    /**
      * @param Request $request
      * @return RedirectResponse
      */
     public function status(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $order = $this->order->find($request->id);
+        $order = $this->order->where('id',$request->id)->with('OrderDetails')->first();
 
         if (in_array($order->order_status, ['returned', 'delivered', 'failed', 'canceled'])) {
             flash()->warning(translate('you_can_not_change_the_status_of ' . $order->order_status . ' order'));
@@ -356,34 +434,18 @@ class OrderController extends Controller
             return back();
         }
 
-        if ($request->order_status == 'delivered' && $order['transaction_reference'] == null && !in_array($order['payment_method'], ['cash_on_delivery', 'wallet_payment', 'offline_payment'])) {
-            flash()->warning(translate('add_your_payment_reference_first'));
-            return back();
-        }
-
-        if (($request->order_status == 'out_for_delivery' || $request->order_status == 'delivered') && $order['delivery_man_id'] == null && $order['order_type'] != 'self_pickup') {
+        //editable
+        if ($request->order_status == 'out_for_delivery') {
             flash()->warning(translate('Please assign delivery man first!'));
             return back();
         }
 
         //refund amount to wallet
-        if (in_array($request['order_status'], ['returned', 'failed', 'canceled']) && $order['is_guest'] == 0 && isset($order->customer) && Helpers_get_business_settings('wallet_status') == 1) {
+        if (in_array($request['order_status'], ['returned', 'failed', 'canceled']) && isset($order->customer) && Helpers_get_business_settings('wallet_status') == 1) {
 
-            if ($order['payment_method'] == 'wallet_payment' && $order->partial_payment->isEmpty()) {
-                $this->calculateRefundAmount(order: $order, amount: $order->order_amount);
-            }
-
-            if ($order['payment_method'] != 'cash_on_delivery' && $order['payment_method'] != 'wallet_payment' && $order['payment_method'] != 'offline_payment' && $order->partial_payment->isEmpty()) {
-                $this->calculateRefundAmount(order: $order, amount: $order->order_amount);
-            }
-
-            if ($order['payment_method'] == 'offline_payment' && $order['payment_status'] == 'paid' && $order->partial_payment->isEmpty()) {
-                $this->calculateRefundAmount(order: $order, amount: $order['order_amount']);
-            }
-
-            if ($order->partial_payment->isNotEmpty()) {
-                $partial_payment_total = $order->partial_payment->sum('paid_amount');
-                $this->calculateRefundAmount(order: $order, amount: $partial_payment_total);
+            if ($order['partial_payment'] != null) {
+                Helpers_generate_wallet_transaction($order['customer_id'], $order['id'], 'refund', 0, json_decode($order['partial_payment'], true)->wallet_applied, json_decode($order['partial_payment'], true)->wallet_applied);
+                
             }
         }
 
@@ -400,7 +462,7 @@ class OrderController extends Controller
                     $action->save();
                 }
             }
-            foreach ($order->details as $detail) {
+            foreach ($order->OrderDetails as $detail) {
                 if (!isset($detail->variant)) {
                     if ($detail['is_stock_decreased'] == 1) {
                         $product = $this->product->find($detail['product_id']);
@@ -432,7 +494,7 @@ class OrderController extends Controller
             }
             die;
         } else {
-            foreach ($order->details as $detail) {
+            foreach ($order->OrderDetails as $detail) {
                 if (!isset($detail->variant)) {
                     if ($detail['is_stock_decreased'] == 0) {
 
@@ -529,10 +591,7 @@ class OrderController extends Controller
         $message = Helpers_order_status_update_message($request->order_status);
         $languageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
         $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-
-        if ($languageCode != 'en') {
-            $message = $this->translate_message($languageCode, $request->order_status);
-        }
+        
         $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
 
         try {
@@ -553,11 +612,7 @@ class OrderController extends Controller
         if ($request->order_status == 'processing' && $order->delivery_man != null) {
             $deliverymanFcmToken = $order->delivery_man->fcm_token;
             $message = Helpers_order_status_update_message('deliveryman_order_processing');
-            $deliverymanLanguageCode = $order->delivery_man->language_code ?? 'en';
-
-            if ($deliverymanLanguageCode != 'en') {
-                $message = $this->translate_message($deliverymanLanguageCode, 'deliveryman_order_processing');
-            }
+            
             $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
 
             try {
@@ -650,26 +705,15 @@ class OrderController extends Controller
     {
         $order = $this->order->find($request->id);
 
-        if ($order->payment_method == 'offline_payment' && isset($order->offline_payment) && $order->offline_payment?->status != 1) {
-            flash()->warning(translate('please_verify_your_offline_payment_verification'));
-            return back();
-        }
-
-        if ($request->payment_status == 'paid' && $order['transaction_reference'] == null && $order['payment_method'] != 'cash_on_delivery') {
-            flash()->warning(translate('Add your payment reference code first!'));
-            return back();
-        }
-
-        if ($request->payment_status == 'paid' && $order['order_status'] == 'pending') {
+        if ($request->payment_status == 'paid') 
+        {
             $order->order_status = 'confirmed';
+            $order->order_status = 'order_approval';
 
             $message = Helpers_order_status_update_message('confirmed');
             $languageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
             $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-
-            if ($languageCode != 'en') {
-                $message = $this->translate_message($languageCode, 'confirmed');
-            }
+            
             $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
 
             try {
@@ -687,6 +731,7 @@ class OrderController extends Controller
                 //
             }
         }
+
         $order->payment_status = $request->payment_status;
         $order->save();
         flash()->success(translate('Payment status updated!'));
@@ -743,21 +788,6 @@ class OrderController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse|void
-     */
-    public function updateDeliveryDate(Request $request)
-    {
-        if ($request->ajax()) {
-            $order = $this->order->find($request->id);
-            $order->delivery_date = $request->deliveryDate;
-            $order->save();
-            $data = $request->deliveryDate;
-            return response()->json($data);
-        }
-    }
-
-    /**
      * @param $id
      * @return Factory|View|Application
      */
@@ -780,16 +810,6 @@ class OrderController extends Controller
         ]);
 
         flash()->success(translate('Payment reference code is added!'));
-        return back();
-    }
-
-    /**
-     * @param $id
-     * @return RedirectResponse
-     */
-    public function branchFilter($id): RedirectResponse
-    {
-        session()->put('branch_filter', $id);
         return back();
     }
 
@@ -869,6 +889,81 @@ class OrderController extends Controller
         return (new FastExcel($storage))->download('orders.xlsx');
     }
 
+    public function ProductReplaceAjax(Request $request)
+    {
+        $request->validate([
+            'data' => 'required'
+        ]);
+
+        $product = Products::where('id', $request->data)->first();
+
+        $product['fullpath'] = $product->identityImageFullPath[0];
+
+        return $product;
+    }
+
+    public function ProductDeleteAjax(Request $request)
+    {
+        $request->validate([
+            'data' => 'required'
+        ]);
+
+        $order_detail = Order_details::where('id', $request->data)->first();
+        $order = Order::find($order_detail->order_id);
+
+        $qyt = $order_detail->quantity;
+        $tax = $order_detail->tax_amount * $qyt;
+        $price = $order_detail->price * $qyt;
+
+        $order->order_amount = $order->order_amount - $price;
+        $order->total_tax_amount = $order->total_tax_amount - $tax;
+
+        $order->save();
+
+        Order_details::where('id', $request->data)->first()->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function dynamic_key_replaced_message($message, $type, $order = null, $customer = null)
+    {
+        $customerName = '';
+        $deliverymanName = '';
+        $order_id = $order ? $order->id : '';
+
+        if ($type == 'order'){
+            $deliverymanName = $order->delivery_man ? $order->delivery_man->f_name. ' '. $order->delivery_man->l_name : '';
+            $customerName = $order->is_guest == 0 ? ($order->customer ? $order->customer->f_name. ' '. $order->customer->l_name : '') : 'Guest User';
+        }
+        if ($type == 'wallet'){
+            $customerName = $customer->f_name. ' '. $customer->l_name;
+        }
+        $storeName = Helpers_get_business_settings('app_name');
+        $value = Helpers_text_variable_data_format(value:$message, user_name: $customerName, store_name: $storeName, delivery_man_name: $deliverymanName, order_id: $order_id);
+        return $value;
+    }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * @param $order_id
      * @param $status
@@ -902,10 +997,7 @@ class OrderController extends Controller
             $message = Helpers_order_status_update_message('confirmed');
             $languageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
             $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-
-            if ($languageCode != 'en') {
-                $message = $this->translate_message($languageCode, 'confirmed');
-            }
+            
             $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
 
             try {
@@ -947,123 +1039,5 @@ class OrderController extends Controller
             }
         }
         return response()->json(['status' => true, 'message' => translate("offline payment verify status changed")], 200);
-    }
-
-    public function ProductReplaceAjax(Request $request)
-    {
-        $request->validate([
-            'data' => 'required'
-        ]);
-
-        $product = Products::where('id', $request->data)->first();
-
-        $product['fullpath'] = $product->identityImageFullPath[0];
-
-        return $product;
-    }
-
-    public function ProductDeleteAjax(Request $request)
-    {
-        $request->validate([
-            'data' => 'required'
-        ]);
-
-        $order_detail = Order_Detail::where('id', $request->data)->first();
-        $order = Order::find($order_detail->order_id);
-
-        $qyt = $order_detail->quantity;
-        $tax = $order_detail->tax_amount * $qyt;
-        $price = $order_detail->price * $qyt;
-
-        $order->order_amount = $order->order_amount - $price;
-        $order->total_tax_amount = $order->total_tax_amount - $tax;
-
-        $order->save();
-
-        Order_Detail::where('id', $request->data)->first()->delete();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function dynamic_key_replaced_message($message, $type, $order = null, $customer = null)
-    {
-        $customerName = '';
-        $deliverymanName = '';
-        $order_id = $order ? $order->id : '';
-
-        if ($type == 'order'){
-            $deliverymanName = $order->delivery_man ? $order->delivery_man->f_name. ' '. $order->delivery_man->l_name : '';
-            $customerName = $order->is_guest == 0 ? ($order->customer ? $order->customer->f_name. ' '. $order->customer->l_name : '') : 'Guest User';
-        }
-        if ($type == 'wallet'){
-            $customerName = $customer->f_name. ' '. $customer->l_name;
-        }
-        $storeName = Helpers_get_business_settings('app_name');
-        $value = Helpers_text_variable_data_format(value:$message, user_name: $customerName, store_name: $storeName, delivery_man_name: $deliverymanName, order_id: $order_id);
-        return $value;
-    }
-
-    /**
-     * @param Request $request
-     * @param $status
-     * @return Factory|View|Application
-     */
-    public function ApprovalRequest(Request $request): View|Factory|Application
-    {
-        $queryParam = [];
-        $search = $request['search'];
-
-        $branches = $this->branch->all();
-        $branchId = $request['branch_id'];
-        $startDate = $request['start_date'];
-        $endDate = $request['end_date'];
-
-        $this->order->where(['checked' => 0])->update(['checked' => 1]);
-
-        $query = $this->order->with(['customer', 'branch'])
-            ->when((!is_null($branchId) && $branchId != 'all'), function ($query) use ($branchId) {
-                return $query->where('branch_id', $branchId);
-            })->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
-                return $query->whereDate('created_at', '>=', $startDate)
-                    ->whereDate('created_at', '<=', $endDate);
-            });
-
-        
-        // if ($status != 'all') {
-        //     $query->where(['order_status' => $status]);
-        // }
-
-        $queryParam = ['branch_id' => $branchId, 'start_date' => $startDate, 'end_date' => $endDate];
-
-        if ($request->has('search')) {
-            $key = explode(' ', $request['search']);
-            $query->where(function ($q) use ($key) {
-                foreach ($key as $value) {
-                    $q->orWhere('id', 'like', "%{$value}%")
-                        ->orWhere('order_status', 'like', "%{$value}%")
-                        ->orWhere('payment_status', 'like', "{$value}%");
-                }
-            });
-            $queryParam['search'] = $search;
-        }
-
-        $orders = $query->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
-
-        $countData = [];
-        $orderStatuses = ['pending', 'confirmed', 'processing', 'out_for_delivery', 'delivered', 'canceled', 'returned', 'failed'];
-
-        foreach ($orderStatuses as $orderStatus) {
-            $countData[$orderStatus] = $this->order->where('order_status', $orderStatus)
-                ->when(!is_null($branchId) && $branchId != 'all', function ($query) use ($branchId) {
-                    return $query->where('branch_id', $branchId);
-                })
-                ->when(!is_null($startDate) && !is_null($endDate), function ($query) use ($startDate, $endDate) {
-                    return $query->whereDate('created_at', '>=', $startDate)
-                        ->whereDate('created_at', '<=', $endDate);
-                })
-                ->count();
-        }
-
-        return view('Admin.views.order.order-approval.list', compact('orders',  'search', 'branches', 'branchId', 'startDate', 'endDate', 'countData'));
     }
 }

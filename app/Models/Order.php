@@ -29,4 +29,9 @@ class Order extends Model
     {
         return $this->belongsTo(Vendor::class, 'vender_id');
     }
+
+    public function OrderDetails(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Order_details::class, 'order_id','id');
+    }
 }

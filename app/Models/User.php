@@ -13,6 +13,10 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
+    protected $fillable = [
+        'wallet_balance',
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *

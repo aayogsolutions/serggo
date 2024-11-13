@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class AdminController extends Controller
 {
@@ -47,5 +49,27 @@ class AdminController extends Controller
     {
         auth()->guard('admins')->logout();
         return redirect()->route('admin.auth.logout');
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function NewOrder(Request $request): JsonResponse
+    {
+        $from = Carbon::now();
+        $to = new Carbon('-12 seconds');
+        
+        $neworder = Order::where([
+            ['order_approval', '=', 'pending'],
+            ['created_at', '<=' , $from->format('Y-m-d H:i:s')],
+            ['created_at', '>=' , $to->format('Y-m-d H:i:s')],
+        ])->count();
+
+        return response()->json([
+            'data' => [
+                'new_order' => $neworder
+            ]
+        ]);
     }
 }

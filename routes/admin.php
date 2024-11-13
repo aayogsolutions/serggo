@@ -28,8 +28,12 @@ use App\Http\Controllers\Admin\{
     ServicemenController,
     DashboardController,
     TimeSlotController,
-    SMSModuleController,
     InstallationChargesController
+};
+use App\Http\Controllers\Admin\Service\{
+    ServiceCategoryController,
+    ServiceTagController,
+    ServiceAttributeController
 };
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -38,8 +42,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::group(['middleware' => 'Admin-auth'], function(){
 
+        //New Order Check Route
+        Route::get('/new-order', [AdminController::class,'NewOrder'])->name('new.order');
+
         Route::get('/logout', [AdminController::class,'logout'])->name('auth.logout');
-        Route::get('/test', [AdminController::class,'test'])->name('test');
+        
 
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
         Route::post('order-stats', [DashboardController::class, 'orderStats'])->name('order-stats');
@@ -118,6 +125,67 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::delete('delete/{id}', [BannersController::class, 'SubcategoryDelete'])->name('delete');
             });   
         });
+
+        Route::group(['prefix' => 'service', 'as' => 'service.'], function () {
+
+            Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
+                Route::get('add', [ServiceCategoryController::class, 'index'])->name('add');
+                Route::get('add-sub-category', [ServiceCategoryController::class, 'subIndex'])->name('add-sub-category');
+                Route::post('store', [ServiceCategoryController::class, 'store'])->name('store');
+                Route::get('edit/{id}', [ServiceCategoryController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [ServiceCategoryController::class, 'update'])->name('update');
+                Route::get('status/{id}/{status}', [ServiceCategoryController::class, 'status'])->name('status');
+                Route::delete('delete/{id}', [ServiceCategoryController::class, 'delete'])->name('delete');
+                Route::get('priority', [ServiceCategoryController::class, 'priority'])->name('priority');
+
+                Route::group(['prefix' => 'tag', 'as' => 'tag.'], function () {
+                    Route::get('add-new', [ServiceTagController::class, 'index'])->name('add-new');
+                    Route::post('store', [ServiceTagController::class, 'store'])->name('store');
+                    Route::get('edit/{id}', [ServiceTagController::class, 'edit'])->name('edit');
+                    Route::post('update/{id}', [ServiceTagController::class, 'update'])->name('update');
+                    Route::delete('delete/{id}', [ServiceTagController::class, 'delete'])->name('delete');
+                    Route::get('status/{id}/{status}', [ServiceTagController::class, 'status'])->name('status');
+                });
+
+                Route::group(['prefix' => 'attribute', 'as' => 'attribute.'], function () {
+                    Route::get('add-new', [ServiceAttributeController::class, 'index'])->name('add-new');
+                    Route::post('store', [ServiceAttributeController::class, 'store'])->name('store');
+                    Route::get('edit/{id}', [ServiceAttributeController::class, 'edit'])->name('edit');
+                    Route::post('update/{id}', [ServiceAttributeController::class, 'update'])->name('update');
+                    Route::delete('delete/{id}', [ServiceAttributeController::class, 'delete'])->name('delete');
+                    Route::get('status/{id}/{status}', [ServiceAttributeController::class, 'status'])->name('status');
+                });
+
+                Route::group(['prefix' => 'product', 'as' => 'product.'], function () {
+            
+                    Route::get('list', [ProductController::class, 'list'])->name('list');
+                    // Route::get('add-new', [ProductController::class, 'index'])->name('add-new');
+                    // Route::get('get-categories', [ProductController::class, 'getCategories'])->name('get-categories');
+                    // Route::post('variant-combination', [ProductController::class, 'variantCombination'])->name('variant-combination');
+                    // Route::get('get-variations', [ProductController::class, 'getVariations'])->name('get-variations');
+                    // Route::post('store', [ProductController::class, 'store'])->name('store');
+                    // Route::get('view/{id}', [ProductController::class, 'view'])->name('view');
+                    // Route::get('status/{id}/{status}', [ProductController::class, 'status'])->name('status');
+                    // Route::get('edit/{id}', [ProductController::class, 'edit'])->name('edit');
+        
+                    // Route::post('update/{id}', [ProductController::class, 'update'])->name('update');
+                    // Route::delete('delete/{id}', [ProductController::class, 'delete'])->name('delete');
+    
+                    // Route::post('daily-needs', [ProductController::class, 'dailyNeeds'])->name('daily-needs');
+                    // Route::get('limited-stock', [ProductController::class, 'limitedStock'])->name('limited-stock');
+                    // Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');
+                    // Route::post('update-quantity', [ProductController::class, 'updateQuantity'])->name('update-quantity');
+
+                    // Route::post('Product_ajax', [ProductController::class, 'ProductAjax'])->name('ProductAjax');
+                    // Route::post('Product_data_ajax', [ProductController::class, 'ProductDataAjax'])->name('ProductDataAjax');
+                    // Route::post('Edit_product_column', [ProductController::class, 'Edit_product_column'])->name('Edit_product_column');
+        
+                    
+                });
+            });
+        });
+
+       
 
         Route::group(['prefix' => 'display', 'as' => 'display.'], function () {
             
@@ -245,18 +313,26 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('payment-status', [OrderController::class, 'paymentStatus'])->name('payment-status');
             Route::get('generate-invoice/{id}', [OrderController::class, 'generateInvoice'])->name('generate-invoice')->withoutMiddleware(['module:order_management']);
             Route::post('add-payment-ref-code/{id}', [OrderController::class, 'addPaymentReferenceCode'])->name('add-payment-ref-code');
-            Route::get('branch-filter/{branch_id}', [OrderController::class, 'branchFilter'])->name('branch-filter');
+            
             Route::post('search', [OrderController::class, 'search'])->name('search');
             Route::get('export/{status}', [OrderController::class, 'exportOrders'])->name('export');
             Route::get('verify-offline-payment/{order_id}/{status}', [OrderController::class, 'verifyOfflinePayment']);
 
+            // Order Approval Routes
+            Route::get('approval-request', [OrderController::class, 'ApprovalRequest'])->name('approval_request');
+            Route::get('approval-request/view/{id}', [OrderController::class, 'ApprovalRequestView'])->name('approval.request.view');
+            Route::post('approval-request/action/{id}', [OrderController::class, 'ApprovalRequestAction'])->name('approval.request.action');
+            Route::post('update-service-men', [OrderController::class, 'UpdateServiceMen'])->name('update.service.men');
+
+
+
+
+            
             Route::get('edit-item/{id}', [OrderController::class, 'edit_item'])->name('edit_item');
             Route::post('edit-item/{id}', [OrderController::class, 'edit_item_submit'])->name('edit_item.submit');
 
             Route::post('Product_Replaced_ajax', [OrderController::class, 'ProductReplaceAjax'])->name('ProductReplaceAjax');
             Route::post('Product_delete_ajax', [OrderController::class, 'ProductDeleteAjax'])->name('ProductDeleteAjax');
-
-            Route::get('approval-request', [OrderController::class, 'ApprovalRequest'])->name('approval_request');
 
         });
 

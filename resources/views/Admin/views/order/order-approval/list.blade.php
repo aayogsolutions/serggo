@@ -55,27 +55,39 @@
                 <div class="table-responsive datatable-custom">
                     <table class="table table-hover table-borderless table-thead-bordered table-nowrap table-align-middle card-table">
                         <thead class="thead-light">
-                        <tr>
-                            <th>
-                                {{translate('SN')}}
-                            </th>
-                            <th class="table-column-pl-0">{{translate('order ID')}}</th>
-                            <th class="table-column-pl-0">{{translate('Customer')}}</th>
-                            <th class="table-column-pl-0">{{translate('Belong_to')}}</th>
-                            <th class="table-column-pl-0">{{translate('Number_of_products')}}</th>
-                            <th>{{translate('Total amount')}}</th>
-                            <th>{{translate('Order Note')}}</th>                          
-                            <th>
-                                <div class="text-center">
-                                    {{translate('order')}} {{translate('status')}}
-                                </div>
-                            </th>
-                            <th>
-                                <div class="text-center">
-                                    {{translate('action')}}
-                                </div>
-                            </th>
-                        </tr>
+                            <tr>
+                                <th>
+                                    {{translate('SN')}}
+                                </th>
+                                <th class="table-column-pl-0">
+                                    {{translate('order ID')}}
+                                </th>
+                                <th class="table-column-pl-0">
+                                    {{translate('Customer')}}
+                                </th>
+                                <th class="table-column-pl-0">
+                                    {{translate('Belong_to')}}
+                                </th>
+                                <th class="table-column-pl-0">
+                                    {{translate('Number_of_products')}}
+                                </th>
+                                <th>
+                                    {{translate('Total amount')}}
+                                </th>
+                                <th>
+                                    {{translate('delivered_by')}}
+                                </th>                          
+                                <th>
+                                    <div class="text-center">
+                                        {{translate('delivered_address')}}
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="text-center">
+                                        {{translate('action')}}
+                                    </div>
+                                </th>
+                            </tr>
                         </thead>
 
                         <tbody id="set-rows">
@@ -88,47 +100,42 @@
                                     <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">{{$order['id']}}</a>
                                 </td>                              
                                 <td>
-                                    @if($order->is_guest == 0)
-                                        @if(isset($order->customer))
+                                    <div>
+                                        <a class="text-body text-capitalize font-medium"
+                                            href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['name']}}</a>
+                                    </div>
+                                    <div class="text-sm">
+                                        <a href="Tel:{{$order->customer['number']}}">{{$order->customer['number']}}</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if($order->vender_id == null)
+                                        <span class="text-success">
+                                            {{translate('Admin')}}
+                                        </span>
+                                    @else
+                                        <span class="text-danger">
                                             <div>
                                                 <a class="text-body text-capitalize font-medium"
-                                                   href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['f_name'].' '.$order->customer['l_name']}}</a>
+                                                    href="{{route('admin.vendor.view',[$order['user_id']])}}">{{translate($order->vendororders->name)}}</a>
                                             </div>
                                             <div class="text-sm">
-                                                <a href="Tel:{{$order->customer['phone']}}">{{$order->customer['phone']}}</a>
+                                                <a href="javascript:void(0);">{{$order->vendororders->number}}</a>
                                             </div>
-                                        @elseif($order->user_id != null && !isset($order->customer))
-                                            <label
-                                                class="text-danger">{{translate('Customer_not_available')}}
-                                            </label>
-                                        @else
-                                            <label
-                                                class="text-success">{{translate('Walking Customer')}}
-                                            </label>
-                                        @endif
-                                    @else
-                                        <label
-                                            class="text-success">{{translate('Guest Customer')}}
-                                        </label>
+                                        </span>
                                     @endif
-
                                 </td>
-                                <td></td>
-                                <td></td>
+                                <td>
+                                    <span class="text-success">
+                                        {{ $order->OrderDetails->count() }}
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="mw-90">
                                         <div>
-                                           <?php
-                                                $vatStatus = $order->details ? $order->details[0]->vat_status : '';
-                                                if($vatStatus == 'included'){
-                                                    $orderAmount = $order['order_amount'] - $order['total_tax_amount'];
-                                                }else{
-                                                    $orderAmount = $order['order_amount'];
-                                                }
-                                           ?>
-                                            {{ Helpers::set_symbol($orderAmount) }}
+                                            {{ Helpers_set_symbol($order['order_amount']) }}
                                         </div>
-                                        @if($order->payment_status=='paid')
+                                        @if($order->payment_status == 'paid')
                                             <span class="text-success">
                                                 {{translate('paid')}}
                                             </span>
@@ -139,41 +146,39 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td></td>
-                                <td class="text-capitalize text-center">
-                                    @if($order['order_status']=='pending')
-                                        <span class="badge badge-soft-info">
-                                            {{translate('pending')}}
-                                        </span>
-                                    @elseif($order['order_status']=='confirmed')
-                                        <span class="badge badge-soft-info">
-                                            {{translate('confirmed')}}
-                                        </span>
-                                    @elseif($order['order_status']=='processing')
-                                        <span class="badge badge-soft-warning">
-                                            {{translate('packaging')}}
-                                        </span>
-                                    @elseif($order['order_status']=='out_for_delivery')
-                                        <span class="badge badge-soft-warning">
-                                            {{translate('out_for_delivery')}}
-                                        </span>
-                                    @elseif($order['order_status']=='delivered')
-                                        <span class="badge badge-soft-success">
-                                            {{translate('delivered')}}
+                                <td>
+                                    @if($order->delivered_by == 0)
+                                        <span class="text-success">
+                                            {{translate('Admin')}}
                                         </span>
                                     @else
-                                        <span class="badge badge-soft-danger">
-                                            {{ translate(str_replace('_',' ',$order['order_status'])) }}
+                                        <span class="text-danger">
+                                            <div>
+                                                <a class="text-body text-capitalize font-medium"
+                                                    href="{{route('admin.vendor.view',[$order['user_id']])}}">{{translate($order->vendororders->name)}}</a>
+                                            </div>
+                                            <div class="text-sm">
+                                                <a href="javascript:void(0);">{{$order->vendororders->number}}</a>
+                                            </div>
                                         </span>
+                                    @endif
+                                </td>
+                                <td class="text-capitalize text-center">
+                                    @php($address = json_decode($order['delivery_address'],true))
+                                    @if($address != null)
+                                        {{translate($address->house_road.', '.$address->address1.', '.$address->address2.', '.$address->city)}}
                                     @endif
                                 </td>
                                 
                                 <td>
                                     <div class="btn--container justify-content-center">
-                                        <a class="action-btn btn--primary btn-outline-primary" href="{{route('admin.orders.details',['id'=>$order['id']])}}"><i class="tio-invisible"></i></a>
-                                        <a class="action-btn btn-outline-primary-2" target="_blank" href="{{route('admin.orders.generate-invoice',[$order['id']])}}">
-                                            <i class="tio-print"></i>
+                                        <a class="action-btn btn--primary btn-outline-primary" href="{{route('admin.orders.approval.request.view',['id'=>$order['id']])}}">
+                                            <i class="tio-invisible"></i>
                                         </a>
+
+                                        <!-- <a class="action-btn btn-outline-primary-2" target="_blank" href="{{route('admin.orders.generate-invoice',[$order['id']])}}">
+                                            <i class="tio-print"></i>
+                                        </a> -->
                                     </div>
                                 </td>
                             </tr>

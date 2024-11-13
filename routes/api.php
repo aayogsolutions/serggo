@@ -96,10 +96,12 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             
             Route::get('/cart', [CartController::class,'Cart']);
 
-
             // Product Favorite Routes
             Route::get('/favorite', [WishlistController::class,'Favorite']);
             Route::get('/favorite/list', [WishlistController::class,'FavoriteList']);
+
+            // Selected Product Route
+            Route::get('/selected/info', [ProductController::class,'SelectedProduct']);
         });
         
         // Wallet Transaction info

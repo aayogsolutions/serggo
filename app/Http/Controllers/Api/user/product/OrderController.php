@@ -8,7 +8,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\{
     CustomerAddresses,
-    Products
+    Order,
+    Order_details,
+    Products,
+    User
 };
 use Illuminate\Support\Facades\Auth;
 
@@ -16,7 +19,10 @@ class OrderController extends Controller
 {
     public function __construct(
         private Products $product,
+        private Order $order,
+        private Order_details $order_detail,
         private CustomerAddresses $customeraddress,
+        private User $user,
     ){}
     
     /**
@@ -90,9 +96,18 @@ class OrderController extends Controller
             'product.*.selectedvariation' => 'required',
             'product.*.quantity' => 'required|numeric',
             'product.*.is_installation' => 'required|numeric',
+            'product.*.delivery' => 'required|numeric',
+            'product.*.discount' => 'required|numeric',
             'payment_method' => 'required|in:cod,online',
             'address_id' => 'required|numeric',
-            'wallet_amount' => 'required|numeric',
+            'wallet_applied' => 'required|numeric',
+            'item_total' => 'required|numeric',
+            'installation_charges' => 'required|numeric',
+            'delivery_charges' => 'required|numeric',
+            'discount' => 'required|numeric',
+            'taxs' => 'required|numeric',
+            'gst_invoice' => 'required|numeric',
+            'grand_total' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -103,6 +118,7 @@ class OrderController extends Controller
         }
 
         $vendor_ids = [];
+        $order_ids = [];
         $orderedproducts = [];
 
         try {
@@ -112,12 +128,11 @@ class OrderController extends Controller
                 if(is_numeric($product->vender_id))
                 {
                     $vendor_ids[] = $product->vender_id;
-                    $orderedproducts[$product->vender_id][] = product_data_formatting($product,false,false,true);
+                    $orderedproducts[$product->vender_id][] = $value;
                 }else{
                     $orderedproducts['admin'][] = $value;
                 }
             }
-            
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
@@ -126,15 +141,187 @@ class OrderController extends Controller
             ], 409);
         }
         
-        // dd($request->product);
+        $tax_type = Helpers_get_business_settings('product_gst_tax_status');
+        
+        try {
+            $wallet_amount_per_product = 0;
+            if(isset($request->wallet_applied) && $request->wallet_applied != 0)
+            {
+                $this->user->find(Auth::user()->id)->update(['wallet_balance' => $this->user->find(Auth::user()->id)->wallet_balance - $request->wallet_applied]);
+                $number_of_product = count($request->product);
+                $wallet_amount_per_product = $request->wallet_applied / $number_of_product;
+            }
+            foreach ($orderedproducts as $key => $products) {
+                if($key == 'admin')
+                {
+                    $adminOrder = new Order();
+                    $adminOrder->user_id = Auth::user()->id;
+                    $adminOrder->order_type = 'goods';
+                    $adminOrder->order_status = 'pending';
+                    $adminOrder->order_approval = 'pending';
+                    $adminOrder->payment_status = 'unpaid';
+                    $adminOrder->payment_method = $request->payment_method;
+                    $adminOrder->delivery_address_id = $request->address_id;
+                    $adminOrder->grand_total = $request->grand_total;
+                    $adminOrder->delivered_by = 0;
+                    $adminOrder->checked = 1;
+                    $adminOrder->date = now();
+                    $adminOrder->delivery_address = json_encode($this->customeraddress->find($request->address_id));
+                    $adminOrder->gst_invoice = $request->gst_invoice;
+                    $adminOrder->save();
+    
+                    $tax_amount = 0;
+                    $amount = 0;
+                    $delivery = 0;
+                    $partial_payment_amount = 0;
+                    foreach ($products as $key1 => $value) 
+                    {
+                        $product = $this->product->find($value['id']);
+    
+                        if($value['selectedvariation'] != null)
+                        {
+                            $price = $value['selectedvariation']['price'];
+                        }else{
+                            $price = $product->price;
+                        }
+    
+                        $this_tax_amount = Helpers_tax_calculate($product, $price);
+    
+                        $order_details = new Order_details();
+                        $order_details->order_id = $adminOrder->id;
+                        $order_details->product_id = $product->id;
+                        $order_details->product_details = json_encode($product);
+                        $order_details->price = $price;
+                        $order_details->quantity = $value['quantity'];
+                        $order_details->variation = json_encode($value['selectedvariation']);
+                        $order_details->unit = $product->unit;
+                        $order_details->discount_on_product = $value['discount'];
+                        $order_details->is_stock_decreased = 1;
+                        if($value['is_installation'] == 0)
+                        {
+                            $order_details->installastion_amount = $product->installation_charges;
+                        }
+                        if($tax_type == null || $tax_type == 'excluded')
+                        {
+                            $order_details->gst_status = 'excluded';
+                        }else{
+                            $order_details->gst_status = 'included';
+                        }
+                        $order_details->tax_amount = $this_tax_amount;
+                        $order_details->save();
+    
+                        $tax_amount += $this_tax_amount * $value['quantity'];
+                        $amount += $price * $value['quantity'];
+                        $delivery += $value['delivery'] * $value['quantity'];
+                        $partial_payment_amount += $wallet_amount_per_product;
+                    }
+    
+                    $adminOrder = $this->order->find($adminOrder->id);
+                    if(isset($request->wallet_applied) && $request->wallet_applied != 0)
+                    {
+                        $adminOrder->partial_payment = json_encode([
+                            'wallet_applied' => $partial_payment_amount
+                        ]);
+                    }
+                    $adminOrder->total_tax_amount = $this_tax_amount;
+                    $adminOrder->order_amount = $amount;
+                    $adminOrder->delivery_charge = $delivery;
+                    $adminOrder->save();
+    
+                    $order_ids[] = $adminOrder->id;
+                }else{
+    
+                    $adminOrder = new Order();
+                    $adminOrder->user_id = Auth::user()->id;
+                    $adminOrder->order_type = 'goods';
+                    $adminOrder->order_status = 'pending';
+                    $adminOrder->order_approval = 'pending';
+                    $adminOrder->payment_status = 'unpaid';
+                    $adminOrder->payment_method = $request->payment_method;
+                    $adminOrder->delivery_address_id = $request->address_id;
+                    $adminOrder->grand_total = $request->grand_total;
+                    $adminOrder->delivered_by = 1; // editable
+                    $adminOrder->checked = 1;
+                    $adminOrder->date = now();
+                    $adminOrder->vender_id = $key;
+                    $adminOrder->delivery_address = json_encode($this->customeraddress->find($request->address_id));
+                    $adminOrder->gst_invoice = $request->gst_invoice;
+                    $adminOrder->save();
+    
+                    $tax_amount = 0;
+                    $amount = 0;
+                    $delivery = 0;
+                    $partial_payment_amount = 0;
+                    foreach ($products as $key2 => $value) 
+                    {
+                        $product = $this->product->find($value['id']);
+    
+                        if($value['selectedvariation'] != null)
+                        {
+                            $price = $value['selectedvariation']['price'];
+                        }else{
+                            $price = $product->price;
+                        }
+    
+                        $this_tax_amount = Helpers_tax_calculate($product, $price);
+    
+                        $order_details = new Order_details();
+                        $order_details->order_id = $adminOrder->id;
+                        $order_details->product_id = $product->id;
+                        $order_details->product_details = json_encode($product);
+                        $order_details->price = $price;
+                        $order_details->quantity = $value['quantity'];
+                        $order_details->variation = json_encode($value['selectedvariation']);
+                        $order_details->unit = $product->unit;
+                        $order_details->discount_on_product = $value['discount'];
+                        $order_details->is_stock_decreased = 1;
+                        if($value['is_installation'] == 0)
+                        {
+                            $order_details->installastion_amount = $product->installation_charges;
+                        }
+                        if($tax_type == null || $tax_type == 'excluded')
+                        {
+                            $order_details->gst_status = 'excluded';
+                        }else{
+                            $order_details->gst_status = 'included';
+                        }
+                        $order_details->tax_amount = $this_tax_amount;
+                        $order_details->save();
+    
+                        $tax_amount += $this_tax_amount * $value['quantity'];
+                        $amount += $price * $value['quantity'];
+                        $delivery += $value['delivery'] * $value['quantity'];
+                        $partial_payment_amount += $wallet_amount_per_product;
+                    }
+    
+                    $adminOrder = $this->order->find($adminOrder->id);
+                    if(isset($request->wallet_applied) && $request->wallet_applied != 0)
+                    {
+                        $adminOrder->partial_payment = json_encode([
+                            'wallet_applied' => $partial_payment_amount
+                        ]);
+                    }
+                    $adminOrder->total_tax_amount = $tax_amount;
+                    $adminOrder->order_amount = $amount;
+                    $adminOrder->delivery_charge = $delivery;
+                    $adminOrder->save();
+    
+                    $order_ids[] = $adminOrder->id;
+                }
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Something went wrong',
+                'data' => []
+            ], 404);
+        }
+        
 
         return response()->json([
             'status' => true,
             'message' => 'Order Placed',
-            'data' => [
-                $vendor_ids,
-                $orderedproducts
-            ]
+            'data' => $order_ids
         ], 201);
     }
 }

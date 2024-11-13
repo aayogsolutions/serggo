@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id()->startingValue(10000000);
+            $table->id()->startingValue(1000000);
             $table->bigInteger('user_id');
             $table->enum('order_type',['goods','service']);
             $table->decimal('order_amount',24,2);
-            $table->string('order_status')->default('pending')->comment('[pending,confirmed,packing,out_for_delivery,delivered,canceled,returned,failed]');
+            $table->decimal('grand_total',24,2);
+            $table->string('order_status')->default('pending')->comment('[pending,confirmed,packing,out_for_delivery,delivered,canceled,returned,failed,rejected]');
             $table->enum('order_approval',['pending','accepted','rejected'])->default('pending');
             $table->enum('editable',[0,1,2])->default(0)->comment('0 => N/A|| 1 => Edit processing || 2=> edit Accepted');
             $table->enum('edit_status',['pending','accepted','rejected'])->nullable();
@@ -30,15 +31,18 @@ return new class extends Migration
             $table->bigInteger('delivery_address_id')->nullable();
             $table->tinyInteger('checked')->nullable();
             $table->tinyInteger('delivered_by')->default(0)->comment('0 = admin| 1 = vendor');
+            $table->tinyInteger('accepted_by')->default(0)->comment('0 = admin| 1 = vendor');
             $table->decimal('delivery_charge',8,2)->default(0);
             $table->text('order_note')->nullable();
             $table->bigInteger('vender_id')->nullable();
             $table->date('date')->nullable();
             $table->date('delivery_date')->nullable();
+            $table->integer('delivery_timeslot_id')->nullable();
             $table->string('callback')->nullable();
             $table->text('delivery_address')->nullable();
             $table->string('payment_by')->nullable();
             $table->string('payment_note')->nullable();
+            $table->text('partial_payment')->nullable();
             $table->double('free_delivery_amount',8,2)->default(0);
             $table->tinyInteger('gst_invoice')->default(1)->comment("0 = Required | 1 = Not required");
             $table->timestamps();

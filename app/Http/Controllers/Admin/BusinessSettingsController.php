@@ -192,7 +192,7 @@ class BusinessSettingsController extends Controller
 
         $config = json_decode($this->businessSettings->where(['key' => 'delivery_management'])->first()->value);
         
-        return view('admin.views.business-settings.delivery-fee',compact('config'));
+        return view('Admin.views.business-settings.delivery-fee',compact('config'));
     }
 
     /**

@@ -78,7 +78,7 @@
                                             <i class="tio-shopping-cart-outlined"></i> {{translate('You have new order, Check Please.')}}
                                         </h2>
                                         <hr>
-                                        <button id="check-order" class="btn btn-primary">{{translate('Ok, let me check')}}</button>
+                                        <button id="check-order" class="btn btn-primary"><a href="{{ route('admin.orders.approval_request') }}">{{translate('Ok, let me check')}}</a></button>
                                     </div>
                                 </div>
                             </div>
@@ -147,8 +147,8 @@
             });
         </script>
 
-
         @stack('script_2')
+
         <audio id="myAudio">
             <source src="{{asset('assets/admin/sound/notification.mp3')}}" type="audio/mpeg">
         </audio>
@@ -159,26 +159,24 @@
             function playAudio() {
                 audio.play();
             }
-
+            
             function pauseAudio() {
                 audio.pause();
             }
-        </script>
-        <script>
+
             $('#check-order').on('click', function(){
-                location.href = "{{route('admin.test')}}";
+                location.href = "{{route('admin.orders.approval_request')}}";
             })
 
             @if(Helpers_module_permission_check('order_management'))
                 setInterval(function () {
                     $.get({
-                        url: "{{route('admin.test')}}",
+                        url: "{{route('admin.new.order')}}",
                         dataType: 'json',
                         success: function (response) {
-                            let data = response.data;
-                            if (data.new_order > 0) {
-                                playAudio();
+                            if (response.data.new_order > 0) {
                                 $('#popup-modal').appendTo("body").modal('show');
+                                playAudio();
                             }
                         },
                     });

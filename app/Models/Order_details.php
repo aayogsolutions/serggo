@@ -15,7 +15,7 @@ class Order_details extends Model
         return $this->belongsTo(Products::class, 'product_id');
     }
 
-    public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function OrderDetails(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class, 'order_id');
     }

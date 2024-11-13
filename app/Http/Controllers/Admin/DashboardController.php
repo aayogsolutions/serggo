@@ -40,7 +40,7 @@ class DashboardController extends Controller
     public function dashboard(): View|Factory|Application
     {
         $topSell = $this->orderDetail->with(['product'])
-            ->whereHas('order', function ($query){
+            ->whereHas('OrderDetails', function ($query){
                 $query->where('order_status', 'delivered');
             })
             ->select('product_id', DB::raw('SUM(quantity) as count'))

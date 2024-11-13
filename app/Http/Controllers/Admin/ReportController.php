@@ -105,7 +105,7 @@ class ReportController extends Controller
 
         $queryParam = ['branch_id' => $branchId, 'start_date' => $startDate,'end_date' => $endDate ];
 
-        $orderDetails = $this->orderDetail->withCount(['order'])
+        $orderDetails = $this->orderDetail->withCount(['OrderDetails'])
             ->whereIn('order_id', $orders)
             ->orderBy('id', 'DESC')
             ->paginate(Helpers_getPagination())

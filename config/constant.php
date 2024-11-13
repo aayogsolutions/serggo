@@ -19,6 +19,10 @@ const MANAGEMENT_SECTION = [
     'product_setup' => 'product_setup',
     'Vendors Products' => 'Vendors Products',
 
+    'service_management' => 'service_management',
+    'category_setup' => 'category_setup',
+    'service_setup' => 'service_setup',
+
     'promotion_management' => 'promotion_management',
     'banner' => 'banner',
     'display' => 'display',

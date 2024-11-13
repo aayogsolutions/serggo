@@ -141,7 +141,10 @@ class CustomerController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Get Wallet Transaction data',
-                    'data' => $transaction_data
+                    'data' => [
+                        'wallet_transaction' => Auth::user()->wallet_balance,
+                        'transactions' => Auth::user()->transaction_data,
+                    ]
                 ],200); 
             }else{
                 return response()->json([
@@ -207,7 +210,6 @@ class CustomerController extends Controller
                 'data' => []
             ],409);
         }
-       
     }
 
     /**

@@ -392,7 +392,7 @@ if(!function_exists('Helpers_generate_referer_bonus')) {
             
             $transaction = new WalletTranscation();
             $transaction->user_id = $user->id;
-            $transaction->transactions_id = Str::random('30');
+            $transaction->transactions_id = Helpers_generate_transction_id();
             $transaction->reference = $referred;
             $transaction->transactions_type = 'refferal_user_bonus';
             $transaction->debit = 0;
@@ -409,6 +409,33 @@ if(!function_exists('Helpers_generate_referer_bonus')) {
         }
     }
 }
+
+if(!function_exists('Helpers_generate_wallet_transaction')) {
+    function Helpers_generate_wallet_transaction($user_id , $referred, $transactions_type, $debit, $credit, $amount)
+    {
+        try {
+            $user = User::where('id',$user_id)->first();
+
+            $transaction = new WalletTranscation();
+            $transaction->user_id = $user->id;
+            $transaction->transactions_id = Helpers_generate_transction_id();
+            $transaction->reference = $referred;
+            $transaction->transactions_type = $transactions_type;
+            $transaction->debit = $debit;
+            $transaction->credit = $credit;
+            $transaction->balance = $user->wallet_balance + $amount;
+            $transaction->save();
+
+            $user->wallet_balance = $user->wallet_balance + $amount;
+            $user->save();
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
+}
+
 if(!function_exists('Helpers_text_variable_data_format')) {
     function Helpers_text_variable_data_format($value,$user_name=null,$store_name=null,$delivery_man_name=null,$transaction_id=null,$order_id=null)
     {
@@ -431,5 +458,61 @@ if(!function_exists('Helpers_text_variable_data_format')) {
             }
         }
         return $data;
+    }
+}
+
+if(!function_exists('Helpers_order_status_update_message')) {
+    function Helpers_order_status_update_message($value,$user_name=null,$store_name=null,$delivery_man_name=null,$transaction_id=null,$order_id=null)
+    {
+        try {
+            $data = $value;
+            if ($value) {
+                if($user_name){
+                    $data =  str_replace("{userName}", $user_name, $data);
+                }
+
+                if($store_name){
+                    $data =  str_replace("{storeName}", $store_name, $data);
+                }
+
+                if($delivery_man_name){
+                    $data =  str_replace("{deliveryManName}", $delivery_man_name, $data);
+                }
+
+                if($order_id){
+                    $data =  str_replace("{orderId}", $order_id, $data);
+                }
+            }
+            return $data;
+        } catch (\Throwable $th) {
+        }
+    }
+}
+
+if(!function_exists('Helpers_send_push_notif_to_device')) {
+    function Helpers_send_push_notif_to_device($value,$user_name=null,$store_name=null,$delivery_man_name=null,$transaction_id=null,$order_id=null)
+    {
+        try {
+            $data = $value;
+            if ($value) {
+                if($user_name){
+                    $data =  str_replace("{userName}", $user_name, $data);
+                }
+
+                if($store_name){
+                    $data =  str_replace("{storeName}", $store_name, $data);
+                }
+
+                if($delivery_man_name){
+                    $data =  str_replace("{deliveryManName}", $delivery_man_name, $data);
+                }
+
+                if($order_id){
+                    $data =  str_replace("{orderId}", $order_id, $data);
+                }
+            }
+            return $data;
+        } catch (\Throwable $th) {
+        }
     }
 }
