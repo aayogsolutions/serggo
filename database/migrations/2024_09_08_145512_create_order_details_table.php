@@ -30,7 +30,7 @@ return new class extends Migration
             $table->decimal('discount_on_product',8,2)->nullable();
             $table->string('discount_type')->default('amount');
             $table->tinyInteger('is_stock_decreased')->default(0)->comment('0 = decreased | 1 = not_decreased');
-            $table->decimal('installastion_amount',15,2)->default(0);
+            $table->decimal('installastion_amount',15,2)->nullable();
             $table->enum('gst_status',['included','excluded'])->default('excluded');
             $table->timestamps();
         });

@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Add new tag'))
+@section('title', translate('Add new service tag'))
 
 @section('content')
     <div class="content container-fluid">
@@ -10,7 +10,7 @@
                     <img src="{{asset('assets/admin/img/attribute.png')}}" class="w--24" alt="{{ translate('attribute') }}">
                 </span>
                 <span>
-                    {{ translate('Tag Setup') }}
+                    {{ translate('Service Tag Setup') }}
                 </span>
             </h1>
         </div>
@@ -19,7 +19,7 @@
                 <div class="card--header">
                     <h5 class="card-title">{{translate('Tag Table')}} <span class="badge badge-soft-secondary">{{ $tags->total() }}</span> </h5>
                     <button class="btn btn--primary ml-lg-4">
-                        <a href="{{ route('admin.product.tag.add-new') }}" style="text-decoration: none;color:#ffffff;">
+                        <a href="{{ route('admin.service.tag.add-new') }}" style="text-decoration: none;color:#ffffff;">
                             {{translate('Reset')}}
                         </a>
                     </button>
@@ -60,7 +60,7 @@
                             <td>
                                 <div class="btn--container justify-content-center">
                                     <a class="action-btn"
-                                        href="{{route('admin.product.tag.edit',[$tag['id']])}}">
+                                        href="{{route('admin.service.tag.edit',[$tag['id']])}}">
                                     <i class="tio-edit"></i></a>
                                     <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
                                         data-id="tag-{{$tag['id']}}"
@@ -68,7 +68,7 @@
                                         <i class="tio-delete-outlined"></i>
                                     </a>
                                 </div>
-                                <form action="{{route('admin.product.tag.delete',[$tag['id']])}}"
+                                <form action="{{route('admin.service.tag.delete',[$tag['id']])}}"
                                         method="post" id="tag-{{$tag['id']}}">
                                     @csrf @method('delete')
                                 </form>
@@ -97,7 +97,7 @@
     <div class="modal fade" tabindex="-1" id="tag-modal">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="{{route('admin.product.tag.store')}}" method="post">
+                <form action="{{route('admin.service.tag.store')}}" method="post">
                     <div class="modal-body pt-3">
                         @csrf
                         @php($data = helpers_get_business_settings('language'))

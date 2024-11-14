@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Add new attribute'))
+@section('title', translate('Add new service attribute'))
 
 @section('content')
     <div class="content container-fluid">
@@ -10,16 +10,16 @@
                     <img src="{{asset('assets/admin/img/attribute.png')}}" class="w--24" alt="{{ translate('attribute') }}">
                 </span>
                 <span>
-                    {{ translate('Attribute Setup') }}
+                    {{ translate('Service Attribute Setup') }}
                 </span>
             </h1>
         </div>
         <div class="card">
             <div class="card-header border-0">
                 <div class="card--header">
-                    <h5 class="card-title">{{translate('Attribute Table')}} <span class="badge badge-soft-secondary">{{ $attributes->total() }}</span> </h5>
+                    <h5 class="card-title">{{translate('Service Attribute Table')}} <span class="badge badge-soft-secondary">{{ $attributes->total() }}</span> </h5>
                     <button class="btn btn--primary ml-lg-4">
-                        <a href="{{ route('admin.attribute.add-new') }}" style="text-decoration: none;color:#ffffff;">
+                        <a href="{{ route('admin.service.attribute.add-new') }}" style="text-decoration: none;color:#ffffff;">
                             {{translate('Reset')}}
                         </a>
                     </button>
@@ -60,7 +60,7 @@
                             <td>
                                 <div class="btn--container justify-content-center">
                                     <a class="action-btn"
-                                        href="{{route('admin.attribute.edit',[$attribute['id']])}}">
+                                        href="{{route('admin.service.attribute.edit',[$attribute['id']])}}">
                                     <i class="tio-edit"></i></a>
                                     <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
                                         data-id="attribute-{{$attribute['id']}}"
@@ -68,7 +68,7 @@
                                         <i class="tio-delete-outlined"></i>
                                     </a>
                                 </div>
-                                <form action="{{route('admin.attribute.delete',[$attribute['id']])}}"
+                                <form action="{{route('admin.service.attribute.delete',[$attribute['id']])}}"
                                         method="post" id="attribute-{{$attribute['id']}}">
                                     @csrf @method('delete')
                                 </form>
@@ -97,7 +97,7 @@
     <div class="modal fade" tabindex="-1" id="attribute-modal">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="{{route('admin.attribute.store')}}" method="post">
+                <form action="{{route('admin.service.attribute.store')}}" method="post">
                     <div class="modal-body pt-3">
                         @csrf
                         @php($data = helpers_get_business_settings('language'))

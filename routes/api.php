@@ -107,6 +107,9 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
         // Wallet Transaction info
         Route::get('/transaction', [CustomerController::class,'transaction']);
 
+        // Notification route
+        Route::get('/notification', [CustomerController::class,'Notification']);
+
         // User Address Routes
         Route::group(['prefix' => 'address'], function(){
 

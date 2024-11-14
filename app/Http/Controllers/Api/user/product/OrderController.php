@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\{
     CustomerAddresses,
+    Notifications,
     Order,
     Order_details,
     Products,
@@ -23,6 +24,7 @@ class OrderController extends Controller
         private Order_details $order_detail,
         private CustomerAddresses $customeraddress,
         private User $user,
+        private Notifications $notifications,
     ){}
     
     /**
@@ -152,9 +154,17 @@ class OrderController extends Controller
                 $wallet_amount_per_product = $request->wallet_applied / $number_of_product;
             }
             foreach ($orderedproducts as $key => $products) {
+                if($this->order->exists())
+                {
+                    $id = $this->order->max('id') + 1;
+                }else{
+                    $id = 100001;
+                }
                 if($key == 'admin')
                 {
+                    
                     $adminOrder = new Order();
+                    $adminOrder->id = $id;
                     $adminOrder->user_id = Auth::user()->id;
                     $adminOrder->order_type = 'goods';
                     $adminOrder->order_status = 'pending';
@@ -222,6 +232,7 @@ class OrderController extends Controller
                         $adminOrder->partial_payment = json_encode([
                             'wallet_applied' => $partial_payment_amount
                         ]);
+                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,(Auth::user()->wallet_balance - $partial_payment_amount));
                     }
                     $adminOrder->total_tax_amount = $this_tax_amount;
                     $adminOrder->order_amount = $amount;
@@ -232,6 +243,7 @@ class OrderController extends Controller
                 }else{
     
                     $adminOrder = new Order();
+                    $adminOrder->id = $id;
                     $adminOrder->user_id = Auth::user()->id;
                     $adminOrder->order_type = 'goods';
                     $adminOrder->order_status = 'pending';
@@ -300,6 +312,7 @@ class OrderController extends Controller
                         $adminOrder->partial_payment = json_encode([
                             'wallet_applied' => $partial_payment_amount
                         ]);
+                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,(Auth::user()->wallet_balance - $partial_payment_amount));
                     }
                     $adminOrder->total_tax_amount = $tax_amount;
                     $adminOrder->order_amount = $amount;
@@ -308,6 +321,12 @@ class OrderController extends Controller
     
                     $order_ids[] = $adminOrder->id;
                 }
+
+                $notifications = new Notifications();
+                $notifications->user_id = Auth::user()->id;
+                $notifications->title = 'Order Placed Successfully';
+                $notifications->description = 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending';
+                $notifications->save();
             }
         } catch (\Throwable $th) {
             return response()->json([
@@ -316,7 +335,6 @@ class OrderController extends Controller
                 'data' => []
             ], 404);
         }
-        
 
         return response()->json([
             'status' => true,

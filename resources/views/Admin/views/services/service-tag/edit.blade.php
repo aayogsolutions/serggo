@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('title', translate('Update Tag'))
+@section('title', translate('Service Update Tag'))
 
 @section('content')
 <div class="content container-fluid">
@@ -10,13 +10,13 @@
                 <img src="{{asset('assets/admin/img/attribute.png')}}" class="w--24" alt="{{ translate('attribute') }}">
             </span>
             <span>
-                {{translate('tag')}} {{translate('update')}}
+                {{translate('Service')}}  {{translate('tag')}} {{translate('update')}}
             </span>
         </h1>
     </div>
     <div class="card">
         <div class="card-body pt-2">
-            <form action="{{route('admin.product.tag.update',[$tag['id']])}}" method="post">
+            <form action="{{route('admin.service.tag.update',[$tag['id']])}}" method="post">
                 @csrf
                 <div class="row">
                     <div class="col-12">

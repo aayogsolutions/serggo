@@ -32,7 +32,7 @@ class ServiceCategoryController extends Controller
             $categories = ServiceCategory::where(['position' => 0]);
         }
         $categories = $categories->orderBY('priority', 'ASC')->paginate(Helpers_getPagination())->appends($queryParam);
-        return view('Admin.views.ServiceCategory.index', compact('categories', 'search'));
+        return view('Admin.views.services.ServiceCategory.index', compact('categories', 'search'));
     }
 
     /**
@@ -56,7 +56,7 @@ class ServiceCategoryController extends Controller
             $categories = ServiceCategory::with(['parent'])->where(['position' => 1]);
         }
         $categories = $categories->latest()->paginate(Helpers_getPagination())->appends($queryParam);
-        return view('Admin.views.ServiceCategory.sub-index', compact('categories', 'search'));
+        return view('Admin.views.services.ServiceCategory.sub-index', compact('categories', 'search'));
     }
 
     /**
@@ -109,7 +109,7 @@ class ServiceCategoryController extends Controller
     public function edit($id): View|Factory|Application
     {
         $category = ServiceCategory::find($id);
-        return view('Admin.views.ServiceCategory.edit', compact('category'));
+        return view('Admin.views.services.ServiceCategory.edit', compact('category'));
     }
 
     /**

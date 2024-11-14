@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
+use App\Models\Notifications;
 use App\Models\User;
 use App\Models\WalletTranscation;
 use Illuminate\Http\Request;
@@ -237,5 +238,33 @@ class CustomerController extends Controller
                 'content' => $content,
             ]
         ],200);
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     */
+    public function Notification() : JsonResponse
+    {
+        try {
+
+            $notification = Notifications::where('user_id',Auth::user()->id)->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Referral Info',
+                'data' => [
+                    'notification' => $notification,
+                ]
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'unexpected error',
+                'data' => []
+            ],200);
+        }
+
+        
     }
 }

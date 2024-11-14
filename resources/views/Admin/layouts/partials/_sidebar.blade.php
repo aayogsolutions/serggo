@@ -70,7 +70,7 @@
                                             <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('all')}}</span>
                                                 <span class="badge badge-info badge-pill ml-1">
-                                                    {{ App\Models\Order::all()->count() }}
+                                                    {{ App\Models\Order::where('order_approval' , '!=' , 'pending')->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -82,7 +82,7 @@
                                             <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('pending')}}</span>
                                                 <span class="badge badge-soft-info badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','pending')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'pending','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -94,7 +94,7 @@
                                             <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('confirmed')}}</span>
                                                 <span class="badge badge-soft-success badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','confirmed')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'confirmed','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -106,7 +106,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('packaging')}}</span>
                                                 <span class="badge badge-soft-warning badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','packing')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'packing','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -118,7 +118,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('out_for_delivery')}}</span>
                                                 <span class="badge badge-soft-warning badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','out_for_delivery')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'out_for_delivery','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -130,7 +130,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('delivered')}}</span>
                                                 <span class="badge badge-soft-success badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','delivered')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'delivered','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -142,7 +142,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('returned')}}</span>
                                                 <span class="badge badge-soft-danger badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','returned')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'returned','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -154,7 +154,7 @@
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('failed')}}</span>
                                                 <span class="badge badge-soft-danger badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','failed')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'failed','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -164,10 +164,23 @@
                                         <a class="nav-link " href="{{route('admin.orders.list',['canceled'])}}"
                                             title="{{translate('canceled_orders')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
-                                            <span class="text-truncate  sidebar--badge-container">
+                                            <span class="text-truncate sidebar--badge-container">
                                                 <span>{{translate('canceled')}}</span>
                                                 <span class="badge badge-soft-light badge-pill ml-1">
-                                                    {{ App\Models\Order::where('order_status','canceled')->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'canceled','order_approval' => 'accepted'])->count() }}
+                                                </span>
+                                            </span>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item {{Request::is('admin/orders/list/canceled')?'active':''}}">
+                                        <a class="nav-link " href="{{route('admin.orders.list',['rejected'])}}"
+                                            title="{{translate('rejected_orders')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate sidebar--badge-container">
+                                                <span>{{translate('Rejected')}}</span>
+                                                <span class="badge badge-soft-light badge-pill ml-1">
+                                                    {{ App\Models\Order::where(['order_status'=>'rejected','order_approval' => 'rejected'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -180,7 +193,12 @@
                                     <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.orders.approval_request')}}"
                                     title="{{translate('approval_request')}}">
                                         <i class="tio-layers-outlined nav-icon"></i>
-                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('approval_request')}}</span>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                            {{translate('approval_request')}}
+                                        </span>
+                                        <span class="badge badge-soft-success badge-pill ml-1">
+                                            {{ App\Models\Order::where(['order_status' => 'pending' , 'order_approval' => 'pending'])->count() }}
+                                        </span>
                                     </a>
                                 </li>
                             @endif
@@ -391,7 +409,7 @@
                                     style="display: {{Request::is('admin/service*') || Request::is('admin/service/attribute*') ? 'block' : 'none'}}">
                                     <li class="nav-item {{Request::is('admin/service/attribute*')?'active':''}}">
                                         <a class="nav-link"
-                                            href="#"
+                                            href="{{route('admin.service.attribute.add-new')}}"
                                             title="{{translate('service attribute')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate">{{translate('service attribute')}}</span>
@@ -400,7 +418,7 @@
 
                                     <li class="nav-item {{Request::is('admin/service/tag/add-new*')?'active':''}}">
                                         <a class="nav-link"
-                                            href="#"
+                                            href="{{route('admin.service.tag.add-new')}}"
                                             title="{{translate('service tag')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate">{{translate('service tag')}}</span>
@@ -408,7 +426,7 @@
                                     </li>
 
                                     <li class="nav-item {{Request::is('admin/service/product/list*')?'active':''}} {{Request::is('admin/service/product/add-new')?'active':''}}">
-                                        <a class="nav-link " href="#"
+                                        <a class="nav-link " href="{{route('admin.service.list')}}"
                                             title="{{translate('list')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate">{{translate('service list')}}</span>

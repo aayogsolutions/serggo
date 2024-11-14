@@ -16,7 +16,7 @@
     </div>
     <div class="card">
         <div class="card-body pt-2">
-            <form action="{{route('admin.attribute.update',[$attribute['id']])}}" method="post">
+            <form action="{{route('admin.service.attribute.update',[$attribute['id']])}}" method="post">
                 @csrf
                 <div class="row">
                     <div class="col-12">

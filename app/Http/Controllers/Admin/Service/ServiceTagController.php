@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Service;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Tag;
+use App\Models\ServiceTag;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\{JsonResponse,RedirectResponse};
@@ -35,7 +35,7 @@ class ServiceTagController extends Controller
             $tags = $this->servicetag->orderBy('name');
         }
         $tags = $tags->latest()->paginate(Helpers_getPagination())->appends($queryParam);
-        return view('Admin.views.service-tag.index', compact('tags', 'search'));
+        return view('Admin.views.services.service-tag.index', compact('tags', 'search'));
     }
 
     /**
@@ -71,7 +71,7 @@ class ServiceTagController extends Controller
     public function edit($id): View|Factory|Application
     {
         $tag = $this->servicetag->find($id);
-        return view('Admin.views.service-tag.edit', compact('tag'));
+        return view('Admin.views.services.service-tag.edit', compact('tag'));
     }
 
     /**
@@ -82,7 +82,7 @@ class ServiceTagController extends Controller
     public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
-            'name' => 'required|unique:tags,name,' . $request->id,
+            'name' => 'required|unique:service_tags,name,' . $request->id,
         ], [
             'name.required' => translate('Name is required'),
         ]);
@@ -97,7 +97,7 @@ class ServiceTagController extends Controller
         $tag->save();
 
         flash()->success(translate('Service Tag updated successfully!'));
-        return redirect()->route('admin.product.tag.add-new');
+        return redirect()->route('admin.service.tag.add-new');
     }
 
     /**

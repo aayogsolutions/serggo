@@ -78,7 +78,11 @@
                                             <i class="tio-shopping-cart-outlined"></i> {{translate('You have new order, Check Please.')}}
                                         </h2>
                                         <hr>
-                                        <button id="check-order" class="btn btn-primary"><a href="{{ route('admin.orders.approval_request') }}">{{translate('Ok, let me check')}}</a></button>
+                                        <a href="{{ route('admin.orders.approval_request') }}">
+                                            <button id="check-order" class="btn btn-primary">
+                                                {{translate('Ok, let me check')}}
+                                            </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

@@ -34,6 +34,7 @@ class OrderController extends Controller
         private Order_details $order_detail,
         private Products $product,
         private User $user,
+        private Vendor $vendor,
         private TimeSlot $timeslots
     ) {
     }
@@ -53,7 +54,7 @@ class OrderController extends Controller
 
         $this->order->where(['checked' => 0])->update(['checked' => 1]);
 
-        $query = $this->order->where('order_approval','accepted')->with(['customer'])
+        $query = $this->order->where('order_approval' , '!=', 'pending')->with(['customer'])
             ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
                 return $query->whereDate('created_at', '>=', $startDate)
                     ->whereDate('created_at', '<=', $endDate);
@@ -97,15 +98,12 @@ class OrderController extends Controller
      */
     public function details($id): Factory|View|Application|RedirectResponse
     {
-        $order = $this->order->with(['details', 'offline_payment'])->where(['id' => $id])->first();
-        $deliverymanList = $this->delivery_man->where(['is_active' => 1])
-            ->where(function ($query) use ($order) {
-                $query->where('branch_id', $order->branch_id)
-                    ->orWhere('branch_id', 0);
-            })->get();
+        $order = $this->order->with('OrderDetails')->where(['id' => $id])->first();
+
+        $servicemanlist = $this->vendor->where(['is_block' => 0, 'role' => 1])->get();
 
         if (isset($order)) {
-            return view('Admin.views.order.order-view', compact('order', 'deliverymanList'));
+            return view('Admin.views.order.order-view', compact('order', 'servicemanlist'));
         } else {
             flash()->info(translate('No more orders!'));
             return back();
@@ -202,218 +200,97 @@ class OrderController extends Controller
 
     /**
      * @param Request $request
+     * @return RedirectResponse
+     */
+    public function paymentStatus(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $order = $this->order->find($request->id);
+
+        if ($request->payment_status == 'paid') 
+        {
+            $order->order_status = 'confirmed';
+            $order->order_approval = 'accepted';
+
+            $message = Helpers_order_status_update_message('confirmed');
+            $customerFcmToken = null;
+            
+            $value = null;
+
+            try {
+                if ($value) {
+                    $data = [
+                        'title' => translate('Order'),
+                        'description' => $value,
+                        'order_id' => $order['id'],
+                        'image' => '',
+                        'type' => 'order'
+                    ];
+                    Helpers_send_push_notif_to_device($customerFcmToken, $data);
+                }
+            } catch (\Exception $e) {
+                //
+            }
+        }
+
+        $order->payment_status = $request->payment_status;
+        $order->save();
+        flash()->success(translate('Payment status updated!'));
+        return back();
+    }
+    
+    /**
+     * @param Request $request
      * @param $status
      * @return JsonResponse
      */
-    public function UpdateServiceMen($id): JsonResponse
+    public function UpdateServiceMen($delivery_man_id, $order_id): JsonResponse
     {
-        return response()->json([
-            'status' => true,
-        ]);
-    }
-
-    /**
-     * @param $id
-     * @return View|Factory|RedirectResponse|Application
-     */
-    public function edit_item($id): Factory|View|Application|RedirectResponse
-    {
-        $order = $this->order->with(['details', 'offline_payment'])->where(['id' => $id])->first();
-        $deliverymanList = $this->delivery_man->where(['is_active' => 1])
-            ->where(function ($query) use ($order) {
-                $query->where('branch_id', $order->branch_id)
-                    ->orWhere('branch_id', 0);
-            })->get();
-
-        $all_product = Products::all();
-        if (isset($order)) {
-            return view('Admin.views.order.edit-order', compact('order', 'deliverymanList', 'all_product'));
-        } else {
-            flash()->info(translate('No more orders!'));
-            return back();
+        if ($delivery_man_id == 0) {
+            return response()->json([], 401);
         }
-    }
 
-    /**
-     * @param $id
-     * @return View|Factory|RedirectResponse|Application
-     */
-    public function edit_item_submit(Request $request, $id): Factory|View|Application|RedirectResponse
-    {
-        // dd(452 * (56 / 100));
-        if (isset($request->direct)) {
-            $amount = 0;
-            $total_distribute = 0;
-            $total_tax = 0;
-            $order = $this->order->find($id);
-            $status = $order->status;
-            if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
-                flash()->warning(translate('Order_can_not_edited_because_of its_status'));
-                return back();
-            }
+        $order = $this->order->find($order_id);
 
-            if($order->payment_method != 'cash_on_delivery'){
-                flash()->warning(translate('Order_can_not_edited_directly_when_its_not_cash_on_delivery'));
-                return back();
-            }
+        if ($order->order_status == 'pending' || $order->order_status == 'confirmed' || $order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
+            return response()->json(['status' => false], 200);
+        }
 
-            foreach ($order->details as $key => $value) {
+        $order->delivery_man_id = $delivery_man_id;
+        $order->save();
 
-                if ($value->product_id == $request->product[$key]) {
+        $deliverymanMessage = Helpers_order_status_update_message('del_assign');
+        $deliverymanLanguageCode = $order->delivery_man ? $order->delivery_man->language_code : 'en';
+        $deliverymanFcmToken = $order->delivery_man ? $order->delivery_man->fcm_token : null;
+        $value = $this->dynamic_key_replaced_message(message: $deliverymanMessage, type: 'order', order: $order);
 
-                    if($request->alternate[$key] != 0){
-
-                        $alt_product_detail = Products::find($request->alternate[$key]);
-
-                        $price = $alt_product_detail->price;
-                        $tax_on_product = Helpers_tax_calculate($alt_product_detail, $price);
-
-                        $category_id = null;
-                        foreach (json_decode($alt_product_detail['category_ids'], true) as $cat) {
-                            if ($cat['position'] == 1){
-                                $category_id = ($cat['id']);
-                            }
-                        }
-
-                        $category_discount = Helpers_category_discount_calculate($category_id, $price);
-                        $product_discount = Helpers_discount_calculate($alt_product_detail, $price);
-                        if ($category_discount >= $price){
-                            $discount = $product_discount;
-                            $discount_type = 'discount_on_product';
-                        }else{
-                            $discount = max($category_discount, $product_discount);
-                            $discount_type = $product_discount > $category_discount ? 'discount_on_product' : 'discount_on_category';
-                        }
-
-                        $distribute_on_product = Helpers_distribute_calculate($alt_product_detail, $price);
-
-
-                        $value->product_id = $request->alternate[$key];
-                        $value->quantity = $request->alternate_qyt[$key];
-                        $value->product_details = $alt_product_detail;
-                        $value->price = $price;
-                        $value->discount_on_product = $discount;
-                        $value->discount_type = $discount_type;
-                        $value->tax_amount = $tax_on_product;
-                        $value->distributed_amount = $distribute_on_product;
-                        $value->save();
-
-                        $total_distribute = $total_distribute + $distribute_on_product;
-                        $total_tax = $total_tax + $tax_on_product;
-
-                        $amount_price = $price * $request->alternate_qyt[$key];
-                        $amount = $amount + $amount_price;
-                    }else{
-
-                        $total_distribute = $total_distribute + $value->distributed_amount;
-                        $total_tax = $total_tax + $value->tax_amount;
-
-                        $amount_price = $value->price * $value->quantity;
-                        $amount = $amount + $amount_price;
-
-                    }
-                }
-            }
-
-
-            $order->order_amount = $amount;
-            $order->total_distributed_amount = $total_distribute;
-            $order->total_tax_amount = $amount;
-            $order->save();
-            
-
-            try {
-
-                $customerNotifyMessage = 'Your Order Is Edit Because Out of stock Issue! See This new Items';
-
-                $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
-                $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-
-                if ($customerLanguageCode != 'en') {
-                    $customerNotifyMessage = $this->translate_message($customerLanguageCode, $customerNotifyMessage);
-                }
-                $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
-
+        try {
+            if ($value) {
                 $data = [
-                    'title' => translate('Order Edited'),
+                    'title' => translate('Order'),
                     'description' => $value,
                     'order_id' => $order['id'],
                     'image' => '',
                     'type' => 'order'
                 ];
+                Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
 
-                if ($customerNotifyMessage) {
-                    $data['description'] = $value;
-                    Helpers_send_push_notif_to_device($customerFcmToken, $data);
-                }
-            } catch (\Exception $e) {
-                flash()->warning(translate('Notification failed for Customer!'));
-            }
-
-            flash()->success(translate('Order Edited Successfully!'));
-            return redirect(route('admin.orders.list', 'all'));
-
-
-        } else {
-
-            // Response
-
-            $order = $this->order->find($id);
-            $status = $order->status;
-            if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
-                flash()->warning(translate('Order_can_not_edited_because_of its_status'));
-                return back();
-            }
-
-            $order->editable = 1;
-            $order->edit_status = 'pending';
-
-            foreach ($order->details as $key => $value) {
-                if ($value->product_id == $request->product[$key]) {
-                    $value->alt_product_id = $request->alternate[$key];
-                    $value->alt_product_qyt = $request->alternate_qyt[$key];
-                    if($request->alternate[$key] != 0){
-                        $value->alt_product_status = 'pending';
-                    }
-                    $product_detail = Products::find($request->alternate[$key]);
-                    $value->alt_product_details = $product_detail;
-                    $value->save();
-                }
-            }
-
-            $order->save();
-
-            try {
-
-                $customerNotifyMessage = 'Your Order Is Edit Because Out of stock Issue! See This new Item and Accept it';
-
+                $customerNotifyMessage = Helpers_order_status_update_message('customer_notify_message');
                 $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
                 $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-
-                if ($customerLanguageCode != 'en') {
-                    $customerNotifyMessage = $this->translate_message($customerLanguageCode, $customerNotifyMessage);
-                }
+                
                 $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
-
-                $data = [
-                    'title' => translate('Order Edited'),
-                    'description' => $value,
-                    'order_id' => $order['id'],
-                    'image' => '',
-                    'type' => 'order'
-                ];
 
                 if ($customerNotifyMessage) {
                     $data['description'] = $value;
                     Helpers_send_push_notif_to_device($customerFcmToken, $data);
                 }
-            } catch (\Exception $e) {
-                flash()->warning(translate('Notification failed for Customer!'));
             }
-
-            flash()->success(translate('Order Edited Successfully!'));
-            return redirect(route('admin.orders.list', 'all'));
+        } catch (\Exception $e) {
+            flash()->warning(translate('Push notification failed for DeliveryMan!'));
         }
+
+        flash()->success('Deliveryman successfully assigned/changed!');
+        return response()->json(['status' => true], 200);
     }
 
     /**
@@ -424,7 +301,7 @@ class OrderController extends Controller
     {
         $order = $this->order->where('id',$request->id)->with('OrderDetails')->first();
 
-        if (in_array($order->order_status, ['returned', 'delivered', 'failed', 'canceled'])) {
+        if (in_array($order->order_status, ['returned', 'delivered', 'failed', 'canceled', 'rejected'])) {
             flash()->warning(translate('you_can_not_change_the_status_of ' . $order->order_status . ' order'));
             return back();
         }
@@ -635,6 +512,211 @@ class OrderController extends Controller
         return back();
     }
 
+
+
+
+
+
+    /**
+     * @param $id
+     * @return View|Factory|RedirectResponse|Application
+     */
+    public function edit_item($id): Factory|View|Application|RedirectResponse
+    {
+        $order = $this->order->with(['details', 'offline_payment'])->where(['id' => $id])->first();
+        $deliverymanList = $this->delivery_man->where(['is_active' => 1])
+            ->where(function ($query) use ($order) {
+                $query->where('branch_id', $order->branch_id)
+                    ->orWhere('branch_id', 0);
+            })->get();
+
+        $all_product = Products::all();
+        if (isset($order)) {
+            return view('Admin.views.order.edit-order', compact('order', 'deliverymanList', 'all_product'));
+        } else {
+            flash()->info(translate('No more orders!'));
+            return back();
+        }
+    }
+
+    /**
+     * @param $id
+     * @return View|Factory|RedirectResponse|Application
+     */
+    public function edit_item_submit(Request $request, $id): Factory|View|Application|RedirectResponse
+    {
+        // dd(452 * (56 / 100));
+        if (isset($request->direct)) {
+            $amount = 0;
+            $total_distribute = 0;
+            $total_tax = 0;
+            $order = $this->order->find($id);
+            $status = $order->status;
+            if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
+                flash()->warning(translate('Order_can_not_edited_because_of its_status'));
+                return back();
+            }
+
+            if($order->payment_method != 'cash_on_delivery'){
+                flash()->warning(translate('Order_can_not_edited_directly_when_its_not_cash_on_delivery'));
+                return back();
+            }
+
+            foreach ($order->details as $key => $value) {
+
+                if ($value->product_id == $request->product[$key]) {
+
+                    if($request->alternate[$key] != 0){
+
+                        $alt_product_detail = Products::find($request->alternate[$key]);
+
+                        $price = $alt_product_detail->price;
+                        $tax_on_product = Helpers_tax_calculate($alt_product_detail, $price);
+
+                        $category_id = null;
+                        foreach (json_decode($alt_product_detail['category_ids'], true) as $cat) {
+                            if ($cat['position'] == 1){
+                                $category_id = ($cat['id']);
+                            }
+                        }
+
+                        $category_discount = Helpers_category_discount_calculate($category_id, $price);
+                        $product_discount = Helpers_discount_calculate($alt_product_detail, $price);
+                        if ($category_discount >= $price){
+                            $discount = $product_discount;
+                            $discount_type = 'discount_on_product';
+                        }else{
+                            $discount = max($category_discount, $product_discount);
+                            $discount_type = $product_discount > $category_discount ? 'discount_on_product' : 'discount_on_category';
+                        }
+
+                        $distribute_on_product = Helpers_distribute_calculate($alt_product_detail, $price);
+
+
+                        $value->product_id = $request->alternate[$key];
+                        $value->quantity = $request->alternate_qyt[$key];
+                        $value->product_details = $alt_product_detail;
+                        $value->price = $price;
+                        $value->discount_on_product = $discount;
+                        $value->discount_type = $discount_type;
+                        $value->tax_amount = $tax_on_product;
+                        $value->distributed_amount = $distribute_on_product;
+                        $value->save();
+
+                        $total_distribute = $total_distribute + $distribute_on_product;
+                        $total_tax = $total_tax + $tax_on_product;
+
+                        $amount_price = $price * $request->alternate_qyt[$key];
+                        $amount = $amount + $amount_price;
+                    }else{
+
+                        $total_distribute = $total_distribute + $value->distributed_amount;
+                        $total_tax = $total_tax + $value->tax_amount;
+
+                        $amount_price = $value->price * $value->quantity;
+                        $amount = $amount + $amount_price;
+
+                    }
+                }
+            }
+
+
+            $order->order_amount = $amount;
+            $order->total_distributed_amount = $total_distribute;
+            $order->total_tax_amount = $amount;
+            $order->save();
+            
+
+            try {
+
+                $customerNotifyMessage = 'Your Order Is Edit Because Out of stock Issue! See This new Items';
+
+                $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
+                $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
+                
+                $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
+
+                $data = [
+                    'title' => translate('Order Edited'),
+                    'description' => $value,
+                    'order_id' => $order['id'],
+                    'image' => '',
+                    'type' => 'order'
+                ];
+
+                if ($customerNotifyMessage) {
+                    $data['description'] = $value;
+                    Helpers_send_push_notif_to_device($customerFcmToken, $data);
+                }
+            } catch (\Exception $e) {
+                flash()->warning(translate('Notification failed for Customer!'));
+            }
+
+            flash()->success(translate('Order Edited Successfully!'));
+            return redirect(route('admin.orders.list', 'all'));
+
+
+        } else {
+
+            // Response
+
+            $order = $this->order->find($id);
+            $status = $order->status;
+            if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
+                flash()->warning(translate('Order_can_not_edited_because_of its_status'));
+                return back();
+            }
+
+            $order->editable = 1;
+            $order->edit_status = 'pending';
+
+            foreach ($order->details as $key => $value) {
+                if ($value->product_id == $request->product[$key]) {
+                    $value->alt_product_id = $request->alternate[$key];
+                    $value->alt_product_qyt = $request->alternate_qyt[$key];
+                    if($request->alternate[$key] != 0){
+                        $value->alt_product_status = 'pending';
+                    }
+                    $product_detail = Products::find($request->alternate[$key]);
+                    $value->alt_product_details = $product_detail;
+                    $value->save();
+                }
+            }
+
+            $order->save();
+
+            try {
+
+                $customerNotifyMessage = 'Your Order Is Edit Because Out of stock Issue! See This new Item and Accept it';
+
+                $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
+                $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
+                
+                $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
+
+                $data = [
+                    'title' => translate('Order Edited'),
+                    'description' => $value,
+                    'order_id' => $order['id'],
+                    'image' => '',
+                    'type' => 'order'
+                ];
+
+                if ($customerNotifyMessage) {
+                    $data['description'] = $value;
+                    Helpers_send_push_notif_to_device($customerFcmToken, $data);
+                }
+            } catch (\Exception $e) {
+                flash()->warning(translate('Notification failed for Customer!'));
+            }
+
+            flash()->success(translate('Order Edited Successfully!'));
+            return redirect(route('admin.orders.list', 'all'));
+        }
+    }
+
+    
+
     /**
      * @param $order_id
      * @param $delivery_man_id
@@ -659,9 +741,7 @@ class OrderController extends Controller
         $deliverymanMessage = Helpers_order_status_update_message('del_assign');
         $deliverymanLanguageCode = $order->delivery_man ? $order->delivery_man->language_code : 'en';
         $deliverymanFcmToken = $order->delivery_man ? $order->delivery_man->fcm_token : null;
-        if ($deliverymanLanguageCode != 'en') {
-            $deliverymanMessage = $this->translate_message($deliverymanLanguageCode, 'del_assign');
-        }
+        
         $value = $this->dynamic_key_replaced_message(message: $deliverymanMessage, type: 'order', order: $order);
 
         try {
@@ -678,10 +758,7 @@ class OrderController extends Controller
                 $customerNotifyMessage = Helpers_order_status_update_message('customer_notify_message');
                 $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
                 $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-
-                if ($customerLanguageCode != 'en') {
-                    $customerNotifyMessage = $this->translate_message($customerLanguageCode, 'customer_notify_message');
-                }
+                
                 $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
 
                 if ($customerNotifyMessage) {
@@ -695,47 +772,6 @@ class OrderController extends Controller
 
         flash()->success('Deliveryman successfully assigned/changed!');
         return response()->json(['status' => true], 200);
-    }
-
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function paymentStatus(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $order = $this->order->find($request->id);
-
-        if ($request->payment_status == 'paid') 
-        {
-            $order->order_status = 'confirmed';
-            $order->order_status = 'order_approval';
-
-            $message = Helpers_order_status_update_message('confirmed');
-            $languageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
-            $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-            
-            $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
-
-            try {
-                if ($value) {
-                    $data = [
-                        'title' => translate('Order'),
-                        'description' => $value,
-                        'order_id' => $order['id'],
-                        'image' => '',
-                        'type' => 'order'
-                    ];
-                    Helpers_send_push_notif_to_device($customerFcmToken, $data);
-                }
-            } catch (\Exception $e) {
-                //
-            }
-        }
-
-        $order->payment_status = $request->payment_status;
-        $order->save();
-        flash()->success(translate('Payment status updated!'));
-        return back();
     }
 
     /**
@@ -769,22 +805,6 @@ class OrderController extends Controller
         DB::table('customer_addresses')->where('id', $id)->update($address);
         flash()->success(translate('Delivery Information updated!'));
         return back();
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse|void
-     */
-    public function updateTimeSlot(Request $request)
-    {
-        if ($request->ajax()) {
-            $order = $this->order->find($request->id);
-            $order->time_slot_id = $request->timeSlot;
-            $order->save();
-            $data = $request->timeSlot;
-
-            return response()->json($data);
-        }
     }
 
     /**

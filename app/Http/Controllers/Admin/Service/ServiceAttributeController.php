@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Service;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Attributes;
+use App\Models\ServiceAttribute;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\{JsonResponse,RedirectResponse};
@@ -35,7 +35,7 @@ class ServiceAttributeController extends Controller
             $attributes = $this->serviceattribute->orderBy('name');
         }
         $attributes = $attributes->latest()->paginate(Helpers_getPagination())->appends($queryParam);
-        return view('Admin.views.service-attribute.index', compact('attributes', 'search'));
+        return view('Admin.views.services.service-attribute.index', compact('attributes', 'search'));
     }
 
     /**
@@ -44,6 +44,7 @@ class ServiceAttributeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+       
         $request->validate([
             'name' => 'required|unique:attributes',
         ], [
@@ -71,7 +72,7 @@ class ServiceAttributeController extends Controller
     public function edit($id): View|Factory|Application
     {
         $attribute = $this->serviceattribute->find($id);
-        return view('Admin.views.service-attribute.edit', compact('attribute'));
+        return view('Admin.views.services.service-attribute.edit', compact('attribute'));
     }
 
     /**
@@ -82,7 +83,7 @@ class ServiceAttributeController extends Controller
     public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
-            'name' => 'required|unique:attributes,name,' . $request->id,
+            'name' => 'required|unique:service_attributes,name,' . $request->id,
         ], [
             'name.required' => translate('Name is required'),
         ]);
@@ -97,7 +98,7 @@ class ServiceAttributeController extends Controller
         $attribute->save();
 
         flash()->success(translate('Service Attribute updated successfully!'));
-        return redirect()->route('admin.attribute.add-new');
+        return redirect()->route('admin.service.attribute.add-new');
     }
 
     /**

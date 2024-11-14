@@ -83,7 +83,8 @@
                                         {{translate('UI')}} {{translate('type')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="type" class="form-control">
+                                    <select name="type" class="form-control" id="uitype">
+                                        <option selected disabled>Select UI type</option>
                                         <option value="user_product">{{translate('user_product')}}</option>
                                         <option value="user_service">{{translate('user_service')}}</option>
                                         <option value="vender_service">{{translate('vender_service')}}</option>
@@ -95,10 +96,9 @@
                                     <label class="input-label" for="exampleFormControlSelect1">{{translate('section')}} {{translate('type')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="section_type" class="form-control show-item">
-                                        <option value="slider">{{translate('slider')}}</option>
-                                        <option value="cart">{{translate('cart')}}</option>
-                                        <option value="box_section">{{translate('box_section')}}</option>
+                                    
+                                    <select name="section_type" class="form-control show-item" id="sectiontype">
+                                        <option selected disabled>Select UI Type</option>
                                     </select>
                                 </div>
                             </div>
@@ -160,10 +160,20 @@
                             </span>
                         </td>
                         <td>
+                            @if($banner->ui_type == 'user_service')
+                               @if($banner->section_type == 'slider')
+                                 small banner
+                               @else
+                                {{ translate($banner->section_type) }} 
+                               @endif    
+                            @else
                             {{ translate($banner->section_type) }}
+                            @endif
                         </td>
                         <td>
+                            
                             {{ translate($banner->ui_type) }}
+                           
                         </td>
                         <td>
                             {{ translate($banner->childes->count()) }}
@@ -173,7 +183,7 @@
                                 <input type="checkbox"
                                     class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $banner->id }}"
                                     data-route="{{ route('admin.display.status', [$banner->id, $banner->status == 1 ? 0 : 1]) }}"
-                                    data-message="{{ $banner->status? translate('you_want_to_disable_this_banner'): translate('you_want_to_active_this_banner') }}"
+                                    data-message="{{ $banner->status == 0? translate('you_want_to_disable_this_banner'): translate('you_want_to_active_this_banner') }}"
                                     {{ $banner->status == 0 ? 'checked' : '' }}>
                                 <span class="toggle-switch-label mx-auto text">
                                     <span class="toggle-switch-indicator"></span>
@@ -321,5 +331,20 @@
             }
         });
     }
+
+    $( "#uitype" ).change(  function() {
+        var value = $('#uitype').val();
+        if (value == "user_product") {
+            var option = "<option selected disabled>Select Section Type</option><option value='slider'>{{translate('slider')}}</option><option value='cart'>{{translate('cart')}}</option><option value='box_section'>{{translate('box_section')}}</option>";
+        }
+        else if(value == "user_service"){
+            var option = "<option selected disabled>Select Section Type</option><option value='slider'>{{translate('small banners')}}</option><option value='box_section'>{{translate('box_section')}}</option>";            
+        }
+        else{
+           var option = "<option selected disabled>Select Section Type</option><option value='slider'>{{translate('slider')}}</option><option value='cart'>{{translate('cart')}}</option><option value='box_section'>{{translate('box_section')}}</option>";
+        }
+        $("#sectiontype").html(option);
+    });
 </script>
+
 @endpush
