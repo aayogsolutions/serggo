@@ -77,7 +77,7 @@
                                         </h6>
                                         <span class="card-title text-0661CB">
                                             {{ $countData['pending'] }}
-                                    </span>
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -90,22 +90,22 @@
                                             <span>{{translate('confirmed')}}</span>
                                         </h6>
                                         <span class="card-title text-107980">
-                                        {{ $countData['confirmed'] }}
-                                    </span>
+                                            {{ $countData['confirmed'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
 
                             <div class="col-sm-6 col-lg-3">
-                                <a class="order--card h-100" href="{{route('admin.orders.list',['processing'])}}">
+                                <a class="order--card h-100" href="{{route('admin.orders.list',['packaging'])}}">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
                                             <img src="{{asset('assets/admin/img/delivery/processing.png')}}" alt="{{ translate('dashboard')}}" class="oder--card-icon">
                                             <span>{{translate('packaging')}}</span>
                                         </h6>
                                         <span class="card-title text-danger">
-                                        {{ $countData['processing'] }}
-                                    </span>
+                                            {{ $countData['packaging'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -118,8 +118,8 @@
                                             <span>{{translate('out_for_delivery')}}</span>
                                         </h6>
                                         <span class="card-title text-00B2BE">
-                                        {{ $countData['out_for_delivery'] }}
-                                    </span>
+                                            {{ $countData['out_for_delivery'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -132,8 +132,8 @@
                                             <span>{{translate('delivered')}}</span>
                                         </h6>
                                         <span class="card-title text-success">
-                                        {{ $countData['delivered'] }}
-                                    </span>
+                                            {{ $countData['delivered'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -146,8 +146,8 @@
                                             <span>{{translate('Canceled')}}</span>
                                         </h6>
                                         <span class="card-title text-danger">
-                                        {{ $countData['canceled'] }}
-                                    </span>
+                                            {{ $countData['canceled'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -160,8 +160,8 @@
                                             <span>{{translate('returned')}}</span>
                                         </h6>
                                         <span class="card-title text-warning">
-                                        {{ $countData['returned'] }}
-                                    </span>
+                                            {{ $countData['returned'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -173,8 +173,8 @@
                                             <span>{{translate('failed_to_deliver')}}</span>
                                         </h6>
                                         <span class="card-title text-danger">
-                                        {{ $countData['failed'] }}
-                                    </span>
+                                            {{ $countData['failed'] }}
+                                        </span>
                                     </div>
                                 </a>
                             </div>
@@ -204,7 +204,8 @@
                                         "target": "#usersExportDropdown",
                                         "type": "css-animation"
                                     }'>
-                                <i class="tio-download-to mr-1"></i> {{ translate('export') }}
+                                <i class="tio-download-to mr-1"></i> 
+                                {{ translate('export') }}
                             </a>
 
                             <div id="usersExportDropdown"
@@ -230,15 +231,15 @@
                                 {{translate('#')}}
                             </th>
                             <th class="table-column-pl-0">{{translate('order ID')}}</th>
+                            <th>
+                                <div class="text-center">
+                                    {{translate('Blong')}} {{translate('to')}}
+                                </div>
+                            </th>
                             <th>{{translate('Delivery')}} {{translate('date')}}</th>
                             <th>{{translate('Time Slot')}}</th>
                             <th>{{translate('customer')}}</th>
                             <th>{{translate('total amount')}}</th>
-                            <!-- <th>
-                                <div class="text-center">
-                                    {{translate('Edit')}} {{translate('status')}}
-                                </div>
-                            </th> -->
                             <th>
                                 <div class="text-center">
                                     {{translate('order')}} {{translate('status')}}
@@ -266,32 +267,39 @@
                                 <td class="table-column-pl-0">
                                     <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">{{$order['id']}}</a>
                                 </td>
-                                <td>{{date('d M Y',strtotime($order['delivery_date']))}}</td>
+                                <td class="table-column-pl-0">
+                                    <span class="badge badge-soft-info py-2 px-3">
+                                        {{$order->vender_id != null ? 'Vendor :- '.$order->vendororders->name : translate('Admin')}}
+                                    </span>
+                                </td>
                                 <td>
-                                    <span>{{$order->time_slot?date(config('time_format'), strtotime($order->time_slot['start_time'])).' - ' .date(config('time_format'), strtotime($order->time_slot['end_time'])) : translate('No Time Slot')}}</span>
+                                    {{$order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'Not Assigned'}}
+                                </td>
+                                <td>
+                                    <span>{{$order->delivery_timeslot_id != null ? date('H:i A', strtotime($order->TimeSlot['start_time'])).' - ' .date('H:i A', strtotime($order->TimeSlot['end_time'])) : translate('No Time Slot')}}</span>
                                 </td>
                                 <td>
                                     @if($order->is_guest == 0)
                                         @if(isset($order->customer))
                                             <div>
                                                 <a class="text-body text-capitalize font-medium"
-                                                   href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['f_name'].' '.$order->customer['l_name']}}</a>
+                                                   href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['name']}}</a>
                                             </div>
                                             <div class="text-sm">
-                                                <a href="Tel:{{$order->customer['phone']}}">{{$order->customer['phone']}}</a>
+                                                <a href="Tel:{{$order->customer['number']}}">{{$order->customer['number']}}</a>
                                             </div>
                                         @elseif($order->user_id != null && !isset($order->customer))
-                                            <label
-                                                class="text-danger">{{translate('Customer_not_available')}}
+                                            <label class="text-danger">
+                                                {{translate('Customer_not_available')}}
                                             </label>
                                         @else
-                                            <label
-                                                class="text-success">{{translate('Walking Customer')}}
+                                            <label class="text-success">
+                                                {{translate('Walking Customer')}}
                                             </label>
                                         @endif
                                     @else
-                                        <label
-                                            class="text-success">{{translate('Guest Customer')}}
+                                        <label class="text-success"> 
+                                            {{translate('Guest Customer')}}
                                         </label>
                                     @endif
 
@@ -300,14 +308,14 @@
                                 <td>
                                     <div class="mw-90">
                                         <div>
-                                           <?php
+                                            <?php
                                                 $vatStatus = $order->details ? $order->details[0]->vat_status : '';
                                                 if($vatStatus == 'included'){
                                                     $orderAmount = $order['order_amount'] - $order['total_tax_amount'];
                                                 }else{
                                                     $orderAmount = $order['order_amount'];
                                                 }
-                                           ?>
+                                            ?>
                                             {{ Helpers_set_symbol($orderAmount) }}
                                         </div>
                                         @if($order->payment_status=='paid')

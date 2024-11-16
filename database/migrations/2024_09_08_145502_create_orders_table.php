@@ -31,6 +31,7 @@ return new class extends Migration
             $table->bigInteger('delivery_address_id')->nullable();
             $table->tinyInteger('checked')->nullable();
             $table->tinyInteger('delivered_by')->default(0)->comment('0 = admin| 1 = vendor');
+            $table->bigInteger('deliveryman_id')->nullable()->comment('If Admin Accept then deliveryman id will be store here');
             $table->tinyInteger('accepted_by')->default(0)->comment('0 = admin| 1 = vendor');
             $table->decimal('delivery_charge',8,2)->default(0);
             $table->text('order_note')->nullable();

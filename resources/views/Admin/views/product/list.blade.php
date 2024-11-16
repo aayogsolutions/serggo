@@ -102,7 +102,7 @@
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <div class="max-85 text-right">
-                                        {{ Helpers_set_symbol($product['price']) }}
+                                        {{ Helpers_set_symbol(json_decode($product['variations'])[0]->price) }}
                                     </div>
                                 </td>
                                 <td class="text-center">

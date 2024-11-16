@@ -68,19 +68,19 @@ class DashboardController extends Controller
             ->get();
 
         $data = self::orderStatsData();
-
+        
         $data['customer'] = $this->user->count();
         $data['product'] = $this->product->count();
         $data['order'] = $this->order->count();
         $data['category'] = $this->category->where('parent_id', 0)->count();
         $data['branch'] = $this->branch->count();
 
-        $data['pending_count'] = $this->order->where(['order_status' => 'pending'])->count();
+        $data['pending_count'] = $this->order->where(['order_status' => 'pending','order_approval' => 'accepted'])->count();
         $data['ongoing_count'] = $this->order->whereIn('order_status', ['confirmed', 'processing', 'out_for_delivery'])->count();
-        $data['delivered_count'] = $this->order->where(['order_status' => 'delivered'])->count();
-        $data['canceled_count'] = $this->order->where(['order_status' => 'canceled'])->count();
-        $data['returned_count'] = $this->order->where(['order_status' => 'returned'])->count();
-        $data['failed_count'] = $this->order->where(['order_status' => 'failed'])->count();
+        $data['delivered_count'] = $this->order->where(['order_status' => 'delivered','order_approval' => 'accepted'])->count();
+        $data['canceled_count'] = $this->order->where(['order_status' => 'canceled','order_approval' => 'accepted'])->count();
+        $data['returned_count'] = $this->order->where(['order_status' => 'returned','order_approval' => 'accepted'])->count();
+        $data['failed_count'] = $this->order->where(['order_status' => 'failed','order_approval' => 'accepted'])->count();
 
         $data['recent_orders'] = $this->order->latest()->take(5)->get(['id', 'created_at', 'order_status']);
 
@@ -235,7 +235,7 @@ class DashboardController extends Controller
         $today = session()->has('statistics_type') && session('statistics_type') == 'today' ? 1 : 0;
         $thisMonth = session()->has('statistics_type') && session('statistics_type') == 'this_month' ? 1 : 0;
 
-        $pending = $this->order->where(['order_status' => 'pending'])
+        $pending = $this->order->where(['order_status' => 'pending','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', \Carbon\Carbon::today());
             })
@@ -243,7 +243,7 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $confirmed = $this->order->where(['order_status' => 'confirmed'])
+        $confirmed = $this->order->where(['order_status' => 'confirmed','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -251,7 +251,7 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $processing = $this->order->where(['order_status' => 'processing'])
+        $processing = $this->order->where(['order_status' => 'processing','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -259,7 +259,7 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $outForDelivery = $this->order->where(['order_status' => 'out_for_delivery'])
+        $outForDelivery = $this->order->where(['order_status' => 'out_for_delivery','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -267,7 +267,7 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $delivered = $this->order->where(['order_status' => 'delivered'])
+        $delivered = $this->order->where(['order_status' => 'delivered','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -275,14 +275,14 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $all = $this->order->when($today, function ($query) {
+        $all = $this->order->where('order_approval' , '!=' , 'pending')->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
             ->when($thisMonth, function ($query) {
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $returned = $this->order->where(['order_status' => 'returned'])
+        $returned = $this->order->where(['order_status' => 'returned','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -290,7 +290,7 @@ class DashboardController extends Controller
                 return $query->whereMonth('created_at', Carbon::now());
             })
             ->count();
-        $failed = $this->order->where(['order_status' => 'failed'])
+        $failed = $this->order->where(['order_status' => 'failed','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })
@@ -299,7 +299,7 @@ class DashboardController extends Controller
             })
             ->count();
 
-        $canceled = $this->order->where(['order_status' => 'canceled'])
+        $canceled = $this->order->where(['order_status' => 'canceled','order_approval' => 'accepted'])
             ->when($today, function ($query) {
                 return $query->whereDate('created_at', Carbon::today());
             })

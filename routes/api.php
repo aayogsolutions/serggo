@@ -71,6 +71,10 @@ Route::group(['prefix' => 'product'], function(){
 Route::group(['prefix' => 'service'], function(){
 
     Route::get('/dashboard', [ServiceDashboardController::class,'Index']);
+
+    // Category Details Route
+    Route::get('/category/details', [ServiceDashboardController::class,'CategoryDetails']);
+    Route::get('/sub-category/details/{category_id}', [ServiceDashboardController::class,'SubCategoryDetails']);
 });
 
 Route::group(['prefix' => 'vender'], function(){
@@ -126,6 +130,10 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
 
             Route::get('checkout',[OrderController::class,'Checkout']);
             Route::post('place-order',[OrderController::class,'PlaceOrder']);
+
+            // Order History
+            Route::get('order/history',[OrderController::class,'OrderHistory']);
+            Route::get('order/{id}',[OrderController::class,'OrderItems']);
         });
     });
 });

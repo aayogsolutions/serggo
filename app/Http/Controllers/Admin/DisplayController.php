@@ -10,6 +10,8 @@ use App\Models\{
     DisplaySectionContent,
     Products,
     DisplayCategory,
+    Service,
+    ServiceCategory,
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
@@ -22,6 +24,8 @@ class DisplayController extends Controller
         private DisplaySection $displaysection,
         private DisplaySectionContent $displaysectioncontent,
         private Products $product,
+        private Service $service,
+        private ServiceCategory $servicecategory,
         private Category $category,
         private DisplayCategory $displaycategorys
     ) {}
@@ -124,7 +128,19 @@ class DisplayController extends Controller
             $q->orderBy('priority','ASC');
         })->first();
 
-        $products = $this->product->status()->orderBy('name')->get();
+        if($banner->ui_type == 'user_service')
+        {
+            $products = $this->service->status()->orderBy('name')->get();
+        }
+        elseif ($banner->ui_type == 'user_product') 
+        {
+            $products = $this->product->status()->orderBy('name')->get();
+        }
+        else 
+        {
+            $products = $this->product->status()->orderBy('name')->get();
+        }
+        
         $categories = $this->category->status()->where('parent_id',0)->orderBy('name')->get();
 
         return view('Admin.views.display.sub-index', compact('banner','categories','products'));
@@ -140,11 +156,13 @@ class DisplayController extends Controller
         // dd($request->all(),$id);
         $request->validate([
             'type' => 'required',
+            'ui_type' => 'required',
         ], [
-            'type.required' => translate('UI Type is required'),
+            'type.required' => translate('Section Type is required'),
+            'ui_type.required' => translate('Ui Type is required'),
         ]);
 
-        if ($request->type == 'box_section') 
+        if ($request->ui_type == 'user_product' && $request->type == 'box_section') 
         {
             $request->validate([
                 'image' => 'required|image',
@@ -197,6 +215,33 @@ class DisplayController extends Controller
 
             flash()->success(translate('Product Added successfully!'));
             return redirect()->back();
+        }elseif ($request->ui_type == 'user_service' && $request->type == 'box_section') {
+            $request->validate([
+                'image' => 'required|image',
+                'product_id' => 'required',
+            ], [
+                'image.required' => translate('Image is required'),
+                'product_id.required' => translate('Sub Category is required'),
+            ]);
+
+            $file_size = getimagesize($request->file('image'));
+            // Width Check              Height Check
+            if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+                
+                $banner = $this->displaysectioncontent;
+                $banner->section_id = $id;
+                $banner->item_type = 'service';
+                $data = $this->servicecategory->find($request->product_id);
+                $banner->item_id = $request->product_id;
+                $banner->item_detail = $data;
+                $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $banner->save();
+                
+                flash()->success(translate('Item Added successfully!'));
+                return redirect()->back();
+            }
+            flash()->error(translate('Image size is wrong.!'));
+            return redirect()->back();
         }else{
             $request->validate([
                 'image' => 'required|image',
@@ -209,14 +254,25 @@ class DisplayController extends Controller
             $file_size = getimagesize($request->file('image'));
             // Width Check              Height Check
             if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+                $data = $this->displaysection->find($id);
+
                 $banner = $this->displaysectioncontent;
                 $banner->section_id = $id;
-                $banner->item_type = 'product';
+                if($data->ui_type == 'user_service')
+                {
+                    $banner->item_type = 'service';
                 
-                $data = $this->product->find($request->product_id);
-                $banner->item_id = $request->product_id;
-                $banner->item_detail = $data;
+                    $data = $this->servicecategory->find($request->product_id);
+                    $banner->item_id = $request->product_id;
+                    $banner->item_detail = $data;
+                }else{
+
+                    $banner->item_type = 'product';
                 
+                    $data = $this->product->find($request->product_id);
+                    $banner->item_id = $request->product_id;
+                    $banner->item_detail = $data;
+                }
                 $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                 $banner->save();
                 flash()->success(translate('Item Added successfully!'));

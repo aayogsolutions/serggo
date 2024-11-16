@@ -13,7 +13,7 @@
     <div class="page-header">
         <h1 class="page-header-title">
             <span class="page-header-icon">
-                <img src="{{asset('assets/admin/img/add-product.png')}}" class="w--24" alt="" >
+                <img src="{{asset('assets/admin/img/add-product.png')}}" class="w--24" alt="">
             </span>
             <span>
                 {{translate('add New Service')}}
@@ -76,10 +76,23 @@
                                     {{translate('sub_category')}}
                                     <span class="input-label-secondary"></span>
                                 </label>
-                                <select name="sub_category_id" id="sub-categories" class="form-control js-select2-custom"></select>
+                                <select name="sub_category_id" id="sub-categories" class="form-control js-select2-custom">
+
+                                </select>
                             </div>
                         </div>
                         <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="input-label" for="exampleFormControlSelect1">
+                                    {{translate('child_category')}}
+                                    <span class="input-label-secondary"></span>
+                                </label>
+                                <select name="child_category_id" id="child-categories" class="form-control js-select2-custom">
+
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="col-sm-6">
                             <div class="form-group">
                                 <label class="input-label" for="exampleFormControlInput1">{{translate('unit')}}</label>
                                 <select name="unit" class="form-control js-select2-custom">
@@ -90,27 +103,8 @@
                                     <option value="ml">{{translate('ml')}}</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label class="input-label"
-                                    for="exampleFormControlInput1">{{translate('Installation')}}</label>
-                                <select name="installation" class="form-control js-select2-custom" id="selectbrand">
-                                    <option value="">---{{translate('select')}}---</option>
-                                    
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label class="input-label"
-                                    for="exampleFormControlInput1">{{translate('brands')}}</label>
-                                <select name="brand" class="form-control js-select2-custom" id="selectbrand">
-                                    <option value="">---{{translate('select')}}---</option>
-                                   
-                                </select>
-                            </div>
-                        </div>
+                        </div> -->
+
                         <div class="col-sm-6 d-none" id="otherbrandsection">
                             <div class="form-group">
                                 <label class="input-label"
@@ -145,7 +139,7 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="mb-3">{{translate('product')}} {{translate('image')}} 
+                    <h5 class="mb-3">{{translate('product')}} {{translate('image')}}
                         <small class="text-danger">* ({{translate('ratio')}} 1:1 )</small>
                     </h5>
                     <div class="product--coba">
@@ -170,13 +164,13 @@
                     <div class="p-2">
                         <div class="row g-3">
                             <div class="col-12">
-                            <div class="form-group __select-tag" >
-                                    <label class="input-label" 
+                                <div class="form-group __select-tag">
+                                    <label class="input-label"
                                         for="exampleFormControlSelect1">{{translate('Select tag')}}<span
                                             class="input-label-secondary"></span></label>
                                     <select name="tag_name[]" id="choice_tags" class="form-control" multiple="multiple">
-                                        @foreach(\App\Models\Tag::orderBy('name')->get() as $tag)
-                                        <option value="{{$tag['name']}}">{{$tag['name']}}</option>
+                                        @foreach(\App\Models\ServiceTag::orderBy('name')->get() as $service_tag)
+                                        <option value="{{$service_tag['name']}}">{{$service_tag['name']}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -204,7 +198,7 @@
                             <div class="col-sm-6">
                                 <div class="form-group mb-0">
                                     <label class="input-label"
-                                        for="exampleFormControlInput1">{{translate('default_unit_price')}}</label>
+                                        for="exampleFormControlInput1">{{translate('service_price')}}</label>
                                     <input type="number" min="0" max="100000000" step="any" value="1" name="price"
                                         class="form-control" placeholder="{{ translate('Ex : 349') }}" required>
                                 </div>
@@ -212,9 +206,24 @@
                             <div class="col-sm-6">
                                 <div class="form-group mb-0">
                                     <label class="input-label"
-                                        for="exampleFormControlInput1">{{translate('product_stock')}}</label>
-                                    <input type="number" min="0" max="100000000" value="0" name="total_stock"
-                                        class="form-control" placeholder="{{ translate('Ex : 100') }}">
+                                        for="exampleFormControlSelect1">{{translate('Time_duration')}}<span
+                                            class="input-label-secondary"></span></label>
+                                    <select name="time_duration" id="choice_time_duration"
+                                        class="form-control js-select2-custom" >
+                                            <option selected disabled>select time duration</option>
+                                            <option value="10_minutes">10 Minutes</option>
+                                            <option value="20_minutes">20 Minutes</option>
+                                            <option value="30_minutes">30 Minutes</option>
+                                            <option value="40_minutes">40 Minutes</option>
+                                            <option value="50_minutes">50 Minutes</option>
+                                            <option value="1_hour">1 Hour</option>
+                                            <option value="1_hour_10_minutes">1 Hour 10 Minutes</option>
+                                            <option value="1_hour_20_minutes">1 Hour 20 Minutes</option>
+                                            <option value="1_hour_30_minutes">1 Hour 30 Minutes</option>
+                                            <option value="1_hour_40_minutes">1 Hour 40 Minutes</option>
+                                            <option value="1_hour_50_minutes">1 Hour 50 Minutes</option>
+                                            <option value="2_hour">2 Hour</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -242,7 +251,9 @@
                                     <label class="input-label"
                                         for="exampleFormControlInput1">{{translate('tax_type')}}</label>
                                     <select name="tax_type" id="tax_type" class="form-control js-select2-custom">
-                                        <option value="percent" selected>{{translate('percent')}}</option>
+                                        <option value="percent" selected></option>
+                                        <option value="Including">Including</option>
+                                        <option value="Excluding">Excluding</option>
                                         <!-- <option value="amount">{{translate('amount')}}</option> -->
                                     </select>
                                 </div>
@@ -260,7 +271,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <!-- <div class="col-lg-6">
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title">
@@ -294,7 +305,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="col-12">
             <div class="btn--container justify-content-end">
@@ -325,7 +336,7 @@ $(document).ready(function() {
             }
         });
         $.post({
-            url: "{{route('admin.product.store')}}",
+            url: "{{route('admin.service.store')}}",
             data: formData,
             cache: false,
             contentType: false,
@@ -339,12 +350,12 @@ $(document).ready(function() {
                         });
                     }
                 } else {
-                    toastr.success('{{ translate("product uploaded successfully!") }}', {
+                    toastr.success('{{ translate("Service uploaded successfully!") }}', {
                         CloseButton: true,
                         ProgressBar: true
                     });
                     setTimeout(function() {
-                        location.href = "{{route('admin.product.list')}}";
+                        location.href = "{{route('admin.service.list')}}";
                     }, 2000);
                 }
             }
@@ -428,7 +439,7 @@ $(document).on('ready', function() {
         var select2 = $.HSCore.components.HSSelect2.init($(this));
     });
 
-    $('#get_category').change(function(){
+    $('#get_category').change(function() {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -447,6 +458,29 @@ $(document).on('ready', function() {
                 console.log(data.option);
                 console.log($('#get_category').val());
                 $('#sub-categories').html(data.options);
+            }
+        });
+    });
+
+    $('#sub-categories').change(function() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: "get",
+            url: "{{route('admin.service.get-child-categories')}}",
+            contentType: false,
+            data: {
+                parent_id: $('#sub-categories').val()
+            },
+            success: function(data) {
+                console.log(data.options);
+                console.log(data.option);
+                console.log($('#sub-categories').val());
+                $('#child-categories').html(data.options);
             }
         });
     });
@@ -496,7 +530,6 @@ function combination_update() {
         }
     });
 }
-
 </script>
 <!-- 
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>

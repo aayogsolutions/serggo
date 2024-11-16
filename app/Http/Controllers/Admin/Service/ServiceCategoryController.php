@@ -61,6 +61,30 @@ class ServiceCategoryController extends Controller
 
     /**
      * @param Request $request
+     * @return Application|Factory|View
+     */
+    function childIndex(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $categories = ServiceCategory::with(['parent'])->where(['position' => 1])
+                ->where(function ($q) use ($key) {
+                    foreach ($key as $value) {
+                        $q->orWhere('name', 'like', "%{$value}%");
+                    }
+                });
+            $queryParam = ['search' => $request['search']];
+        } else {
+            $categories = ServiceCategory::with(['parent'])->where(['position' => 2]);
+        }
+        $categories = $categories->latest()->paginate(Helpers_getPagination())->appends($queryParam);
+        return view('Admin.views.services.ServiceCategory.child-index', compact('categories', 'search'));
+    }
+
+    /**
+     * @param Request $request
      * @return RedirectResponse
      */
     function store(Request $request): RedirectResponse
@@ -99,6 +123,44 @@ class ServiceCategoryController extends Controller
             flash()->success(translate('Sub Category Added Successfully!'));
             return redirect()->route('admin.service.category.add-sub-category');
         }
+        
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    function Childstore(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required',
+            'image' => 'required|image',
+        ]);
+        
+        if (strlen($request->name) > 255) {
+            flash()->error(translate('Name is too long!'));
+            return back();
+        }
+        
+        // $parentId = $request->parent_id ?? 0;
+        // $allCategory = ServiceCategory::where(['parent_id' => $parentId])->pluck('name')->toArray();
+
+        // if (in_array($request->name, $allCategory)) {
+        //     flash()->error(translate(($request->parent_id == null ? 'Category' : 'Sub_category') . ' already exists!'));
+        //     return back();
+        // }
+        $image = $request->file('image');
+            
+        $child_category = new ServiceCategory();
+        $child_category->name = $request->name;
+        $child_category->image = Helpers_upload('Images/category/',  $image->getClientOriginalExtension() , $image);;
+        $child_category->parent_id = $request->parent_id;
+        $child_category->position = $request->position;
+        $child_category->save();       
+    
+        flash()->success(translate('Child Category Added Successfully!'));
+        return redirect()->route('admin.service.category.add-child-category');
+    
         
     }
 
@@ -151,9 +213,12 @@ class ServiceCategoryController extends Controller
         {
             flash()->success(translate('Service Category updated Successfully!'));
             return redirect()->route('admin.service.category.add');
-        }else{
+        }elseif($category->parent_id == 1){
             flash()->success(translate('Service Sub Category updated Successfully!'));
             return redirect()->route('admin.service.category.add-sub-category');
+        }else{
+            flash()->success(translate('Service child Category updated Successfully!'));
+            return redirect()->route('admin.service.category.add-child-category');
         }
     }
 

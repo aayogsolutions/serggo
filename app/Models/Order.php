@@ -34,4 +34,9 @@ class Order extends Model
     {
         return $this->hasMany(Order_details::class, 'order_id','id');
     }
+
+    public function TimeSlot(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(TimeSlot::class, 'delivery_timeslot_id');
+    }
 }

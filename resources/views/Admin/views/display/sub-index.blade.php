@@ -56,7 +56,15 @@
                                     <span class="input-label-secondary">*</span>
                                 </label>
                                 <select name="section_type" class="form-control" disabled>
-                                    <option>{{translate($banner->section_type)}}</option>
+                                    @if($banner->ui_type == 'user_service')
+                                        @if($banner->section_type == 'slider')
+                                            <option>{{translate('Small banner')}}</option>
+                                        @else
+                                            <option>{{translate($banner->section_type)}}</option>
+                                        @endif
+                                    @else
+                                        <option>{{translate($banner->section_type)}}</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -77,6 +85,7 @@
                         <form action="{{ route('admin.display.add.content', $banner->id) }}" method="post" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="type" value="{{ $banner->section_type }}">
+                            <input type="hidden" name="ui_type" value="{{ $banner->ui_type }}">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLongTitle">{{translate($banner->title)}}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -84,46 +93,90 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                @if($banner->section_type == 'cart')
-                                <div class="form-group mb-0">
-                                    <label class="input-label" for="exampleFormControlSelect1">{{translate('Products')}}
-                                        <span class="input-label-secondary">*</span>
-                                    </label>
-                                    <select name="product_id" class="form-control">
-                                        <option selected disabled>{{translate('select product')}}</option>
-                                        @foreach($products as $key => $product)
-                                        <option value="{{ $product->id }}">{{translate($product->name)}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @elseif($banner->section_type == 'box_section')
-                                <div class="row g-3">
-                                    <div class="col-md-12">
-                                        <div class="d-flex flex-column justify-content-center h-100">
-                                            <h5 class="text-center mb-3 text--title text-capitalize">
-                                                {{translate('banner')}} {{translate('image')}}
-                                                <small class="text-danger">* ( {{translate('ratio')}} 1:2 )</small>
-                                            </h5>
-                                            <label class="upload--vertical">
-                                                <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
-                                                <img class="" id="viewer" src="{{asset('assets/admin/img/upload-vertical.png')}}" alt="{{ translate('banner image') }}" />
-                                            </label>
-                                        </div>
+                                @if($banner->ui_type == 'user_product' && $banner->section_type == 'cart')
+                                    <div class="form-group mb-0">
+                                        <label class="input-label" for="exampleFormControlSelect1">{{translate('Products')}}
+                                            <span class="input-label-secondary">*</span>
+                                        </label>
+                                        <select name="product_id" class="form-control">
+                                            <option selected disabled>{{translate('select product')}}</option>
+                                            @foreach($products as $key => $product)
+                                            <option value="{{ $product->id }}">{{translate($product->name)}}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    <div class="col-md-12">
-                                        <div class="row g-3">
-                                            <div class="col-12">
-                                                <div class="form-group mb-0">
-                                                    <label class="input-label" for="exampleFormControlSelect1">{{translate('item')}} {{translate('type')}}<span
-                                                            class="input-label-secondary">*</span></label>
-                                                    <select name="item_type" class="form-control show-item">
-                                                        <option value="product">{{translate('product')}}</option>
-                                                        <option value="category">{{translate('category')}}</option>
-                                                    </select>
+                                @elseif($banner->ui_type == 'user_product' && $banner->section_type == 'box_section')
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <div class="d-flex flex-column justify-content-center h-100">
+                                                <h5 class="text-center mb-3 text--title text-capitalize">
+                                                    {{translate('banner')}} {{translate('image')}}
+                                                    <small class="text-danger">* ( {{translate('ratio')}} 1:2 )</small>
+                                                </h5>
+                                                <label class="upload--vertical">
+                                                    <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
+                                                    <img class="" id="viewer" src="{{asset('assets/admin/img/upload-vertical.png')}}" alt="{{ translate('banner image') }}" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <div class="form-group mb-0">
+                                                        <label class="input-label" for="exampleFormControlSelect1">{{translate('item')}} {{translate('type')}}<span
+                                                                class="input-label-secondary">*</span></label>
+                                                        <select name="item_type" class="form-control show-item">
+                                                            <option value="product">{{translate('product')}}</option>
+                                                            <option value="category">{{translate('category')}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group mb-0" id="type-product">
+                                                        <label class="input-label" for="exampleFormControlSelect1">
+                                                            {{translate('product')}}
+                                                            <span class="input-label-secondary">*</span>
+                                                        </label>
+                                                        <select name="product_id" class="form-control js-select2-custom">
+                                                            <option selected disabled>Select Product</option>
+                                                            @foreach($products as $product)
+                                                            <option value="{{$product['id']}}">{{$product['name']}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group mb-0" id="type-category" style="display:none;">
+                                                        <label class="input-label" for="exampleFormControlSelect1">
+                                                            {{translate('category')}}
+                                                            <span class="input-label-secondary">*</span>
+                                                        </label>
+                                                        <select name="category_id" class="form-control js-select2-custom">
+                                                            <option selected disabled>Select Category</option>
+                                                            @foreach($categories as $category)
+                                                            <option value="{{$category['id']}}">{{$category['name']}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-12">
-                                                <div class="form-group mb-0" id="type-product">
+                                        </div>
+                                    </div>
+                                @elseif($banner->ui_type == 'user_product' && $banner->section_type == 'slider')
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <div class="d-flex flex-column justify-content-center h-100">
+                                                <h5 class="text-center mb-3 text--title text-capitalize">
+                                                    {{translate('banner')}} {{translate('image')}}
+                                                    <small class="text-danger">* ( {{translate('ratio')}} 1:2 )</small>
+                                                </h5>
+                                                <label class="upload--vertical">
+                                                    <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
+                                                    <img class="" id="viewer" src="{{asset('assets/admin/img/upload-vertical.png')}}" alt="{{ translate('banner image') }}" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="row g-3">
+                                                <div class="col-12">
                                                     <label class="input-label" for="exampleFormControlSelect1">
                                                         {{translate('product')}}
                                                         <span class="input-label-secondary">*</span>
@@ -135,53 +188,97 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <div class="form-group mb-0" id="type-category" style="display:none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif($banner->ui_type == 'user_service' && $banner->section_type == 'slider')
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <div class="d-flex flex-column justify-content-center h-100">
+                                                <h5 class="text-center mb-3 text--title text-capitalize">
+                                                    {{translate('banner')}} {{translate('image')}}
+                                                    <small class="text-danger">* ( {{translate('ratio')}} 1:2 )</small>
+                                                </h5>
+                                                <label class="upload--vertical">
+                                                    <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
+                                                    <img class="" id="viewer" src="{{asset('assets/admin/img/upload-vertical.png')}}" alt="{{ translate('banner image') }}" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="row g-3">
+                                                <div class="col-12">
                                                     <label class="input-label" for="exampleFormControlSelect1">
-                                                        {{translate('category')}}
+                                                        {{translate('product')}}
                                                         <span class="input-label-secondary">*</span>
                                                     </label>
-                                                    <select name="category_id" class="form-control js-select2-custom">
+                                                    <select name="catogory_id" class="form-control js-select2-custom" id="catogory_id" required>
                                                         <option selected disabled>Select Category</option>
-                                                        @foreach($categories as $category)
-                                                        <option value="{{$category['id']}}">{{$category['name']}}</option>
+                                                        @foreach($products as $product)
+                                                        <option value="{{$product['id']}}">{{$product['name']}}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                @else
-                                <div class="row g-3">
-                                    <div class="col-md-12">
-                                        <div class="d-flex flex-column justify-content-center h-100">
-                                            <h5 class="text-center mb-3 text--title text-capitalize">
-                                                {{translate('banner')}} {{translate('image')}}
-                                                <small class="text-danger">* ( {{translate('ratio')}} 1:2 )</small>
-                                            </h5>
-                                            <label class="upload--vertical">
-                                                <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
-                                                <img class="" id="viewer" src="{{asset('assets/admin/img/upload-vertical.png')}}" alt="{{ translate('banner image') }}" />
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="row g-3">
-                                            <div class="col-12">
-                                                <label class="input-label" for="exampleFormControlSelect1">
-                                                    {{translate('product')}}
-                                                    <span class="input-label-secondary">*</span>
-                                                </label>
-                                                <select name="product_id" class="form-control js-select2-custom">
-                                                    <option selected disabled>Select Product</option>
-                                                    @foreach($products as $product)
-                                                    <option value="{{$product['id']}}">{{$product['name']}}</option>
-                                                    @endforeach
-                                                </select>
+                                        <div class="col-md-12">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label class="input-label" for="exampleFormControlSelect1">
+                                                        {{translate('product')}}
+                                                        <span class="input-label-secondary">*</span>
+                                                    </label>
+                                                    <select name="product_id" class="form-control js-select2-custom" id="product_id" required>
+                                                        <option selected disabled>Select Sub Category</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                @elseif($banner->ui_type == 'user_service' && $banner->section_type == 'box_section')
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <div class="d-flex flex-column justify-content-center h-100">
+                                                <h5 class="text-center mb-3 text--title text-capitalize">
+                                                    {{translate('banner')}} {{translate('image')}}
+                                                    <small class="text-danger">* ( {{translate('ratio')}} 1:1 )</small>
+                                                </h5>
+                                                <label class="upload--squire">
+                                                    <input type="file" name="image" id="customFileEg1" class="" accept=".jpg, .png, .jpeg" hidden>
+                                                    <img class="" id="viewer" src="{{asset('assets/admin/img/upload-en.png')}}" alt="{{ translate('banner image') }}"/>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label class="input-label" for="exampleFormControlSelect1">
+                                                        {{translate('product')}}
+                                                        <span class="input-label-secondary">*</span>
+                                                    </label>
+                                                    <select name="catogory_id" class="form-control js-select2-custom" id="catogory_id" required>
+                                                        <option selected disabled>Select Category</option>
+                                                        @foreach($products as $product)
+                                                        <option value="{{$product['id']}}">{{$product['name']}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label class="input-label" for="exampleFormControlSelect1">
+                                                        {{translate('product')}}
+                                                        <span class="input-label-secondary">*</span>
+                                                    </label>
+                                                    <select name="product_id" class="form-control js-select2-custom" id="product_id" required>
+                                                        <option selected disabled>Select Sub Category</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
                             </div>
                             <div class="modal-footer">
@@ -193,7 +290,6 @@
                 </div>
             </div>
             <!-- /Modal -->
-
         </div>
     </div>
 
@@ -208,44 +304,44 @@
         <div class="table-responsive datatable-custom">
             <table class="table table-borderless table-thead-bordered table-nowrap table-align-middle card-table">
                 @if($banner->section_type == 'cart')
-                <thead class="thead-light">
-                    <tr>
-                        <th class="border-0">{{translate('#')}}</th>
-                        <th class="border-0">{{translate('Product Image')}}</th>
-                        <th class="border-0">{{translate('Product name')}}</th>
-                        <th class="text-center border-0">{{translate('action')}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($banner->childes as $key => $value)
-                    <tr>
-                        <td>
-                            {{$key+1}}
-                        </td>
-                        <td>@php($images = json_decode($value->item_detail)->image)
-                            <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
-                                onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
-                        </td>
-                        <td>
-                            <span class="d-block font-size-sm text-body text-trim-25">
-                                {{json_decode($value->item_detail)->name}}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="btn--container justify-content-center">
-                                <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
-                                    data-id="banner-{{$value['id']}}"
-                                    data-message="{{ translate("Want to delete this") }}">
-                                    <i class="tio-delete-outlined"></i>
-                                </a>
-                            </div>
-                            <form action="{{route('admin.display.delete.content',[$value['id']])}}" method="post" id="banner-{{$value['id']}}">
-                                @csrf @method('delete')
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="border-0">{{translate('#')}}</th>
+                            <th class="border-0">{{translate('Product Image')}}</th>
+                            <th class="border-0">{{translate('Product name')}}</th>
+                            <th class="text-center border-0">{{translate('action')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($banner->childes as $key => $value)
+                        <tr>
+                            <td>
+                                {{$key+1}}
+                            </td>
+                            <td>@php($images = json_decode($value->item_detail)->image)
+                                <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
+                                    onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                            </td>
+                            <td>
+                                <span class="d-block font-size-sm text-body text-trim-25">
+                                    {{json_decode($value->item_detail)->name}}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn--container justify-content-center">
+                                    <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
+                                        data-id="banner-{{$value['id']}}"
+                                        data-message="{{ translate("Want to delete this") }}">
+                                        <i class="tio-delete-outlined"></i>
+                                    </a>
+                                </div>
+                                <form action="{{route('admin.display.delete.content',[$value['id']])}}" method="post" id="banner-{{$value['id']}}">
+                                    @csrf @method('delete')
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                 @elseif($banner->section_type == 'box_section')
                     <thead class="thead-light">
                         <tr>
@@ -321,49 +417,52 @@
                         @endforeach
                     </tbody>
                 @else
-                <thead class="thead-light">
-                    <tr>
-                        <th class="border-0">{{translate('#')}}</th>
-                        <th class="border-0">{{translate('banner image')}}</th>
-                        <th class="border-0">{{translate('Item')}}</th>
-                        <th class="text-center border-0">{{translate('action')}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($banner->childes as $key => $value)
-                    <tr>
-                        <td>
-                            {{$key+1}}
-                        </td>
-                        <td>
-                            <div>
-                                <img class="upload--vertical--preview" src="{{ asset($value->attechment )}}" alt="{{ translate('banner image') }}">
-                            </div>
-                        </td>
-                        <td>@php($images = json_decode($value->item_detail)->image)
-                            <a href="{{route('admin.product.view',[json_decode($value->item_detail)->id])}}" class="product-list-media">
-                                <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
-                                    onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
-                                <h6 class="name line--limit-2">
-                                    {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
-                                </h6>
-                            </a>
-                        </td>
-                        <td>
-                            <div class="btn--container justify-content-center">
-                                <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
-                                    data-id="banner-{{$value['id']}}"
-                                    data-message="{{ translate("Want to delete this") }}">
-                                    <i class="tio-delete-outlined"></i>
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="border-0">{{translate('#')}}</th>
+                            <th class="border-0">{{translate('banner image')}}</th>
+                            <th class="border-0">{{translate('Item')}}</th>
+                            <th class="text-center border-0">{{translate('action')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($banner->childes as $key => $value)
+                        <tr>
+                            <td>
+                                {{$key+1}}
+                            </td>
+                            <td>
+                                <div>
+                                    <img class="upload--vertical--preview" src="{{ asset($value->attechment )}}" alt="{{ translate('banner image') }}">
+                                </div>
+                            </td>
+                            <td>@php($images = json_decode($value->item_detail)->image)
+                                <a href="{{route('admin.product.view',[json_decode($value->item_detail)->id])}}" class="product-list-media">
+                                    @if($banner->ui_type == 'user_product')
+                                        <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                    @else
+                                        <img class="upload--vertical--preview" src="{{ asset($images)}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                    @endif
+                                    <h6 class="name line--limit-2">
+                                        {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
+                                    </h6>
                                 </a>
-                            </div>
-                            <form action="{{route('admin.display.delete.content',[$value['id']])}}" method="post" id="banner-{{$value['id']}}">
-                                @csrf @method('delete')
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
+                            </td>
+                            <td>
+                                <div class="btn--container justify-content-center">
+                                    <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
+                                        data-id="banner-{{$value['id']}}"
+                                        data-message="{{ translate("Want to delete this") }}">
+                                        <i class="tio-delete-outlined"></i>
+                                    </a>
+                                </div>
+                                <form action="{{route('admin.display.delete.content',[$value['id']])}}" method="post" id="banner-{{$value['id']}}">
+                                    @csrf @method('delete')
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                 @endif
             </table>
         </div>
@@ -478,8 +577,8 @@
 
 @push('script_2')
 <script src="{{ asset('assets/admin/js/banner.js') }}"></script>
-<!-- <script>
-    function Edit_box_setion(id) {
+<script>
+    $('#catogory_id').change(function() {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -487,58 +586,19 @@
         });
 
         $.ajax({
-            type: "POST",
-            url: "{{route('admin.display.detail.item')}}",
+            type: "get",
+            url: "{{route('admin.service.get-categories')}}",
+            contentType: false,
             data: {
-                'id': id
+                parent_id: $('#catogory_id').val()
             },
             success: function(data) {
-                if (data.success) {
-                    $('#id').val(data.data.id);
-                    $('#type').val(data.data.item_type);
-                    if(data.data.item_type == 'product')
-                    {
-                        $('#type-category-edit').addClass('d-none');
-                        $('#type-product-edit').removeClass('d-none');
-                        $('#product_id_edit').val(data.data.item_id);
-                    }else{
-                        console.log(data.data.item_type == 'category');
-                        $('#type-product-edit').addClass('d-none');
-                        $('#type-category-edit').removeClass('d-none');
-                        $('#category_id_edit').val(data.data.item_id);
-                    }
-                    $('#updatemodel').modal('show');
-                } else {
-                    alert(data.data);
-                }
+                console.log(data.options);
+                console.log(data.option);
+                console.log($('#catogory_id').val());
+                $('#product_id').html(data.options);
             }
         });
-    }
-
-    function Edit_section(id) {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        $.ajax({
-            type: "POST",
-            url: "{{route('admin.display.detail.item')}}",
-            data: {
-                'id': id
-            },
-            success: function(data) {
-                if (data.success) {
-                    $('#id').val(data.data.id);
-                    $('#type').val(data.data.item_type);
-                    
-                    $('#updatemodel').modal('show');
-                } else {
-                    alert(data.data);
-                }
-            }
-        });
-    }
-</script> -->
+    });
+</script>
 @endpush

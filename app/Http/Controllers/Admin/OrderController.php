@@ -8,6 +8,7 @@ use App\Models\{
     Branch,
     BusinessSetting,
     LoyaltyTransaction,
+    Notifications,
     Order,
     Order_details,
     Products,
@@ -54,7 +55,7 @@ class OrderController extends Controller
 
         $this->order->where(['checked' => 0])->update(['checked' => 1]);
 
-        $query = $this->order->where('order_approval' , '!=', 'pending')->with(['customer'])
+        $query = $this->order->where('order_approval' , '!=', 'pending')->with(['customer','TimeSlot'])
             ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
                 return $query->whereDate('created_at', '>=', $startDate)
                     ->whereDate('created_at', '<=', $endDate);
@@ -75,11 +76,11 @@ class OrderController extends Controller
             });
             $queryParam['search'] = $search;
         }
-
+        
         $orders = $query->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
 
         $countData = [];
-        $orderStatuses = ['pending', 'confirmed', 'processing', 'out_for_delivery', 'delivered', 'canceled', 'returned', 'failed'];
+        $orderStatuses = ['pending', 'confirmed', 'packaging', 'out_for_delivery', 'delivered', 'canceled', 'returned', 'failed'];
 
         foreach ($orderStatuses as $orderStatus) {
             $countData[$orderStatus] = $this->order->where('order_status', $orderStatus)
@@ -184,14 +185,31 @@ class OrderController extends Controller
         if($request->status == 'accept') {
             $order->order_approval = 'accepted';
             $order->order_status = 'confirmed';
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Accepted';
+            $notifications->description = 'Your Order No. '.$order->id.' Approved';
+            $notifications->save();
+            
             flash()->success(translate('Order Accepted'));
         }elseif ($request->status == 'reject') {
             $order->order_approval = 'rejected';
             $order->order_status = 'rejected';
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Rejected';
+            $notifications->description = 'Your Order No. '.$order->id.' Rejected';
+            $notifications->save();
+
+            if ($order->partial_payment != null) {
+                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, json_decode($order['partial_payment'], true)->wallet_applied, json_decode($order['partial_payment'], true)->wallet_applied);
+            }
+
             flash()->warning(translate('Order Rejected'));
         }
         $order->save();
-        
         
         return response()->json([
             'status' => true
@@ -236,6 +254,79 @@ class OrderController extends Controller
         $order->save();
         flash()->success(translate('Payment status updated!'));
         return back();
+    }
+
+    /**
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function addServiceman(Request $request): \Illuminate\Http\JsonResponse
+    {
+        
+        $request->validate([
+            'service_item' => 'required',
+            'service_man' => 'required',
+        ]);
+
+        $order = $this->order_detail->where('id', $request->service_item)->with('OrderDetails')->first();
+        
+        if ($order->OrderDetails->order_status == 'delivered' || $order->OrderDetails->order_status == 'returned' || $order->OrderDetails->order_status == 'failed' || $order->OrderDetails->order_status == 'canceled' || $order->OrderDetails->order_status == 'rejected') {
+            flash()->warning(translate('Can Not Assign Service Man on '. $order->OrderDetails->order_status .' order'));
+            return response()->json(['status' => false], 200);
+        }
+
+        $order->service_man_id = $request->service_man;
+        $order->save();
+        
+        // $notifications = new Notifications();
+        // $notifications->type = 0;
+        // $notifications->user_id = $order->OrderDetails->user_id;
+        // $notifications->title = 'Service Man Assigned';
+        // $notifications->description = Vendor::where('id', $request->service_man)->first()->name.' Assigned for '. Products::where('id', $order->product_id)->first()->name;
+        // $notifications->save();
+
+        $notifications = new Notifications();
+        $notifications->type = 1;
+        $notifications->user_id = $request->service_man;
+        $notifications->title = 'New Order Assigned';
+        $notifications->description = Products::where('id', $order->product_id)->first()->name. ' Installation has been assigned to you';
+        $notifications->save();
+
+        // $deliverymanMessage = Helpers_order_status_update_message('del_assign');
+        // $deliverymanLanguageCode = $order->delivery_man ? $order->delivery_man->language_code : 'en';
+        // $deliverymanFcmToken = $order->delivery_man ? $order->delivery_man->fcm_token : null;
+        
+        // $value = $this->dynamic_key_replaced_message(message: $deliverymanMessage, type: 'order', order: $order);
+
+        // try {
+        //     if ($value) {
+        //         $data = [
+        //             'title' => translate('Order'),
+        //             'description' => $value,
+        //             'order_id' => $order['id'],
+        //             'image' => '',
+        //             'type' => 'order'
+        //         ];
+        //         Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
+
+        //         $customerNotifyMessage = Helpers_order_status_update_message('customer_notify_message');
+        //         $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
+        //         $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
+                
+        //         $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
+
+        //         if ($customerNotifyMessage) {
+        //             $data['description'] = $value;
+        //             Helpers_send_push_notif_to_device($customerFcmToken, $data);
+        //         }
+        //     }
+        // } catch (\Exception $e) {
+        //     flash()->warning(translate('Push notification failed for DeliveryMan!'));
+        // }
+
+        flash()->success('Service Man successfully assigned/changed!');
+        return response()->json(['status' => true], 200);
     }
     
     /**
@@ -295,9 +386,9 @@ class OrderController extends Controller
 
     /**
      * @param Request $request
-     * @return RedirectResponse
+     * @return JsonResponse
      */
-    public function status(Request $request): \Illuminate\Http\RedirectResponse
+    public function status(Request $request): \Illuminate\Http\JsonResponse
     {
         $order = $this->order->where('id',$request->id)->with('OrderDetails')->first();
 
@@ -306,39 +397,99 @@ class OrderController extends Controller
             return back();
         }
 
-        if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') {
-            flash()->warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
-            return back();
-        }
-
-        //editable
-        if ($request->order_status == 'out_for_delivery') {
-            flash()->warning(translate('Please assign delivery man first!'));
-            return back();
-        }
-
         //refund amount to wallet
-        if (in_array($request['order_status'], ['returned', 'failed', 'canceled']) && isset($order->customer) && Helpers_get_business_settings('wallet_status') == 1) {
-
+        if (in_array($request['order_status'], ['returned', 'failed', 'canceled', 'rejected'])) {
             if ($order['partial_payment'] != null) {
-                Helpers_generate_wallet_transaction($order['customer_id'], $order['id'], 'refund', 0, json_decode($order['partial_payment'], true)->wallet_applied, json_decode($order['partial_payment'], true)->wallet_applied);
-                
+                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, json_decode($order['partial_payment'], true)->wallet_applied, json_decode($order['partial_payment'], true)->wallet_applied);
             }
         }
+
+        if ($request->order_status == 'packaging') {
+            foreach ($order->OrderDetails as $detail) {
+                if (isset($detail['variation'])) {
+                    if ($detail['is_stock_decreased'] == 1) {
+
+                        $product = $this->product->find($detail['product_id']);
+    
+                        if ($product != null) {
+                            $type = json_decode($detail['variation'])->type;
+                            $variationStore = [];
+                            foreach (json_decode($product['variations'], true) as $var) {
+                                if ($type == $var['type']) {
+                                    $var['stock'] = $var['stock'] - $detail['quantity'];
+                                }
+                                $variationStore[] = $var;
+                            }
+                            $this->product->where(['id' => $product['id']])->update([
+                                'variations' => json_encode($variationStore),
+                                'total_stock' => $product['total_stock'] - $detail['quantity'],
+                                'total_sale' => $product['total_sale'] + $detail['quantity'],
+                            ]);
+                            $this->order_detail->where(['id' => $detail['id']])->update([
+                                'is_stock_decreased' => 0,
+                            ]);
+                        } else {
+                            flash()->warning(translate('Product_deleted'));
+                            return response()->json(['status' => true]);
+                        }
+                    }
+                }
+            }
+            
+
+            // $deliverymanFcmToken = $order->delivery_man->fcm_token;
+            // $message = Helpers_order_status_update_message('deliveryman_order_processing');
+            
+            // $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
+
+            // try {
+            //     if ($value) {
+            //         $data = [
+            //             'title' => translate('Order'),
+            //             'description' => $value,
+            //             'order_id' => $order['id'],
+            //             'image' => '',
+            //             'type' => 'order'
+            //         ];
+            //         Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
+            //     }
+            // } catch (\Exception $e) {
+            //     flash()->warning(translate('Push notification failed for DeliveryMan!'));
+            // }
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Your order is packing';
+            $notifications->description = 'Your Order No. '.$order->id.' Packing';
+            $notifications->save();
+            return response()->json(['status' => true]);
+        }
+        
+        //editable
+        if ($request->order_status == 'out_for_delivery') {
+            
+            if ($order['delivery_date'] != 'null' && $order['delivery_timeslot_id'] != 'null') {
+                
+
+            }else{
+                flash()->warning(translate('Please assign delivery Information first!'));
+                return response()->json(['status' => true]);
+            }
+        }
+        
+
+        if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') {
+            flash()->warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
+            return response()->json(['status' => true]);
+        }
+
+        
+
+        
 
         //stock adjust
         if ($request->order_status == 'returned' || $request->order_status == 'failed' || $request->order_status == 'canceled') {
-            $level_income = LoyaltyTransaction::where('reference', $request->id)->whereNotNull('credited_at')->get();
-
-            if (count($level_income) > 0) {
-                for ($i = 0; $i < count($level_income); $i++) {
-                    $user_debited_tobe = $level_income[$i]->user_id;
-
-                    $action = LoyaltyTransaction::find($user_debited_tobe);
-                    $action->status = 1;
-                    $action->save();
-                }
-            }
+            
             foreach ($order->OrderDetails as $detail) {
                 if (!isset($detail->variant)) {
                     if ($detail['is_stock_decreased'] == 1) {
@@ -486,31 +637,11 @@ class OrderController extends Controller
             flash()->warning(translate('Push notification failed for Customer!'));
         }
 
-        if ($request->order_status == 'processing' && $order->delivery_man != null) {
-            $deliverymanFcmToken = $order->delivery_man->fcm_token;
-            $message = Helpers_order_status_update_message('deliveryman_order_processing');
-            
-            $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
-
-            try {
-                if ($value) {
-                    $data = [
-                        'title' => translate('Order'),
-                        'description' => $value,
-                        'order_id' => $order['id'],
-                        'image' => '',
-                        'type' => 'order'
-                    ];
-                    Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
-                }
-            } catch (\Exception $e) {
-                flash()->warning(translate('Push notification failed for DeliveryMan!'));
-            }
-        }
-
         flash()->success(translate('Order status updated!'));
-        return back();
+        return response()->json(['status' => true]);
     }
+
+
 
 
 
@@ -716,63 +847,6 @@ class OrderController extends Controller
     }
 
     
-
-    /**
-     * @param $order_id
-     * @param $delivery_man_id
-     * @return JsonResponse
-     */
-    public function addDeliveryman($order_id, $delivery_man_id): \Illuminate\Http\JsonResponse
-    {
-
-        if ($delivery_man_id == 0) {
-            return response()->json([], 401);
-        }
-
-        $order = $this->order->find($order_id);
-
-        if ($order->order_status == 'pending' || $order->order_status == 'confirmed' || $order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled') {
-            return response()->json(['status' => false], 200);
-        }
-
-        $order->delivery_man_id = $delivery_man_id;
-        $order->save();
-
-        $deliverymanMessage = Helpers_order_status_update_message('del_assign');
-        $deliverymanLanguageCode = $order->delivery_man ? $order->delivery_man->language_code : 'en';
-        $deliverymanFcmToken = $order->delivery_man ? $order->delivery_man->fcm_token : null;
-        
-        $value = $this->dynamic_key_replaced_message(message: $deliverymanMessage, type: 'order', order: $order);
-
-        try {
-            if ($value) {
-                $data = [
-                    'title' => translate('Order'),
-                    'description' => $value,
-                    'order_id' => $order['id'],
-                    'image' => '',
-                    'type' => 'order'
-                ];
-                Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
-
-                $customerNotifyMessage = Helpers_order_status_update_message('customer_notify_message');
-                $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
-                $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
-                
-                $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
-
-                if ($customerNotifyMessage) {
-                    $data['description'] = $value;
-                    Helpers_send_push_notif_to_device($customerFcmToken, $data);
-                }
-            }
-        } catch (\Exception $e) {
-            flash()->warning(translate('Push notification failed for DeliveryMan!'));
-        }
-
-        flash()->success('Deliveryman successfully assigned/changed!');
-        return response()->json(['status' => true], 200);
-    }
 
     /**
      * @param Request $request

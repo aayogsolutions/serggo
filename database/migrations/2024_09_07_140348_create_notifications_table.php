@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
+            $table->tinyInteger('type')->default(0)->comment('0 = user | 1 = Vendor');
             $table->integer('user_id');
             $table->string('title')->nullable();
             $table->string('description')->nullable();

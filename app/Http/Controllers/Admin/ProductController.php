@@ -32,6 +32,32 @@ class ProductController extends Controller
         private InstallationCharges $Installation,
     ){}
 
+
+    /**
+     * @param Request $request
+     * @return Factory|View|Application
+     */
+    public function list(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query = $this->product->whereNotIn('status',[2])->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('name', 'like', "%{$value}%");
+                }
+            })->latest();
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $query = $this->product->whereNotIn('status',[2])->latest();
+        }
+        $products = $query->with('order_details.OrderDetails')->paginate(Helpers_getPagination())->appends($queryParam);
+
+        return view('Admin.views.product.list', compact('products','search'));
+    }
+
     /**
      * @return Factory|View|Application
      */
@@ -111,10 +137,11 @@ class ProductController extends Controller
             'total_stock' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:0',
             'brand' => 'required',
-           
+            'attribute_id' => 'required',
         ], [
             'name.required' => translate('Product name is required!'),
             'category_id.required' => translate('category  is required!'),
+            'attribute_id.required' => translate('Attributes are required!'),
         ]);
 
         if ($request['discount_type'] == 'percent') {
@@ -123,9 +150,9 @@ class ProductController extends Controller
             $discount = $request['discount'];
         }
 
-        if ($request['price'] <= $discount) {
-            $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
-        }
+        // if ($request['price'] <= $discount) {
+        //     $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
+        // }
 
         $imageNames = [];
         if (!empty($request->file('images'))) {
@@ -233,31 +260,6 @@ class ProductController extends Controller
         $product->save();
 
         return response()->json([], 200);
-    }
-
-    /**
-     * @param Request $request
-     * @return Factory|View|Application
-     */
-    public function list(Request $request): View|Factory|Application
-    {
-        $queryParam = [];
-        $search = $request['search'];
-        if ($request->has('search')) {
-            $key = explode(' ', $request['search']);
-            $query = $this->product->whereNotIn('status',[2])->where(function ($q) use ($key) {
-                foreach ($key as $value) {
-                    $q->orWhere('id', 'like', "%{$value}%")
-                        ->orWhere('name', 'like', "%{$value}%");
-                }
-            })->latest();
-            $queryParam = ['search' => $request['search']];
-        }else{
-            $query = $this->product->whereNotIn('status',[2])->latest();
-        }
-        $products = $query->with('order_details.order')->paginate(Helpers_getPagination())->appends($queryParam);
-
-        return view('Admin.views.product.list', compact('products','search'));
     }
 
     /**

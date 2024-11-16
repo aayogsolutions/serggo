@@ -100,13 +100,13 @@
                                         </a>
                                     </li>
                                     <li class="nav-item {{Request::is('admin/orders/list/processing')?'active':''}}">
-                                        <a class="nav-link " href="{{route('admin.orders.list',['processing'])}}"
+                                        <a class="nav-link " href="{{route('admin.orders.list',['packaging'])}}"
                                             title="{{translate('processing_orders')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate  sidebar--badge-container">
                                                 <span>{{translate('packaging')}}</span>
                                                 <span class="badge badge-soft-warning badge-pill ml-1">
-                                                    {{ App\Models\Order::where(['order_status'=>'packing','order_approval' => 'accepted'])->count() }}
+                                                    {{ App\Models\Order::where(['order_status'=>'packaging','order_approval' => 'accepted'])->count() }}
                                                 </span>
                                             </span>
                                         </a>
@@ -393,6 +393,15 @@
                                                 </span>
                                             </a>
                                         </li>
+
+                                        <li class="nav-item {{Request::is('admin/service/category/add-child-category')?'active':''}}">
+                                            <a class="nav-link " href="{{route('admin.service.category.add-child-category')}}" title="{{translate('child_categories')}}">
+                                                <span class="tio-circle nav-indicator-icon"></span>
+                                                <span class="text-truncate">
+                                                    {{translate('child_categories')}}
+                                                </span>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                             @endif
@@ -405,31 +414,31 @@
                                     <span
                                         class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('service setup')}}</span>
                                 </a>
-                                <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                    style="display: {{Request::is('admin/service*') || Request::is('admin/service/attribute*') ? 'block' : 'none'}}">
-                                    <li class="nav-item {{Request::is('admin/service/attribute*')?'active':''}}">
+                                <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/service*') || Request::is('admin/service/attribute*') ? 'block' : 'none'}}">
+                                    <!-- <li class="nav-item {{Request::is('admin/service/attribute*')?'active':''}}">
                                         <a class="nav-link"
                                             href="{{route('admin.service.attribute.add-new')}}"
                                             title="{{translate('service attribute')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate">{{translate('service attribute')}}</span>
                                         </a>
-                                    </li>
+                                    </li> -->
 
                                     <li class="nav-item {{Request::is('admin/service/tag/add-new*')?'active':''}}">
-                                        <a class="nav-link"
-                                            href="{{route('admin.service.tag.add-new')}}"
-                                            title="{{translate('service tag')}}">
+                                        <a class="nav-link" href="{{route('admin.service.tag.add-new')}}" title="{{translate('service tag')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
-                                            <span class="text-truncate">{{translate('service tag')}}</span>
+                                            <span class="text-truncate">
+                                                {{translate('service tag')}}
+                                            </span>
                                         </a>
                                     </li>
 
                                     <li class="nav-item {{Request::is('admin/service/product/list*')?'active':''}} {{Request::is('admin/service/product/add-new')?'active':''}}">
-                                        <a class="nav-link " href="{{route('admin.service.list')}}"
-                                            title="{{translate('list')}}">
+                                        <a class="nav-link " href="{{route('admin.service.list')}}" title="{{translate('list')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
-                                            <span class="text-truncate">{{translate('service list')}}</span>
+                                            <span class="text-truncate">
+                                                {{translate('service list')}}
+                                            </span>
                                         </a>
                                     </li>
                                 </ul>

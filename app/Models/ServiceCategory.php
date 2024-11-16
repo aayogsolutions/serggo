@@ -23,4 +23,9 @@ class ServiceCategory extends Model
     {
         return $this->hasMany(ServiceCategory::class, 'parent_id');
     }
+
+    public function Services(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Service::class, 'child_category_id','id');
+    }
 }

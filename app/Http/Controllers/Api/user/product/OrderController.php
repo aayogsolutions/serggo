@@ -83,7 +83,8 @@ class OrderController extends Controller
                 'digital_payment' => $digital_payment,
                 'partial_payment' => $partial_payment,
                 'delivery' => $delivery,
-                'address' => $address,
+                'balance' => Auth::user()->wallet_balance,
+                'tax' => Helpers_get_business_settings('product_gst_tax_status'),
             ]
         ], 200);
     }
@@ -100,15 +101,20 @@ class OrderController extends Controller
             'product.*.is_installation' => 'required|numeric',
             'product.*.delivery' => 'required|numeric',
             'product.*.discount' => 'required|numeric',
+            'product.*.tax' => 'required|numeric',
             'payment_method' => 'required|in:cod,online',
             'address_id' => 'required|numeric',
             'wallet_applied' => 'required|numeric',
             'item_total' => 'required|numeric',
-            'installation_charges' => 'required|numeric',
-            'delivery_charges' => 'required|numeric',
-            'discount' => 'required|numeric',
-            'taxs' => 'required|numeric',
+            'total_installation_charges' => 'required|numeric',
+            'total_delivery_charges' => 'required|numeric',
+            'total_discount' => 'required|numeric',
+            'total_taxs' => 'required|numeric',
+            'tax_type' => 'required',
             'gst_invoice' => 'required|numeric',
+            'gst_no' => 'required',
+            'gst_name' => 'required',
+            'mobile_no' => 'required|numeric',
             'grand_total' => 'required|numeric',
         ]);
 
@@ -210,6 +216,7 @@ class OrderController extends Controller
                         if($value['is_installation'] == 0)
                         {
                             $order_details->installastion_amount = $product->installation_charges;
+                            $order_details->installation = 0;
                         }
                         if($tax_type == null || $tax_type == 'excluded')
                         {
@@ -232,7 +239,7 @@ class OrderController extends Controller
                         $adminOrder->partial_payment = json_encode([
                             'wallet_applied' => $partial_payment_amount
                         ]);
-                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,(Auth::user()->wallet_balance - $partial_payment_amount));
+                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,$partial_payment_amount);
                     }
                     $adminOrder->total_tax_amount = $this_tax_amount;
                     $adminOrder->order_amount = $amount;
@@ -290,6 +297,7 @@ class OrderController extends Controller
                         if($value['is_installation'] == 0)
                         {
                             $order_details->installastion_amount = $product->installation_charges;
+                            $order_details->installation = 0;
                         }
                         if($tax_type == null || $tax_type == 'excluded')
                         {
@@ -312,7 +320,7 @@ class OrderController extends Controller
                         $adminOrder->partial_payment = json_encode([
                             'wallet_applied' => $partial_payment_amount
                         ]);
-                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,(Auth::user()->wallet_balance - $partial_payment_amount));
+                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,$partial_payment_amount);
                     }
                     $adminOrder->total_tax_amount = $tax_amount;
                     $adminOrder->order_amount = $amount;
@@ -341,5 +349,60 @@ class OrderController extends Controller
             'message' => 'Order Placed',
             'data' => $order_ids
         ], 201);
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function OrderHistory() : JsonResponse
+    {
+        try {
+            $orders = $this->order->where('user_id', Auth::user()->id)->orderBy('id', 'desc')->with('OrderDetails')->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Order History',
+                'data' => $orders,
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'status' => false,
+                'errors' => 'Unexpected Error',
+            ], 406);
+        }
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function OrderItems($id) : JsonResponse
+    {
+        try {
+            $orders = $this->order->where('id', $id)->with('OrderDetails')->first();
+        
+            if($orders->user_id != Auth::user()->id)
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order Not Found',
+                    'data' => [],
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Order Status',
+                'data' => $orders,
+            ], 200);
+
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'status' => false,
+                'errors' => 'Unexpected Error',
+            ], 406);
+        }
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('display_section_contents', function (Blueprint $table) {
             $table->id();
             $table->integer('section_id');
-            $table->enum('item_type',['product','category'])->default('product');
+            $table->enum('item_type',['product','category','service'])->default('product');
             $table->integer('item_id');
             $table->text('item_detail');
             $table->string('attechment')->nullable();

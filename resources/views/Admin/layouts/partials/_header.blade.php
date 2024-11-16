@@ -17,10 +17,10 @@
                     <li class="nav-item">
                         <div class="hs-unfold">
                             <a class="js-hs-unfold-invoker btn btn-icon notify--icon"
-                               href="{{route('admin.orders.list',['status'=>'pending'])}}">
+                               href="{{route('admin.orders.approval_request')}}">
                                 <i class="tio-shopping-cart-outlined"></i>
                                 <span class="amount">
-                                    {{\App\Models\Order::where(['checked' => 0])->count()}}
+                                    {{ App\Models\Order::where(['order_status' => 'pending' , 'order_approval' => 'pending'])->count() }}
                                 </span>
                             </a>
                         </div>

@@ -133,18 +133,23 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('list', [ServiceController::class, 'list'])->name('list');
             Route::get('add-new', [ServiceController::class, 'index'])->name('add-new');
             Route::get('get-categories', [ServiceController::class, 'getCategories'])->name('get-categories');
+            Route::get('get-child-categories', [ServiceController::class, 'getChildCategories'])->name('get-child-categories');
+            Route::post('store', [ServiceController::class, 'store'])->name('store');
+            Route::get('status/{id}/{status}', [ServiceController::class, 'status'])->name('status');
+            Route::delete('delete/{id}', [ServiceController::class, 'delete'])->name('delete');
+            Route::get('edit/{id}', [ServiceController::class, 'edit'])->name('edit');
+            Route::post('update/{id}', [ServiceController::class, 'update'])->name('update');
+            Route::get('remove-image/{id}/{images}/{service?}/{name?}', [ServiceController::class, 'removeImage'])->name('remove-image');
+
 
             // Route::post('variant-combination', [ProductController::class, 'variantCombination'])->name('variant-combination');
             // Route::get('get-variations', [ProductController::class, 'getVariations'])->name('get-variations');
-            // Route::post('store', [ProductController::class, 'store'])->name('store');
             // Route::get('view/{id}', [ProductController::class, 'view'])->name('view');
-            // Route::get('status/{id}/{status}', [ProductController::class, 'status'])->name('status');
-            // Route::get('edit/{id}', [ProductController::class, 'edit'])->name('edit');
+            
+        
 
-            // Route::post('update/{id}', [ProductController::class, 'update'])->name('update');
-            // Route::delete('delete/{id}', [ProductController::class, 'delete'])->name('delete');
 
-            // Route::post('daily-needs', [ProductController::class, 'dailyNeeds'])->name('daily-needs');
+            Route::post('daily-needs', [ProductController::class, 'dailyNeeds'])->name('daily-needs');
             Route::get('limited-stock', [ProductController::class, 'limitedStock'])->name('limited-stock');
             // Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');
             // Route::post('update-quantity', [ProductController::class, 'updateQuantity'])->name('update-quantity');
@@ -157,7 +162,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
                 Route::get('add', [ServiceCategoryController::class, 'index'])->name('add');
                 Route::get('add-sub-category', [ServiceCategoryController::class, 'subIndex'])->name('add-sub-category');
+                Route::get('add-child-category', [ServiceCategoryController::class, 'childIndex'])->name('add-child-category');
                 Route::post('store', [ServiceCategoryController::class, 'store'])->name('store');
+                Route::post('child-store', [ServiceCategoryController::class, 'Childstore'])->name('child-store');
                 Route::get('edit/{id}', [ServiceCategoryController::class, 'edit'])->name('edit');
                 Route::post('update/{id}', [ServiceCategoryController::class, 'update'])->name('update');
                 Route::get('status/{id}/{status}', [ServiceCategoryController::class, 'status'])->name('status');
@@ -305,17 +312,18 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         });
 
         Route::group(['prefix' => 'orders', 'as' => 'orders.'], function () {
+
             Route::get('list/{status}', [OrderController::class, 'list'])->name('list');
             Route::get('details/{id}', [OrderController::class, 'details'])->name('details');
             Route::get('status', [OrderController::class, 'status'])->name('status');
-            Route::get('add-delivery-man/{order_id}/{delivery_man_id}', [OrderController::class, 'addDeliveryman'])->name('add-delivery-man');
+            Route::get('add-service-man/{order_id}', [OrderController::class, 'addServiceman'])->name('add.service.man');
             Route::get('payment-status', [OrderController::class, 'paymentStatus'])->name('payment-status');
             Route::get('generate-invoice/{id}', [OrderController::class, 'generateInvoice'])->name('generate-invoice')->withoutMiddleware(['module:order_management']);
-            Route::post('add-payment-ref-code/{id}', [OrderController::class, 'addPaymentReferenceCode'])->name('add-payment-ref-code');
+            
             
             Route::post('search', [OrderController::class, 'search'])->name('search');
             Route::get('export/{status}', [OrderController::class, 'exportOrders'])->name('export');
-            Route::get('verify-offline-payment/{order_id}/{status}', [OrderController::class, 'verifyOfflinePayment']);
+            
 
             // Order Approval Routes
             Route::get('approval-request', [OrderController::class, 'ApprovalRequest'])->name('approval_request');
@@ -327,6 +335,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
 
             
+            Route::post('add-payment-ref-code/{id}', [OrderController::class, 'addPaymentReferenceCode'])->name('add-payment-ref-code');
+            Route::get('verify-offline-payment/{order_id}/{status}', [OrderController::class, 'verifyOfflinePayment']);
+
+
             Route::get('edit-item/{id}', [OrderController::class, 'edit_item'])->name('edit_item');
             Route::post('edit-item/{id}', [OrderController::class, 'edit_item_submit'])->name('edit_item.submit');
 

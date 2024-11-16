@@ -209,18 +209,16 @@
                         <div class="row g-3">
                             <div class="col-sm-6">
                                 <div class="form-group mb-0">
-                                    <label class="input-label"
-                                        for="exampleFormControlInput1">{{translate('default_unit_price')}}</label>
-                                    <input type="number" min="0" max="100000000" step="any" value="1" name="price"
-                                        class="form-control" placeholder="{{ translate('Ex : 349') }}" required>
+                                    <!-- <label class="input-label" for="exampleFormControlInput1">{{translate('default_unit_price')}}</label> -->
+                                    <input type="number" min="0" max="100000000" step="any" value="0" name="price"
+                                        class="form-control" placeholder="{{ translate('Ex : 349') }}" required hidden>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="form-group mb-0">
-                                    <label class="input-label"
-                                        for="exampleFormControlInput1">{{translate('product_stock')}}</label>
+                                    <!-- <label class="input-label" for="exampleFormControlInput1">{{translate('product_stock')}}</label> -->
                                     <input type="number" min="0" max="100000000" value="0" name="total_stock"
-                                        class="form-control" placeholder="{{ translate('Ex : 100') }}">
+                                        class="form-control" placeholder="{{ translate('Ex : 100') }}" hidden>
                                 </div>
                             </div>
                             <div class="col-sm-6">

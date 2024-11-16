@@ -365,7 +365,6 @@
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="returned">{{ translate('returned') }}</a>
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="failed">{{ translate('failed') }}</a>
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="canceled">{{ translate('canceled') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="rejected">{{ translate('rejected') }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -399,16 +398,16 @@
                                 <div class="d-flex flex-wrap g-2">
                                     <div class="hs-unfold w-0 flex-grow min-w-160px">
                                         <label class="input-date">
-                                            <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ date('d M Y',strtotime($order['delivery_date'])) }}"
+                                            <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}"
                                                 name="deliveryDate" id="from_date" data-id="{{ $order['id'] }}" required>
                                         </label>
                                     </div>
                                     <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                        <select class="custom-select custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}">
+                                        <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}">
                                             <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
                                             @foreach(\App\Models\TimeSlot::all() as $timeSlot)
-                                                <option value="{{$timeSlot['id']}}" {{$timeSlot->id == $order->time_slot_id ?'selected':''}}>{{date(config('time_format'), strtotime($timeSlot['start_time']))}}
-                                                    - {{date(config('time_format'), strtotime($timeSlot['end_time']))}}
+                                                <option value="{{$timeSlot['id']}}" {{$timeSlot->id == $order->delivery_timeslot_id ?'selected':''}}>
+                                                    {{date('H:i A', strtotime($timeSlot['start_time']))}} - {{date('H:i A', strtotime($timeSlot['end_time']))}}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -416,60 +415,60 @@
                                 </div>
                             </div>
                             @endif
-                            @if (!$order->delivery_man)
-                                <div class="mt-3">
-                                    <button class="btn btn--primary w-100" type="button" data-target="#assign_delivey_man_modal" data-toggle="modal">{{ translate('assign delivery man manually') }}</button>
-                                </div>
-                            @endif
-                            @if ($order->delivery_man)
-                                <div class="card mt-2">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">
-                                            <span class="card-header-icon">
-                                                <i class="tio-user"></i>
-                                            </span>
-                                            <span>{{ translate('deliveryman') }}</span>
-                                            @if ($order->order_status != 'delivered')
-                                                <a type="button" href="#assign_delivey_man_modal" class="text--base cursor-pointer ml-auto text-sm"
-                                                    data-toggle="modal" data-target="#assign_delivey_man_modal">
-                                                    {{ translate('change') }}
-                                                </a>
-                                            @endif
-                                        </h5>
-                                        <div class="media align-items-center deco-none customer--information-single">
-
-                                            <div class="avatar avatar-circle">
-                                                <img class="avatar-img"
-                                                        src="{{$order->delivery_man->imageFullPath }}"
-                                                        alt="{{ translate('Image Description')}}">
-                                            </div>
-                                            <div class="media-body">
-                                                <a href="{{ route('admin.delivery-man.preview', [$order->delivery_man['id']]) }}">
-                                                    <span class="text-body d-block text-hover-primary mb-1">{{ $order->delivery_man['f_name'] . ' ' . $order->delivery_man['l_name'] }}</span>
-                                                </a>
-
-                                                <span class="text--title font-semibold d-flex align-items-center">
-                                                <i class="tio-shopping-basket-outlined mr-2"></i>
-                                                {{\App\Models\Order::where(['delivery_man_id' => $order['delivery_man_id'], 'order_status' => 'delivered'])->count()}} {{ translate('orders_delivered') }}
-                                                </span>
-                                                <span class="text--title font-semibold d-flex align-items-center">
-                                                    <i class="tio-call-talking-quiet mr-2"></i>
-                                                    <a href="Tel:{{ $order->delivery_man['phone'] }}">{{ $order->delivery_man['phone'] }}</a>
-                                                </span>
-                                                <span class="text--title font-semibold d-flex align-items-center">
-                                                    <i class="tio-email-outlined mr-2"></i>
-                                                    <a href="mailto:{{$order->delivery_man['email']}}">{{$order->delivery_man['email']}}</a>
-                                                </span>
+                            @if($order->delivered_by == 0)
+                                @foreach($order->OrderDetails as $ServiceMenArray)
+                                    @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id == null)
+                                        <div class="mt-3">
+                                            <button class="btn btn--primary w-100" type="button" data-target="#assign_delivey_man_modal" data-toggle="modal">{{ translate('assign delivery man manually') }}</button>
+                                        </div>
+                                    @endif
+                                @endforeach
+                                @foreach($order->OrderDetails as $ServiceMenArray)
+                                    @if ($ServiceMenArray->installation === 0 && $ServiceMenArray->service_man_id != null)
+                                        <div class="card mt-2">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">
+                                                    <span class="card-header-icon">
+                                                        <i class="tio-user"></i>
+                                                    </span>
+                                                    <span>{{ translate('Service Man') }}</span>
+                                                    @if ($order->order_status != 'delivered')
+                                                        <a type="button" href="#assign_delivey_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_delivey_man_modal">
+                                                            {{ translate('change') }}
+                                                        </a>
+                                                    @endif
+                                                </h5>
+                                                <div class="media align-items-center deco-none customer--information-single">
+                                                    @php($Servicevendor = App\Models\Vendor::find($ServiceMenArray->service_man_id))
+                                                    <div class="avatar avatar-circle">
+                                                        <img class="avatar-img" src="{{ $Servicevendor->image }}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <span class="text-body d-block text-hover-primary mb-1">{{ $Servicevendor->name }}</span>
+                                                        
+                                                        <span class="text--title font-semibold d-flex align-items-center">
+                                                        <i class="tio-shopping-basket-outlined mr-2"></i>
+                                                        {{\App\Models\Products::where(['id' => $ServiceMenArray->product_id])->first()->name}}
+                                                        </span>
+                                                        <span class="text--title font-semibold d-flex align-items-center">
+                                                            <i class="tio-call-talking-quiet mr-2"></i>
+                                                            <a href="Tel:{{ $Servicevendor->number }}">{{ $Servicevendor->number }}</a>
+                                                        </span>
+                                                        <span class="text--title font-semibold d-flex align-items-center">
+                                                            <i class="tio-email-outlined mr-2"></i>
+                                                            <a href="mailto:{{$Servicevendor->email}}">{{$Servicevendor->email}}</a>
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    @endif
+                                @endforeach
                             @endif
+                            
                         </div>
                     </div>
-
                 @endif
-
                 <div class="card mt-2">
                     <div class="card-body">
                         <h5 class="form-label mb-3">
@@ -526,7 +525,7 @@
                                         <span>{{\App\Models\Order::where('user_id',$order['user_id'])->count()}} {{translate("orders")}}</span>
                                         <span class="text--title font-semibold d-block">
                             <i class="tio-call-talking-quiet mr-2"></i>
-                            <a href="Tel:{{$order->customer['phone']}}">{{$order->customer['phone']}}</a>
+                            <a href="Tel:{{$order->customer['number']}}">{{$order->customer['number']}}</a>
                                 </span>
                                         <span class="text--title">
                             <i class="tio-email mr-2"></i>
@@ -673,10 +672,22 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body">
-                    <form action="javascript:void(0)" method="post" id="assign_service_man">
+                    <form action="javascript:void(0)" method="get" id="assign_service_man">
                         <div class="row">
                             <div class="col-md-12 my-2">
-                                <select name="service_man" class="form-control" id="service_man">
+                                <select name="service_item" class="form-control js-select2-custom" id="service_item" required>
+                                    <option selected disabled>Select Service Item</option>
+                                    @foreach($order->OrderDetails as $FindServiceItem)
+                                        @if($FindServiceItem->installation == 0 && $FindServiceItem->service_man_id == null)
+                                            @php($name = json_decode($FindServiceItem->product_details,true))
+                                            <option value="{{$FindServiceItem->id}}">{{ $name['name'] }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-12 my-2">
+                                <select name="service_man" class="form-control js-select2-custom" id="service_man" required>
                                     <option selected disabled>Select Service Man</option>
                                     @foreach($servicemanlist as $service_man)
                                         <option value="{{$service_man->id}}">{{$service_man->name}}</option>
@@ -691,7 +702,6 @@
                             </div>
                         </div>
                     </form>
-                    
                 </div>
             </div>
         </div>
@@ -777,7 +787,7 @@
                 if (result.value) 
                 {
                     $.ajax({
-                        type: "POST",
+                        type: "GET",
                         url: "{{ route('admin.orders.status', ['id' => $order['id']]) }}",
                         data: {
                             _token: "{{ csrf_token() }}",
@@ -805,79 +815,14 @@
             console.log(route);
             route_alert(route, message);
         });
-
-        $('.offline-payment').on('click', function(event) {
-            event.preventDefault();
-            var message = $(this).data('message');
-            offline_payment_status_alert(message);
-        });
-
-        $('.assign-deliveryman').on('click', function(event) {
-            event.preventDefault();
-            var deliverymanId = $(this).data('deliveryman-id');
-            addDeliveryMan(deliverymanId);
-        });
-
-        $('.verify-offline-payment').on('click', function(event) {
-            event.preventDefault();
-            var status = $(this).data('status');
-            verify_offline_payment(status);
-        });
-
-        function offline_payment_order_alert(message) {
-            Swal.fire({
-                title: '{{translate("Payment_is_Not_Verified")}}',
-                text: message,
-                type: 'question',
-                showCancelButton: true,
-                showConfirmButton: false,
-                cancelButtonColor: 'default',
-                confirmButtonColor: '#01684b',
-                cancelButtonText: '{{translate("Close")}}',
-                confirmButtonText: '{{translate("Proceed")}}',
-                reverseButtons: true
-            }).then((result) => {
-
-            })
-        }
-
-        function offline_payment_status_alert(message) {
-            Swal.fire({
-                title: '{{translate("Payment_is_Not_Verified")}}',
-                text: message,
-                type: 'question',
-                showCancelButton: true,
-                showConfirmButton: false,
-                cancelButtonColor: 'default',
-                confirmButtonColor: '#01684b',
-                cancelButtonText: '{{translate("Close")}}',
-                confirmButtonText: '',
-                reverseButtons: true
-            }).then((result) => {
-
-            })
-        }
-
-        function addDeliveryMan(id) {
+        
+        $('#assign_service_man').submit(function () {
             $.ajax({
                 type: "GET",
-                url: '{{url('/')}}/admin/orders/add-delivery-man/{{$order['id']}}/' + id,
-                data: $('#product_form').serialize(),
+                url: "{{route('admin.orders.add.service.man', $order['id'])}}",
+                data: $('#assign_service_man').serialize(),
                 success: function (data) {
-                    //console.log(data);
                     location.reload();
-                    if(data.status == true) {
-                        toastr.success('{{ translate("Deliveryman successfully assigned/changed") }}', {
-                            CloseButton: true,
-                            ProgressBar: true
-                        });
-                    }else{
-                        toastr.error('{{ translate("Deliveryman man can not assign/change in that status") }}', {
-                            CloseButton: true,
-                            ProgressBar: true
-                        });
-                    }
-
                 },
                 error: function () {
                     toastr.error('Add valid data', {
@@ -886,12 +831,12 @@
                     });
                 }
             });
-        }
+        });
 
         function verify_offline_payment(status) {
             $.ajax({
                 type: "GET",
-                url: '{{url('/')}}/admin/orders/verify-offline-payment/{{$order['id']}}/' + status,
+                url: "{{url('/')}}/admin/orders/verify-offline-payment/{{$order['id']}}/" + status,
                 success: function (data) {
                     //console.log(data);
                     location.reload();

@@ -12,8 +12,10 @@
             <span>
                 @if($category->parent_id == 0)
                 {{ translate('service category Update') }}
-                @else
+                @elseif($category->parent_id == 1)
                 {{ translate('service Sub Category Update') }}
+                @else
+                {{ translate('service child Category Update') }}
                 @endif
             </span>
         </h1>

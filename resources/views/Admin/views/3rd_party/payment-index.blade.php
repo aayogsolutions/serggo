@@ -25,11 +25,11 @@
 
                                 <div class="d-flex flex-wrap mb-4">
                                     <label class="form-check mr-2 mr-md-4">
-                                        <input class="form-check-input" type="radio" name="status"  value="0" {{ $cod == 0 ? 'checked' : ''}}>
+                                        <input class="form-check-input" type="radio" name="status"  value="0" {{ $cod['status'] == 0 ? 'checked' : ''}}>
                                         <span class="form-check-label text--title pl-2">{{translate('active')}}</span>
                                     </label>
                                     <label class="form-check">
-                                        <input class="form-check-input" type="radio" name="status" value="1" {{ $cod == 1 ? 'checked' : ''}}>
+                                        <input class="form-check-input" type="radio" name="status" value="1" {{ $cod['status'] == 1 ? 'checked' : ''}}>
                                         <span class="form-check-label text--title pl-2">{{translate('inactive')}}</span>
                                     </label>
                                 </div>
@@ -68,11 +68,11 @@
 
                                 <div class="d-flex flex-wrap mb-4">
                                     <label class="form-check mr-2 mr-md-4">
-                                        <input class="form-check-input" type="radio" name="status"  value="0" {{ $digital_payment ==0?'checked':''}}>
+                                        <input class="form-check-input" type="radio" name="status"  value="0" {{ $digital_payment['status'] ==0?'checked':''}}>
                                         <span class="form-check-label text--title pl-2">{{translate('active')}}</span>
                                     </label>
                                     <label class="form-check">
-                                        <input class="form-check-input" type="radio" name="status" value="1" {{ $digital_payment==1?'checked':''}}>
+                                        <input class="form-check-input" type="radio" name="status" value="1" {{ $digital_payment['status']==1?'checked':''}}>
                                         <span class="form-check-label text--title pl-2">{{translate('inactive')}}</span>
                                     </label>
                                 </div>

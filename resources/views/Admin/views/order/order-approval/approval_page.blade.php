@@ -366,7 +366,7 @@
                                     <div class="d-flex flex-wrap g-2">
                                         <div class="hs-unfold w-0 flex-grow min-w-160px">
                                             <label for="from_date">
-                                                <input class="form-control min-h-45px" type="date" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : '' }}" name="deliveryDate" id="from_date" required>
+                                                <input class="form-control min-h-45px" type="date" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}" name="deliveryDate" id="from_date" required>
                                             </label>
                                         </div>
                                         <div class="hs-unfold w-0 flex-grow min-w-160px">

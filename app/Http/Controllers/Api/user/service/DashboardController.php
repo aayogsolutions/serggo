@@ -10,8 +10,11 @@ use App\Models\{
     DisplaySection,
     HomeBanner,
     ServiceTag,
-    DisplayCategory
+    DisplayCategory,
+    ServiceCategory
 };
+use Illuminate\Support\Facades\Validator;
+
 class DashboardController extends Controller
 {
     public function __construct(
@@ -21,12 +24,12 @@ class DashboardController extends Controller
         // private HomeSliderBanner $homesliderbanner,
         private DisplaySection $displaysection,
         private DisplayCategory $displaycategory,
+        private ServiceCategory $servicecategory,
     ){}
 
-     /**
-     * 
+    /**
+     * @param Request $request
      * @return JsonResponse
-     * 
      */
     public function Index(Request $request) : JsonResponse
     {
@@ -98,4 +101,51 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * @return JsonResponse
+     */
+    public function CategoryDetails() : JsonResponse
+    {
+        try {
+
+            $categorys = $this->servicecategory->status()->where('position', 0)->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Data',
+                'data' => $categorys
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error',
+                'data' => []
+            ], 406);
+        }
+        
+    }
+
+    /**
+     * @param $category_id   
+     * @return JsonResponse
+     */
+    public function SubCategoryDetails($category_id) : JsonResponse
+    {
+        try {
+
+            $categorys = $this->servicecategory->status()->where('parent_id', $category_id)->with('childes.Services')->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category Data',
+                'data' => $categorys
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error',
+                'data' => []
+            ], 406);
+        }
+        
+    }
 }
