@@ -10,9 +10,9 @@
                 <img src="{{asset('assets/admin/img/category.png')}}" class="w--24" alt="{{ translate('category') }}">
             </span>
             <span>
-                @if($category->parent_id == 0)
+                @if($category->position == 0)
                 {{ translate('service category Update') }}
-                @elseif($category->parent_id == 1)
+                @elseif($category->position == 1)
                 {{ translate('service Sub Category Update') }}
                 @else
                 {{ translate('service child Category Update') }}

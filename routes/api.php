@@ -7,6 +7,10 @@ use App\Http\Controllers\Api\user\{
 use App\Http\Controllers\Api\auth\{
     ApiAuthController
 };
+use App\Http\Controllers\Api\partner\{
+    AuthController,
+    DashboardController as PartnerDashboardController,
+};
 use App\Http\Controllers\Api\user\product\{
     AddressController,
     CategoryCntroller,
@@ -34,6 +38,22 @@ Route::group(['prefix' => 'auth'], function() {
     Route::post('/otpsubmit',[ApiAuthController::class, 'OTPSubmit']);
 
     Route::put('/register', [ApiAuthController::class,'registeruser']);
+
+    Route::group(['prefix' => 'partner'], function() {
+        //Login Route
+        Route::post('/login',[AuthController::class, 'LogIn']);
+
+        // Sign Up Routes
+        Route::get('/category',[AuthController::class, 'Category']);
+        Route::post('/signup',[AuthController::class, 'SignUp']);
+        Route::post('/otp-submit',[AuthController::class, 'OtpSubmit']);
+        Route::post('/kyc-submit',[AuthController::class, 'KYCSubmit']);
+
+        //Forget Password Routes
+        Route::post('/forget/password/number',[AuthController::class, 'ForgetPasswordNumber']);
+        Route::post('/forget/password/otp',[AuthController::class, 'ForgetPasswordOTP']);
+        Route::post('/forget/password/submit',[AuthController::class, 'ForgetPasswordSubmit']);
+    });
 });
 
 Route::group(['prefix' => 'banner'], function() {
@@ -135,6 +155,11 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::get('order/history',[OrderController::class,'OrderHistory']);
             Route::get('order/{id}',[OrderController::class,'OrderItems']);
         });
+    });
+
+    Route::group(['prefix' => 'partner'], function(){
+
+        Route::get('dashboard', [PartnerDashboardController::class,'Index']);
     });
 });
 

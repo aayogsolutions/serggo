@@ -160,8 +160,6 @@ class ServiceCategoryController extends Controller
     
         flash()->success(translate('Child Category Added Successfully!'));
         return redirect()->route('admin.service.category.add-child-category');
-    
-        
     }
 
     /**
@@ -209,11 +207,11 @@ class ServiceCategoryController extends Controller
         $category->image = $request->has('image') ? Helpers_update('Images/category/', $category->image, $request->file('image')->getClientOriginalExtension(), $request->file('image')) : $category->image;
         $category->save();
         
-        if($category->parent_id == 0)
+        if($category->position == 0)
         {
             flash()->success(translate('Service Category updated Successfully!'));
             return redirect()->route('admin.service.category.add');
-        }elseif($category->parent_id == 1){
+        }elseif($category->position == 1){
             flash()->success(translate('Service Sub Category updated Successfully!'));
             return redirect()->route('admin.service.category.add-sub-category');
         }else{
