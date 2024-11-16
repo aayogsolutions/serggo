@@ -130,7 +130,7 @@ class DisplayController extends Controller
 
         if($banner->ui_type == 'user_service')
         {
-            $products = $this->service->status()->orderBy('name')->get();
+            $products = $this->servicecategory->status()->where('parent_id',0)->orderBy('name')->get();
         }
         elseif ($banner->ui_type == 'user_product') 
         {

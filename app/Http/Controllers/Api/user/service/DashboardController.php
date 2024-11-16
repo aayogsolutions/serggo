@@ -11,6 +11,7 @@ use App\Models\{
     HomeBanner,
     ServiceTag,
     DisplayCategory,
+    HomeSliderBanner,
     ServiceCategory
 };
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +22,7 @@ class DashboardController extends Controller
         private HomeBanner $homebanner,
         private ServiceTag $servicetag,
         // private Brands $brand,
-        // private HomeSliderBanner $homesliderbanner,
+        private HomeSliderBanner $homesliderbanner,
         private DisplaySection $displaysection,
         private DisplayCategory $displaycategory,
         private ServiceCategory $servicecategory,
@@ -131,13 +132,22 @@ class DashboardController extends Controller
     public function SubCategoryDetails($category_id) : JsonResponse
     {
         try {
+            try {
+                $data['homesliderbanner'] = homesliderbanner_data_formatting($this->homesliderbanner->status()->where('ui_type','user_service')->orderBy('priority', 'asc')->limit(6)->get(), true);
+            } catch (\Throwable $th) {
+                $data['homesliderbanner'] = [];
+            }
 
             $categorys = $this->servicecategory->status()->where('parent_id', $category_id)->with('childes.Services')->get();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Category Data',
-                'data' => $categorys
+                'data' => [
+                    'mainbanner' => [],
+                    'category' => $categorys,
+                    'sliderbanner' => $data['homesliderbanner']
+                ]
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

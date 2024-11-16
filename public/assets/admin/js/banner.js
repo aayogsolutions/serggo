@@ -59,7 +59,6 @@ function show_item(type) {
 $(document).ready(function() {
     if($('.show-item').val() == 'product')
     {
-        
         $("#type-product").css("display", 'block');
         $("#type-category").css("display", 'none');
     }else{
@@ -67,3 +66,18 @@ $(document).ready(function() {
         $("#type-category").css("display", 'block');
     };
 });
+
+$('#ui_type').on('change', function(){
+    let type = $(this).val();
+    show_section(type);
+})
+
+function show_section(type) {
+    if (type == 'user_product') {
+        $("#user_product").show();
+        $("#user_service").hide();
+    } else {
+        $("#user_product").hide();
+        $("#user_service").show();
+    }
+}

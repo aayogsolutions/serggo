@@ -8,6 +8,14 @@
             height: 50px;
         }
 
+        #user_service{
+            display: none;
+        }
+
+        #user_product{
+            display: none;
+        }
+
         .table-responsive{
             max-height: 1500px !important;
         }
@@ -51,46 +59,77 @@
                                         {{translate('UI')}} {{translate('type')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="type" class="form-control">
+                                    <select name="type" class="form-control" id="ui_type">
+                                        <option selected disabled>{{translate('Select UI type')}}</option>
                                         <option value="user_product">{{translate('user_product')}}</option>
                                         <option value="user_service">{{translate('user_service')}}</option>
-                                        <option value="vender_service">{{translate('vender_service')}}</option>
+                                        <!-- <option value="vender_service">{{translate('vender_service')}}</option> -->
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            <div class="col-12" id="user_product">
+                                <dov class="row">
+                                    <div class="col-12">
+                                        <div class="form-group mb-2">
+                                            <label class="input-label" for="exampleFormControlSelect1">
+                                                {{translate('item')}} {{translate('type')}}
+                                                <span class="input-label-secondary">*</span>
+                                                </label>
+                                            <select name="item_type" class="form-control show-item">
+                                                <option value="product">{{translate('product')}}</option>
+                                                <option value="category">{{translate('category')}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group mb-0" id="type-product">
+                                            <label class="input-label" for="exampleFormControlSelect1">
+                                                {{translate('product')}}
+                                                <span class="input-label-secondary">*</span>
+                                            </label>
+                                            <select name="product_id" class="form-control js-select2-custom">
+                                                <option selected disabled>Select Product</option>
+                                                @foreach($products as $product)
+                                                    <option value="{{$product['id']}}">{{$product['name']}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="form-group mb-0" id="type-category" style="display:none;">
+                                            <label class="input-label" for="exampleFormControlSelect1">
+                                                {{translate('category')}}
+                                                <span class="input-label-secondary">*</span>
+                                            </label>
+                                            <select name="category_id" class="form-control js-select2-custom">
+                                                <option selected disabled>Select Category</option>
+                                                @foreach($categories as $category)
+                                                    <option value="{{$category['id']}}">{{$category['name']}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </dov>
+                            </div>
+
+                            <div class="col-12" id="user_service">
                                 <div class="form-group mb-0">
-                                    <label class="input-label" for="exampleFormControlSelect1">{{translate('item')}} {{translate('type')}}<span
-                                            class="input-label-secondary">*</span></label>
-                                    <select name="item_type" class="form-control show-item">
-                                        <option value="product">{{translate('product')}}</option>
-                                        <option value="category">{{translate('category')}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group mb-0" id="type-product">
                                     <label class="input-label" for="exampleFormControlSelect1">
-                                        {{translate('product')}}
+                                        {{translate('Category')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="product_id" class="form-control js-select2-custom">
-                                        <option selected disabled>Select Product</option>
-                                        @foreach($products as $product)
-                                            <option value="{{$product['id']}}">{{$product['name']}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group mb-0" id="type-category" style="display:none;">
-                                    <label class="input-label" for="exampleFormControlSelect1">
-                                        {{translate('category')}}
-                                        <span class="input-label-secondary">*</span>
-                                    </label>
-                                    <select name="category_id" class="form-control js-select2-custom">
+                                    <select name="category_id" class="form-control js-select2-custom" id="service_catogory_id">
                                         <option selected disabled>Select Category</option>
-                                        @foreach($categories as $category)
-                                            <option value="{{$category['id']}}">{{$category['name']}}</option>
+                                        @foreach($servicecategories as $servicecategory)
+                                            <option value="{{$servicecategory['id']}}">{{$servicecategory['name']}}</option>
                                         @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mb-0">
+                                    <label class="input-label" for="exampleFormControlSelect1">
+                                        {{translate('Sub Category')}}
+                                        <span class="input-label-secondary">*</span>
+                                    </label>
+                                    <select name="sub_category_id" class="form-control js-select2-custom" id="service_sub_catogory_id">
+                                        <option selected disabled>Select Category</option>
                                     </select>
                                 </div>
                             </div>
@@ -242,4 +281,29 @@
 
 @push('script_2')
     <script src="{{ asset('assets/admin/js/banner.js') }}"></script>
+
+    <script>
+        $('#service_catogory_id').change(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                type: "get",
+                url: "{{route('admin.service.get-categories')}}",
+                contentType: false,
+                data: {
+                    parent_id: $('#service_catogory_id').val()
+                },
+                success: function(data) {
+                    console.log(data.options);
+                    console.log(data.option);
+                    console.log($('#catogory_id').val());
+                    $('#service_sub_catogory_id').html(data.options);
+                }
+            });
+        });
+    </script>
 @endpush

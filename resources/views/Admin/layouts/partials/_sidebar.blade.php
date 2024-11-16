@@ -490,7 +490,7 @@
                                             <a class="nav-link" href="{{route('admin.banners.homeslider.add')}}" title="{{translate('User Home silder Screens')}}">
                                                 <span class="tio-circle nav-indicator-icon"></span>
                                                 <span class="text-truncate">
-                                                    {{translate('Home silder Banner')}}
+                                                    {{translate('silder Banner')}}
                                                 </span>
                                             </a>
                                         </li>

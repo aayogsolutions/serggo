@@ -33,43 +33,75 @@
                                         {{translate('UI')}} {{translate('type')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="type" class="form-control">
+                                    <select name="type" class="form-control" disabled>
                                         <option value="user_product" {{$banner->ui_type == 'user_product' ? 'selected' : ''}}>{{translate('user_product')}}</option>
                                         <option value="user_service" {{$banner->ui_type == 'user_service' ? 'selected' : ''}}>{{translate('user_service')}}</option>
-                                        <option value="vender_service" {{$banner->ui_type == 'vender_service' ? 'selected' : ''}}>{{translate('vender_service')}}</option>
+                                        <!-- <option value="vender_service" {{$banner->ui_type == 'vender_service' ? 'selected' : ''}}>{{translate('vender_service')}}</option> -->
                                     </select>
+                                    <input type="text" value="{{$banner->ui_type}}" name="type" hidden>
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <div class="form-group mb-0">
-                                    <label class="input-label" for="exampleFormControlSelect1">{{translate('item')}} {{translate('type')}}<span
-                                            class="input-label-secondary">*</span></label>
-                                    <select name="item_type" class="form-control show-item">
-                                        <option value="product" {{$banner->item_type == 'product' ? 'selected' : ''}}>{{translate('product')}}</option>
-                                        <option value="category" {{$banner->item_type == 'category' ? 'selected' : ''}}>{{translate('category')}}</option>
-                                    </select>
+                            @if($banner->ui_type == 'user_product')
+                                <div class="col-12">
+                                    <div class="form-group mb-0">
+                                        <label class="input-label" for="exampleFormControlSelect1">{{translate('item')}} {{translate('type')}}<span
+                                                class="input-label-secondary">*</span></label>
+                                        <select name="item_type" class="form-control show-item">
+                                            <option value="product" {{$banner->item_type == 'product' ? 'selected' : ''}}>{{translate('product')}}</option>
+                                            <option value="category" {{$banner->item_type == 'category' ? 'selected' : ''}}>{{translate('category')}}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-group mb-0" id="type-product">
-                                    <label class="input-label" for="exampleFormControlSelect1">{{translate('product')}} <span
-                                            class="input-label-secondary">*</span></label>
-                                    <select name="product_id" class="form-control js-select2-custom">
-                                        @foreach($products as $product)
-                                            <option value="{{$product['id']}}" {{$banner->item_id == $product['id'] ? 'selected' : ''}}>{{$product['name']}}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="col-12">
+                                    <div class="form-group mb-0" id="type-product">
+                                        <label class="input-label" for="exampleFormControlSelect1">{{translate('product')}} <span
+                                                class="input-label-secondary">*</span></label>
+                                        <select name="product_id" class="form-control js-select2-custom">
+                                            @foreach($products as $product)
+                                                <option value="{{$product['id']}}" {{$banner->item_id == $product['id'] ? 'selected' : ''}}>{{$product['name']}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group mb-0" id="type-category" style="display:none;">
+                                        <label class="input-label" for="exampleFormControlSelect1">{{translate('category')}} <span
+                                                class="input-label-secondary">*</span></label>
+                                        <select name="category_id" class="form-control js-select2-custom">
+                                            @foreach($categories as $category)
+                                                <option value="{{$category['id']}}" {{$banner->item_id == $category['id'] ? 'selected' : ''}}>{{$category['name']}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-group mb-0" id="type-category" style="display:none;">
-                                    <label class="input-label" for="exampleFormControlSelect1">{{translate('category')}} <span
-                                            class="input-label-secondary">*</span></label>
-                                    <select name="category_id" class="form-control js-select2-custom">
-                                        @foreach($categories as $category)
-                                            <option value="{{$category['id']}}" {{$banner->item_id == $category['id'] ? 'selected' : ''}}>{{$category['name']}}</option>
-                                        @endforeach
-                                    </select>
+                            @elseif($banner->ui_type == 'user_service')
+                                <div class="col-md-12">
+                                    <div class="form-group mb-0">
+                                        <label class="input-label" for="exampleFormControlSelect1">
+                                            {{translate('Category')}}
+                                            <span class="input-label-secondary">*</span>
+                                        </label>
+                                        <select name="category_id" class="form-control js-select2-custom" id="service_catogory_id">
+                                            <option selected disabled>Select Category</option>
+                                            @foreach($products as $servicecategory)
+                                                <option value="{{$servicecategory['id']}}" {{ json_decode($banner->item_detail)->parent_id == $servicecategory['id'] ? 'selected' : ''}}>{{$servicecategory['name']}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="col-md-12">
+                                    <div class="form-group mb-0">
+                                        <label class="input-label" for="exampleFormControlSelect1">
+                                            {{translate('Sub Category')}}
+                                            <span class="input-label-secondary">*</span>
+                                        </label>
+                                        <select name="sub_category_id" class="form-control js-select2-custom" id="service_sub_catogory_id">
+                                            <option selected disabled>Select Sub Category</option>
+                                            @foreach($categories as $servicecategory)
+                                                <option value="{{$servicecategory['id']}}" {{ $banner->item_id == $servicecategory['id'] ? 'selected' : ''}}>{{$servicecategory['name']}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -105,4 +137,29 @@
 
 @push('script_2')
 <script src="{{ asset('assets/admin/js/banner.js') }}"></script>
+
+<script>
+    $('#service_catogory_id').change(function() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $.ajax({
+            type: "get",
+            url: "{{route('admin.service.get-categories')}}",
+            contentType: false,
+            data: {
+                parent_id: $('#service_catogory_id').val()
+            },
+            success: function(data) {
+                console.log(data.options);
+                console.log(data.option);
+                console.log($('#catogory_id').val());
+                $('#service_sub_catogory_id').html(data.options);
+            }
+        });
+    });
+</script>
 @endpush

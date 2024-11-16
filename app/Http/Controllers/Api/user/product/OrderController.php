@@ -35,9 +35,7 @@ class OrderController extends Controller
         try {
             $id = Auth::user()->id;
 
-            $address = $this->customeraddress->where('user_id',$id)->get();
-
-            $cod['status'] = Helpers_get_business_settings('cash_on_delivery');
+            $cod = Helpers_get_business_settings('cash_on_delivery');
             if($cod['status'] == 0)
             {
                 $cod['max_cod_status'] = Helpers_get_business_settings('maximum_amount_for_cod_order_status');

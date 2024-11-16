@@ -12,7 +12,8 @@ use App\Models\{
     Products,
     Category,
     DisplaySection,
-    ProductCategoryBanner
+    ProductCategoryBanner,
+    ServiceCategory
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
@@ -24,6 +25,7 @@ class BannersController extends Controller
     public function __construct(
         private Products $product,
         private Category $category,
+        private ServiceCategory $servicecategory,
         private SplashBanner $splashbanner,
         private AuthBanners $authBanners,
         private HomeBanner $homebanner,
@@ -664,8 +666,9 @@ class BannersController extends Controller
         
         $products = $this->product->status()->orderBy('name')->get();
         $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
+        $servicecategories = $this->servicecategory->status()->where(['parent_id'=>0])->orderBy('name')->get();
 
-        return view('Admin.views.banner.homeslider.index', compact('banners', 'products', 'categories', 'search'));
+        return view('Admin.views.banner.homeslider.index', compact('banners', 'products', 'categories', 'search', 'servicecategories'));
     }
 
     /**
@@ -678,12 +681,10 @@ class BannersController extends Controller
             'title' => 'required|max:255',
             'image' => 'required|image',
             'type' => 'required',
-            'item_type' => 'required',
         ], [
             'title.required' => translate('Title is required'),
             'image.required' => translate('Image is required'),
             'type.required' => translate('Type is required'),
-            'item_type.required' => translate('Item Type is required'),
         ]);
         
         $file_size = getimagesize($request->file('image'));
@@ -692,17 +693,30 @@ class BannersController extends Controller
             $banner = $this->homesilderbanner;
             $banner->title = $request->title;
             $banner->ui_type = $request->type;
-            $banner->item_type = $request->item_type;
-            if($request->item_type == 'product')
+
+            if($request->type == 'user_product')
             {
-                $data = $this->product->find($request->product_id);
-                $banner->item_id = $request->product_id;
-                $banner->item_detail = $data;
-            }else{
-                $data = $this->category->find($request->category_id);
-                $banner->item_id = $request->category_id;
+                $banner->item_type = $request->item_type;
+                if($request->item_type == 'product')
+                {
+                    $data = $this->product->find($request->product_id);
+                    $banner->item_id = $request->product_id;
+                    $banner->item_detail = $data;
+                }else{
+                    $data = $this->category->find($request->category_id);
+                    $banner->item_id = $request->category_id;
+                    $banner->item_detail = $data;
+                }
+            }
+            elseif ($request->type == 'user_service') {
+
+                $banner->item_type = 'category';
+                
+                $data = $this->servicecategory->find($request->sub_category_id);
+                $banner->item_id = $request->sub_category_id;
                 $banner->item_detail = $data;
             }
+            
             $banner->attechment = Helpers_upload('Images/banners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
             $banner->save();
             flash()->success(translate('Banner added successfully!'));
@@ -720,8 +734,15 @@ class BannersController extends Controller
     {
         $banner = $this->homesilderbanner->find($id);
 
-        $products = $this->product->orderBy('name')->get();
-        $categories = $this->category->where(['parent_id'=>0])->orderBy('name')->get();
+        if($banner->ui_type == 'user_product')
+        {
+            $products = $this->product->orderBy('name')->get();
+            $categories = $this->category->where(['parent_id'=>0])->orderBy('name')->get();
+        }else{
+            $products = $this->servicecategory->where(['parent_id'=> 0])->orderBy('name')->get();
+            $categories = $this->servicecategory->where(['parent_id'=> json_decode($banner->item_detail)->parent_id])->orderBy('name')->get();
+        }
+        
 
         return view('Admin.views.banner.homeslider.edit', compact('banner','categories','products'));
     }
@@ -763,15 +784,26 @@ class BannersController extends Controller
                 $banner = $this->homesilderbanner->find($id);
                 $banner->title = $request->title;
                 $banner->ui_type = $request->type;
-                $banner->item_type = $request->item_type;
-                if($request->item_type == 'product')
+                if($request->type == 'user_product')
                 {
-                    $data = $this->product->find($request->product_id);
-                    $banner->item_id = $request->product_id;
-                    $banner->item_detail = $data;
-                }else{
-                    $data = $this->category->find($request->category_id);
-                    $banner->item_id = $request->category_id;
+                    $banner->item_type = $request->item_type;
+                    if($request->item_type == 'product')
+                    {
+                        $data = $this->product->find($request->product_id);
+                        $banner->item_id = $request->product_id;
+                        $banner->item_detail = $data;
+                    }else{
+                        $data = $this->category->find($request->category_id);
+                        $banner->item_id = $request->category_id;
+                        $banner->item_detail = $data;
+                    }
+                }
+                elseif ($request->type == 'user_service') {
+
+                    $banner->item_type = 'category';
+                    
+                    $data = $this->servicecategory->find($request->sub_category_id);
+                    $banner->item_id = $request->sub_category_id;
                     $banner->item_detail = $data;
                 }
                 $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));

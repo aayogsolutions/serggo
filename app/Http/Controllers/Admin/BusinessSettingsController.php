@@ -518,13 +518,17 @@ class BusinessSettingsController extends Controller
 
         if (!$this->businessSettings->where(['key' => 'cash_on_delivery'])->first()) {
             BusinessSetting::updateOrInsert(['key' => 'cash_on_delivery'], [
-                'value' => 0,
+                'value' => [
+                    'status' => 0
+                ],
             ]);
         }
 
         if (!$this->businessSettings->where(['key' => 'digital_payment'])->first()) {
             BusinessSetting::updateOrInsert(['key' => 'digital_payment'], [
-                'value' => 1,
+                'value' => [
+                    'status' => 1
+                ],
             ]);
         }
 
