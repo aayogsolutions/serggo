@@ -109,7 +109,7 @@ class DashboardController extends Controller
     {
         try {
 
-            $categorys = $this->servicecategory->status()->where('position', 0)->get();
+            $categorys = $this->servicecategory->status()->where('position', 0)->with('childes')->get();
             return response()->json([
                 'status' => true,
                 'message' => 'Category Data',
@@ -138,7 +138,7 @@ class DashboardController extends Controller
                 $data['homesliderbanner'] = [];
             }
 
-            $categorys = $this->servicecategory->status()->where('parent_id', $category_id)->with('childes.Services')->get();
+            $categorys = $this->servicecategory->status()->where('id', $category_id)->with(['childes','childes.Services'])->get();
 
             return response()->json([
                 'status' => true,

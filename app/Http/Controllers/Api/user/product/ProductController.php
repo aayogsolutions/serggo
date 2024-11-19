@@ -175,7 +175,7 @@ class ProductController extends Controller
                 if(!empty($sectionid))
                 {
                     foreach ($sectionid as $key => $value) {
-                        $section_ids[] = $value->id;
+                        $section_ids[] = $value['id'];
                     };
                     
                     $section_items_product1 = $this->displaysectioncontent->whereIn('section_id',$section_ids)->where('item_type' , 'product')->where('item_id' , $data->id)->get();

@@ -259,6 +259,24 @@
                                         class="form-control" placeholder="{{ translate('Ex : $ 100') }}" required>
                                 </div>
                             </div>
+                            <div class="col-sm-6">
+                                <div class="form-group mb-0">
+                                    <label class="input-label"
+                                        for="exampleFormControlInput1">{{translate('Advance')}}</label>
+                                    <select name="advance_status" id="advance_status" class="form-control js-select2-custom">
+                                        <option value="1" selected>{{translate('not_applicable')}}</option>
+                                        <option value="0">{{translate('applicable')}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group mb-0">
+                                    <label class="input-label" for="exampleFormControlInput1">{{translate('advance_rate')}}
+                                        <span id="tax_symbol">(%)</span></label>
+                                    <input type="text" min="0" value="0" step="0.01" max="100000" name="advance"
+                                        class="form-control" placeholder="{{ translate('Ex : $ 100') }}" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

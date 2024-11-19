@@ -214,13 +214,13 @@
                     <div class="card-body">
                         <div class="p-2">
                             <div class="row g-3">
-                                <div class="col-sm-6">
+                                <!-- <div class="col-sm-6">
                                     <div class="form-group mb-0">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('default_unit_price')}}</label>
                                         <input type="number" value="{{$product['price']}}" min="0" max="100000000" name="price" class="form-control" step="any" placeholder="{{ translate('Ex : 100') }}" required>
                                     </div>
-                                </div>
-                                <div class="col-sm-6">
+                                </div> -->
+                                <div class="col-sm-6" style="display: none;">
                                     <div class="form-group mb-0">
                                         <label class="input-label"
                                                for="exampleFormControlInput1">{{translate('stock')}}</label>
@@ -263,6 +263,24 @@
                                     <div class="form-group mb-0">
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('tax_rate')}} <span id="tax_symbol">{{$product['tax_type']=='amount'?'':'(%)'}}</span></label>
                                         <input type="number" value="{{$product['tax']}}" min="0" max="100000" name="tax" class="form-control" step="any" placeholder="{{ translate('Ex : 7') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group mb-0">
+                                        <label class="input-label"
+                                            for="exampleFormControlInput1">{{translate('Advance')}}</label>
+                                        <select name="advance_status" id="advance_status" class="form-control js-select2-custom">
+                                            <option value="1" {{$product['is_advance'] == 1 ?'selected':''}}>{{translate('not_applicable')}}</option>
+                                            <option value="0" {{$product['is_advance'] == 0 ?'selected':''}}>{{translate('applicable')}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group mb-0">
+                                        <label class="input-label" for="exampleFormControlInput1">{{translate('advance_rate')}}
+                                            <span id="tax_symbol">(%)</span></label>
+                                        <input type="text" min="0" value="{{$product['advance'] ?? 0}}" step="0.01" max="100000" name="advance"
+                                            class="form-control" placeholder="{{ translate('Ex : $ 100') }}" required>
                                     </div>
                                 </div>
                             </div>

@@ -389,6 +389,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::post('update/{id}', [ProductController::class, 'update'])->name('update');
             Route::delete('delete/{id}', [ProductController::class, 'delete'])->name('delete');
+            Route::post('update-quantity/{id}', [ProductController::class, 'updateQuantity'])->name('stack.adjust');
 
             
             Route::get('bulk-import', [ProductController::class, 'bulkImportIndex'])->name('bulk-import');
@@ -423,9 +424,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::post('daily-needs', [ProductController::class, 'dailyNeeds'])->name('daily-needs');
             Route::get('limited-stock', [ProductController::class, 'limitedStock'])->name('limited-stock');
-            Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');
-            Route::post('update-quantity', [ProductController::class, 'updateQuantity'])->name('update-quantity');
-            
+            Route::get('feature/{id}/{is_featured}', [ProductController::class, 'feature'])->name('feature');            
 
 
             Route::post('Product_ajax', [ProductController::class, 'ProductAjax'])->name('ProductAjax');

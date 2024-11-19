@@ -138,6 +138,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'brand' => 'required',
             'attribute_id' => 'required',
+            'advance_status' => 'required',
         ], [
             'name.required' => translate('Product name is required!'),
             'category_id.required' => translate('category  is required!'),
@@ -242,7 +243,7 @@ class ProductController extends Controller
         $product->description = $request->description;
         $product->choice_options = json_encode($choiceOptions);
         $product->variations = json_encode($variations);
-        $product->price = $request->price;
+        $product->price = $variations[0]['price'];
         $product->unit = $request->unit;
         $product->image = $imageData;
         $product->tax = $request->tax_type == 'amount' ? $request->tax : $request->tax;
@@ -256,7 +257,11 @@ class ProductController extends Controller
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = 0;
         $product->tags = json_encode($request->tag_name);
-        
+        $product->is_advance = $request->advance_status;
+        if($request->advance_status == 1)
+        {
+            $product->advance = $request->advance;
+        }
         $product->save();
 
         return response()->json([], 200);
@@ -357,8 +362,8 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'category_id' => 'required',
-            'total_stock' => 'required|numeric|min:1',
-            'price' => 'required|numeric|min:0',
+            // 'total_stock' => 'required|numeric|min:1',
+            // 'price' => 'required|numeric|min:0',
         ], [
             'name.required' => 'Product name is required!',
             'category_id.required' => 'category  is required!',
@@ -370,9 +375,9 @@ class ProductController extends Controller
             $discount = $request['discount'];
         }
 
-        if ($request['price'] <= $discount) {
-            $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
-        }
+        // if ($request['price'] <= $discount) {
+        //     $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
+        // }
 
         $tags = [];
         if ($request->tags != null) {
@@ -473,7 +478,7 @@ class ProductController extends Controller
         } else {
             $stockCount = (integer)$request['total_stock'];
         }
-
+        
         if ((integer)$request['total_stock'] != $stockCount) {
             $validator->getMessageBag()->add('total_stock', 'Stock calculation mismatch!');
         }
@@ -494,7 +499,7 @@ class ProductController extends Controller
         $product->description = $request->description;
         $product->choice_options = json_encode($choiceOptions);
         $product->variations = json_encode($variations);
-        $product->price = $request->price;
+        $product->price = $variations[0]['price'];
         $product->unit = $request->unit;
         $product->image = json_encode($images);
         $product->tags = json_encode($tags);
@@ -512,9 +517,49 @@ class ProductController extends Controller
             $product->installation_charges = $Installations->installation_charges; 
             $product->installation_description = $Installations->installation_description; 
         }
+
+        $product->is_advance = $request->advance_status;
+        if($request->advance_status == 1)
+        {
+            $product->advance = $request->advance;
+        }
         $product->save();
         
         return response()->json([], 200);
+    }
+
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function updateQuantity($id): JsonResponse
+    {
+        $product = $this->product->find($id);
+        if($product->total_stock > 0)
+        {
+            $variations = [];
+            if ($product->variations != null) {
+                $variation = json_decode($product->variations, true);
+                foreach ($variation as $key => $item) 
+                {
+                    if($item['stock'] > 0)
+                    {
+                        $item['stock'] = 0;
+                    }
+                    $variations[] = $item;
+                }
+            }
+            $product->total_stock = 0;
+            $product->variations = json_encode($variations);
+            $product->save();
+            flash()->success(translate('product_quantity_updated_successfully!'));
+        }else
+        {
+            flash()->warning(translate('product_quantity_can_not_be_less_than_0_!'));
+        }
+        return response()->json([
+            'status' => true
+        ], 200);
     }
 
     /**
@@ -932,36 +977,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function updateQuantity(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $variations = [];
-        $stockCount = $request['total_stock'];
-        if ($request->has('type')) {
-            foreach ($request['type'] as $key => $str) {
-                $item = [];
-                $item['type'] = $str;
-                $item['price'] = (abs($request['price_' . str_replace('.', '_', $str)]));
-                $item['stock'] = abs($request['qty_' . str_replace('.', '_', $str)]);
-                $variations[] = $item;
-            }
-        }
-
-        $product = $this->product->find($request['product_id']);
-
-        if ($stockCount >= 0) {
-            $product->total_stock = $stockCount;
-            $product->variations = json_encode($variations);
-            $product->save();
-            flash()->success(translate('product_quantity_updated_successfully!'));
-        } else {
-            flash()->warning(translate('product_quantity_can_not_be_less_than_0_!'));
-        }
-        return back();
-    }
+    
 
     public function Edit_product_column(Request $request)
     {

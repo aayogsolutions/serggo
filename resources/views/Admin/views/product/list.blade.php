@@ -76,6 +76,7 @@
                                 <th>{{translate('#')}}</th>
                                 <th>{{translate('product_name')}}</th>
                                 <th>{{translate('selling_price')}}</th>
+                                <th class="text-center">{{translate('total_stock')}}</th>
                                 <th class="text-center">{{translate('total_sale')}}</th>
                                 <th class="text-center">{{translate('status')}}</th>
                                 <th class="text-center">{{translate('action')}}</th>
@@ -102,8 +103,11 @@
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <div class="max-85 text-right">
-                                        {{ Helpers_set_symbol(json_decode($product['variations'])[0]->price) }}
+                                        {{ Helpers_set_symbol($product['price']) }}
                                     </div>
+                                </td>
+                                <td class="text-center" onclick="stack_adjust('{{ route('admin.product.stack.adjust', $product->id) }}')" style="cursor: pointer">
+                                    {{ $product->total_stock }}
                                 </td>
                                 <td class="text-center">
                                     {{ $product->total_sale }}
@@ -203,23 +207,35 @@
         })
     }
 
-    function daily_needs(id, status) {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    function stack_adjust(url) {
+        
+        Swal.fire({
+            title: '{{ translate("Are you sure?") }}',
+            text: '{{ translate("You_want_to_change_stock") }}',
+            type: 'warning',
+            showCancelButton: true,
+            cancelButtonColor: 'default',
+            confirmButtonColor: '#107980',
+            cancelButtonText: '{{ translate("No") }}',
+            confirmButtonText: '{{ translate("Yes") }}',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    success: function() {
+                        location.reload();
+                    }
+                });
             }
-        });
-        $.ajax({
-            url: "{{route('admin.product.daily-needs')}}",
-            method: 'POST',
-            data: {
-                id: id,
-                status: status
-            },
-            success: function() {
-                toastr.success('{{ translate("Daily need status updated successfully") }}');
-            }
-        });
+        })
+        
     }
 </script>
 @endpush

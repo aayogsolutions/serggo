@@ -166,7 +166,9 @@
                                 <td class="text-capitalize text-center">
                                     @php($address = json_decode($order['delivery_address'],true))
                                     @if($address != null)
-                                        {{translate($address->house_road.', '.$address->address1.', '.$address->address2.', '.$address->city)}}
+                                        {{translate($address['house_road'].', '.$address['address1'])}}
+                                        <br>
+                                        {{translate($address['address2'].', '.$address['city'])}}
                                     @endif
                                 </td>
                                 
