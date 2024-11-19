@@ -423,10 +423,10 @@ if(!function_exists('Helpers_generate_wallet_transaction')) {
             $transaction->transactions_type = $transactions_type;
             $transaction->debit = $debit;
             $transaction->credit = $credit;
-            $transaction->balance = $user->wallet_balance + $amount;
+            $transaction->balance = $credit == 0 ? $user->wallet_balance - $amount : $user->wallet_balance + $amount;
             $transaction->save();
 
-            $user->wallet_balance = $user->wallet_balance + $amount;
+            $user->wallet_balance = $credit == 0 ? $user->wallet_balance - $amount : $user->wallet_balance + $amount;
             $user->save();
 
             return true;

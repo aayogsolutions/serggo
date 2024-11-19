@@ -594,6 +594,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::group(['prefix' => 'page-setup', 'as' => 'page-setup.'], function () {
                 Route::get('terms-and-conditions', [PageSetupController::class, 'termsAndConditions'])->name('terms-and-conditions');
                 Route::post('terms-and-conditions', [PageSetupController::class, 'termsAndConditionsUpdate']);
+                Route::post('terms-and-conditions-partner', [PageSetupController::class, 'termsAndConditionsPartnerUpdate'])->name('terms.and.conditions.partner');
 
                 Route::get('privacy-policy', [PageSetupController::class, 'privacyPolicy'])->name('privacy-policy');
                 Route::post('privacy-policy', [PageSetupController::class, 'privacyPolicyUpdate']);

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\auth\{
 use App\Http\Controllers\Api\partner\{
     AuthController,
     DashboardController as PartnerDashboardController,
+    InformationController as PartnerInformationController,
 };
 use App\Http\Controllers\Api\user\product\{
     AddressController,
@@ -43,7 +44,7 @@ Route::group(['prefix' => 'auth'], function() {
         //Login Route
         Route::post('/login',[AuthController::class, 'LogIn']);
 
-        // Sign Up Routes
+        //Sign Up Routes
         Route::get('/category',[AuthController::class, 'Category']);
         Route::post('/signup',[AuthController::class, 'SignUp']);
         Route::post('/otp-submit',[AuthController::class, 'OtpSubmit']);
@@ -64,9 +65,18 @@ Route::group(['prefix' => 'banner'], function() {
 
 Route::group(['prefix' => 'information'], function() {
 
+    // User Information Routes
     Route::get('/about-us',[InformationController::class, 'AboutUs']);
     Route::get('/term-conditions',[InformationController::class, 'TermConditions']);
     Route::get('/privacy-policy',[InformationController::class, 'PrivacyPolicy']);
+
+    Route::group(['prefix' => 'partner'], function() {
+
+        // Partner Information Routes
+        // Route::get('/about-us',[PartnerInformationController::class, 'AboutUs']);
+        Route::get('/term-conditions',[PartnerInformationController::class, 'TermConditions']);
+        // Route::get('/privacy-policy',[PartnerInformationController::class, 'PrivacyPolicy']);
+    });
     
 });
 
@@ -148,7 +158,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
 
         Route::group(['prefix' => 'product'], function(){
 
-            Route::get('checkout',[OrderController::class,'Checkout']);
+            Route::get('checkout/{id}',[OrderController::class,'Checkout']);
             Route::post('place-order',[OrderController::class,'PlaceOrder']);
 
             // Order History

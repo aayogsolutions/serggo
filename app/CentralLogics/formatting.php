@@ -89,7 +89,7 @@ if(! function_exists('product_data_formatting')) {
             }
             $data = $storage;
         } else {
-
+            
             $variations = [];
             if($brands)
             {
@@ -181,7 +181,12 @@ if(! function_exists('homesliderbanner_data_formatting')) {
             foreach ($data as $item) {
                 if($item->item_type == 'product')
                 {
-                    $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? product_data_formatting($item->item_detail,false,false,true) : product_data_formatting(json_decode($item->item_detail),false,false,true);
+                    $updated_product = Products::find($item->item_id);
+                    if(!is_null($updated_product) && $updated_product != [])
+                    {
+                        $item->item_detail = product_data_formatting($updated_product,false,false,true);
+                    }
+                    // $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? product_data_formatting($item->item_detail,false,false,true) : product_data_formatting(json_decode($item->item_detail),false,false,true);
                 }else{
                     $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : json_decode($item->item_detail);
                 }
@@ -193,7 +198,13 @@ if(! function_exists('homesliderbanner_data_formatting')) {
         } else {
             if($data->item_type == 'product')
             {
-                $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? product_data_formatting($data->item_detail,false,false,true) : product_data_formatting(json_decode($data->item_detail),false,false,true);
+                $updated_product = Products::find($data->item_id);
+                if(!is_null($updated_product) && $updated_product != [])
+                {
+                    $data->item_detail = product_data_formatting($updated_product,false,false,true);
+                }
+                // $data->item_detail = product_data_formatting(Products::find($data->item_id),false,false,true);
+                // $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? product_data_formatting($data->item_detail,false,false,true) : product_data_formatting(json_decode($data->item_detail),false,false,true);
             }else{
                 $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
             }
@@ -215,7 +226,13 @@ if(! function_exists('display_data_formatting')) {
                 {
                     if($child->item_type == 'product')
                     {
-                        $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
+                        $updated_product = Products::find($child->item_id);
+                        if(!is_null($updated_product) && $updated_product != [])
+                        {
+                            $child->item_detail = product_data_formatting($updated_product,false,false,true);
+                        }
+                        // $child->item_detail = product_data_formatting(Products::find($child->item_id),false,false,true);
+                        // $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
                     }else{
                         $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? $child->item_detail : json_decode($child->item_detail);
                     }
@@ -227,7 +244,13 @@ if(! function_exists('display_data_formatting')) {
             foreach ($data->childes as $child){
                 if($child->item_type == 'product')
                 {
-                    $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
+                    $updated_product = Products::find($child->item_id);
+                    if(!is_null($updated_product) && $updated_product != [])
+                    {
+                        $child->item_detail = product_data_formatting($updated_product,false,false,true);
+                    }
+                    // $child->item_detail = product_data_formatting(Products::find($child->item_id),false,false,true);
+                    // $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
                 }else{
                     $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? $child->item_detail : json_decode($child->item_detail);
                 }

@@ -99,7 +99,8 @@
                                 <select name="installation" class="form-control js-select2-custom" id="selectbrand">
                                     <option value="">---{{translate('select')}}---</option>
                                     @foreach($installationsall as $value)
-                                        <option value="{{$value['id']}}" {{$value['id'] == $Installations->id ?'selected':''}}>
+                                    
+                                        <option value="{{$value['id']}}" {{$value['id'] == ($Installations == null ? 0 : $Installations) ?'selected':''}}>
                                             {{translate(Str::limit($value['installation_name'], $limit = 20, $end = '...'))}} ● {{translate(Helpers_set_symbol($value['installation_charges']))}}
                                         </option>
                                     @endforeach

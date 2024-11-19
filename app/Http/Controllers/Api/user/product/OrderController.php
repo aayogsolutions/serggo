@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\{
+    BusinessSetting,
     CustomerAddresses,
     Notifications,
     Order,
     Order_details,
     Products,
-    User
+    User,
+    Vendor
 };
 use Illuminate\Support\Facades\Auth;
 
@@ -28,9 +30,10 @@ class OrderController extends Controller
     ){}
     
     /**
+     * @param $id
      * @return JsonResponse
      */
-    public function Checkout() : JsonResponse
+    public function Checkout($vendor_id) : JsonResponse
     {
         try {
             $id = Auth::user()->id;
@@ -58,6 +61,8 @@ class OrderController extends Controller
 
             $digital_payment = Helpers_get_business_settings('digital_payment');
             $partial_payment = Helpers_get_business_settings('partial_payment');
+
+            $vendors = Vendor::Select('id', 'longitude', 'latitude')->where('is_block', 0)->WhereIn('id', json_decode($vendor_id))->get();
         } catch (\Throwable $th) {
             $cod = [
                 "status" => 1
@@ -65,7 +70,7 @@ class OrderController extends Controller
             $digital_payment = 1;
             $partial_payment = 1;
             $delivery = [];
-            $address = [];
+            $vendors = [];
         }
         
         
@@ -83,6 +88,7 @@ class OrderController extends Controller
                 'delivery' => $delivery,
                 'balance' => Auth::user()->wallet_balance,
                 'tax' => Helpers_get_business_settings('product_gst_tax_status'),
+                'vendors' => $vendors,
             ]
         ], 200);
     }
@@ -100,20 +106,18 @@ class OrderController extends Controller
             'product.*.delivery' => 'required|numeric',
             'product.*.discount' => 'required|numeric',
             'product.*.tax' => 'required|numeric',
-            'payment_method' => 'required|in:cod,online',
             'address_id' => 'required|numeric',
+            'partial_payment' => 'required|numeric',
             'wallet_applied' => 'required|numeric',
-            'item_total' => 'required|numeric',
-            'total_installation_charges' => 'required|numeric',
-            'total_delivery_charges' => 'required|numeric',
-            'total_discount' => 'required|numeric',
-            'total_taxs' => 'required|numeric',
-            'tax_type' => 'required',
+            'payment_method' => 'required|in:cod,digital_payment,wallet_amount',
+            'tax_type' => 'required|in:included,excluded',
             'gst_invoice' => 'required|numeric',
             'gst_no' => 'required',
             'gst_name' => 'required',
             'mobile_no' => 'required|numeric',
-            'grand_total' => 'required|numeric',
+            'transaction_reference' => 'required',
+            'due_amount' => 'required|numeric',
+            'free_delivery' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -147,16 +151,10 @@ class OrderController extends Controller
             ], 409);
         }
         
-        $tax_type = Helpers_get_business_settings('product_gst_tax_status');
-        
         try {
-            $wallet_amount_per_product = 0;
-            if(isset($request->wallet_applied) && $request->wallet_applied != 0)
-            {
-                $this->user->find(Auth::user()->id)->update(['wallet_balance' => $this->user->find(Auth::user()->id)->wallet_balance - $request->wallet_applied]);
-                $number_of_product = count($request->product);
-                $wallet_amount_per_product = $request->wallet_applied / $number_of_product;
-            }
+            $remaining_wallet_amount = $request->wallet_applied;
+            $no_of_order = 0;
+
             foreach ($orderedproducts as $key => $products) {
                 if($this->order->exists())
                 {
@@ -166,28 +164,40 @@ class OrderController extends Controller
                 }
                 if($key == 'admin')
                 {
-                    
                     $adminOrder = new Order();
                     $adminOrder->id = $id;
                     $adminOrder->user_id = Auth::user()->id;
                     $adminOrder->order_type = 'goods';
                     $adminOrder->order_status = 'pending';
                     $adminOrder->order_approval = 'pending';
-                    $adminOrder->payment_status = 'unpaid';
+                    $adminOrder->payment_method = $request->payment_method;
+                    if($request->payment_method == 'digital_payment')
+                    {
+                        $adminOrder->payment_by = $request->payment_by;
+                        $adminOrder->transaction_reference = $request->transaction_reference;
+                    }
                     $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
-                    $adminOrder->grand_total = $request->grand_total;
-                    $adminOrder->delivered_by = 0;
+                    $adminOrder->delivered_by = 0; // editable..!
                     $adminOrder->checked = 1;
                     $adminOrder->date = now();
                     $adminOrder->delivery_address = json_encode($this->customeraddress->find($request->address_id));
                     $adminOrder->gst_invoice = $request->gst_invoice;
+                    if($request->gst_invoice == 0)
+                    {
+                        $adminOrder->gst_no = $request->gst_no;
+                        $adminOrder->gst_name = $request->gst_name; 
+                        $adminOrder->mobile_no = $request->mobile_no;
+                    }
                     $adminOrder->save();
     
                     $tax_amount = 0;
                     $amount = 0;
                     $delivery = 0;
+                    $discount = 0;
+                    $installation = 0;
                     $partial_payment_amount = 0;
+                    $tax_type = $request->tax_type;
                     foreach ($products as $key1 => $value) 
                     {
                         $product = $this->product->find($value['id']);
@@ -199,8 +209,6 @@ class OrderController extends Controller
                             $price = $product->price;
                         }
     
-                        $this_tax_amount = Helpers_tax_calculate($product, $price);
-    
                         $order_details = new Order_details();
                         $order_details->order_id = $adminOrder->id;
                         $order_details->product_id = $product->id;
@@ -210,11 +218,13 @@ class OrderController extends Controller
                         $order_details->variation = json_encode($value['selectedvariation']);
                         $order_details->unit = $product->unit;
                         $order_details->discount_on_product = $value['discount'];
+                        $order_details->delivery_charges = $value['delivery'];
                         $order_details->is_stock_decreased = 1;
                         if($value['is_installation'] == 0)
                         {
                             $order_details->installastion_amount = $product->installation_charges;
-                            $order_details->installation = 0;
+                            $order_details->installation = $value['is_installation'];
+                            $installation += $product->installation_charges;
                         }
                         if($tax_type == null || $tax_type == 'excluded')
                         {
@@ -222,26 +232,107 @@ class OrderController extends Controller
                         }else{
                             $order_details->gst_status = 'included';
                         }
-                        $order_details->tax_amount = $this_tax_amount;
+                        $order_details->tax_amount = $value['tax'];
                         $order_details->save();
     
-                        $tax_amount += $this_tax_amount * $value['quantity'];
+                        $tax_amount += $value['tax'] * $value['quantity'];
                         $amount += $price * $value['quantity'];
-                        $delivery += $value['delivery'] * $value['quantity'];
-                        $partial_payment_amount += $wallet_amount_per_product;
+                        $delivery = $value['delivery'];
+                        $discount += $value['discount'] * $value['quantity'];
                     }
     
                     $adminOrder = $this->order->find($adminOrder->id);
-                    if(isset($request->wallet_applied) && $request->wallet_applied != 0)
-                    {
-                        $adminOrder->partial_payment = json_encode([
-                            'wallet_applied' => $partial_payment_amount
-                        ]);
-                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,$partial_payment_amount);
-                    }
-                    $adminOrder->total_tax_amount = $this_tax_amount;
-                    $adminOrder->order_amount = $amount;
+                    
+                    $adminOrder->total_tax_amount = $tax_amount;
                     $adminOrder->delivery_charge = $delivery;
+                    $adminOrder->total_discount = $discount;
+                    $adminOrder->total_installation	 = $installation;
+                    $adminOrder->item_total = $amount;
+                    $adminOrder->free_delivery = $request->free_delivery;
+
+                    if($request->tax_type == 'excluded')
+                    {
+                        $grand_total = ($amount + $tax_amount + ($request->free_delivery == 1 ? $delivery : 0) + $installation) - $discount;
+                    }else{
+                        $grand_total = ($amount + ($request->free_delivery == 1 ? $delivery : 0) + $installation) - $discount;
+                    }
+                    $adminOrder->order_amount = $grand_total;
+
+                    if($request->partial_payment == 0)
+                    {
+                        $per_order_wallet = (count($orderedproducts) - $no_of_order) == 0 ? $remaining_wallet_amount : $remaining_wallet_amount / (count($orderedproducts) - $no_of_order);
+                        dump($per_order_wallet ,(count($orderedproducts) - $no_of_order) , $remaining_wallet_amount , $remaining_wallet_amount / (count($orderedproducts) - $no_of_order));
+                        if(Auth::user()->wallet_balance >= $per_order_wallet)
+                        {
+                            if($grand_total <= $per_order_wallet)
+                            {
+                                $remaining_wallet_amount = $remaining_wallet_amount - $grand_total;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => $grand_total
+                                ]);
+    
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$grand_total,0,$grand_total);
+                                $adminOrder->payment_status = 'paid';
+                            }else{
+                                $remaining_wallet_amount = $remaining_wallet_amount - $per_order_wallet;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => $per_order_wallet
+                                ]);
+    
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$per_order_wallet,0,$per_order_wallet);
+                                $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                            }
+                        }else{
+
+                            if(Auth::user()->wallet_balance > 0)
+                            {
+                                $remaining_wallet_amount = $remaining_wallet_amount - Auth::user()->wallet_balance;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => Auth::user()->wallet_balance
+                                ]);
+
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',Auth::user()->wallet_balance,0,Auth::user()->wallet_balance);
+                                $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                            }else{
+                                $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                            }
+                        }
+                    }else{
+                        if($request->payment_method == 'wallet_amount')
+                        {
+                            if(Auth::user()->wallet_balance >= $grand_total)
+                            {
+                                $remaining_wallet_amount = $remaining_wallet_amount - $grand_total;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => $grand_total
+                                ]);
+
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$grand_total,0,$grand_total);
+                                $adminOrder->payment_status = 'paid';
+                            }else{
+
+                                if(Auth::user()->wallet_balance > 0)
+                                {
+                                    $remaining_wallet_amount = $remaining_wallet_amount - Auth::user()->wallet_balance;
+    
+                                    $adminOrder->partial_payment = json_encode([
+                                        'wallet_applied' => Auth::user()->wallet_balance
+                                    ]);
+    
+                                    Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',Auth::user()->wallet_balance,0,Auth::user()->wallet_balance);
+                                    $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                                }else{
+                                    $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                                }
+                            }
+                        }else{
+                            $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                        }
+                    }
                     $adminOrder->save();
     
                     $order_ids[] = $adminOrder->id;
@@ -253,23 +344,35 @@ class OrderController extends Controller
                     $adminOrder->order_type = 'goods';
                     $adminOrder->order_status = 'pending';
                     $adminOrder->order_approval = 'pending';
-                    $adminOrder->payment_status = 'unpaid';
+                    $adminOrder->payment_method = $request->payment_method;
+                    if($request->payment_method == 'digital_payment')
+                    {
+                        $adminOrder->payment_by = $request->payment_by;
+                        $adminOrder->transaction_reference = $request->transaction_reference;
+                    }
                     $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
-                    $adminOrder->grand_total = $request->grand_total;
-                    $adminOrder->delivered_by = 1; // editable
+                    $adminOrder->delivered_by = Vendor::find($key)->delivery_choice == 0 ? 1 : 0 ;
                     $adminOrder->checked = 1;
                     $adminOrder->date = now();
-                    $adminOrder->vender_id = $key;
                     $adminOrder->delivery_address = json_encode($this->customeraddress->find($request->address_id));
                     $adminOrder->gst_invoice = $request->gst_invoice;
+                    if($request->gst_invoice == 0)
+                    {
+                        $adminOrder->gst_no = $request->gst_no;
+                        $adminOrder->gst_name = $request->gst_name; 
+                        $adminOrder->mobile_no = $request->mobile_no;
+                    }
                     $adminOrder->save();
     
                     $tax_amount = 0;
                     $amount = 0;
                     $delivery = 0;
+                    $discount = 0;
+                    $installation = 0;
                     $partial_payment_amount = 0;
-                    foreach ($products as $key2 => $value) 
+                    $tax_type = $request->tax_type;
+                    foreach ($products as $key1 => $value) 
                     {
                         $product = $this->product->find($value['id']);
     
@@ -280,8 +383,6 @@ class OrderController extends Controller
                             $price = $product->price;
                         }
     
-                        $this_tax_amount = Helpers_tax_calculate($product, $price);
-    
                         $order_details = new Order_details();
                         $order_details->order_id = $adminOrder->id;
                         $order_details->product_id = $product->id;
@@ -291,11 +392,13 @@ class OrderController extends Controller
                         $order_details->variation = json_encode($value['selectedvariation']);
                         $order_details->unit = $product->unit;
                         $order_details->discount_on_product = $value['discount'];
+                        $order_details->delivery_charges = $value['delivery'];
                         $order_details->is_stock_decreased = 1;
                         if($value['is_installation'] == 0)
                         {
                             $order_details->installastion_amount = $product->installation_charges;
-                            $order_details->installation = 0;
+                            $order_details->installation = $value['is_installation'];
+                            $installation += $product->installation_charges;
                         }
                         if($tax_type == null || $tax_type == 'excluded')
                         {
@@ -303,41 +406,132 @@ class OrderController extends Controller
                         }else{
                             $order_details->gst_status = 'included';
                         }
-                        $order_details->tax_amount = $this_tax_amount;
+                        $order_details->tax_amount = $value['tax'];
                         $order_details->save();
     
-                        $tax_amount += $this_tax_amount * $value['quantity'];
+                        $tax_amount += $value['tax'] * $value['quantity'];
                         $amount += $price * $value['quantity'];
-                        $delivery += $value['delivery'] * $value['quantity'];
-                        $partial_payment_amount += $wallet_amount_per_product;
+                        $delivery = $value['delivery'];
+                        $discount += $value['discount'] * $value['quantity'];
                     }
     
                     $adminOrder = $this->order->find($adminOrder->id);
-                    if(isset($request->wallet_applied) && $request->wallet_applied != 0)
-                    {
-                        $adminOrder->partial_payment = json_encode([
-                            'wallet_applied' => $partial_payment_amount
-                        ]);
-                        Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$partial_payment_amount,0,$partial_payment_amount);
-                    }
+                    
                     $adminOrder->total_tax_amount = $tax_amount;
-                    $adminOrder->order_amount = $amount;
                     $adminOrder->delivery_charge = $delivery;
+                    $adminOrder->total_discount = $discount;
+                    $adminOrder->total_installation	 = $installation;
+                    $adminOrder->item_total = $amount;
+                    $adminOrder->free_delivery = $request->free_delivery;
+
+                    if($request->tax_type == 'excluded')
+                    {
+                        $grand_total = ($amount + $tax_amount + ($request->free_delivery == 1 ? $delivery : 0) + $installation) - $discount;
+                    }else{
+                        $grand_total = ($amount + ($request->free_delivery == 1 ? $delivery : 0) + $installation) - $discount;
+                    }
+                    $adminOrder->order_amount = $grand_total;
+
+                    if($request->partial_payment == 0)
+                    {
+                        $per_order_wallet = (count($orderedproducts) - $no_of_order) == 0 ? $remaining_wallet_amount : $remaining_wallet_amount / (count($orderedproducts) - $no_of_order);
+
+                        dump($per_order_wallet ,(count($orderedproducts) - $no_of_order) , $remaining_wallet_amount , $remaining_wallet_amount / (count($orderedproducts) - $no_of_order));
+                        if(Auth::user()->wallet_balance >= $per_order_wallet)
+                        {
+                            if($grand_total <= $per_order_wallet)
+                            {
+                                $remaining_wallet_amount = $remaining_wallet_amount - $grand_total;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => $grand_total
+                                ]);
+    
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$grand_total,0,$grand_total);
+                                $adminOrder->payment_status = 'paid';
+                            }else{
+                                $remaining_wallet_amount = $remaining_wallet_amount - $per_order_wallet;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => $per_order_wallet
+                                ]);
+    
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$per_order_wallet,0,$per_order_wallet);
+                                $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                            }
+                        }else{
+
+                            if(Auth::user()->wallet_balance > 0)
+                            {
+                                $remaining_wallet_amount = $remaining_wallet_amount - Auth::user()->wallet_balance;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => Auth::user()->wallet_balance
+                                ]);
+
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',Auth::user()->wallet_balance,0,Auth::user()->wallet_balance);
+                                $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                            }else{
+                                $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                            }
+                        }
+                    }else{
+                        if($request->payment_method == 'wallet_amount')
+                        {
+                            if(Auth::user()->wallet_balance >= $grand_total)
+                            {
+                                $remaining_wallet_amount = $remaining_wallet_amount - $grand_total;
+
+                                $adminOrder->partial_payment = json_encode([
+                                    'wallet_applied' => $grand_total
+                                ]);
+
+                                Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',$grand_total,0,$grand_total);
+                                $adminOrder->payment_status = 'paid';
+                            }else{
+
+                                if(Auth::user()->wallet_balance > 0)
+                                {
+                                    $remaining_wallet_amount = $remaining_wallet_amount - Auth::user()->wallet_balance;
+    
+                                    $adminOrder->partial_payment = json_encode([
+                                        'wallet_applied' => Auth::user()->wallet_balance
+                                    ]);
+    
+                                    Helpers_generate_wallet_transaction(Auth::user()->id,$adminOrder->id,'Order_Place',Auth::user()->wallet_balance,0,Auth::user()->wallet_balance);
+                                    $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                                }else{
+                                    $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                                }
+                            }
+                        }else{
+                            $adminOrder->payment_status = $request->payment_method == 'digital_payment' ? 'paid' : 'unpaid';
+                        }
+                    }
                     $adminOrder->save();
     
                     $order_ids[] = $adminOrder->id;
                 }
 
+                if (!BusinessSetting::where(['key' => 'order_place_message'])->first()) {
+                    BusinessSetting::updateOrInsert(['key' => 'order_place_message'], [
+                        'value' => 'Order Placed Successfully',
+                    ]);
+                }
+
                 $notifications = new Notifications();
+                $notifications->type = 0;
                 $notifications->user_id = Auth::user()->id;
-                $notifications->title = 'Order Placed Successfully';
+                $notifications->title = helpers_get_business_settings('order_place_message')['message'];
                 $notifications->description = 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending';
                 $notifications->save();
+
+                $no_of_order++;
             }
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'error' => 'Something went wrong',
+                'error' => 'Something went wrong'.$th->getMessage(),
                 'data' => []
             ], 404);
         }

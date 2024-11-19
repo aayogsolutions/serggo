@@ -308,7 +308,7 @@ class ProductController extends Controller
             ['installation_name','=',$product->installation_name ],                                                   
             ['installation_charges','=',$product->installation_charges],
             ['installation_description','=',$product->installation_description] 
-        ])->first();
+        ])->pluck('id')->first();
     
 
         return view('Admin.views.product.edit', compact('product', 'categories','subcategories','brand','Installations','installationsall'));
@@ -323,17 +323,19 @@ class ProductController extends Controller
      */
     public function removeImage($id, $images, $products, $name): \Illuminate\Http\RedirectResponse
     {
+        $fullpath = "Images/productImages/".$name;
         if (File::exists("Images/productImages/".$name))
         {
             File::delete("Images/productImages/".$name);
             $name = "Images/productImages/".$name;
         }
+        
 
         $product = $this->product->find($id);
         $imageArray = [];
 
         foreach (json_decode($product['image'], true) as $img) {
-            if (strcmp($img, $name) != 0) {
+            if (strcmp($img, $fullpath) != 0) {
                 $imageArray[] = $img;
             }
         }

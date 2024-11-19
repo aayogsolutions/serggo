@@ -16,21 +16,32 @@ class PageSetupController extends Controller
         private BusinessSetting $businessSettings
     ){}
 
-       /**
+    /**
      * @return Application|Factory|View
      */
     public function termsAndConditions(): View|Factory|Application
     {
-        $termsAndConditions = $this->businessSettings->where(['key' => 'terms_and_conditions'])->first();
-        if (!$termsAndConditions) {
-            $this->businessSettings->insert([
-                'key'   => 'terms_and_conditions',
-                'value' => '',
+        if (!$this->businessSettings->where(['key' => 'terms_and_conditions'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'terms_and_conditions'], [
+                'value' => 'No data available',
             ]);
         }
-        return view('Admin.views.pages_&_media.terms-and-conditions', compact('termsAndConditions'));
+
+        if (!$this->businessSettings->where(['key' => 'terms_and_conditions_partner'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'terms_and_conditions_partner'], [
+                'value' => 'No data available',
+            ]);
+        }
+        $termsAndConditions = $this->businessSettings->where(['key' => 'terms_and_conditions'])->first();
+        $termsAndConditionspartner = $this->businessSettings->where(['key' => 'terms_and_conditions_partner'])->first();
+
+        return view('Admin.views.pages_&_media.terms-and-conditions', compact('termsAndConditions', 'termsAndConditionspartner'));
     }
 
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function termsAndConditionsUpdate(Request $request): \Illuminate\Http\RedirectResponse
     {
         $this->businessSettings->where(['key' => 'terms_and_conditions'])->update([
@@ -41,18 +52,31 @@ class PageSetupController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function termsAndConditionsPartnerUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $this->businessSettings->where(['key' => 'terms_and_conditions_partner'])->update([
+            'value' => $request->tnc,
+        ]);
+        flash()->success(translate('Terms and Conditions of Partner updated!'));
+        return back();
+    }
+
+
+    /**
      * @return Application|Factory|View
      */
     public function privacyPolicy(): Factory|View|Application
     {
-        $data = $this->businessSettings->where(['key' => 'privacy_policy'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'privacy_policy',
+        if (!$this->businessSettings->where(['key' => 'privacy_policy'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'privacy_policy'], [
                 'value' => '',
-            ];
-            $this->businessSettings->insert($data);
+            ]);
         }
+        $data = $this->businessSettings->where(['key' => 'privacy_policy'])->first();
+        
         return view('Admin.views.pages_&_media.privacy-policy', compact('data'));
     }
 
@@ -71,14 +95,13 @@ class PageSetupController extends Controller
      */
     public function aboutUs(): Factory|View|Application
     {
-        $data = $this->businessSettings->where(['key' => 'about_us'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'about_us',
+        if (!$this->businessSettings->where(['key' => 'about_us'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'about_us'], [
                 'value' => '',
-            ];
-            $this->businessSettings->insert($data);
+            ]);
         }
+        $data = $this->businessSettings->where(['key' => 'about_us'])->first();
+        
         return view('Admin.views.pages_&_media.about-us', compact('data'));
     }
 
@@ -97,14 +120,13 @@ class PageSetupController extends Controller
      */
     public function faq(): Factory|View|Application
     {
-        $data = $this->businessSettings->where(['key' => 'faq'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'faq',
+        if (!$this->businessSettings->where(['key' => 'faq'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'faq'], [
                 'value' => '',
-            ];
-            $this->businessSettings->insert($data);
+            ]);
         }
+        $data = $this->businessSettings->where(['key' => 'faq'])->first();
+        
         return view('Admin.views.pages_&_media.faq', compact('data'));
     }
 
@@ -123,22 +145,20 @@ class PageSetupController extends Controller
      */
     public function cancellationPolicy(): Factory|View|Application
     {
+        if (!$this->businessSettings->where(['key' => 'cancellation_policy'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'cancellation_policy'], [
+                'value' => '',
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'cancellation_policy_status'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'cancellation_policy_status'], [
+                'value' => 1,
+            ]);
+        }
         $data = $this->businessSettings->where(['key' => 'cancellation_policy'])->first();
         $status = $this->businessSettings->where(['key' => 'cancellation_policy_status'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'cancellation_policy',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        if (!$status) {
-            $status = [
-                'key' => 'cancellation_policy_status',
-                'value' => 0,
-            ];
-            $this->businessSettings->insert($status);
-        }
+        
         return view('Admin.views.pages_&_media.cancellation-policy', compact('data', 'status'));
     }
 
@@ -166,22 +186,20 @@ class PageSetupController extends Controller
      */
     public function refundPolicy(): Factory|View|Application
     {
+        if (!$this->businessSettings->where(['key' => 'refund_policy'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'refund_policy'], [
+                'value' => '',
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'refund_policy_status'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'refund_policy_status'], [
+                'value' => 1,
+            ]);
+        }
         $data = $this->businessSettings->where(['key' => 'refund_policy'])->first();
         $status = $this->businessSettings->where(['key' => 'refund_policy_status'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'refund_policy',
-                'value' => '',
-            ];
-            $this->businessSettings->insert($data);
-        }
-        if (!$status) {
-            $status = [
-                'key' => 'refund_policy_status',
-                'value' => 0,
-            ];
-            $this->businessSettings->insert($status);
-        }
+        
         return view('Admin.views.pages_&_media.refund-policy', compact('data', 'status'));
     }
 
@@ -209,23 +227,21 @@ class PageSetupController extends Controller
      */
     public function returnPolicy(): Factory|View|Application
     {
-        $data = $this->businessSettings->where(['key' => 'return_policy'])->first();
-        $status = $this->businessSettings->where(['key' => 'return_policy_status'])->first();
-        if (!$data) {
-            $data = [
-                'key' => 'return_policy',
+
+        if (!$this->businessSettings->where(['key' => 'return_policy'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'return_policy'], [
                 'value' => '',
-            ];
-            $this->businessSettings->insert($data);
+            ]);
         }
 
-        if (!$status) {
-            $status = [
-                'key' => 'return_policy_status',
-                'value' => 0,
-            ];
-            $this->businessSettings->insert($status);
+        if (!$this->businessSettings->where(['key' => 'return_policy_status'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'return_policy_status'], [
+                'value' => 1,
+            ]);
         }
+        $data = $this->businessSettings->where(['key' => 'return_policy'])->first();
+        $status = $this->businessSettings->where(['key' => 'return_policy_status'])->first();
+        
         return view('Admin.views.pages_&_media.return-policy', compact('data', 'status'));
     }
 

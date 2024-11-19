@@ -10,6 +10,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Routing\Redirector;
 use App\Models\Branch;
+use Illuminate\Support\Facades\Validator;
 
 class BusinessSettingsController extends Controller
 {
@@ -388,7 +389,7 @@ class BusinessSettingsController extends Controller
         return back();
     }
 
-/**
+    /**
      * @return Application|Factory|View
      */
     public function OTPSetup(): Factory|View|Application
@@ -891,7 +892,7 @@ class BusinessSettingsController extends Controller
             'additional_data' => json_encode($payment_additional_data),
         ]);
 
-        flash()->success(GATEWAYS_DEFAULT_UPDATE_200['message']);
+        flash()->success(translate('Payment gateway updated successfully'));
         return back();
 
     }
@@ -1022,27 +1023,27 @@ class BusinessSettingsController extends Controller
      */
     public function fcmIndex(): View|Factory|Application
     {
-        if (!$this->businessSettings->where(['key' => 'order_pending_message'])->first()) {
+        if (!$this->businessSettings->where(['key' => 'order_place_message'])->first()) {
             $this->businessSettings->insert([
-                'key'   => 'order_pending_message',
+                'key'   => 'order_place_message',
                 'value' => json_encode([
                     'status'  => 1,
                     'message' => '',
                 ]),
             ]);
         }
-        $order_pending_message = Helpers_get_business_settings('order_pending_message');
+        $order_place_message = Helpers_get_business_settings('order_place_message');
 
-        if (!$this->businessSettings->where(['key' => 'order_confirmation_msg'])->first()) {
+        if (!$this->businessSettings->where(['key' => 'order_approval_message'])->first()) {
             $this->businessSettings->insert([
-                'key'   => 'order_confirmation_msg',
+                'key'   => 'order_approval_message',
                 'value' => json_encode([
                     'status'  => 1,
                     'message' => '',
                 ]),
             ]);
         }
-        $order_confirmation_msg = Helpers_get_business_settings('order_confirmation_msg');
+        $order_approval_message = Helpers_get_business_settings('order_approval_message');
 
         if (!$this->businessSettings->where(['key' => 'order_processing_message'])->first()) {
             $this->businessSettings->insert([
@@ -1188,8 +1189,8 @@ class BusinessSettingsController extends Controller
         $add_fund_wallet_bonus_message = Helpers_get_business_settings('add_fund_wallet_bonus_message');
 
         return view('Admin.views.3rd_party.fcm-index',
-            compact('order_pending_message',
-            'order_confirmation_msg',
+            compact('order_place_message',
+            'order_approval_message',
             'order_processing_message',
             'out_for_delivery_message',
             'order_delivered_message',
@@ -1450,55 +1451,7 @@ class BusinessSettingsController extends Controller
     
 
     
-
     
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function mailIndex(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.mail-index');
-    }
-
-    public function mailSend(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $responseFlag = 0;
-        try {
-            $emailServices = Helpers_get_business_settings('mail_config');
-
-            if (isset($emailServices['status']) && $emailServices['status'] == 1) {
-                Mail::to($request->email)->send(new \App\Mail\TestEmailSender());
-                $responseFlag = 1;
-            }
-        } catch (\Exception $exception) {
-            $responseFlag = 2;
-        }
-
-        return response()->json(['success' => $responseFlag]);
-    }
-
-    public function mailConfig(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $data = Helpers_get_business_settings('mail_config');
-
-        $this->businessSettings->where(['key' => 'mail_config'])->update([
-            'value' => json_encode([
-                "status" => $data['status'],
-                "name"       => $request['name'],
-                "host"       => $request['host'],
-                "driver"     => $request['driver'],
-                "port"       => $request['port'],
-                "username"   => $request['username'],
-                "email_id"   => $request['email'],
-                "encryption" => $request['encryption'],
-                "password"   => $request['password'],
-            ]),
-        ]);
-        flash()->success(translate('Configuration updated successfully!'));
-
-        return back();
-    }
 
     public function mailConfigStatus($status): \Illuminate\Http\JsonResponse
     {
@@ -1510,68 +1463,6 @@ class BusinessSettingsController extends Controller
         ]);
         return response()->json(['message' => 'Mail config status updated']);
     }
-
-    
-
-    /**
-     * @return Application|Factory|View
-     */
-    public function currencyIndex(): Factory|View|Application
-    {
-        return view('Admin.views.business-settings.currency-index');
-    }
-
-    public function currencyStore(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $request->validate([
-            'currency_code' => 'required|unique:currencies',
-        ]);
-
-        Currency::create([
-            "country"         => $request['country'],
-            "currency_code"   => $request['currency_code'],
-            "currency_symbol" => $request['symbol'],
-            "exchange_rate"   => $request['exchange_rate'],
-        ]);
-        flash()->success(translate('Currency added successfully!'));
-        return back();
-    }
-
-
-    /**
-     * @param $id
-     * @return Application|Factory|View
-     */
-    public function currencyEdit($id): Factory|View|Application
-    {
-        $currency = Currency::find($id);
-        return view('Admin.views.business-settings.currency-update', compact('currency'));
-    }
-
-    /**
-     * @param Request $request
-     * @param $id
-     * @return Application|RedirectResponse|Redirector
-     */
-    public function currencyUpdate(Request $request, $id): Redirector|Application|RedirectResponse
-    {
-        Currency::where(['id' => $id])->update([
-            "country"         => $request['country'],
-            "currency_code"   => $request['currency_code'],
-            "currency_symbol" => $request['symbol'],
-            "exchange_rate"   => $request['exchange_rate'],
-        ]);
-        flash()->success(translate('Currency updated successfully!'));
-        return redirect('admin/business-settings/currency-add');
-    }
-
-    public function currencyDelete($id): \Illuminate\Http\RedirectResponse
-    {
-        Currency::where(['id' => $id])->delete();
-        flash()->success(translate('Currency removed successfully!'));
-        return back();
-    }
-
 
     
 

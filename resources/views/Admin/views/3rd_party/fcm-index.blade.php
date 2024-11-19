@@ -55,18 +55,16 @@
                                 <div class="row">
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="pending_status">
-                                                <input type="checkbox" name="pending_status" class="toggle-switch-input"
-                                                       value="1" id="pending_status" {{$order_pending_message['status'] == 0 ? 'checked' : '' }}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="pending_status">
+                                                <input type="checkbox" name="pending_status" class="toggle-switch-input" value="1" id="pending_status" {{$order_place_message['status'] == 0 ? 'checked' : '' }}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                            <span class="d-block">{{translate('order')}} {{translate('pending')}} {{translate('message')}}</span>
-                                          </span>
+                                                    <span class="d-block">{{translate('order')}} {{translate('Place')}} {{translate('message')}}</span>
+                                                </span>
                                             </label>
-                                            <textarea name="pending_message" class="form-control">{{$order_pending_message['message']}}</textarea>
+                                            <textarea name="pending_message" class="form-control">{{$order_place_message['message']}}</textarea>
                                         </div>
                                     </div>
 
@@ -75,16 +73,16 @@
                                             <label class="toggle-switch d-flex align-items-center mb-3"
                                                    for="confirm_status">
                                                 <input type="checkbox" name="confirm_status" class="toggle-switch-input"
-                                                       value="1" id="confirm_status" {{$order_confirmation_msg['status'] == 0 ? 'checked':''}}>
+                                                       value="1" id="confirm_status" {{$order_approval_message['status'] == 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                 <span class="toggle-switch-indicator"></span>
                                               </span>
                                                 <span class="toggle-switch-content">
-                                                <span class="d-block"> {{translate('order')}} {{translate('confirmation')}} {{translate('message')}}</span>
+                                                <span class="d-block"> {{translate('order')}} {{translate('approval')}} {{translate('message')}}</span>
                                               </span>
                                             </label>
 
-                                            <textarea name="confirm_message" class="form-control">{{$order_confirmation_msg['message']}}</textarea>
+                                            <textarea name="confirm_message" class="form-control">{{$order_approval_message['message']}}</textarea>
                                         </div>
                                     </div>
 
