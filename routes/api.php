@@ -101,6 +101,7 @@ Route::group(['prefix' => 'product'], function(){
 Route::group(['prefix' => 'service'], function(){
 
     Route::get('/dashboard', [ServiceDashboardController::class,'Index']);
+    Route::get('/search', [ServiceDashboardController::class,'Search']);
 
     // Category Details Route
     Route::get('/category/details', [ServiceDashboardController::class,'CategoryDetails']);

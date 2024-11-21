@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\{
-    Brands,
     DisplaySection,
     HomeBanner,
     ServiceTag,
     DisplayCategory,
     HomeSliderBanner,
-    ServiceCategory
+    Service,
+    ServiceCategory,
+    ServiceCategoryBanner
 };
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
@@ -21,11 +23,12 @@ class DashboardController extends Controller
     public function __construct(
         private HomeBanner $homebanner,
         private ServiceTag $servicetag,
-        // private Brands $brand,
+        private ServiceCategoryBanner $servicecategorybanner,
         private HomeSliderBanner $homesliderbanner,
         private DisplaySection $displaysection,
         private DisplayCategory $displaycategory,
         private ServiceCategory $servicecategory,
+        private Service $service,
     ){}
 
     /**
@@ -103,6 +106,93 @@ class DashboardController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function Search(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'key' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        $keys = explode(' ', $request->key);
+        $matches = array();
+        $category_id = array();
+
+
+        // Finding Tags
+        $all = $this->service->status()->select('id','tags')->get();
+        foreach ($all as $a)
+        {
+            $a->tags = json_decode($a->tags);
+            foreach ($a->tags as $key => $tag) 
+            {
+                foreach ($keys as $key1 => $value) 
+                {
+                    // dump($a->id, $value,stripos($tag, $value));
+                    if (stripos($tag, $value) !== false)
+                    {
+                        //if $c starts with $input, add to matches list
+                        $matches[] = $a->id;
+                        break;
+                    }
+                }
+            }
+        }
+        $matches = array_unique($matches);
+        $matches = array_values($matches);
+
+        // Finding Categorys
+
+        $categories = $this->servicecategory->status()->where(function ($q) use ($keys) 
+        {
+            foreach ($keys as $value) 
+            {
+                $q->orWhere('name', 'like', "%{$value}%");
+            }
+        })->get();
+
+        $services = $this->service->status()->where(function ($q) use ($keys) 
+        {
+            foreach ($keys as $value)
+            {
+                $q->orWhere('name', 'like', "%{$value}%");
+            }
+        })->get();
+        
+
+        // Finding Products
+        
+        $products1 = $this->service->status()->whereIn('id',$matches)->orderBy('total_sale','DESC')->get();
+
+        $products = Arr::collapse([$categories,$products1,$services]);
+
+        $products = array_values(array_unique($products, SORT_REGULAR));
+        
+        if(!empty($products))
+        {
+            return response()->json([
+                'status' => true,
+                'message' => 'Search Details',
+                'data' => product_data_formatting($products,true),
+            ], 200);
+        }else{
+            return response()->json([
+                'status' => true,
+                'message' => 'Data not found',
+                'data' => [],
+            ], 200);
+        }
+    }
+
+    /**
      * @return JsonResponse
      */
     public function CategoryDetails() : JsonResponse
@@ -138,13 +228,20 @@ class DashboardController extends Controller
                 $data['homesliderbanner'] = [];
             }
 
-            $categorys = $this->servicecategory->status()->where('id', $category_id)->with(['childes','childes.Services'])->get();
+            try {
+                $mainbanner = $this->servicecategorybanner->where('sub_category_id',$category_id)->first();
+                $mainbanner->sub_category_detail = json_decode($mainbanner->sub_category_detail);
+            } catch (\Throwable $th) {
+                $mainbanner = [];
+            }
+
+            $categorys = $this->servicecategory->status()->where(['id' => $category_id , 'position' => 1])->with(['childes','childes.Services'])->get();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Category Data',
                 'data' => [
-                    'mainbanner' => [],
+                    'mainbanner' => $mainbanner,
                     'category' => $categorys,
                     'sliderbanner' => $data['homesliderbanner']
                 ]
@@ -156,6 +253,5 @@ class DashboardController extends Controller
                 'data' => []
             ], 406);
         }
-        
     }
 }

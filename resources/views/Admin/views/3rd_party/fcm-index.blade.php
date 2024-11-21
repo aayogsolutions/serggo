@@ -55,8 +55,8 @@
                                 <div class="row">
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3" for="pending_status">
-                                                <input type="checkbox" name="pending_status" class="toggle-switch-input" value="1" id="pending_status" {{$order_place_message['status'] == 0 ? 'checked' : '' }}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="place_status">
+                                                <input type="checkbox" name="place_status" class="toggle-switch-input" id="place_status" {{$order_place_message['status'] == 0 ? 'checked' : '' }}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
                                                 </span>
@@ -64,60 +64,65 @@
                                                     <span class="d-block">{{translate('order')}} {{translate('Place')}} {{translate('message')}}</span>
                                                 </span>
                                             </label>
-                                            <textarea name="pending_message" class="form-control">{{$order_place_message['message']}}</textarea>
+                                            <textarea name="place_message" class="form-control">{{$order_place_message['message']}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="confirm_status">
-                                                <input type="checkbox" name="confirm_status" class="toggle-switch-input"
-                                                       value="1" id="confirm_status" {{$order_approval_message['status'] == 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="approval_status">
+                                                <input type="checkbox" name="approval_status" class="toggle-switch-input" id="approval_status" {{$order_approval_message['status'] == 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                <span class="d-block"> {{translate('order')}} {{translate('approval')}} {{translate('message')}}</span>
-                                              </span>
+                                                    <span class="d-block"> {{translate('order')}} {{translate('approval')}} {{translate('message')}}</span>
+                                                </span>
                                             </label>
-
-                                            <textarea name="confirm_message" class="form-control">{{$order_approval_message['message']}}</textarea>
+                                            <textarea name="approval_message" class="form-control">{{$order_approval_message['message']}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="processing_status">
-                                                <input type="checkbox" name="processing_status"
-                                                       class="toggle-switch-input"
-                                                       value="1" id="processing_status" {{$order_processing_message['status'] == 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="rejected_status">
+                                                <input type="checkbox" name="rejected_status" class="toggle-switch-input" id="rejected_status" {{$order_rejected_message['status'] == 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                <span class="d-block">{{translate('order')}} {{translate('Packaging')}} {{translate('message')}}</span>
-                                              </span>
+                                                    <span class="d-block"> {{translate('order')}} {{translate('rejected')}} {{translate('message')}}</span>
+                                                </span>
                                             </label>
+                                            <textarea name="rejected_message" class="form-control">{{$order_rejected_message['message']}}</textarea>
+                                        </div>
+                                    </div>
 
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="processing_status">
+                                                <input type="checkbox" name="processing_status" class="toggle-switch-input" id="processing_status" {{$order_processing_message['status'] == 0 ? 'checked':''}}>
+                                                <span class="toggle-switch-label">
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
+                                                <span class="toggle-switch-content">
+                                                    <span class="d-block">{{translate('order')}} {{translate('Packaging')}} {{translate('message')}}</span>
+                                                </span>
+                                            </label>
                                             <textarea name="processing_message" class="form-control">{{$order_processing_message['message']}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="out_for_delivery">
-                                                <input type="checkbox" name="out_for_delivery_status"
-                                                       class="toggle-switch-input"
-                                                       value="1" id="out_for_delivery" {{$out_for_delivery_message['status'] == 0 ?'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="out_for_delivery">
+                                                <input type="checkbox" name="out_for_delivery_status" class="toggle-switch-input" id="out_for_delivery" {{$out_for_delivery_message['status'] == 0 ?'checked':''}}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                <span class="d-block">{{translate('order')}} {{translate('out_for_delivery')}} {{translate('message')}}</span>
-                                              </span>
+                                                    <span class="d-block">{{translate('order')}} {{translate('out_for_delivery')}} {{translate('message')}}</span>
+                                                </span>
                                             </label>
                                             <textarea name="out_for_delivery_message" class="form-control">{{$out_for_delivery_message['message']}}</textarea>
                                         </div>
@@ -125,122 +130,59 @@
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="delivered_status">
-                                                <input type="checkbox" name="delivered_status"
-                                                       class="toggle-switch-input"
-                                                       value="1" id="delivered_status" {{$order_delivered_message['status'] == 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="delivered_status">
+                                                <input type="checkbox" name="delivered_status" class="toggle-switch-input" id="delivered_status" {{$order_delivered_message['status'] == 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                <span class="d-block">{{translate('order')}} {{translate('delivered')}} {{translate('message')}}</span>
-                                              </span>
+                                                    <span class="d-block">{{translate('order')}} {{translate('delivered')}} {{translate('message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="delivered_message" class="form-control">{{$order_delivered_message['message']}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="customer_notify">
-                                                <input type="checkbox" name="customer_notify_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="customer_notify" {{ $customer_notify_message['status'] == 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="customer_notify">
+                                                <input type="checkbox" name="customer_notify_status" class="toggle-switch-input" id="customer_notify" {{ $customer_notify_message['status'] == 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                <span
-                                                    class="d-block">{{translate('DeliveryMan assign notification for customer')}}</span>
-                                              </span>
+                                                    <span class="d-block">{{translate('DeliveryMan assign notification for customer')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="customer_notify_message" class="form-control">{{$customer_notify_message['message']??''}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="delivery_boy_assign">
-                                                <input type="checkbox" name="delivery_boy_assign_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="delivery_boy_assign" {{$delivery_boy_assign_message['status'] == 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="delivery_boy_assign">
+                                                <input type="checkbox" name="delivery_boy_assign_status" class="toggle-switch-input" id="delivery_boy_assign" {{$delivery_boy_assign_message['status'] == 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                <span class="d-block">{{translate('deliveryman')}} {{translate('assign')}} {{translate('message')}}</span>
-                                              </span>
+                                                    <span class="d-block">{{translate('deliveryman')}} {{translate('assign')}} {{translate('message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="delivery_boy_assign_message" class="form-control">{{$delivery_boy_assign_message['message']}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="delivery_boy_start_status">
-                                                <input type="checkbox" name="delivery_boy_start_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="delivery_boy_start_status" {{$delivery_boy_start_message['status'] == 0 ? 'checked':''}}>
-                                                <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
-                                                <span class="toggle-switch-content">
-                                                <span class="d-block"> {{translate('deliveryman')}} {{translate('start')}} {{translate('message')}}</span>
-                                              </span>
-                                            </label>
-
-                                            <textarea name="delivery_boy_start_message" class="form-control">{{$delivery_boy_start_message['message']}}</textarea>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-12">
-                                        <div class="form-group">
-
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="delivery_boy_delivered">
-                                                <input type="checkbox" name="delivery_boy_delivered_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="delivery_boy_delivered" {{$delivery_boy_delivered_message['status']== 0 ? 'checked':''}}>
-                                                <span class="toggle-switch-label">
-                                                <span class="toggle-switch-indicator"></span>
-                                              </span>
-                                                <span class="toggle-switch-content">
-                                                <span class="d-block">{{translate('deliveryman')}} {{translate('delivered')}} {{translate('message')}}</span>
-                                              </span>
-                                            </label>
-
-                                            <textarea name="delivery_boy_delivered_message" class="form-control">{{$delivery_boy_delivered_message['message']}}</textarea>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-12">
-                                        <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="returned_status">
-                                                <input type="checkbox" name="returned_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="returned_status" {{ $returned_message['status'] == 0 ?'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="returned_status">
+                                                <input type="checkbox" name="returned_status" class="toggle-switch-input" id="returned_status" {{ $returned_message['status'] == 0 ?'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
-                                                  </span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                    <span
-                                                        class="d-block">{{translate('Order_returned_message')}}</span>
-                                                  </span>
+                                                    <span class="d-block">{{translate('Order_returned_message')}}</span>
+                                                </span>
                                             </label>
                                             <textarea name="returned_message" class="form-control">{{$returned_message['message']??''}}</textarea>
                                         </div>
@@ -248,105 +190,75 @@
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="failed_status">
-                                                <input type="checkbox" name="failed_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="failed_status" {{ $failed_message['status']== 0 ?'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="failed_status">
+                                                <input type="checkbox" name="failed_status" class="toggle-switch-input" id="failed_status" {{ $failed_message['status']== 0 ?'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
-                                                  </span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                    <span
-                                                        class="d-block">{{translate('Order_failed_message')}}</span>
-                                                  </span>
+                                                    <span class="d-block">{{translate('Order_failed_message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="failed_message" class="form-control">{{$failed_message['message']??''}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="canceled_status">
-                                                <input type="checkbox" name="canceled_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="canceled_status" {{ $canceled_message['status']== 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="canceled_status">
+                                                <input type="checkbox" name="canceled_status" class="toggle-switch-input" id="canceled_status" {{ $canceled_message['status']== 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
-                                                  </span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                    <span
-                                                        class="d-block">{{translate('Order_canceled_message')}}</span>
-                                                  </span>
+                                                    <span class="d-block">{{translate('Order_canceled_message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="canceled_message" class="form-control">{{$canceled_message['message']??''}}</textarea>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-12">
+                                    <!-- <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="dm_order_processing_status">
-                                                <input type="checkbox" name="dm_order_processing_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="dm_order_processing_status" {{ $deliveryman_order_processing_message['status']== 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="dm_order_processing_status">
+                                                <input type="checkbox" name="dm_order_processing_status" class="toggle-switch-input" id="dm_order_processing_status" {{ $deliveryman_order_processing_message['status']== 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
-                                                  </span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                    <span
-                                                        class="d-block">{{translate('deliveryman_order_processing_message')}}</span>
-                                                  </span>
+                                                    <span class="d-block">{{translate('deliveryman_order_processing_message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="dm_order_processing_message" class="form-control">{{$deliveryman_order_processing_message['message']??''}}</textarea>
                                         </div>
-                                    </div>
+                                    </div> -->
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="add_fund_status">
-                                                <input type="checkbox" name="add_fund_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="add_fund_status" {{ $add_fund_wallet_message['status']== 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="add_fund_status">
+                                                <input type="checkbox" name="add_fund_status" class="toggle-switch-input" id="add_fund_status" {{ $add_fund_wallet_message['status']== 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
-                                                  </span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                    <span
-                                                        class="d-block">{{translate('add_fund_wallet_message')}}</span>
-                                                  </span>
+                                                    <span class="d-block">{{translate('add_fund_wallet_message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="add_fund_message" class="form-control">{{$add_fund_wallet_message['message']??''}}</textarea>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label class="toggle-switch d-flex align-items-center mb-3"
-                                                   for="add_fund_bonus_status">
-                                                <input type="checkbox" name="add_fund_bonus_status"
-                                                       class="toggle-switch-input"
-                                                       value="1"
-                                                       id="add_fund_bonus_status" {{ $add_fund_wallet_bonus_message['status']== 0 ? 'checked':''}}>
+                                            <label class="toggle-switch d-flex align-items-center mb-3" for="add_fund_bonus_status">
+                                                <input type="checkbox" name="add_fund_bonus_status" class="toggle-switch-input" id="add_fund_bonus_status" {{ $add_fund_wallet_bonus_message['status']== 0 ? 'checked':''}}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
-                                                  </span>
+                                                </span>
                                                 <span class="toggle-switch-content">
-                                                    <span
-                                                        class="d-block">{{translate('add_fund_wallet_bonus_message')}}</span>
-                                                  </span>
+                                                    <span class="d-block">{{translate('add_fund_wallet_bonus_message')}}</span>
+                                                </span>
                                             </label>
-
                                             <textarea name="add_fund_bonus_message" class="form-control">{{$add_fund_wallet_bonus_message['message']??''}}</textarea>
                                         </div>
                                     </div>

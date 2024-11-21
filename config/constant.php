@@ -23,6 +23,10 @@ const MANAGEMENT_SECTION = [
     'category_setup' => 'category_setup',
     'service_setup' => 'service_setup',
 
+    'vender_management' => 'vender_management',
+    'vendor_category' => 'vendor_category',
+    'partner_category' => 'partner_category',
+
     'promotion_management' => 'promotion_management',
     'banner' => 'banner',
     'display' => 'display',

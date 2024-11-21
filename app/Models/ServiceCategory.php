@@ -28,4 +28,9 @@ class ServiceCategory extends Model
     {
         return $this->hasMany(Service::class, 'child_category_id','id');
     }
+
+    public function banner(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ServiceCategoryBanner::class, 'sub_category_id', 'id');
+    }
 }

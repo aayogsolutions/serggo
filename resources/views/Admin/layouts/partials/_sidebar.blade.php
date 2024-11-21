@@ -433,7 +433,7 @@
                                         </a>
                                     </li>
 
-                                    <li class="nav-item {{Request::is('admin/service/product/list*')?'active':''}} {{Request::is('admin/service/product/add-new')?'active':''}}">
+                                    <li class="nav-item {{Request::is('admin/service/list*')?'active':''}} {{Request::is('admin/service/add-new')?'active':''}}">
                                         <a class="nav-link " href="{{route('admin.service.list')}}" title="{{translate('list')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate">
@@ -441,7 +441,41 @@
                                             </span>
                                         </a>
                                     </li>
+
+                                    <li class="nav-item {{Request::is('admin/banners/subcategory-banners*')?'active':''}}">
+                                        <a class="nav-link" href="{{route('admin.service.subcategory_banners.add')}}" title="{{translate('Service Category Banner')}}">
+                                            <span class="tio-circle nav-indicator-icon"></span>
+                                            <span class="text-truncate">
+                                                {{translate('subcategory_banners')}}
+                                            </span>
+                                        </a>
+                                    </li>
                                 </ul>
+                            </li>
+                            @endif
+                        
+                        @endif
+
+                        @if(Helpers_module_permission_check(MANAGEMENT_SECTION['vender_management']))
+                            <li class="nav-item">
+                                <small
+                                    class="nav-subtitle">{{translate('vender_management')}} </small>
+                                <small class="tio-more-horizontal nav-subtitle-replacer"></small>
+                            </li>
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['vendor_category']))
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/vendor/category*')?'active':''}}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{ route('admin.vendor.category.add') }}" title="{{translate('category setup')}}">
+                                        <i class="tio-category nav-icon"></i>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('vendor category setup')}}</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['partner_category']))
+                            <li class="navbar-vertical-aside-has-menu {{Request::is('admin/service_men/category*') ?'active':''}}">
+                                <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{ route('admin.service_men.category.add') }}" title="{{translate('partner_category_setup')}}">
+                                    <i class="tio-premium-outlined nav-icon"></i>
+                                    <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('partner_category_setup')}}</span>
+                                </a>
                             </li>
                             @endif
                         
@@ -533,17 +567,6 @@
                                     </ul>
                                 </li>
                             @endif
-                            <!-- @if(Helpers_module_permission_check(MANAGEMENT_SECTION['coupons']))
-                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/coupon*')?'active':''}}">
-                                    <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                        href="{{route('admin.coupon.add-new')}}"
-                                        title="{{translate('coupons')}}">
-                                        <i class="tio-gift nav-icon"></i>
-                                        <span
-                                            class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('coupons')}}</span>
-                                    </a>
-                                </li>
-                            @endif -->
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['send_notification']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/notification*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link"

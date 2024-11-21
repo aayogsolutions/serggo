@@ -484,7 +484,6 @@ class ProductController extends Controller
                 'data' => [],
             ], 200);
         }
-        
     }
 
     /**

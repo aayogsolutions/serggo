@@ -257,6 +257,21 @@ class OrderController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function OrderCategory(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $order = $this->order->find($request->id);
+
+        $order->order_category = $request->order_status;
+        $order->save();
+        flash()->success(translate('Order Category updated!'));
+        return back();
+    }
+
+
+    /**
      * 
      * @param Request $request
      * @return JsonResponse
@@ -326,6 +341,76 @@ class OrderController extends Controller
         // }
 
         flash()->success('Service Man successfully assigned/changed!');
+        return response()->json(['status' => true], 200);
+    }
+
+    /**
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function addDeliveryman(Request $request, $order_id): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'delivery_man' => 'required',
+        ]);
+
+        $order = $this->order->where('id',$order_id)->with('OrderDetails')->first();
+        if ($order->order_status == 'delivered' || $order->order_status == 'returned' || $order->order_status == 'failed' || $order->order_status == 'canceled' || $order->order_status == 'rejected') {
+            flash()->warning(translate('Can Not Assign Service Man on '. $order->order_status .' order'));
+            return response()->json(['status' => false], 200);
+        }
+        
+        $order->deliveryman_id = $request->delivery_man;
+        $order->save();
+        
+        // $notifications = new Notifications();
+        // $notifications->type = 0;
+        // $notifications->user_id = $order->OrderDetails->user_id;
+        // $notifications->title = 'Service Man Assigned';
+        // $notifications->description = Vendor::where('id', $request->service_man)->first()->name.' Assigned for '. Products::where('id', $order->product_id)->first()->name;
+        // $notifications->save();
+
+        $notifications = new Notifications();
+        $notifications->type = 1;
+        $notifications->user_id = $request->delivery_man;
+        $notifications->title = 'New Order Assigned for Delivery';
+        $notifications->description = 'new delivery has been assigned to you';
+        $notifications->save();
+
+        // $deliverymanMessage = Helpers_order_status_update_message('del_assign');
+        // $deliverymanLanguageCode = $order->delivery_man ? $order->delivery_man->language_code : 'en';
+        // $deliverymanFcmToken = $order->delivery_man ? $order->delivery_man->fcm_token : null;
+        
+        // $value = $this->dynamic_key_replaced_message(message: $deliverymanMessage, type: 'order', order: $order);
+
+        // try {
+        //     if ($value) {
+        //         $data = [
+        //             'title' => translate('Order'),
+        //             'description' => $value,
+        //             'order_id' => $order['id'],
+        //             'image' => '',
+        //             'type' => 'order'
+        //         ];
+        //         Helpers_send_push_notif_to_device($deliverymanFcmToken, $data);
+
+        //         $customerNotifyMessage = Helpers_order_status_update_message('customer_notify_message');
+        //         $customerLanguageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
+        //         $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
+                
+        //         $value = $this->dynamic_key_replaced_message(message: $customerNotifyMessage, type: 'order', order: $order);
+
+        //         if ($customerNotifyMessage) {
+        //             $data['description'] = $value;
+        //             Helpers_send_push_notif_to_device($customerFcmToken, $data);
+        //         }
+        //     }
+        // } catch (\Exception $e) {
+        //     flash()->warning(translate('Push notification failed for DeliveryMan!'));
+        // }
+
+        flash()->success('Delivery Man successfully assigned/changed!');
         return response()->json(['status' => true], 200);
     }
     

@@ -1045,6 +1045,17 @@ class BusinessSettingsController extends Controller
         }
         $order_approval_message = Helpers_get_business_settings('order_approval_message');
 
+        if (!$this->businessSettings->where(['key' => 'order_rejected_message'])->first()) {
+            $this->businessSettings->insert([
+                'key'   => 'order_rejected_message',
+                'value' => json_encode([
+                    'status'  => 1,
+                    'message' => '',
+                ]),
+            ]);
+        }
+        $order_rejected_message = Helpers_get_business_settings('order_rejected_message');
+
         if (!$this->businessSettings->where(['key' => 'order_processing_message'])->first()) {
             $this->businessSettings->insert([
                 'key'   => 'order_processing_message',
@@ -1088,28 +1099,6 @@ class BusinessSettingsController extends Controller
             ]);
         }
         $delivery_boy_assign_message = Helpers_get_business_settings('delivery_boy_assign_message');
-
-        if (!$this->businessSettings->where(['key' => 'delivery_boy_start_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'delivery_boy_start_message',
-                'value' => json_encode([
-                    'status'  => 1,
-                    'message' => '',
-                ]),
-            ]);
-        }
-        $delivery_boy_start_message = Helpers_get_business_settings('delivery_boy_start_message');
-
-        if (!$this->businessSettings->where(['key' => 'delivery_boy_delivered_message'])->first()) {
-            $this->businessSettings->insert([
-                'key'   => 'delivery_boy_delivered_message',
-                'value' => json_encode([
-                    'status'  => 1,
-                    'message' => '',
-                ]),
-            ]);
-        }
-        $delivery_boy_delivered_message = Helpers_get_business_settings('delivery_boy_delivered_message');
 
         if (!$this->businessSettings->where(['key' => 'customer_notify_message'])->first()) {
             $this->businessSettings->insert([
@@ -1191,12 +1180,11 @@ class BusinessSettingsController extends Controller
         return view('Admin.views.3rd_party.fcm-index',
             compact('order_place_message',
             'order_approval_message',
+            'order_rejected_message',
             'order_processing_message',
             'out_for_delivery_message',
             'order_delivered_message',
             'delivery_boy_assign_message',
-            'delivery_boy_start_message',
-            'delivery_boy_delivered_message',
             'customer_notify_message',
             'returned_message',
             'failed_message',
@@ -1261,19 +1249,18 @@ class BusinessSettingsController extends Controller
     public function updateFcmMessages(Request $request): RedirectResponse
     {
         // dd($request->all());
-        $this->updateOrInsertMessage('order_pending_message', 'pending_status','pending_message', $request);
-        $this->updateOrInsertMessage('order_confirmation_msg', 'confirm_status','confirm_message', $request);
+        $this->updateOrInsertMessage('order_place_message', 'place_status','place_message', $request);
+        $this->updateOrInsertMessage('order_approval_message', 'approval_status','approval_message', $request);
+        $this->updateOrInsertMessage('order_rejected_message', 'rejected_status','rejected_message', $request);
         $this->updateOrInsertMessage('order_processing_message', 'processing_status','processing_message' , $request);
         $this->updateOrInsertMessage('out_for_delivery_message', 'out_for_delivery_status','out_for_delivery_message' , $request);
         $this->updateOrInsertMessage('order_delivered_message', 'delivered_status','delivered_message' , $request);
         $this->updateOrInsertMessage('delivery_boy_assign_message', 'delivery_boy_assign_status','delivery_boy_assign_message' , $request);
-        $this->updateOrInsertMessage('delivery_boy_start_message', 'delivery_boy_start_status','delivery_boy_start_message' , $request);
-        $this->updateOrInsertMessage('delivery_boy_delivered_message', 'delivery_boy_delivered_status','delivery_boy_delivered_message' , $request);
         $this->updateOrInsertMessage('customer_notify_message', 'customer_notify_status','customer_notify_message' , $request);
         $this->updateOrInsertMessage('returned_message', 'returned_status','returned_message' , $request);
         $this->updateOrInsertMessage('failed_message', 'failed_status','failed_message' , $request);
         $this->updateOrInsertMessage('canceled_message', 'canceled_status','canceled_message' , $request);
-        $this->updateOrInsertMessage('deliveryman_order_processing_message', 'dm_order_processing_status','dm_order_processing_message' , $request);
+        // $this->updateOrInsertMessage('deliveryman_order_processing_message', 'dm_order_processing_status','dm_order_processing_message' , $request);
         $this->updateOrInsertMessage('add_fund_wallet_message', 'add_fund_status','add_fund_message' , $request);
         $this->updateOrInsertMessage('add_fund_wallet_bonus_message', 'add_fund_bonus_status','add_fund_bonus_message' , $request);
 
@@ -1293,7 +1280,7 @@ class BusinessSettingsController extends Controller
     private function updateOrInsertMessage($business_key, $status_key , $default_message_key, $request): void
     {
         
-        $status = $request->$status_key == 1 ? 1 : 0;
+        $status = $request[$status_key] == 'on' ? 0 : 1;
         $message = $request[$default_message_key];
 
         $this->businessSettings->updateOrInsert(['key' => $business_key], [

@@ -190,9 +190,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::delete('delete/{id}', [ServiceAttributeController::class, 'delete'])->name('delete');
                 Route::get('status/{id}/{status}', [ServiceAttributeController::class, 'status'])->name('status');
             });
-        });
 
-       
+            Route::group(['prefix' => 'subcategory-banners', 'as' => 'subcategory_banners.'], function () {
+                Route::get('add', [ServiceController::class, 'SubcategoryIndex'])->name('add');
+                Route::get('subcategory-detail/{id}', [ServiceController::class, 'SubcategoryDetailSection'])->name('detail.section');
+                Route::post('add-content/{id}', [ServiceController::class, 'SubcategoryAddContent'])->name('add.content');
+                Route::get('priority', [ServiceController::class, 'SubcategoryPriority'])->name('priority');
+                Route::delete('delete/{id}', [ServiceController::class, 'SubcategoryDelete'])->name('delete');
+            });
+        });
 
         Route::group(['prefix' => 'display', 'as' => 'display.'], function () {
             
@@ -286,12 +292,32 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             
             Route::get('status/{id}/{status}', [VendorController::class, 'status'])->name('status');
             // Route::get('export', [CustomerController::class, 'exportCustomer'])->name('export');
+
+            Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
+                Route::get('add', [VendorController::class, 'index'])->name('add');
+                Route::post('store', [VendorController::class, 'store'])->name('store');
+                Route::get('edit/{id}', [VendorController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [VendorController::class, 'update'])->name('update');
+                Route::get('status/{id}/{status}', [VendorController::class, 'CategoryStatus'])->name('status');
+                Route::delete('delete/{id}', [VendorController::class, 'delete'])->name('delete');
+                Route::get('priority', [VendorController::class, 'priority'])->name('priority');
+            });
         });
 
         Route::group(['prefix' => 'service_men', 'as' => 'service_men.'], function () {
             Route::get('list', [ServicemenController::class, 'list'])->name('list');
             Route::get('view/{user_id}', [ServicemenController::class, 'view'])->name('view');
             Route::get('status/{id}/{status}', [ServicemenController::class, 'status'])->name('status');
+
+            Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
+                Route::get('add', [ServicemenController::class, 'index'])->name('add');
+                Route::post('store', [ServicemenController::class, 'store'])->name('store');
+                Route::get('edit/{id}', [ServicemenController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [ServicemenController::class, 'update'])->name('update');
+                Route::get('status/{id}/{status}', [ServicemenController::class, 'CategoryStatus'])->name('status');
+                Route::delete('delete/{id}', [ServicemenController::class, 'delete'])->name('delete');
+                Route::get('priority', [ServicemenController::class, 'priority'])->name('priority');
+            });
             
         });
 
@@ -317,7 +343,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('details/{id}', [OrderController::class, 'details'])->name('details');
             Route::get('status', [OrderController::class, 'status'])->name('status');
             Route::get('add-service-man/{order_id}', [OrderController::class, 'addServiceman'])->name('add.service.man');
+            Route::get('add-delivery-man/{order_id}', [OrderController::class, 'addDeliveryman'])->name('add.delivery.man');
             Route::get('payment-status', [OrderController::class, 'paymentStatus'])->name('payment-status');
+            Route::get('order-category', [OrderController::class, 'OrderCategory'])->name('order.category');
             Route::get('generate-invoice/{id}', [OrderController::class, 'generateInvoice'])->name('generate-invoice')->withoutMiddleware(['module:order_management']);
             
             
@@ -337,6 +365,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             
             Route::post('add-payment-ref-code/{id}', [OrderController::class, 'addPaymentReferenceCode'])->name('add-payment-ref-code');
             Route::get('verify-offline-payment/{order_id}/{status}', [OrderController::class, 'verifyOfflinePayment']);
+
+            Route::get('update-shipping', [OrderController::class, 'update-shipping'])->name('update-shipping');
 
 
             Route::get('edit-item/{id}', [OrderController::class, 'edit_item'])->name('edit_item');

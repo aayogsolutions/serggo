@@ -328,98 +328,133 @@
                             <h4 class="card-title">{{translate('Order Setup')}}</h4>
                         </div>
 
-                        @if(isset($order->offline_payment))
-                            <div class="card mt-3">
-                                <div class="card-body text-center">
-                                    @if($order->offline_payment?->status == 1)
-                                        <h4 class="">{{ translate('Payment_verified') }}</h4>
-                                    @else
-                                        <h4 class="">{{ translate('Payment_verification') }}</h4>
-                                        <p class="text-danger">{{ translate('please verify the payment before confirm order') }}</p>
-                                        <div class="mt-3">
-                                            <button class="btn btn--primary" type="button" id="verifyPaymentButton" data-id="{{ $order['id'] }}"
-                                                    data-target="#payment_verify_modal" data-toggle="modal">{{ translate('Verify_Payment') }}</button>
-                                        </div>
-                                    @endif
-
-                                </div>
-                            </div>
-                        @endif
-
                         <div class="card-body">
-                            @if($order['order_type'] != 'pos')
-                            <div class="hs-unfold w-100">
-                                <span class="d-block form-label font-bold mb-2">{{translate('Change Order Status')}}:</span>
-                                <div class="dropdown">
-                                    <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button"
-                                            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        {{$order['order_status'] == 'processing' ? translate('packaging') : translate($order['order_status'])}}
-                                    </button>
-                                    <div class="dropdown-menu text-capitalize" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="pending">{{ translate('pending') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="confirmed">{{ translate('confirmed') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="packaging">{{ translate('packaging') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="out_for_delivery">{{ translate('out_for_delivery') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="delivered">{{ translate('delivered') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="returned">{{ translate('returned') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="failed">{{ translate('failed') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="canceled">{{ translate('canceled') }}</a>
+
+                            @if($order['order_type'] == 'goods')
+                                <div class="hs-unfold w-100">
+                                    <span class="d-block form-label font-bold mb-2">{{translate('Change Order Status')}}:</span>
+                                    <div class="dropdown">
+                                        <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button"
+                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">
+                                            {{$order['order_status'] == 'processing' ? translate('packaging') : translate($order['order_status'])}}
+                                        </button>
+                                        <div class="dropdown-menu text-capitalize" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="pending">{{ translate('pending') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="confirmed">{{ translate('confirmed') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="packaging">{{ translate('packaging') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="out_for_delivery">{{ translate('out_for_delivery') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="delivered">{{ translate('delivered') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="returned">{{ translate('returned') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="failed">{{ translate('failed') }}</a>
+                                            <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="canceled">{{ translate('canceled') }}</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="hs-unfold w-100 mt-3">
-                                <span class="d-block form-label font-bold mb-2">{{translate('Payment Status')}}:</span>
-                                <div class="dropdown">
-                                    <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button"
-                                            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        {{translate($order['payment_status'])}}
-                                    </button>
-                                    @if($order['payment_method'] == 'offline_payment' && $order->offline_payment?->status != 1)
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item offline-payment" data-message="{{ translate('You can not change status of unverified offline payment') }}"
-                                            data-status="paid" href="#">{{ translate('paid') }}</a>
-                                            <a class="dropdown-item offline-payment" data-message="{{ translate('You can not change status of unverified offline payment') }}"
-                                            data-status="unpaid" href="#">{{ translate('unpaid') }}</a>
-                                        </div>
-                                    @else
+                                <div class="hs-unfold w-100 mt-3">
+                                    <span class="d-block form-label font-bold mb-2">{{translate('Payment Status')}}:</span>
+                                    <div class="dropdown">
+                                        <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button"
+                                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">
+                                            {{translate($order['payment_status'])}}
+                                        </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item change-payment-status" data-status="paid" data-route="{{route('admin.orders.payment-status',['id'=>$order['id'],'payment_status'=>'paid'])}}">{{ translate('paid') }}</a>
                                             <a class="dropdown-item change-payment-status" data-status="unpaid" data-route="{{route('admin.orders.payment-status',['id'=>$order['id'],'payment_status'=>'unpaid'])}}">{{ translate('unpaid') }}</a>
                                         </div>
-                                    @endif
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="mt-3">
-                                <span class="d-block form-label mb-2 font-bold">{{translate('Delivery Date & Time')}}:</span>
-                                <div class="d-flex flex-wrap g-2">
-                                    <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                        <label class="input-date">
-                                            <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}"
-                                                name="deliveryDate" id="from_date" data-id="{{ $order['id'] }}" required>
-                                        </label>
-                                    </div>
-                                    <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                        <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}">
-                                            <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
-                                            @foreach(\App\Models\TimeSlot::all() as $timeSlot)
-                                                <option value="{{$timeSlot['id']}}" {{$timeSlot->id == $order->delivery_timeslot_id ?'selected':''}}>
-                                                    {{date('H:i A', strtotime($timeSlot['start_time']))}} - {{date('H:i A', strtotime($timeSlot['end_time']))}}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                <div class="hs-unfold w-100 mt-3">
+                                    <span class="d-block form-label font-bold mb-2">{{translate('Order category')}}:</span>
+                                    <div class="dropdown">
+                                        <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {{translate($order['order_category'] ?? 'N/A')}}
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item change-payment-status" data-status="Small" data-route="{{route('admin.orders.order.category',['id'=>$order['id'],'order_status'=>'small'])}}">{{ translate('small') }}</a>
+                                            <a class="dropdown-item change-payment-status" data-status="Large" data-route="{{route('admin.orders.order.category',['id'=>$order['id'],'order_status'=>'large'])}}">{{ translate('large') }}</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+
+                                <div class="mt-3">
+                                    <span class="d-block form-label mb-2 font-bold">{{translate('Delivery Date & Time')}}:</span>
+                                    <div class="d-flex flex-wrap g-2">
+                                        <div class="hs-unfold w-0 flex-grow min-w-160px">
+                                            <label class="input-date">
+                                                <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}" name="deliveryDate" id="from_date" data-id="{{ $order['id'] }}" required>
+                                            </label>
+                                        </div>
+                                        <div class="hs-unfold w-0 flex-grow min-w-160px">
+                                            <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}">
+                                                <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
+                                                @foreach(\App\Models\TimeSlot::all() as $timeSlot)
+                                                    <option value="{{$timeSlot['id']}}" {{$timeSlot->id == $order->delivery_timeslot_id ?'selected':''}}>
+                                                        {{date('H:i A', strtotime($timeSlot['start_time']))}} - {{date('H:i A', strtotime($timeSlot['end_time']))}}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
+
+                            @if($order->delivered_by == 0 && $order->deliveryman_id == null)
+                                <div class="mt-3">
+                                    <button class="btn btn--primary w-100" type="button" onclick="assignDeliveryMan({{ $order }})" data-toggle="modal">{{ translate('assign delivery man manually') }}</button>
+                                </div>
+                            @endif
+
+                            @if ($order->delivered_by == 0 && $order->deliveryman_id != null)
+                                <div class="card mt-2">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">
+                                            <span class="card-header-icon">
+                                                <i class="tio-user"></i>
+                                            </span>
+                                            <span>{{ translate('Delivery Man') }}</span>
+                                            @if ($order->order_status != 'delivered')
+                                                <a type="button" href="#assign_delivey_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_delivey_man_modal">
+                                                    {{ translate('change') }}
+                                                </a>
+                                            @endif
+                                        </h5>
+                                        <div class="media align-items-center deco-none customer--information-single">
+                                            @php($deliveryvendor = App\Models\Vendor::find($order->deliveryman_id))
+                                            <div class="avatar avatar-circle">
+                                                <img class="avatar-img" src="{{ $deliveryvendor->image }}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                            </div>
+                                            <div class="media-body">
+                                                <span class="text-body d-block text-hover-primary mb-1">
+                                                    {{ $deliveryvendor->name }}
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center">
+                                                    <i class="tio-call-talking-quiet mr-2"></i>
+                                                    <a href="Tel:{{ $deliveryvendor->number }}">{{ $deliveryvendor->number }}</a>
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center">
+                                                    <i class="tio-email-outlined mr-2"></i>
+                                                    <a href="mailto:{{$deliveryvendor->email}}">{{$deliveryvendor->email}}</a>
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center"> 
+                                                    <span class="badge badge-soft-info py-2 px-3">
+                                                        {{$order->deliveryman_status == 1 ? 'Pending' : translate('accepted')}}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             @if($order->delivered_by == 0)
                                 @foreach($order->OrderDetails as $ServiceMenArray)
                                     @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id == null)
                                         <div class="mt-3">
-                                            <button class="btn btn--primary w-100" type="button" data-target="#assign_delivey_man_modal" data-toggle="modal">{{ translate('assign delivery man manually') }}</button>
+                                            <button class="btn btn--primary w-100" type="button" data-target="#assign_service_man_modal" data-toggle="modal">{{ translate('assign service man manually') }}</button>
                                         </div>
                                     @endif
                                 @endforeach
@@ -433,7 +468,7 @@
                                                     </span>
                                                     <span>{{ translate('Service Man') }}</span>
                                                     @if ($order->order_status != 'delivered')
-                                                        <a type="button" href="#assign_delivey_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_delivey_man_modal">
+                                                        <a type="button" href="#assign_service_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_service_man_modal">
                                                             {{ translate('change') }}
                                                         </a>
                                                     @endif
@@ -444,11 +479,12 @@
                                                         <img class="avatar-img" src="{{ $Servicevendor->image }}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                                     </div>
                                                     <div class="media-body">
-                                                        <span class="text-body d-block text-hover-primary mb-1">{{ $Servicevendor->name }}</span>
-                                                        
+                                                        <span class="text-body d-block text-hover-primary mb-1">
+                                                            {{ $Servicevendor->name }}
+                                                        </span>
                                                         <span class="text--title font-semibold d-flex align-items-center">
-                                                        <i class="tio-shopping-basket-outlined mr-2"></i>
-                                                        {{\App\Models\Products::where(['id' => $ServiceMenArray->product_id])->first()->name}}
+                                                            <i class="tio-shopping-basket-outlined mr-2"></i>
+                                                            {{\App\Models\Products::where(['id' => $ServiceMenArray->product_id])->first()->name}}
                                                         </span>
                                                         <span class="text--title font-semibold d-flex align-items-center">
                                                             <i class="tio-call-talking-quiet mr-2"></i>
@@ -458,6 +494,11 @@
                                                             <i class="tio-email-outlined mr-2"></i>
                                                             <a href="mailto:{{$Servicevendor->email}}">{{$Servicevendor->email}}</a>
                                                         </span>
+                                                        <span class="text--title font-semibold d-flex align-items-center"> 
+                                                            <span class="badge badge-soft-info py-2 px-3">
+                                                                {{$Servicevendor->serviceman_status == 1 ? 'Pending' : translate('accepted')}}
+                                                            </span>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -465,100 +506,168 @@
                                     @endif
                                 @endforeach
                             @endif
-                            
-                        </div>
-                    </div>
-                @endif
-                <div class="card mt-2">
-                    <div class="card-body">
-                        <h5 class="form-label mb-3">
-                        <span class="card-header-icon">
-                        <i class="tio-user"></i>
-                        </span>
-                            <span>{{translate('Customer information')}}</span>
-                        </h5>
-                        @if($order->is_guest == 1)
-                            <div class="media align-items-center deco-none customer--information-single">
-                                <div class="avatar avatar-circle">
-                                    <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
-                                </div>
-                                <div class="media-body">
-                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                    {{translate('Guest Customer')}}
-                                </span>
+
+                            <div class="card mt-2">
+                                <div class="card-body">
+                                    <h5 class="form-label mb-3">
+                                        <span class="card-header-icon">
+                                            <i class="tio-user"></i>
+                                        </span>
+                                        <span>{{translate('Customer information')}}</span>
+                                    </h5>
+                                    
+                                    @if($order->user_id == null)
+                                        <div class="media align-items-center deco-none customer--information-single">
+                                            <div class="avatar avatar-circle">
+                                                <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
+                                            </div>
+                                            <div class="media-body">
+                                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
+                                                    {{translate('Walking Customer')}}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if($order->user_id != null && !isset($order->customer) )
+                                        <div class="media align-items-center deco-none customer--information-single">
+                                            <div class="avatar avatar-circle">
+                                                <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
+                                            </div>
+                                            <div class="media-body">
+                                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
+                                                    {{translate('Customer_not_available')}}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if(isset($order->customer) )
+                                        <div class="media align-items-center deco-none customer--information-single">
+                                            <div class="avatar avatar-circle">
+                                                <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}">
+                                            </div>
+                                            <div class="media-body">
+                                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
+                                                    <a href="{{route('admin.customer.view',[$order['user_id']])}}">
+                                                        {{$order->customer['f_name'].' '.$order->customer['l_name']}}
+                                                    </a>
+                                                </span>
+                                                <span>
+                                                    {{\App\Models\Order::where('user_id',$order['user_id'])->count()}} {{translate("orders")}}
+                                                </span>
+                                                <span class="text--title font-semibold d-block">
+                                                    <i class="tio-call-talking-quiet mr-2"></i>
+                                                    <a href="Tel:{{$order->customer['number']}}">
+                                                        {{$order->customer['number']}}
+                                                    </a>
+                                                </span>
+                                                <span class="text--title">
+                                                    <i class="tio-email mr-2"></i>
+                                                    <a href="mailto:{{$order->customer['email']}}">
+                                                        {{$order->customer['email']}}
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
-                        @else
-                            @if($order->user_id == null)
-                                <div class="media align-items-center deco-none customer--information-single">
-                                    <div class="avatar avatar-circle">
-                                        <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
-                                    </div>
-                                    <div class="media-body">
-                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                    {{translate('Walking Customer')}}
-                                </span>
+
+                            @if($order['order_type'] =='goods')
+                                <div class="card mt-2">
+                                    <div class="card-body">
+                                        @php($address=\App\Models\CustomerAddresses::find($order['delivery_address_id']))
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="card-title">
+                                                <span class="card-header-icon">
+                                                    <i class="tio-user"></i>
+                                                </span>
+                                                <span>
+                                                    {{translate('delivery information')}}
+                                                </span>
+                                            </h5>
+                                        </div>
+
+                                        @if(isset($address))
+                                            <div class="delivery--information-single flex-column mt-3">
+                                                <div class="d-flex">
+                                                    <span class="name">
+                                                        {{translate('name')}}
+                                                    </span>
+                                                    <span class="info">
+                                                        {{$address['contact_person_name']}}
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <span class="name">
+                                                        {{translate('phone')}}
+                                                    </span>
+                                                    <span class="info">
+                                                        {{ $address['contact_person_number']}}
+                                                    </span>
+                                                </div>
+                                                @if($address['house_road'])
+                                                    <div class="d-flex">
+                                                        <span class="name">
+                                                            {{translate('house')}}
+                                                        </span>
+                                                        <span class="info">
+                                                            #{{ $address['house_road']}}
+                                                        </span>
+                                                    </div>
+                                                @endif
+                                                @if($address['address1'])
+                                                    <div class="d-flex">
+                                                        <span class="name">{{translate('address')}}</span>
+                                                        <span class="info">#{{ $address['address1']}}</span>
+                                                    </div>
+                                                @endif
+                                                @if($address['address2'])
+                                                    <div class="d-flex">
+                                                        <span class="name">{{translate('address')}}</span>
+                                                        <span class="info">#{{ $address['address2']}}</span>
+                                                    </div>
+                                                @endif
+                                                @if($address['city'])
+                                                    <div class="d-flex">
+                                                        <span class="name">{{translate('city')}}</span>
+                                                        <span class="info">#{{ $address['city']}}</span>
+                                                    </div>
+                                                @endif
+                                                <hr class="w-100">
+                                                <div>
+                                                    <a target="_blank"
+                                                        href="http://maps.google.com/maps?z=12&t=m&q=loc:{{$address['latitude']}}+{{$address['longitude']}}">
+                                                        <i class="tio-poi"></i> {{$address['city']}}
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @endif
-                            @if($order->user_id != null && !isset($order->customer) )
-                                <div class="media align-items-center deco-none customer--information-single">
-                                    <div class="avatar avatar-circle">
-                                        <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
-                                    </div>
-                                    <div class="media-body">
-                                        <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                            {{translate('Customer_not_available')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            @endif
-                            @if(isset($order->customer) )
-                                <div class="media align-items-center deco-none customer--information-single">
-                                    <div class="avatar avatar-circle">
-                                        <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}">
-                                    </div>
-                                    <div class="media-body">
-                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                    <a href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['f_name'].' '.$order->customer['l_name']}}</a>
-                                </span>
-                                        <span>{{\App\Models\Order::where('user_id',$order['user_id'])->count()}} {{translate("orders")}}</span>
-                                        <span class="text--title font-semibold d-block">
-                            <i class="tio-call-talking-quiet mr-2"></i>
-                            <a href="Tel:{{$order->customer['number']}}">{{$order->customer['number']}}</a>
-                                </span>
-                                        <span class="text--title">
-                            <i class="tio-email mr-2"></i>
-                            <a href="mailto:{{$order->customer['email']}}">{{$order->customer['email']}}</a>
-                        </span>
-                                    </div>
-                                </div>
-                            @endif
-                        @endif
+
+                        </div>
                     </div>
-                </div>
+                @endif 
             </div>
         </div>
     </div>
 
-    <div id="shipping-address-modal" class="modal fade" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalTopCoverTitle" aria-hidden="true">
+    <!-- <div id="shipping-address-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalTopCoverTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-top-cover bg-dark text-center">
                     <figure class="position-absolute right-0 bottom-0 left-0">
-                        <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-                             viewBox="0 0 1920 100.1">
+                        <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 1920 100.1">
                             <path fill="#fff" d="M0,0c0,0,934.4,93.4,1920,0v100.1H0L0,0z"/>
                         </svg>
                     </figure>
 
                     <div class="modal-close">
-                        <button type="button" class="btn btn-icon btn-sm btn-ghost-light" data-dismiss="modal"
-                                aria-label="Close">
+                        <button type="button" class="btn btn-icon btn-sm btn-ghost-light" data-dismiss="modal" aria-label="Close">
                             <svg width="16" height="16" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="currentColor"
-                                      d="M11.5,9.5l5-5c0.2-0.2,0.2-0.6-0.1-0.9l-1-1c-0.3-0.3-0.7-0.3-0.9-0.1l-5,5l-5-5C4.3,2.3,3.9,2.4,3.6,2.6l-1,1 C2.4,3.9,2.3,4.3,2.5,4.5l5,5l-5,5c-0.2,0.2-0.2,0.6,0.1,0.9l1,1c0.3,0.3,0.7,0.3,0.9,0.1l5-5l5,5c0.2,0.2,0.6,0.2,0.9-0.1l1-1 c0.3-0.3,0.3-0.7,0.1-0.9L11.5,9.5z"/>
+                                <path fill="currentColor" d="M11.5,9.5l5-5c0.2-0.2,0.2-0.6-0.1-0.9l-1-1c-0.3-0.3-0.7-0.3-0.9-0.1l-5,5l-5-5C4.3,2.3,3.9,2.4,3.6,2.6l-1,1 C2.4,3.9,2.3,4.3,2.5,4.5l5,5l-5,5c-0.2,0.2-0.2,0.6,0.1,0.9l1,1c0.3,0.3,0.7,0.3,0.9,0.1l5-5l5,5c0.2,0.2,0.6,0.2,0.9-0.1l1-1 c0.3-0.3,0.3-0.7,0.1-0.9L11.5,9.5z"/>
                             </svg>
                         </button>
                     </div>
@@ -570,10 +679,9 @@
                     </span>
                 </div>
 
-                @php($address=\App\Models\CustomerAddresses::find($order['delivery_address_id']))
+                @php($address = \App\Models\CustomerAddresses::find($order['delivery_address_id']))
                 @if(isset($address))
-                    <form action="{{route('admin.order.update-shipping',[$order['delivery_address_id']])}}"
-                          method="post">
+                    <form action="{{route('admin.orders.update-shipping',[$order['delivery_address_id']])}}" method="post">
                         @csrf
                         <div class="modal-body">
                             <div class="row mb-3">
@@ -608,7 +716,7 @@
                                     {{translate('address')}}
                                 </label>
                                 <div class="col-md-10 js-form-message">
-                                    <input type="text" class="form-control" name="address" value="{{$address['address']}}" required>
+                                    <input type="text" class="form-control" name="address" value="{{$address['address1']}}" required>
                                 </div>
                             </div>
                             <div class="row mb-3">
@@ -661,14 +769,14 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> -->
 
 
-    <div class="modal fade" id="assign_delivey_man_modal">
+    <div class="modal fade" id="assign_service_man_modal">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">{{translate('Assign Delivery Man')}}</h4>
+                    <h4 class="modal-title">{{translate('Assign Service Man')}}</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body">
@@ -691,6 +799,38 @@
                                     <option selected disabled>Select Service Man</option>
                                     @foreach($servicemanlist as $service_man)
                                         <option value="{{$service_man->id}}">{{$service_man->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-12 my-2">
+                                <button type="submit" class="btn btn-primary">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="assign_delivey_man_modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">{{translate('Assign Delivery Man')}}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                @php($deliveryvendors = App\Models\Vendor::orderby('delivery_type', ($order->order_category == 'small' ? 'DESC' : 'ASC'))->get())
+                <div class="modal-body">
+                    <form action="javascript:void(0)" method="get" id="assign_delivery_man">
+                        <div class="row">
+                            <div class="col-md-12 my-2">
+                                <select name="delivery_man" class="form-control js-select2-custom" id="delivery_man" required>
+                                    <option selected disabled>Select Delivery Man</option>
+                                    @foreach($deliveryvendors as $delivery_man)
+                                        <option value="{{$delivery_man->id}}">{{$delivery_man->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -816,11 +956,28 @@
             route_alert(route, message);
         });
         
-        $('#assign_service_man').submit(function () {
+        $('#assign_service_man').submit(function() {
             $.ajax({
                 type: "GET",
                 url: "{{route('admin.orders.add.service.man', $order['id'])}}",
                 data: $('#assign_service_man').serialize(),
+                success: function (data) {
+                    location.reload();
+                },
+                error: function () {
+                    toastr.error('Add valid data', {
+                        CloseButton: true,
+                        ProgressBar: true
+                    });
+                }
+            });
+        });
+
+        $('#assign_delivery_man').submit(function() {
+            $.ajax({
+                type: "GET",
+                url: "{{route('admin.orders.add.delivery.man', $order['id'])}}",
+                data: $('#assign_delivery_man').serialize(),
                 success: function (data) {
                     location.reload();
                 },
@@ -858,11 +1015,17 @@
             });
         }
 
-        function last_location_view() {
-            toastr.warning('{{ translate("Only available when order is out for delivery!") }}', {
-                CloseButton: true,
-                ProgressBar: true
-            });
+        function assignDeliveryMan(status) {
+            console.log(status.order_category);
+            if(status.order_category != null)
+            {
+                $('#assign_delivey_man_modal').modal('show');
+            }else{
+                toastr.warning('{{ translate("define order category to assign delivery man.!") }}', {
+                    CloseButton: true,
+                    ProgressBar: true
+                });
+            }
         }
 
         $(document).on('ready', function () {

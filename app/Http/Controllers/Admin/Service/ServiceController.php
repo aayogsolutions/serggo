@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\{
     ServiceCategory, 
     Service,
-    
+    ServiceCategoryBanner,
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
@@ -19,11 +19,9 @@ use Rap2hpoutre\FastExcel\FastExcel;
 class ServiceController extends Controller
 {
     public function __construct(
-       
         private ServiceCategory $service_category,
         private Service $service,
-     
-        
+        private ServiceCategoryBanner $servicecategorybanner,
     ){}
 
     /**
@@ -493,4 +491,69 @@ class ServiceController extends Controller
         return response()->json([], 200);
     }
 
+    // Sub-Categories Banner
+
+    /**
+     * @param Request $request
+     * @return Factory|View|Application
+     */
+    function SubcategoryIndex(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $category = $this->service_category->status()->where('position',1)->with('banner')->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            });
+            $queryParam = ['search' => $request['search']];
+        } else {
+            $category = $this->service_category->status()->where('position',1)->with('banner');
+        }
+        $categories = $category->paginate(Helpers_getPagination())->appends($queryParam);
+      
+        return view('Admin.views.services.Subcategories.index', compact('categories', 'search'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function SubcategoryAddContent(Request $request, $id): RedirectResponse
+    {
+        
+        $request->validate([
+            'image' => 'required',
+        ],[
+            'image.required' => translate('image is required'),
+        ]);
+
+        $category = $this->service_category->find($id);
+        $file_size = getimagesize($request->file('image'));
+        // Width Check                Height Check
+        if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+            
+            if(!$this->servicecategorybanner->where('sub_category_id' , $category->id)->exists())
+            {
+                $banner = $this->servicecategorybanner;
+                $banner->category_id = $category->parent_id;
+                $banner->sub_category_id = $category->id;
+                $banner->sub_category_detail = json_encode($category);
+                $banner->attechment = Helpers_upload('Images/banners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $banner->save();
+                flash()->success(translate('Item Added successfully!'));
+            }else{
+                $banner = $this->servicecategorybanner->where('sub_category_id' , $category->id)->first();
+                $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $banner->save();
+                flash()->success(translate('Item Updated successfully!'));
+            }
+            return redirect()->back();
+        }
+        flash()->error(translate('Image size is wrong.!'));
+        return redirect()->back();
+    }
 }

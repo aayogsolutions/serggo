@@ -178,6 +178,7 @@ class OrderController extends Controller
                     }
                     $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
+                    $adminOrder->free_delivery = $request->free_delivery;
                     $adminOrder->delivered_by = 0; // editable..!
                     $adminOrder->checked = 1;
                     $adminOrder->date = now();
@@ -196,7 +197,6 @@ class OrderController extends Controller
                     $delivery = 0;
                     $discount = 0;
                     $installation = 0;
-                    $partial_payment_amount = 0;
                     $tax_type = $request->tax_type;
                     foreach ($products as $key1 => $value) 
                     {
@@ -352,6 +352,7 @@ class OrderController extends Controller
                     }
                     $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
+                    $adminOrder->free_delivery = $request->free_delivery;
                     $adminOrder->delivered_by = Vendor::find($key)->delivery_choice == 0 ? 1 : 0 ;
                     $adminOrder->checked = 1;
                     $adminOrder->date = now();
