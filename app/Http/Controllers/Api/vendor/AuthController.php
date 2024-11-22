@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api\partner;
+namespace App\Http\Controllers\Api\vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\{
-    PartnerCategory,
-    Vendor
+    Vendor,
+    VendorCategory
 };
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
     public function __construct(
-        private PartnerCategory $partnercategory,
+        private VendorCategory $vendorcategory,
         private Vendor $vendor,
     ){}
 
@@ -102,7 +102,7 @@ class AuthController extends Controller
     public function Category() : JsonResponse
     {
         try {
-            $category = $this->partnercategory->where('status' , 0)->orderBy('priority' , 'ASC')->get();
+            $category = $this->vendorcategory->where('status' , 0)->orderBy('priority' , 'ASC')->get();
         } catch (\Throwable $th) {
             $category = [];
         }
@@ -111,10 +111,6 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Category Info',
             'data' => [
-                'delivery' => [
-                    'Small Delivery',
-                    'Large Delivery'
-                ],
                 'category' => $category
             ]
         ],200);
@@ -124,15 +120,13 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function SignUp(Request $request) : JsonResponse
+    public function SignUpPersonal(Request $request) : JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',  
             'password' => 'required|confirmed|min:8',
             'number' => 'required|numeric|digits:10',
-            'dob' => 'required|date',
-            'delivery' => 'required|in:small,large',
             'category' => 'required',
         ]);
 
@@ -157,11 +151,9 @@ class AuthController extends Controller
                     $vendor->number = $request->number;
                     $vendor->otp = $otp;
                     $vendor->otp_expired_at = $expired_at;
-                    $vendor->dob = $request->dob;
-                    $vendor->delivery_type = $request->delivery;
-                    $vendor->category = json_encode($this->partnercategory->WhereIn('id' , json_decode($request->category))->pluck('name')->toArray());
+                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , json_decode($request->category))->pluck('title')->toArray());
                     $vendor->registration = 0;
-                    $vendor->role = '1';
+                    $vendor->role = '0';
                     $vendor->save();
 
                     return response()->json([
@@ -222,60 +214,6 @@ class AuthController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function OtpSubmit(Request $request) : JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'number' => 'required|numeric|digits:10',
-            'otp' => 'nullable|numeric',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => Helpers_error_processor($validator)
-            ], 406);
-        }
-
-        try {
-            $vendor = $this->vendor->where('number' , $request->number)->first();
-        
-            if (Carbon::parse($vendor->otp_expired_at)->format('Y/m/d H:i:s') >= Carbon::now()->format('Y/m/d H:i:s')) {
-                if ($request->otp == $vendor->otp) {
-                    $vendor->number_verfiy = 0;
-                    $vendor->save();
-
-                    return response()->json([
-                        'status' => true,
-                        'required' => 'kyc_verification',
-                        'message' => 'KYC Pending',
-                        'data' => [],
-                    ],200);
-                }else {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'Otp Not Matched',
-                        'data' => [],
-                    ],401);
-                }
-            }else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Otp Expired',
-                    'data' => [],
-                ],401);
-            }
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Enter Valid Information',
-                'data' => [],
-            ],401);
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function ResendOTP(Request $request) : JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -318,7 +256,124 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information'.$th->getMessage(),
+                'message' => 'Enter Valid Information',
+                'data' => [],
+            ],401);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function OtpSubmit(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'number' => 'required|numeric|digits:10',
+            'otp' => 'nullable|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $vendor = $this->vendor->where('number' , $request->number)->first();
+        
+            if (Carbon::parse($vendor->otp_expired_at)->format('Y/m/d H:i:s') >= Carbon::now()->format('Y/m/d H:i:s')) {
+                if ($request->otp == $vendor->otp) {
+                    $vendor->number_verfiy = 0;
+                    $vendor->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'required' => 'business_verification',
+                        'message' => 'Number Verified',
+                        'data' => [],
+                    ],200);
+                }else {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Otp Not Matched',
+                        'data' => [],
+                    ],401);
+                }
+            }else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Otp Expired',
+                    'data' => [],
+                ],401);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Enter Valid Information',
+                'data' => [],
+            ],401);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function SignUpBusiness(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'business_name' => 'required',
+            'gst_no' => 'required',
+            'address' => 'required',
+            'number' => 'required|numeric|digits:10',
+            'longitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+            'delivery' => 'required|numeric',
+            'working_days' => 'required',
+            'open_time' => 'required',
+            'close_time' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+        
+        try {
+            if($this->vendor->where('number' , $request->number)->exists()) {
+
+                $vendor = $this->vendor->where('number' , $request->number)->first();
+
+                $vendor->business_name = $request->business_name;
+                $vendor->gst_no = $request->gst_no;
+                $vendor->address = $request->address;
+                $vendor->longitude = $request->longitude;
+                $vendor->latitude = $request->latitude;
+                $vendor->working_days = $request->working_days;
+                $vendor->open_time = $request->open_time;
+                $vendor->close_time = $request->close_time;
+                $vendor->delivery_choice = $request->delivery;
+                $vendor->save();
+
+                return response()->json([
+                    'status' => true,
+                    'required' => 'kyc_verification',
+                    'message' => 'Business Verified',
+                    'data' => []
+                ],200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Phone Not Exists',
+                    'data' => [],
+                ],401);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Enter Valid Information',
                 'data' => [],
             ],401);
         }
@@ -336,6 +391,7 @@ class AuthController extends Controller
             'aadhar_front' => 'required|image|mimes:jpeg,png,jpg|max:5000',
             'aadhar_back' => 'required|image|mimes:jpeg,png,jpg|max:5000',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:5000',
+            'gst_document' => 'required|image|mimes:jpeg,png,jpg|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -348,22 +404,23 @@ class AuthController extends Controller
             if($vendor = $this->vendor->where('number' , $request->number)->exists())
             {
                 $vendor = $this->vendor->where('number' , $request->number)->first();
-                
+            
                 $vendor->aadhar_no = $request->aadhar_no;
-
+    
                 $vendor->aadhar_document = json_encode([
-                    'aadhar_front' => Helpers_upload('Images/partners/kyc/', $request->file('aadhar_front')->getClientOriginalExtension(), $request->file('aadhar_front')),
-                    'aadhar_back' => Helpers_upload('Images/partners/kyc/', $request->file('aadhar_back')->getClientOriginalExtension(), $request->file('aadhar_back'))
+                    'aadhar_front' => Helpers_upload('Images/vendor/kyc/', $request->file('aadhar_front')->getClientOriginalExtension(), $request->file('aadhar_front')),
+                    'aadhar_back' => Helpers_upload('Images/vendor/kyc/', $request->file('aadhar_back')->getClientOriginalExtension(), $request->file('aadhar_back')),
+                    'gst_document' => Helpers_upload('Images/vendor/kyc/', $request->file('gst_document')->getClientOriginalExtension(), $request->file('gst_document')),
                 ]);
-
-                $vendor->image = Helpers_upload('Images/partners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+    
+                $vendor->image = Helpers_upload('Images/vendor/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                 
                 $vendor->is_verify = 1;
-
+    
                 $vendor->save();
-
+    
                 $token = $vendor->createToken('auth_token')->plainTextToken;
-
+    
                 return response()->json([
                     'status' => true,
                     'required' => false,
@@ -380,6 +437,7 @@ class AuthController extends Controller
                     'data' => [],
                 ],401);
             }
+            
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

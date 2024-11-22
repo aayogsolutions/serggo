@@ -33,6 +33,8 @@ return new class extends Migration
             $table->text('choice_options')->nullable();
             $table->decimal('discount',8,2)->default(0);
             $table->string('discount_type')->default('precent');
+            $table->tinyInteger('is_advance')->default(1)->comment('0 = applicable | 1 = not applicable');
+            $table->integer('advance',5)->nullable();
             $table->string('installation_name')->nullable();
             $table->decimal('installation_charges',8,2)->default(0);
             $table->text('installation_description')->nullable();

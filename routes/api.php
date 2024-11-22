@@ -24,8 +24,10 @@ use App\Http\Controllers\Api\user\product\{
 };
 use App\Http\Controllers\Api\user\service\{
     DashboardController as ServiceDashboardController,
+    OrderController as ServiceOrderController,
 };
-use App\Http\Controllers\Api\vender\{
+use App\Http\Controllers\Api\vendor\{
+    AuthController as VendorAuthController,
     DashboardController as VenderDashboardController
 };
 use Illuminate\Support\Facades\Route;
@@ -47,6 +49,7 @@ Route::group(['prefix' => 'auth'], function() {
         //Sign Up Routes
         Route::get('/category',[AuthController::class, 'Category']);
         Route::post('/signup',[AuthController::class, 'SignUp']);
+        Route::get('/resent-otp',[AuthController::class, 'ResendOTP']);
         Route::post('/otp-submit',[AuthController::class, 'OtpSubmit']);
         Route::post('/kyc-submit',[AuthController::class, 'KYCSubmit']);
 
@@ -54,6 +57,24 @@ Route::group(['prefix' => 'auth'], function() {
         Route::post('/forget/password/number',[AuthController::class, 'ForgetPasswordNumber']);
         Route::post('/forget/password/otp',[AuthController::class, 'ForgetPasswordOTP']);
         Route::post('/forget/password/submit',[AuthController::class, 'ForgetPasswordSubmit']);
+    });
+
+    Route::group(['prefix' => 'vendor'], function() {
+        //Login Route
+        Route::post('/login',[VendorAuthController::class, 'LogIn']);
+
+        //Sign Up Routes
+        Route::get('/category',[VendorAuthController::class, 'Category']);
+        Route::post('/signup/personal',[VendorAuthController::class, 'SignUpPersonal']);
+        Route::get('/resent-otp',[VendorAuthController::class, 'ResendOTP']);
+        Route::post('/signup/business',[VendorAuthController::class, 'SignUpBusiness']);
+        Route::post('/otp-submit',[VendorAuthController::class, 'OtpSubmit']);
+        Route::post('/kyc-submit',[VendorAuthController::class, 'KYCSubmit']);
+
+        //Forget Password Routes
+        Route::post('/forget/password/number',[VendorAuthController::class, 'ForgetPasswordNumber']);
+        Route::post('/forget/password/otp',[VendorAuthController::class, 'ForgetPasswordOTP']);
+        Route::post('/forget/password/submit',[VendorAuthController::class, 'ForgetPasswordSubmit']);
     });
 });
 
@@ -165,6 +186,16 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             // Order History
             Route::get('order/history',[OrderController::class,'OrderHistory']);
             Route::get('order/{id}',[OrderController::class,'OrderItems']);
+        });
+
+        Route::group(['prefix' => 'service'], function(){
+
+            Route::get('checkout',[ServiceOrderController::class,'CheckOut']);
+            Route::post('place-order',[ServiceOrderController::class,'PlaceOrder']);
+
+            // Order History
+            Route::get('order/history',[ServiceOrderController::class,'OrderHistory']);
+            Route::get('order/{id}',[ServiceOrderController::class,'OrderItems']);
         });
     });
 

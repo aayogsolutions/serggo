@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
-            $table->double('wallet_balance')->default(0);
+            $table->decimal('wallet_balance',24,2)->default(0);
             $table->string('temporary_token')->nullable();
             $table->string('referral_code')->unique()->nullable();
             $table->string('referred_by')->nullable();

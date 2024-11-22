@@ -24,11 +24,12 @@ return new class extends Migration
             $table->decimal('tax_amount',8,2)->default(0);
             $table->text('product_details')->nullable();
             $table->text('variation')->nullable();
-            $table->string('variant')->nullable();
             $table->string('unit')->nullable();
             $table->bigInteger('service_man_id')->nullable();
             $table->decimal('discount_on_product',8,2)->nullable();
             $table->string('discount_type')->default('amount');
+            $table->decimal('delivery_charges',8,2)->default(0);
+            $table->tinyInteger('serviceman_status')->default(1)->comment('0 = accpeted | 1 = pending');
             $table->tinyInteger('is_stock_decreased')->default(0)->comment('0 = decreased | 1 = not_decreased');
             $table->tinyInteger('installation')->default(1)->comment('0 = required | 1 = not required');
             $table->decimal('installastion_amount',15,2)->default(0);

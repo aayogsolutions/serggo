@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('password');
             $table->tinyInteger('status', false)->default(0)->comment("0 = active | 1 = inactive");
             $table->tinyInteger('role_id')->nullable();
+            $table->string('longitude')->nullable();
+            $table->string('latitude')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

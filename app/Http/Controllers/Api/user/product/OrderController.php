@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\{
+    Admin,
     BusinessSetting,
     CustomerAddresses,
     Notifications,
@@ -62,7 +63,7 @@ class OrderController extends Controller
             $digital_payment = Helpers_get_business_settings('digital_payment');
             $partial_payment = Helpers_get_business_settings('partial_payment');
 
-            $vendors = Vendor::Select('id', 'longitude', 'latitude')->where('is_block', 0)->WhereIn('id', json_decode($vendor_id))->get();
+            $vendors = Vendor::Select('id', 'longitude', 'latitude')->where('is_block' , 0)->WhereIn('id', json_decode($vendor_id))->get();
         } catch (\Throwable $th) {
             $cod = [
                 "status" => 1
@@ -88,7 +89,10 @@ class OrderController extends Controller
                 'delivery' => $delivery,
                 'balance' => Auth::user()->wallet_balance,
                 'tax' => Helpers_get_business_settings('product_gst_tax_status'),
-                'vendors' => $vendors,
+                'location' => [
+                    'admin' => Admin::Select('longitude', 'latitude')->where('id', 1)->first()->toArray(),
+                    'vendor' => $vendors
+                ]
             ]
         ], 200);
     }
@@ -179,7 +183,7 @@ class OrderController extends Controller
                     $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
                     $adminOrder->free_delivery = $request->free_delivery;
-                    $adminOrder->delivered_by = 0; // editable..!
+                    $adminOrder->delivered_by = 0;
                     $adminOrder->checked = 1;
                     $adminOrder->date = now();
                     $adminOrder->delivery_address = json_encode($this->customeraddress->find($request->address_id));
