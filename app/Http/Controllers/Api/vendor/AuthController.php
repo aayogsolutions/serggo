@@ -89,7 +89,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => []
             ],401);
         }
@@ -151,7 +151,7 @@ class AuthController extends Controller
                     $vendor->number = $request->number;
                     $vendor->otp = $otp;
                     $vendor->otp_expired_at = $expired_at;
-                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , json_decode($request->category))->pluck('title')->toArray());
+                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , $request->category)->pluck('title')->toArray());
                     $vendor->registration = 0;
                     $vendor->role = '0';
                     $vendor->save();
@@ -204,7 +204,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -256,7 +256,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -310,7 +310,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -373,7 +373,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -441,7 +441,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -491,7 +491,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -547,7 +547,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -593,7 +593,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Information'.$th->getMessage(),
                 'data' => [],
             ],401);
         }

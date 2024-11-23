@@ -243,6 +243,7 @@ class DisplayController extends Controller
             flash()->error(translate('Image size is wrong.!'));
             return redirect()->back();
         }else{
+            // dd($request->all());
             $request->validate([
                 'image' => 'required|image',
                 'product_id' => 'required',

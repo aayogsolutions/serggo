@@ -209,27 +209,14 @@
                                             <div class="row g-3">
                                                 <div class="col-12">
                                                     <label class="input-label" for="exampleFormControlSelect1">
-                                                        {{translate('product')}}
+                                                        {{translate('Category')}}
                                                         <span class="input-label-secondary">*</span>
                                                     </label>
-                                                    <select name="catogory_id" class="form-control js-select2-custom" id="catogory_id" required>
+                                                    <select name="product_id" class="form-control js-select2-custom" id="catogory_id" required>
                                                         <option selected disabled>Select Category</option>
                                                         @foreach($products as $product)
                                                         <option value="{{$product['id']}}">{{$product['name']}}</option>
                                                         @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="row g-3">
-                                                <div class="col-12">
-                                                    <label class="input-label" for="exampleFormControlSelect1">
-                                                        {{translate('product')}}
-                                                        <span class="input-label-secondary">*</span>
-                                                    </label>
-                                                    <select name="product_id" class="form-control js-select2-custom" id="product_id" required>
-                                                        <option selected disabled>Select Sub Category</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -256,24 +243,11 @@
                                                         {{translate('Category')}}
                                                         <span class="input-label-secondary">*</span>
                                                     </label>
-                                                    <select name="catogory_id" class="form-control js-select2-custom" id="catogory_id" required>
+                                                    <select name="product_id" class="form-control js-select2-custom" id="catogory_id" required>
                                                         <option selected disabled>Select Category</option>
                                                         @foreach($products as $product)
                                                         <option value="{{$product['id']}}">{{$product['name']}}</option>
                                                         @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="row g-3">
-                                                <div class="col-12">
-                                                    <label class="input-label" for="exampleFormControlSelect1">
-                                                        {{translate('Sub Category')}}
-                                                        <span class="input-label-secondary">*</span>
-                                                    </label>
-                                                    <select name="product_id" class="form-control js-select2-custom" id="product_id" required>
-                                                        <option selected disabled>Select Sub Category</option>
                                                     </select>
                                                 </div>
                                             </div>

@@ -193,13 +193,13 @@ class DashboardController extends Controller
     }
 
     /**
+     * @param $id
      * @return JsonResponse
      */
-    public function CategoryDetails() : JsonResponse
+    public function CategoryDetails($id) : JsonResponse
     {
         try {
-
-            $categorys = $this->servicecategory->status()->where('position', 0)->with('childes')->get();
+            $categorys = $this->servicecategory->where('id',$id)->with('childes')->first();
             return response()->json([
                 'status' => true,
                 'message' => 'Category Data',

@@ -125,7 +125,7 @@ Route::group(['prefix' => 'service'], function(){
     Route::get('/search', [ServiceDashboardController::class,'Search']);
 
     // Category Details Route
-    Route::get('/category/details', [ServiceDashboardController::class,'CategoryDetails']);
+    Route::get('/category/{id}', [ServiceDashboardController::class,'CategoryDetails']);
     Route::get('/sub-category/details/{category_id}', [ServiceDashboardController::class,'SubCategoryDetails']);
 });
 
