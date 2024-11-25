@@ -32,10 +32,10 @@
                                 @endif
                                     <div class="d-block">
                                         <div class="rating--review">
-                                            <h4 class="title">{{count($product->all_rating)>0?number_format($product->all_rating[0]->average, 2, '.', ' '):0}}</h4>
+                                            <h4 class="title">0</h4>
                                             <div class="rating">
                                                 @php
-                                                    $avg_rating = count($product->all_rating)>0?number_format($product->all_rating[0]->average, 2, '.', ' '):0;
+                                                    $avg_rating = 0;
                                                 @endphp
                                                 @for($i=1;$i<=5;$i++)
                                                     @if($i<=$avg_rating)
@@ -55,7 +55,7 @@
                             <div class="col-lg-8 col-md-6 mx-auto">
                                 <ul class="list-unstyled list-unstyled-py-2 mb-0 rating--review-right py-3">
 
-                                @php($total = $product->reviews->count())
+                                    @php($total = $product->reviews->count())
                                     <li class="d-flex align-items-center font-size-sm">
                                         @php($five = Helpers_rating_count($product['id'],5))
                                         <span class="progress-name mr-3">{{translate('excellent')}}</span>
@@ -135,7 +135,6 @@
                             <tr>
                                 <th class="px-4 border-0"><h4 class="m-0 text-capitalize">{{translate('short_description')}}</h4></th>
                                 <th class="px-4 border-0"><h4 class="m-0 text-capitalize">{{translate('price')}}</h4></th>
-                                <th class="px-4 border-0"><h4 class="m-0 text-capitalize">{{translate('variations')}}</h4></th>
                                 <th class="px-4 border-0"><h4 class="m-0 text-capitalize">{{translate('Tags')}}</h4></th>
                             </tr>
                         </thead>
@@ -152,20 +151,13 @@
                                         <span>{{ Helpers_set_symbol($product['price']) }} / {{translate(''.$product['unit'])}}</span>
                                    </div>
                                    <div>
-                                        <strong class="text--title">{{translate('tax')}} :</strong>
-                                        <span>{{ Helpers_set_symbol(Helpers_tax_calculate($product,$product['price'])) }}</span>
+                                        <strong class="text--title">{{translate('tax_%')}} :</strong>
+                                        <span>{{ $product['tax'] }}</span>
                                    </div>
                                    <div>
                                         <strong class="text--title">{{translate('discount')}} :</strong>
                                         <span>{{ Helpers_set_symbol(Helpers_discount_calculate($product,$product['price'])) }}</span>
                                    </div>
-                                </td>
-                                <td>
-                                    @foreach(json_decode($product['variations'],true) as $variation)
-                                        <div class="text-capitalize">
-                                            {{$variation['type']}} : {{ Helpers_set_symbol($variation['price']) }}
-                                        </div>
-                                    @endforeach
                                 </td>
                                 <td>
                                     @foreach(json_decode($product->tags) as $tag)

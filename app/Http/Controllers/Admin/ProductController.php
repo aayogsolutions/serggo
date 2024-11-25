@@ -279,6 +279,7 @@ class ProductController extends Controller
             return back();
         }
         $reviews = $this->review->where(['product_id' => $id])->latest()->paginate(20);
+        // dd($product);
         return view('Admin.views.product.view', compact('product', 'reviews'));
     }
 

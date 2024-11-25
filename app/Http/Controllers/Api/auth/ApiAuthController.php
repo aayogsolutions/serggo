@@ -352,6 +352,8 @@ class ApiAuthController extends Controller
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
+                        'Registration' => $userdata->registration,
+                        'Number verification' => $userdata->number_verify,
                         'message' => 'logged in',
                         'data' => [
                             'token' => $token,
@@ -379,6 +381,7 @@ class ApiAuthController extends Controller
 
                     return response()->json([
                         'status' => true,
+                        'Registration' => $userdata->registration,
                         'Number verification' => $userdata->number_verify,
                         'message' => 'Number verification required',
                         'data' => [
@@ -391,6 +394,7 @@ class ApiAuthController extends Controller
                     return response()->json([
                         'status' => true,
                         'Registration' => $userdata->registration,
+                        'Number verification' => $userdata->number_verify,
                         'message' => 'Registration required',
                         'data' => [
                             'user' => $userdata
@@ -428,6 +432,8 @@ class ApiAuthController extends Controller
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
+                        'Registration' => $userdata->registration,
+                        'Number verification' => $userdata->number_verify,
                         'message' => 'logged in',
                         'data' => [
                             'token' => $token,
@@ -455,6 +461,7 @@ class ApiAuthController extends Controller
 
                     return response()->json([
                         'status' => true,
+                        'Registration' => $userdata->registration,
                         'Number verification' => $userdata->number_verify,
                         'message' => 'Number verification required',
                         'data' => [
@@ -467,6 +474,7 @@ class ApiAuthController extends Controller
                     return response()->json([
                         'status' => true,
                         'Registration' => $userdata->registration,
+                        'Number verification' => $userdata->number_verify,
                         'message' => 'Registration required',
                         'data' => [
                             'user' => $userdata
@@ -505,6 +513,8 @@ class ApiAuthController extends Controller
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
+                        'Registration' => $userdata->registration,
+                        'Number verification' => $userdata->number_verify,
                         'message' => 'logged in',
                         'data' => [
                             'token' => $token,
@@ -532,6 +542,7 @@ class ApiAuthController extends Controller
 
                     return response()->json([
                         'status' => true,
+                        'Registration' => $userdata->registration,
                         'Number verification' => $userdata->number_verify,
                         'message' => 'Number verification required',
                         'data' => [
@@ -544,6 +555,7 @@ class ApiAuthController extends Controller
                     return response()->json([
                         'status' => true,
                         'Registration' => $userdata->registration,
+                        'Number verification' => $userdata->number_verify,
                         'message' => 'Registration required',
                         'data' => [
                             'user' => $userdata

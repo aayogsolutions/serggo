@@ -135,6 +135,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('get-categories', [ServiceController::class, 'getCategories'])->name('get-categories');
             Route::get('get-child-categories', [ServiceController::class, 'getChildCategories'])->name('get-child-categories');
             Route::post('store', [ServiceController::class, 'store'])->name('store');
+            Route::get('view/{id}', [ServiceController::class, 'view'])->name('view');
             Route::get('status/{id}/{status}', [ServiceController::class, 'status'])->name('status');
             Route::delete('delete/{id}', [ServiceController::class, 'delete'])->name('delete');
             Route::get('edit/{id}', [ServiceController::class, 'edit'])->name('edit');
@@ -355,7 +356,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             // Order Approval Routes
             Route::get('approval-request', [OrderController::class, 'ApprovalRequest'])->name('approval_request');
-            Route::get('approval-request/view/{id}', [OrderController::class, 'ApprovalRequestView'])->name('approval.request.view');
+            Route::get('approval-request/view/product/{id}', [OrderController::class, 'ApprovalRequestView'])->name('approval.request.product.view');
+            Route::get('approval-request/view/service/{id}', [OrderController::class, 'ApprovalRequestServiceView'])->name('approval.request.service.view');
             Route::post('approval-request/action/{id}', [OrderController::class, 'ApprovalRequestAction'])->name('approval.request.action');
             Route::post('update-service-men', [OrderController::class, 'UpdateServiceMen'])->name('update.service.men');
 

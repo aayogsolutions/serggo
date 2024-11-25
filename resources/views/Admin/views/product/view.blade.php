@@ -32,6 +32,7 @@
                                 @endif
                                     <div class="d-block">
                                         <div class="rating--review">
+                                            @dd($product)
                                             <h4 class="title">{{count($product->all_rating)>0?number_format($product->all_rating[0]->average, 2, '.', ' '):0}}</h4>
                                             <div class="rating">
                                                 @php

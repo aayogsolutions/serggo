@@ -252,8 +252,10 @@ class OrderController extends Controller
                     $adminOrder->total_discount = $discount;
                     $adminOrder->total_installation	 = $installation;
                     $adminOrder->item_total = $amount;
-                    $adminOrder->free_delivery = $request->free_delivery;
-
+                    if($request->free_delivery == 0)
+                    {
+                        $adminOrder->free_delivery_amount = $delivery;
+                    }
                     if($request->tax_type == 'excluded')
                     {
                         $grand_total = ($amount + $tax_amount + ($request->free_delivery == 1 ? $delivery : 0) + $installation) - $discount;
@@ -357,6 +359,7 @@ class OrderController extends Controller
                     $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
                     $adminOrder->free_delivery = $request->free_delivery;
+                    $adminOrder->vender_id = $key;
                     $adminOrder->delivered_by = Vendor::find($key)->delivery_choice == 0 ? 1 : 0 ;
                     $adminOrder->checked = 1;
                     $adminOrder->date = now();
@@ -427,8 +430,10 @@ class OrderController extends Controller
                     $adminOrder->total_discount = $discount;
                     $adminOrder->total_installation	 = $installation;
                     $adminOrder->item_total = $amount;
-                    $adminOrder->free_delivery = $request->free_delivery;
-
+                    if($request->free_delivery == 0)
+                    {
+                        $adminOrder->free_delivery_amount = $delivery;
+                    }
                     if($request->tax_type == 'excluded')
                     {
                         $grand_total = ($amount + $tax_amount + ($request->free_delivery == 1 ? $delivery : 0) + $installation) - $discount;
@@ -520,7 +525,10 @@ class OrderController extends Controller
 
                 if (!BusinessSetting::where(['key' => 'order_place_message'])->first()) {
                     BusinessSetting::updateOrInsert(['key' => 'order_place_message'], [
-                        'value' => 'Order Placed Successfully',
+                        'value' => json_encode([
+                            'status'  => 0,
+                            'message' => 'Order Placed Successfully',
+                        ]),
                     ]);
                 }
 
@@ -538,7 +546,7 @@ class OrderController extends Controller
                 'status' => false,
                 'error' => 'Something went wrong'.$th->getMessage(),
                 'data' => []
-            ], 404);
+            ], 401);
         }
 
         return response()->json([
@@ -585,7 +593,7 @@ class OrderController extends Controller
                     'status' => false,
                     'message' => 'Order Not Found',
                     'data' => [],
-                ], 404);
+                ], 401);
             }
 
             return response()->json([
@@ -599,7 +607,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'errors' => 'Unexpected Error',
-            ], 406);
+            ], 401);
         }
     }
 }

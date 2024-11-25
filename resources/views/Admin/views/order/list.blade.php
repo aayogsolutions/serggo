@@ -230,7 +230,14 @@
                             <th>
                                 {{translate('#')}}
                             </th>
-                            <th class="table-column-pl-0">{{translate('order ID')}}</th>
+                            <th class="table-column-pl-0">
+                                {{translate('order ID')}}
+                            </th>
+                            <th>
+                                <div class="text-center">
+                                    {{translate('Order')}} {{translate('type')}}
+                                </div>
+                            </th>
                             <th>
                                 <div class="text-center">
                                     {{translate('Blong')}} {{translate('to')}}
@@ -266,6 +273,11 @@
                                 </td>
                                 <td class="table-column-pl-0">
                                     <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">{{$order['id']}}</a>
+                                </td>
+                                <td class="table-column-pl-0">
+                                    <span class="badge badge-soft-info py-2 px-3">
+                                        {{$order['order_type']}}
+                                    </span>
                                 </td>
                                 <td class="table-column-pl-0">
                                     <span class="badge badge-soft-info py-2 px-3">

@@ -62,6 +62,11 @@
                                 <th class="table-column-pl-0">
                                     {{translate('order ID')}}
                                 </th>
+                                <th>
+                                    <div class="text-center">
+                                        {{translate('Order')}} {{translate('type')}}
+                                    </div>
+                                </th>
                                 <th class="table-column-pl-0">
                                     {{translate('Customer')}}
                                 </th>
@@ -97,8 +102,15 @@
                                     {{$orders->firstItem()+$key}}
                                 </td>
                                 <td class="table-column-pl-0">
-                                    <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">{{$order['id']}}</a>
-                                </td>                              
+                                    <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">
+                                        {{$order['id']}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge badge-soft-info py-2 px-3">
+                                        {{$order['order_type']}}
+                                    </span>
+                                </td>                           
                                 <td>
                                     <div>
                                         <a class="text-body text-capitalize font-medium"
@@ -154,8 +166,9 @@
                                     @else
                                         <span class="text-danger">
                                             <div>
-                                                <a class="text-body text-capitalize font-medium"
-                                                    href="{{route('admin.vendor.view',[$order['user_id']])}}">{{translate($order->vendororders->name)}}</a>
+                                                <a class="text-body text-capitalize font-medium" href="{{route('admin.vendor.view',[$order['user_id']])}}">
+                                                    {{translate($order->vendororders->name)}}
+                                                </a>
                                             </div>
                                             <div class="text-sm">
                                                 <a href="javascript:void(0);">{{$order->vendororders->number}}</a>
@@ -174,10 +187,15 @@
                                 
                                 <td>
                                     <div class="btn--container justify-content-center">
-                                        <a class="action-btn btn--primary btn-outline-primary" href="{{route('admin.orders.approval.request.view',['id'=>$order['id']])}}">
-                                            <i class="tio-invisible"></i>
-                                        </a>
-
+                                        @if($order['order_type'] == 'goods')
+                                            <a class="action-btn btn--primary btn-outline-primary" href="{{route('admin.orders.approval.request.product.view',['id'=>$order['id']])}}">
+                                                <i class="tio-invisible"></i>
+                                            </a>
+                                        @else
+                                            <a class="action-btn btn--primary btn-outline-primary" href="{{route('admin.orders.approval.request.service.view',['id'=>$order['id']])}}">
+                                                <i class="tio-invisible"></i>
+                                            </a>
+                                        @endif
                                         <!-- <a class="action-btn btn-outline-primary-2" target="_blank" href="{{route('admin.orders.generate-invoice',[$order['id']])}}">
                                             <i class="tio-print"></i>
                                         </a> -->

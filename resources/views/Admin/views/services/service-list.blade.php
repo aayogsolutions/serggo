@@ -88,7 +88,7 @@
                                     {{$key+1}}
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
-                                    <a href="#" class="product-list-media">
+                                    <a href="{{ route('admin.service.view', $services->id) }}" class="product-list-media">
                                         @if (!empty(json_decode($services['image'],true)))
                                         <img src="{{ asset(json_decode($services->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         @else

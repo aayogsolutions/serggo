@@ -8,6 +8,7 @@ use App\Models\{
     ServiceCategory, 
     Service,
     ServiceCategoryBanner,
+    ServiceReview,
 };
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
@@ -22,6 +23,7 @@ class ServiceController extends Controller
         private ServiceCategory $service_category,
         private Service $service,
         private ServiceCategoryBanner $servicecategorybanner,
+        private ServiceReview $review,
     ){}
 
     /**
@@ -239,6 +241,22 @@ class ServiceController extends Controller
 
         return response()->json([], 200);
     }
+
+    /**
+     * @param $id
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function view($id): View|Factory|RedirectResponse|Application
+    {
+        $product = $this->service->where(['id' => $id])->first();
+        if (!$product){
+            flash()->error(translate('product not found'));
+            return back();
+        }
+        $reviews = $this->review->where(['service_man_id' => $id])->latest()->paginate(20);
+        return view('Admin.views.services.view', compact('product', 'reviews'));
+    }
+
 
      /**
      * @param Request $request

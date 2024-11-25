@@ -18,4 +18,9 @@ class Service extends Model
     {
         return $this->belongsTo(ServiceCategory::class,'child_category_id');
     }
+
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ServiceReview::class, 'service_man_id', 'id')->latest();
+    }
 }

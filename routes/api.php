@@ -98,7 +98,6 @@ Route::group(['prefix' => 'information'], function() {
         Route::get('/term-conditions',[PartnerInformationController::class, 'TermConditions']);
         // Route::get('/privacy-policy',[PartnerInformationController::class, 'PrivacyPolicy']);
     });
-    
 });
 
 Route::group(['prefix' => 'product'], function(){

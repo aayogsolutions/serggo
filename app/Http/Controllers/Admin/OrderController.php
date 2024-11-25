@@ -163,6 +163,19 @@ class OrderController extends Controller
 
     /**
      * @param Request $request
+     * @param $status
+     * @return Factory|View|Application
+     */
+    public function ApprovalRequestServiceView($id): View|Factory|Application
+    {
+        $order = $this->order->with(['customer','OrderDetails','vendororders'])->where(['id' => $id])->first();
+        $timeslots = $this->timeslots->where(['status' => 1,])->get();
+        $serviceman = Vendor::where(['role' => 1])->where('is_block',0)->get();
+        return view('Admin.views.order.order-approval.approval_page', compact('order','timeslots', 'serviceman'));
+    }
+
+    /**
+     * @param Request $request
      * @param $id
      * @return jsonResponse
      */
@@ -666,23 +679,23 @@ class OrderController extends Controller
                 //     }
                 // }
 
-                if ($order->user_id) {
-                    $distributed_amount = $order->total_distributed_amount;
-                    $user = User::find($order->user_id);
-                    if ($user->referred_by != NULL) {
-                        $level_user = $user->referred_by;
-                        $level_data = Referral_setting::orderBy('Level', 'ASC')->get();
+                // if ($order->user_id) {
+                //     $distributed_amount = $order->total_distributed_amount;
+                //     $user = User::find($order->user_id);
+                //     if ($user->referred_by != NULL) {
+                //         $level_user = $user->referred_by;
+                //         $level_data = Referral_setting::orderBy('Level', 'ASC')->get();
 
-                        for ($i = 0; $i < count($level_data); $i++) {
-                            if ($level_user != NULL) {
-                                $single_level_data = $level_data[$i];
-                                CustomerLogic::referral_level_earning_loyalty_transaction($level_user, 'referral_level_order_income', $order->id, $single_level_data->percentage, $distributed_amount);
+                //         for ($i = 0; $i < count($level_data); $i++) {
+                //             if ($level_user != NULL) {
+                //                 $single_level_data = $level_data[$i];
+                //                 CustomerLogic::referral_level_earning_loyalty_transaction($level_user, 'referral_level_order_income', $order->id, $single_level_data->percentage, $distributed_amount);
 
-                                $level_user = User::find($level_user)->referred_by;
-                            }
-                        }
-                    }
-                }
+                //                 $level_user = User::find($level_user)->referred_by;
+                //             }
+                //         }
+                //     }
+                // }
             }
 
             if ($order['payment_method'] == 'cash_on_delivery') {
@@ -740,11 +753,11 @@ class OrderController extends Controller
     public function edit_item($id): Factory|View|Application|RedirectResponse
     {
         $order = $this->order->with(['details', 'offline_payment'])->where(['id' => $id])->first();
-        $deliverymanList = $this->delivery_man->where(['is_active' => 1])
-            ->where(function ($query) use ($order) {
-                $query->where('branch_id', $order->branch_id)
-                    ->orWhere('branch_id', 0);
-            })->get();
+        // $deliverymanList = $this->delivery_man->where(['is_active' => 1])
+            // ->where(function ($query) use ($order) {
+            //     $query->where('branch_id', $order->branch_id)
+            //         ->orWhere('branch_id', 0);
+            // })->get();
 
         $all_product = Products::all();
         if (isset($order)) {
@@ -806,7 +819,7 @@ class OrderController extends Controller
                             $discount_type = $product_discount > $category_discount ? 'discount_on_product' : 'discount_on_category';
                         }
 
-                        $distribute_on_product = Helpers_distribute_calculate($alt_product_detail, $price);
+                        // $distribute_on_product = Helpers_distribute_calculate($alt_product_detail, $price);
 
 
                         $value->product_id = $request->alternate[$key];
@@ -816,10 +829,10 @@ class OrderController extends Controller
                         $value->discount_on_product = $discount;
                         $value->discount_type = $discount_type;
                         $value->tax_amount = $tax_on_product;
-                        $value->distributed_amount = $distribute_on_product;
+                        // $value->distributed_amount = $distribute_on_product;
                         $value->save();
 
-                        $total_distribute = $total_distribute + $distribute_on_product;
+                        // $total_distribute = $total_distribute + $distribute_on_product;
                         $total_tax = $total_tax + $tax_on_product;
 
                         $amount_price = $price * $request->alternate_qyt[$key];
