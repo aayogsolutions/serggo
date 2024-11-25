@@ -267,7 +267,7 @@ class OrderController extends Controller
                     if($request->partial_payment == 0)
                     {
                         $per_order_wallet = (count($orderedproducts) - $no_of_order) == 0 ? $remaining_wallet_amount : $remaining_wallet_amount / (count($orderedproducts) - $no_of_order);
-                        dump($per_order_wallet ,(count($orderedproducts) - $no_of_order) , $remaining_wallet_amount , $remaining_wallet_amount / (count($orderedproducts) - $no_of_order));
+                        
                         if(Auth::user()->wallet_balance >= $per_order_wallet)
                         {
                             if($grand_total <= $per_order_wallet)
@@ -445,8 +445,7 @@ class OrderController extends Controller
                     if($request->partial_payment == 0)
                     {
                         $per_order_wallet = (count($orderedproducts) - $no_of_order) == 0 ? $remaining_wallet_amount : $remaining_wallet_amount / (count($orderedproducts) - $no_of_order);
-
-                        dump($per_order_wallet ,(count($orderedproducts) - $no_of_order) , $remaining_wallet_amount , $remaining_wallet_amount / (count($orderedproducts) - $no_of_order));
+                        
                         if(Auth::user()->wallet_balance >= $per_order_wallet)
                         {
                             if($grand_total <= $per_order_wallet)
