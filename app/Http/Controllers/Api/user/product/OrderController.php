@@ -563,6 +563,7 @@ class OrderController extends Controller
         try {
             $orders = $this->order->where('user_id', Auth::user()->id)->orderBy('id', 'desc')->with('OrderDetails')->get();
 
+            $orders = Helpers_Orders_formatting($orders, true, true, false);
             return response()->json([
                 'status' => true,
                 'message' => 'Order History',
@@ -586,6 +587,8 @@ class OrderController extends Controller
         try {
             $orders = $this->order->where('id', $id)->with('OrderDetails')->first();
         
+            $orders = Helpers_Orders_formatting($orders, false, true, false);
+
             if($orders->user_id != Auth::user()->id)
             {
                 return response()->json([

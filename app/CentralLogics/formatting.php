@@ -261,6 +261,57 @@ if(! function_exists('display_data_formatting')) {
     }
 }
 
+if(! function_exists('Helpers_Orders_formatting')) {
+    function Helpers_Orders_formatting($data, $multi_data = false, $multi_child = false, $reviews = false)
+    {
+        $storage = [];
+        if ($multi_data == true) {
+            foreach ($data as $item) {
+                $item->delivery_address = gettype($item->delivery_address) == 'array' ? $item->delivery_address : json_decode($item->delivery_address);
+                if($multi_child == true)
+                {
+                    foreach ($item->OrderDetails as $child)
+                    {
+                        $child->product_details = product_data_formatting(json_decode($child->product_details),false,false,true);
+                    }
+                }else {
+                    $item->OrderDetails->product_details = product_data_formatting(json_decode($item->order_details->product_details),false,false,true);
+                }
+                array_push($storage, $item);
+            }
+            $data = $storage;
+        } else {
+            $data->delivery_address = gettype($data->delivery_address) == 'array' ? $data->delivery_address : json_decode($data->delivery_address);
+            if($multi_child == true)
+            {
+                foreach ($data->OrderDetails as $child)
+                {
+                    $child->product_details = product_data_formatting(json_decode($child->product_details),false,false,true);
+                }
+            }else {
+                $data->OrderDetails->product_details = product_data_formatting(json_decode($data->OrderDetails->product_details),false,false,true);
+            }
+
+            // foreach ($data->childes as $child){
+            //     if($child->item_type == 'product')
+            //     {
+            //         $updated_product = Products::find($child->item_id);
+            //         if(!is_null($updated_product) && $updated_product != [])
+            //         {
+            //             $child->item_detail = product_data_formatting($updated_product,false,false,true);
+            //         }
+            //         // $child->item_detail = product_data_formatting(Products::find($child->item_id),false,false,true);
+            //         // $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
+            //     }else{
+            //         $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? $child->item_detail : json_decode($child->item_detail);
+            //     }
+            // }
+        }
+
+        return $data;
+    }
+}
+
 if(! function_exists('sort_multidimensional_array')) {
     function sort_multidimensional_array($array, $key)
     {
