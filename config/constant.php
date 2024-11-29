@@ -23,9 +23,9 @@ const MANAGEMENT_SECTION = [
     'category_setup' => 'category_setup',
     'service_setup' => 'service_setup',
 
-    'vender_management' => 'vender_management',
-    'vendor_category' => 'vendor_category',
-    'partner_category' => 'partner_category',
+    'vendors_management' => 'vendors_management',
+    'vendors' => 'vendors',
+    'partners' => 'partners',
 
     'promotion_management' => 'promotion_management',
     'banner' => 'banner',
@@ -41,8 +41,6 @@ const MANAGEMENT_SECTION = [
 
     'user_management' => 'user_management',
     'customer_list' => 'customer_list',
-    'vender_list' => 'vender_list',
-    'serviceman_list' => 'serviceman_list',
     'coustomer_wallet' => 'coustomer_wallet',
     'product_reviews' => 'product_reviews',
     'employees' => 'employees',

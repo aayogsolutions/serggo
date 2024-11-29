@@ -182,12 +182,18 @@ class BusinessSettingsController extends Controller
         }
 
         if (!$this->businessSettings->where(['key' => 'delivery_management'])->first()) {
+            $value = [];
+            for ($i=0; $i < 14; $i++) { 
+                $data = [
+                    'minimum' => 0,
+                    'maximum' => 0,
+                    'charge' => 0
+                ];
+                array_push($value, $data);
+            }
+            
             BusinessSetting::updateOrInsert(['key' => 'delivery_management'], [
-                'value' => json_encode([
-                    "status" => 1,
-                    "min_shipping_charge" => 0,
-                    "shipping_per_km" => 0
-                ]),
+                'value' => json_encode($value),
             ]);
         }
 
@@ -218,47 +224,38 @@ class BusinessSettingsController extends Controller
      */
     public function deliverySetupUpdate(Request $request): \Illuminate\Http\RedirectResponse
     {
-        if ($request['shipping_status'] == 0) {
-            $request->validate([
-                'min_shipping_charge' => 'required',
-                'shipping_per_km' => 'required',
-            ],
-            [
-                'min_shipping_charge.required' => translate('Minimum shipping charge is required while shipping method is active'),
-                'shipping_per_km.required' => translate('Shipping charge per Kilometer is required while shipping method is active'),
-            ]);
-        }else{
-            if($request->delivery_charge == null) {
-                $request['delivery_charge'] = $this->businessSettings->where(['key' => 'default_delivery_charge'])->first()->value;
-            }
-    
-            BusinessSetting::updateOrInsert(['key' => 'default_delivery_charge'], [
-                'value' => $request->delivery_charge,
-            ]);
-        }
-
-        $delivery_management = Helpers_get_business_settings('delivery_management');
-        // dd($delivery_management);
-        if($request['min_shipping_charge'] == null) {
-            $request['min_shipping_charge'] = $delivery_management['min_shipping_charge'];
-        }
-        if($request['shipping_per_km'] == null) {
-            $request['shipping_per_km'] = $delivery_management['shipping_per_km'];
+        
+        $request->validate([
+            'minimum' => 'required',
+            'maximum' => 'required',
+            'charge' => 'required',
+            'free_delivery_over_amount' => 'required',
+        ],
+        [
+            'minimum.required' => translate('Minimum Kilometer is required while shipping method is active'),
+            'maximum.required' => translate('Maximum Kilometer is required while shipping method is active'),
+            'charge.required' => translate('Charge per Kilometer is required while shipping method is active'),
+        ]);
+        
+        $value1 = [];
+        foreach ($request->minimum as $key => $value) {
+            $data = [
+                'minimum' => $value,
+                'maximum' => $request->maximum[$key],
+                'charge' => $request->charge[$key]
+            ];
+            array_push($value1, $data);
         }
 
         BusinessSetting::updateOrInsert(['key' => 'delivery_management'], [
-            'value' => json_encode([
-                'status'  => $request['shipping_status'],
-                'min_shipping_charge' => $request['min_shipping_charge'],
-                'shipping_per_km' => $request['shipping_per_km'],
-            ]),
+            'value' => json_encode($value1),
         ]);
         
 
         BusinessSetting::updateOrInsert(['key' => 'free_delivery_over_amount'], [
             'value' => $request['free_delivery_over_amount'],
         ]);
-
+        // dd($request->all());
         flash()->success(translate('Settings Updated'));
         return back();
     }

@@ -27,7 +27,6 @@ class VendorController extends Controller
      */
     public function list(Request $request): Factory|View|Application
     {
-        
         $queryParam = [];
         $search = $request['search'];
         if($request->has('search'))
@@ -42,7 +41,6 @@ class VendorController extends Controller
             $queryParam = ['search' => $request['search']];
         }else{
             $vendors = $this->vendor->where('role','0')->orderBy('id','DESC');
-            
         }
         $vendors = $vendors->paginate(Helpers_getPagination())->appends($queryParam);
         
@@ -69,7 +67,7 @@ class VendorController extends Controller
      */
     public function view(Request $request, $id): Factory|View|Application|RedirectResponse
     {
-        $vendor = $this->vendor->where('id',$id)->with(['vendororders','Products'])->first();
+        $vendor = $this->vendor->where('id',$id)->with(['vendororders','vendorproducts'])->first();
         
         if (isset($vendor)) {
             $queryParam = [];
@@ -235,5 +233,33 @@ class VendorController extends Controller
 
         flash()->success(translate('priority updated!'));
         return back();
+    }
+
+    // KYC Approval
+
+    /**
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function kycList(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if($request->has('search'))
+        {
+            $key = explode(' ', $request['search']);
+            $vendors = $this->vendor->where(['role' => '0', 'is_verify' => 1])->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                    $q->orWhere('id', 'like', "%{$value}%");
+                }
+            })->orderBy('id', 'DESC');
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $vendors = $this->vendor->where(['role' => '0', 'is_verify' => 1])->orderBy('id','DESC');
+        }
+        $vendors = $vendors->paginate(Helpers_getPagination())->appends($queryParam);
+        
+        return view('Admin.views.vendor.kyc.list', compact('vendors','search'));
     }
 }

@@ -48,5 +48,13 @@ class Products extends Model
         return $this->belongsTo(Vendor::class, 'vender_id');
     }
 
-   
+    public function CategoryProduct(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function SubCategoryProduct(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'sub_category_id');
+    }
 }

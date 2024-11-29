@@ -59,7 +59,7 @@ class DashboardController extends Controller
             }
 
             try {
-                $data['brands'] = $this->brand->status()->select('id','name','Image')->orderBy('priority','ASC')->get();
+                $data['brands'] = $this->brand->status()->select('id','name','Image')->orderBy('priority','ASC')->withCount('childes')->having('childes_count', '>', 0)->get();
             } catch (\Throwable $th) {
                 $data['brands'] = [];
             }

@@ -55,7 +55,7 @@
                 <div class="resturant-card bg--3">
                     <img class="resturant-icon" src="{{asset('assets/admin/img/dashboard/3.png')}}" alt="{{ translate('image') }}">
                     <div class="for-card-text font-weight-bold  text-uppercase mb-1">{{translate('product listed')}} </div>
-                    <div class="for-card-count"> {{$vendor->Products->count() ? $vendor->Products->count() : 0}}</div>
+                    <div class="for-card-count"> {{$vendor->vendorproducts->count() ? $vendor->vendorproducts->count() : 0}}</div>
                 </div>
             </div>
         </div>

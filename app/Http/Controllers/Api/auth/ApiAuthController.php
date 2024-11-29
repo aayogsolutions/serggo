@@ -214,7 +214,7 @@ class ApiAuthController extends Controller
                 'status' => false,
                 'message' => 'Email already Exists',
                 'data' => [],
-            ], 404);
+            ], 401);
         }
 
         $refferal = 0;
@@ -235,7 +235,7 @@ class ApiAuthController extends Controller
                             'status' => false,
                             'message' => 'Referral Code Not Exists',
                             'data' => [],
-                        ], 404);
+                        ], 401);
                     }
                     $refferal = Helpers_generate_referer_bonus($referred->id,$user->id);
                     $user->referred_by = $referred->id;
@@ -296,7 +296,7 @@ class ApiAuthController extends Controller
                             'status' => false,
                             'message' => 'Referral Code Not Exists',
                             'data' => [],
-                        ], 404);
+                        ], 401);
                     }
                     $user->referred_by = $referred->id;
                     $refferal = Helpers_generate_referer_bonus($referred->id,$user->id);
@@ -325,7 +325,7 @@ class ApiAuthController extends Controller
                 'status' => false,
                 'message' => $error,
                 'data' => [],
-            ], 403);
+            ], 401);
         }
     }
 

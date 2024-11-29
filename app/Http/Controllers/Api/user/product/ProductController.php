@@ -512,33 +512,6 @@ class ProductController extends Controller
             'data' => '2 Hours'
         ], 200);
     }
-
-    /**
-     * 
-     * @return JsonResponse
-     * 
-     */
-    public function SelectedProduct(Request $request) : JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'product_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => Helpers_error_processor($validator)
-            ], 406);
-        }
-
-        $products = product_data_formatting($this->product->status()->WhereIn('id',json_decode($request->product_id))->get(),true,false,true);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Data Provided',
-            'data' => $products
-        ], 200);
-    }
   
     protected function search_brand($ids,$array)
     {

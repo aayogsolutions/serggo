@@ -199,7 +199,9 @@ class DashboardController extends Controller
     public function CategoryDetails($id) : JsonResponse
     {
         try {
-            $categorys = $this->servicecategory->where('id',$id)->with('childes')->first();
+            $categorys = $this->servicecategory->where('id',$id)->withCount('childes')->having('childes_count', '>', 0)->with('childes',function($q){
+                $q->withCount('childes')->having('childes_count', '>', 0);
+            })->first();
             return response()->json([
                 'status' => true,
                 'message' => 'Category Data',
@@ -235,7 +237,9 @@ class DashboardController extends Controller
                 $mainbanner = [];
             }
 
-            $categorys = $this->servicecategory->status()->where(['id' => $category_id , 'position' => 1])->with(['childes','childes.Services'])->get();
+            $categorys = Format_category_to_service($this->servicecategory->status()->where(['id' => $category_id , 'position' => 1])->withCount('childes')->having('childes_count', '>', 0)->with(['childes.Services','childes' => function($q){
+                $q->withcount('Services')->having('Services_count', '>', 0);
+            }])->get(),true);
 
             return response()->json([
                 'status' => true,

@@ -521,14 +521,14 @@ class ServiceController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $category = $this->service_category->status()->where('position',1)->with('banner')->where(function ($q) use ($key) {
+            $category = $this->service_category->status()->where('position',1)->withCount('childes')->having('childes_count', '>', 0)->with('banner')->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('name', 'like', "%{$value}%");
                 }
             });
             $queryParam = ['search' => $request['search']];
         } else {
-            $category = $this->service_category->status()->where('position',1)->with('banner');
+            $category = $this->service_category->status()->where('position',1)->withCount('childes')->having('childes_count', '>', 0)->with('banner');
         }
         $categories = $category->paginate(Helpers_getPagination())->appends($queryParam);
       

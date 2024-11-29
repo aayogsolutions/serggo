@@ -12,7 +12,7 @@ class Brands extends Model
 
     public function childes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Products::class, 'brand_name', 'name');
+        return $this->hasMany(Products::class, 'brand_id', 'id');
     }
 
     public function status()

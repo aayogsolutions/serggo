@@ -19,6 +19,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Http\{JsonResponse, RedirectResponse};
 use Illuminate\Support\Facades\File;
+use PHPUnit\TextUI\Help;
 
 class BannersController extends Controller
 {
@@ -665,8 +666,8 @@ class BannersController extends Controller
         $banners = $banners->paginate(Helpers_getPagination())->appends($queryParam);
         
         $products = $this->product->status()->orderBy('name')->get();
-        $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
-        $servicecategories = $this->servicecategory->status()->where(['parent_id'=>0])->orderBy('name')->get();
+        $categories = $this->category->status()->where(['parent_id'=> 0 ])->orderBy('name')->withCount('childes')->having('childes_count', '>', 0)->get();
+        $servicecategories = $this->servicecategory->status()->where(['parent_id'=>0])->orderBy('name')->withCount('childes')->having('childes_count', '>', 0)->get();
 
         return view('Admin.views.banner.homeslider.index', compact('banners', 'products', 'categories', 'search', 'servicecategories'));
     }
@@ -876,17 +877,17 @@ class BannersController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $category = $this->category->status()->where('parent_id',0)->with('banner')->where(function ($q) use ($key) {
+            $category = $this->category->status()->where('parent_id',0)->withCount('childes')->having('childes_count', '>', 0)->with('banner')->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('name', 'like', "%{$value}%");
                 }
             });
             $queryParam = ['search' => $request['search']];
         } else {
-            $category = $this->category->status()->where('parent_id',0)->with('banner');
+            $category = $this->category->status()->withCount('childes')->having('childes_count', '>', 0)->where('parent_id',0)->with('banner');
         }
         $categories = $category->paginate(Helpers_getPagination())->appends($queryParam);
-      
+        
         return view('Admin.views.banner.Subcategories.index', compact('categories', 'search'));
     }
 
@@ -897,11 +898,11 @@ class BannersController extends Controller
      */
     public function SubcategoryDetailSection($id) : View|Factory|Application
     {
-        $subcategories = $this->category->status()->where('parent_id',$id)->get();
+        $subcategories = $this->category->status()->where('parent_id',$id)->withCount('SubCategoryProduct')->having('sub_category_product_count', '>', 0)->get();
         $category = $this->category->status()->where('id',$id)->with('banner', function($q){
             $q->orderBy('priority','ASC');
         })->first();
-
+        
         return view('Admin.views.banner.Subcategories.sub-index',compact('subcategories','category'));
     }
 

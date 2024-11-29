@@ -49,8 +49,7 @@ class DisplayController extends Controller
             })->orderBy('ui_type', 'desc')->orderBy('section_type', 'asc')->orderBy('priority', 'asc');
             $queryParam = ['search' => $request['search']];
         } else {
-            $banners = $this->displaysection->orderBy('ui_type', 'desc')->orderBy('section_type', 'asc')->orderBy('priority', 'asc')
-            ->with('childes');
+            $banners = $this->displaysection->orderBy('ui_type', 'desc')->orderBy('section_type', 'asc')->orderBy('priority', 'asc')->with('childes');
         }
         $banners = $banners->with('childes')->paginate(Helpers_getPagination())->appends($queryParam);
 
@@ -130,7 +129,7 @@ class DisplayController extends Controller
 
         if($banner->ui_type == 'user_service')
         {
-            $products = $this->servicecategory->status()->where('parent_id',0)->orderBy('name')->get();
+            $products = $this->servicecategory->status()->where('parent_id',0)->withCount('childes')->having('childes_count', '>', 0)->orderBy('name')->get();
         }
         elseif ($banner->ui_type == 'user_product') 
         {
@@ -141,7 +140,7 @@ class DisplayController extends Controller
             $products = $this->product->status()->orderBy('name')->get();
         }
         
-        $categories = $this->category->status()->where('parent_id',0)->orderBy('name')->get();
+        $categories = $this->category->status()->where('parent_id',0)->withCount('childes')->having('childes_count', '>', 0)->orderBy('name')->get();
 
         return view('Admin.views.display.sub-index', compact('banner','categories','products'));
     }
@@ -501,7 +500,7 @@ class DisplayController extends Controller
         }
         $category_banners = $category_banners->paginate(Helpers_getPagination())->appends($queryParam);
         
-        $categories = $this->category->status()->where(['parent_id'=>0])->orderBy('name')->get();
+        $categories = $this->category->status()->where(['parent_id'=>0])->withCount('childes')->having('childes_count', '>', 0)->orderBy('name')->get();
         return view('Admin.views.display.category.index', compact('category_banners', 'categories', 'search'));
     }
 

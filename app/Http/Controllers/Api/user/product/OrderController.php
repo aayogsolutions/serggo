@@ -31,14 +31,49 @@ class OrderController extends Controller
     ){}
     
     /**
-     * @param $id
+     * @param Request $request
      * @return JsonResponse
      */
-    public function Checkout($vendor_id) : JsonResponse
+    public function Checkout(Request $request) : JsonResponse
     {
-        try {
-            $id = Auth::user()->id;
+        $validator = Validator::make($request->all(), [
+            'products' => 'required',
+            'langitude' => 'required|numeric',
+            'latitude' => 'required|numeric',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+        
+        try {
+            $admin_lat_long = Admin::select('latitude','longitude')->where('id',1)->first();
+
+            $products = product_data_formatting($this->product->status()->WhereIn('id',json_decode($request->products))->get(),true,false,true);
+            
+            foreach ($products as $key => $value) {
+                if($value->vender_id != null)
+                {
+                    $vendor_lat_lang = Vendor::select('latitude','longitude')->where('id',$value->vender_id)->first();
+                    $value->distance = $this->point2point_distance($request->latitude, $request->langitude , $vendor_lat_lang->latitude , $vendor_lat_lang->longitude);
+                    $value->delivery_charge = $this->find_delivery_charge($value->distance);
+                }else{
+                    $value->distance = $this->point2point_distance($request->latitude, $request->langitude , $admin_lat_long->latitude , $admin_lat_long->longitude);
+                    $value->delivery_charge = $this->find_delivery_charge($value->distance);
+                }
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+                'data' => []
+            ], 409);
+        }
+
+        try {
             $cod = Helpers_get_business_settings('cash_on_delivery');
             if($cod['status'] == 0)
             {
@@ -46,35 +81,20 @@ class OrderController extends Controller
                 $cod['max_cod_amount'] = Helpers_get_business_settings('maximum_amount_for_cod_order');
             }
 
+            $digital_payment = Helpers_get_business_settings('digital_payment');
+            $partial_payment = Helpers_get_business_settings('partial_payment');
+            
             $delivery['free_delivery_over_amount_status'] = Helpers_get_business_settings('free_delivery_over_amount_status');
             if(!is_null($delivery['free_delivery_over_amount_status']) && $delivery['free_delivery_over_amount_status'] == 0)
             {
                 $delivery['free_delivery_over_amount'] = Helpers_get_business_settings('free_delivery_over_amount');
             }
-            $delivery['delivery_management'] = Helpers_get_business_settings('delivery_management');
-
-            if ($delivery['delivery_management']['status'] == 0) {
-                
-            }else{
-                unset($delivery['delivery_management']['min_shipping_charge'], $delivery['delivery_management']['shipping_per_km']);
-                $delivery['delivery_management']['default_delivery_charge'] = Helpers_get_business_settings('default_delivery_charge');
-            }
-
-            $digital_payment = Helpers_get_business_settings('digital_payment');
-            $partial_payment = Helpers_get_business_settings('partial_payment');
-
-            $vendors = Vendor::Select('id', 'longitude', 'latitude')->where('is_block' , 0)->WhereIn('id', json_decode($vendor_id))->get();
         } catch (\Throwable $th) {
             $cod = [
                 "status" => 1
             ];
-            $digital_payment = 1;
-            $partial_payment = 1;
             $delivery = [];
-            $vendors = [];
         }
-        
-        
 
         return response()->json([
             'status' => true,
@@ -83,16 +103,12 @@ class OrderController extends Controller
                 'Inactive' => 1,
             ],
             'data' => [
+                'products' => $products,
                 'cod' => $cod,
                 'digital_payment' => $digital_payment,
                 'partial_payment' => $partial_payment,
                 'delivery' => $delivery,
-                'balance' => Auth::user()->wallet_balance,
                 'tax' => Helpers_get_business_settings('product_gst_tax_status'),
-                'location' => [
-                    'admin' => Admin::Select('longitude', 'latitude')->where('id', 1)->first()->toArray(),
-                    'vendor' => $vendors
-                ]
             ]
         ], 200);
     }
@@ -611,5 +627,55 @@ class OrderController extends Controller
                 'errors' => 'Unexpected Error',
             ], 401);
         }
+    }
+
+    private function point2point_distance($lat1, $lon1, $lat2, $lon2, $unit='K') 
+    { 
+        $theta = $lon1 - $lon2; 
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta)); 
+        $dist = acos($dist); 
+        $dist = rad2deg($dist); 
+        $miles = $dist * 60 * 1.1515;
+        $unit = strtoupper($unit);
+
+        if ($unit == "K") 
+        {
+            return ($miles * 1.609344); 
+        } 
+        else if ($unit == "N") 
+        {
+            return ($miles * 0.8684);
+        } 
+        else 
+        {
+            return $miles;
+        }
+    } 
+
+    private function find_delivery_charge($distance)
+    {
+        if (!BusinessSetting::where(['key' => 'delivery_management'])->first()) {
+            $value = [];
+            for ($i=0; $i < 14; $i++) { 
+                $data = [
+                    'minimum' => 0,
+                    'maximum' => 0,
+                    'charge' => 0
+                ];
+                array_push($value, $data);
+            }
+            
+            BusinessSetting::updateOrInsert(['key' => 'delivery_management'], [
+                'value' => json_encode($value),
+            ]);
+        }
+
+        $delivery_management = json_decode(BusinessSetting::where(['key' => 'delivery_management'])->first()->value);
+        foreach ($delivery_management as $key => $value) {
+            if ($distance >= $value->minimum && $distance <= $value->maximum) {
+                return number_format($value->charge * $distance,2,'.','');
+            }
+        }    
+        return 0;
     }
 }

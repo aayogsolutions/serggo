@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('service_reviews', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('service_man_id');
+            $table->bigInteger('service_id');
             $table->bigInteger('user_id');
-            $table->bigInteger('order_id');
+            // $table->bigInteger('order_id');
             $table->text('comment');
-            $table->mediumText('attachment');
+            // $table->mediumText('attachment');
             $table->integer('rating')->default(0);
+            $table->tinyInteger('status')->default(0)->comment('0 = active | 1 = inactive');
             $table->timestamps();
         });
     }

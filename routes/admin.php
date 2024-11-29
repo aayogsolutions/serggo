@@ -288,11 +288,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
           
             Route::get('list', [VendorController::class, 'list'])->name('list');
             Route::get('view/{user_id}', [VendorController::class, 'view'])->name('view');
-            // Route::post('search', [CustomerController::class, 'search'])->name('search');
-            // Route::get('subscribed-emails', [CustomerController::class, 'subscribedEmails'])->name('subscribed_emails');
             
             Route::get('status/{id}/{status}', [VendorController::class, 'status'])->name('status');
-            // Route::get('export', [CustomerController::class, 'exportCustomer'])->name('export');
 
             Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
                 Route::get('add', [VendorController::class, 'index'])->name('add');
@@ -302,6 +299,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('status/{id}/{status}', [VendorController::class, 'CategoryStatus'])->name('status');
                 Route::delete('delete/{id}', [VendorController::class, 'delete'])->name('delete');
                 Route::get('priority', [VendorController::class, 'priority'])->name('priority');
+            });
+
+            Route::group(['prefix' => 'kyc', 'as' => 'kyc.'], function () {
+                Route::get('list', [VendorController::class, 'kycList'])->name('list');
+                Route::get('view', [VendorController::class, 'kycView'])->name('view');
+                Route::post('store', [VendorController::class, 'kycStore'])->name('store');
             });
         });
 

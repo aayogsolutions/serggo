@@ -92,11 +92,8 @@ Route::group(['prefix' => 'information'], function() {
     Route::get('/privacy-policy',[InformationController::class, 'PrivacyPolicy']);
 
     Route::group(['prefix' => 'partner'], function() {
-
-        // Partner Information Routes
-        // Route::get('/about-us',[PartnerInformationController::class, 'AboutUs']);
+        
         Route::get('/term-conditions',[PartnerInformationController::class, 'TermConditions']);
-        // Route::get('/privacy-policy',[PartnerInformationController::class, 'PrivacyPolicy']);
     });
 });
 
@@ -154,9 +151,12 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             // Product Favorite Routes
             Route::get('/favorite', [WishlistController::class,'Favorite']);
             Route::get('/favorite/list', [WishlistController::class,'FavoriteList']);
+        });
 
-            // Selected Product Route
-            Route::get('/selected/info', [ProductController::class,'SelectedProduct']);
+        Route::group(['prefix' => 'service'], function(){
+            // Service Favorite Routes
+            Route::get('/favorite', [WishlistController::class,'ServiceFavorite']);
+            Route::get('/favorite/list', [WishlistController::class,'ServiceFavoriteList']);
         });
         
         // Wallet Transaction info
@@ -179,7 +179,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
 
         Route::group(['prefix' => 'product'], function(){
 
-            Route::get('checkout/{id}',[OrderController::class,'Checkout']);
+            Route::get('checkout',[OrderController::class,'Checkout']);
             Route::post('place-order',[OrderController::class,'PlaceOrder']);
 
             // Order History

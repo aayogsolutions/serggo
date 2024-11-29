@@ -37,6 +37,11 @@ class Vendor extends Authenticatable
         return $this->query()->where('is_block', 0);
     }
 
+    public function Scopestatus()
+    {
+        return $this->query()->where('is_block', 0);
+    }
+
     public function verify()
     {
         return $this->query()->where('is_verify', 0);
