@@ -19,6 +19,7 @@ return new class extends Migration
             $table->tinyInteger('status',false)->default(0)->comment('0 => Active | 1 => Inactive');
             $table->string('image')->default('def.png');
             $table->tinyInteger('priority')->default(1);
+            $table->tinyInteger('is_installable')->default(1)->commet('0 = active | 1 = inactive');
             $table->timestamps();
         });
     }

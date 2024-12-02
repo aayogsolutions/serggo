@@ -52,7 +52,7 @@
 
                         <tbody id="set-rows">
                        
-                            @foreach($vendors as $key=>$vendor)
+                            @foreach($vendors as $key => $vendor)
                             <tr>
                                 <td class="pt-1 pb-3 text-center {{$key == 0 ? 'pt-4' : '' }}">
                                     {{1+$key}}
@@ -69,7 +69,7 @@
                                     <div class="max-85 text-right">
                                        @if( $vendor->vendorproducts->count() > 0)
                                         <a class="action-btn"
-                                            href="{{route('admin.product.rejected-products-list')}}">{{ $vendor->vendorproducts->count() }}</a>
+                                            href="{{route('admin.product.rejected-products-list', ['id' => $vendor->id])}}">{{ $vendor->vendorproducts->count() }}</a>
                                         @else
                                             <div class="action-btn">{{ $vendor->vendorproducts->count() }}</div>
                                         @endif                                        

@@ -442,7 +442,7 @@
                                         </a>
                                     </li>
 
-                                    <li class="nav-item {{Request::is('admin/banners/subcategory-banners*')?'active':''}}">
+                                    <li class="nav-item {{Request::is('admin/service/subcategory-banners*')?'active':''}}">
                                         <a class="nav-link" href="{{route('admin.service.subcategory_banners.add')}}" title="{{translate('Service Category Banner')}}">
                                             <span class="tio-circle nav-indicator-icon"></span>
                                             <span class="text-truncate">
@@ -473,14 +473,14 @@
                                     <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/vendor*') ? 'block' : 'none'}}">
                                         <li class="nav-item {{Request::is('admin/vendor/category*')?'active':''}}">
                                             <a class="nav-link" href="{{ route('admin.vendor.category.add') }}" title="{{translate('category setup')}}">
-                                                <i class="tio-category nav-icon"></i>
+                                                <i class="tio-circle nav-indicator-icon"></i>
                                                 <span class="text-truncate">{{translate('category setup')}}</span>
                                             </a>
                                         </li>
                                         
                                         <li class="nav-item {{Request::is('admin/vendor/list*') || Request::is('admin/vendor/view/*')?'active':''}}">
                                             <a class="nav-link" href="{{route('admin.vendor.list')}}" title="{{translate('vender list')}}">
-                                                <i class="tio-medal nav-icon"></i>
+                                                <i class="tio-circle nav-indicator-icon"></i>
                                                 <span class="text-truncate">
                                                     {{translate('vender list')}}
                                                 </span>
@@ -489,7 +489,7 @@
 
                                         <li class="nav-item {{Request::is('admin/vendor/kyc/*') ? 'active' : '' }}">
                                             <a class="nav-link" href="{{route('admin.vendor.kyc.list')}}" title="{{translate('vender kyc')}}">
-                                                <i class="tio-medal nav-icon"></i>
+                                                <i class="tio-circle nav-indicator-icon"></i>
                                                 <span class="text-truncate">
                                                     {{translate('vender kyc')}}
                                                 </span>
@@ -510,15 +510,17 @@
                                     <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/service_men*') ? 'block' : 'none'}}">
                                         <li class="nav-item {{Request::is('admin/service_men/category*') ?'active':''}}">
                                             <a class="nav-link" href="{{ route('admin.service_men.category.add') }}" title="{{translate('category_setup')}}">
-                                                <i class="tio-premium-outlined nav-icon"></i>
-                                                <span class="text-truncate">{{translate('category_setup')}}</span>
+                                                <i class="tio-circle nav-indicator-icon"></i>
+                                                <span class="text-truncate">
+                                                    {{translate('category_setup')}}
+                                                </span>
                                             </a>
                                         </li>
                                         
                                         <li class="navbar-vertical-aside-has-menu {{Request::is('admin/service_men/list*')?'active':''}}">
                                             <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.service_men.list')}}" title="{{translate('service men list')}}">
-                                                <i class="tio-medal nav-icon"></i>
-                                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                                <i class="tio-circle nav-indicator-icon"></i>
+                                                <span class="text-truncate">
                                                     {{translate('service men list')}}
                                                 </span>
                                             </a>

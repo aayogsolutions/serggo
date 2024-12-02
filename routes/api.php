@@ -28,7 +28,8 @@ use App\Http\Controllers\Api\user\service\{
 };
 use App\Http\Controllers\Api\vendor\{
     AuthController as VendorAuthController,
-    DashboardController as VenderDashboardController
+    DashboardController as VenderDashboardController,
+    ProductController as VendorProductController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -125,11 +126,6 @@ Route::group(['prefix' => 'service'], function(){
     Route::get('/sub-category/details/{category_id}', [ServiceDashboardController::class,'SubCategoryDetails']);
 });
 
-Route::group(['prefix' => 'vender'], function(){
-  
-    Route::get('/dashboard', [VenderDashboardController::class,'Index']);
-});
-
 Route::group(['middleware' => ['auth:sanctum']], function(){
 
     Route::group(['prefix' => 'user'], function(){
@@ -195,6 +191,20 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             // Order History
             Route::get('order/history',[ServiceOrderController::class,'OrderHistory']);
             Route::get('order/{id}',[ServiceOrderController::class,'OrderItems']);
+        });
+    });
+
+    Route::group(['prefix' => 'vendor'], function(){
+  
+        Route::get('/dashboard', [VenderDashboardController::class,'Index']);
+
+        Route::group(['prefix' => 'product'], function(){
+
+            Route::get('/create', [VendorProductController::class,'CreateProduct']);
+            Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
+            Route::post('/store', [VendorProductController::class,'StoreProduct']);
+            Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
+            Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });
     });
 

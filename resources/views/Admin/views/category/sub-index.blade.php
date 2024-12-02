@@ -104,6 +104,7 @@
                             <th>{{translate('main')}} {{translate('category')}}</th>
                             <th>{{translate('sub_category')}}</th>
                             <th>{{translate('status')}}</th>
+                            <th>{{translate('Installable')}}</th>
                             <th class="text-center">{{translate('action')}}</th>
                         </tr>
 
@@ -130,7 +131,6 @@
                             </td>
 
                             <td>
-
                                 <label class="toggle-switch">
                                     <input type="checkbox" class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $category->id }}"
                                         data-route="{{ route('admin.category.status', [$category->id, $category->status == 1 ? 0 : 1]) }}"
@@ -140,8 +140,21 @@
                                         <span class="toggle-switch-indicator"></span>
                                     </span>
                                 </label>
+                            </td>
+
+                            <td>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" class="toggle-switch-input status-change-alert" id="stocksCheckbox{{ $category->id }}"
+                                        data-route="{{ route('admin.category.intallable', [$category->id, $category->is_installable == 1 ? 0 : 1]) }}"
+                                        data-message="{{ $category->status == 0 ? translate('you_want_to_disable_installation'): translate('you_want_to_active_installation') }}"
+                                        {{ $category->is_installable == 0 ? 'checked' : '' }}>
+                                    <span class="toggle-switch-label text">
+                                        <span class="toggle-switch-indicator"></span>
+                                    </span>
+                                </label>
 
                             </td>
+
                             <td>
                                 <div class="btn--container justify-content-center">
                                     <a class="action-btn"

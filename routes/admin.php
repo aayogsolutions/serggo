@@ -35,7 +35,6 @@ use App\Http\Controllers\Admin\Service\{
     ServiceCategoryController,
     ServiceTagController,
     ServiceAttributeController,
-    
 };
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -66,6 +65,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('edit/{id}', [CategoryController::class, 'edit'])->name('edit');
             Route::post('update/{id}', [CategoryController::class, 'update'])->name('update');
             Route::get('status/{id}/{status}', [CategoryController::class, 'status'])->name('status');
+            Route::get('intallable/{id}/{status}', [CategoryController::class, 'Intallable'])->name('intallable');
             Route::delete('delete/{id}', [CategoryController::class, 'delete'])->name('delete');
             Route::get('priority', [CategoryController::class, 'priority'])->name('priority');
         });
@@ -303,8 +303,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
             Route::group(['prefix' => 'kyc', 'as' => 'kyc.'], function () {
                 Route::get('list', [VendorController::class, 'kycList'])->name('list');
-                Route::get('view', [VendorController::class, 'kycView'])->name('view');
-                Route::post('store', [VendorController::class, 'kycStore'])->name('store');
+                Route::get('view/{id}', [VendorController::class, 'kycView'])->name('view');
+                Route::post('store/{id}', [VendorController::class, 'kycStore'])->name('store');
             });
         });
 
@@ -443,6 +443,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('rejected-products-list/{id}', [ProductController::class, 'RejectedProductList'])->name('rejected-products-list');
 
                 Route::get('product-view/{id}', [ProductController::class, 'AllListView'])->name('all-view');
+                Route::post('update-product/{id}', [ProductController::class, 'UpdateProduct'])->name('vendor.update');
             });
 
             Route::group(['prefix' => 'tag', 'as' => 'tag.'], function () {

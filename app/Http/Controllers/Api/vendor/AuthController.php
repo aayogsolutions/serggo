@@ -151,7 +151,7 @@ class AuthController extends Controller
                     $vendor->number = $request->number;
                     $vendor->otp = $otp;
                     $vendor->otp_expired_at = $expired_at;
-                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , $request->category)->pluck('title')->toArray());
+                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , json_decode($request->category))->pluck('title')->toArray());
                     $vendor->registration = 0;
                     $vendor->role = '0';
                     $vendor->save();
@@ -164,7 +164,7 @@ class AuthController extends Controller
                             'otp' => $otp,
                             'number' => $request->number
                         ]
-                    ],200);
+                    ],201);
                 }else{
                     return response()->json([
                         'status' => false,
@@ -174,7 +174,7 @@ class AuthController extends Controller
                 }
             }else{
                 $vendor = $this->vendor->where('number' , $request->number)->first();
-
+                
                 if ($vendor->number_verfiy == 1) {
 
                     $otp = rand(1000, 9999);

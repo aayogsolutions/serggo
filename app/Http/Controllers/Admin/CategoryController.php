@@ -128,6 +128,19 @@ class CategoryController extends Controller
 
     /**
      * @param Request $request
+     * @return RedirectResponse
+     */
+    public function Intallable(Request $request): RedirectResponse
+    {
+        $category = Category::find($request->id);
+        $category->is_installable = $request->status;
+        $category->save();
+        flash()->success(translate('Sub Category Installation status updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
      * @param $id
      * @return RedirectResponse
      */

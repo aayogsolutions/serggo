@@ -30,7 +30,7 @@ class DashboardController extends Controller
                     'is_verify' => $vendor->is_verify,
                     'message' => 'You Need to Submit KYC',
                     'data' => []
-                ]);
+                ],200);
             }elseif ($vendor->is_verify == 1) 
             {
                 return response()->json([
@@ -40,7 +40,7 @@ class DashboardController extends Controller
                     'data' => [
                         'vendor' => $vendor
                     ]
-                ]);
+                ],200);
             }elseif ($vendor->is_verify == 2) 
             {
                 
@@ -53,7 +53,7 @@ class DashboardController extends Controller
                         'vendor' => $vendor,
                         'order' => []
                     ]
-                ]);
+                ],200);
             }elseif ($vendor->is_verify == 3) 
             {
                 return response()->json([
@@ -63,14 +63,14 @@ class DashboardController extends Controller
                     'data' => [
                         'vendor' => $vendor
                     ]
-                ]);
+                ],200);
             }
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
                 'message' => 'unexpected error'.$th->getMessage(),
                 'data' => []
-            ]);
+            ],401);
         }
         
     }

@@ -63,7 +63,7 @@ class ProductController extends Controller
      */
     public function index(): View|Factory|Application
     {
-        $categories = $this->category->status()->where('position' , 0)->get();
+        $categories = $this->category->status()->where('position' , 0)->withCount('childes')->having('childes_count', '>', 0)->get();
         $brand = $this->brand->status()->get();
         $Installations = $this->Installation->status()->get();
         return view('Admin.views.product.index', compact('categories','brand','Installations'));
@@ -79,9 +79,9 @@ class ProductController extends Controller
         $result = '<option value="' . 0 . '" disabled selected>---Select---</option>';
         foreach ($categories as $row) {
             if ($row->id == $request->sub_category) {
-                $result .= '<option value="' . $row->id . '" selected >' . $row->name . '</option>';
+                $result .= '<option value="' . $row->id . '" data-id="' . $row->is_installable . '"  selected >' . $row->name . '</option>';
             } else {
-                $result .= '<option value="' . $row->id . '">' . $row->name . '</option>';
+                $result .= '<option value="' . $row->id . '" data-id="' . $row->is_installable . '">' . $row->name . '</option>';
             }
         }
         return response()->json([
@@ -139,6 +139,7 @@ class ProductController extends Controller
             'brand' => 'required',
             'attribute_id' => 'required',
             'advance_status' => 'required',
+            'advance' => 'required_if:advance_status,0|min:0',
         ], [
             'name.required' => translate('Product name is required!'),
             'category_id.required' => translate('category  is required!'),
@@ -227,7 +228,7 @@ class ProductController extends Controller
             return response()->json(['errors' => Helpers_error_processor($validator)]);
         }
       
-        $installations = $this->Installation->find($request->installation);
+        
 
         $product = $this->product;
         $product->name = $request->name;
@@ -250,9 +251,13 @@ class ProductController extends Controller
         $product->tax_type = $request->tax_type;
         $product->discount = $request->discount_type == 'amount' ? $request->discount : $request->discount;
         $product->discount_type = $request->discount_type;
-        $product->installation_name = $installations->installation_name;
-        $product->installation_description = $installations->installation_description;
-        $product->installation_charges = $installations->installation_charges;
+        if($request->installation != 'none' && $request->installation != null)
+        {
+            $installations = $this->Installation->find($request->installation);
+            $product->installation_name = $installations->installation_name;
+            $product->installation_description = $installations->installation_description;
+            $product->installation_charges = $installations->installation_charges;
+        }
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = 0;
@@ -363,7 +368,8 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'category_id' => 'required',
-            // 'total_stock' => 'required|numeric|min:1',
+            'advance_status' => 'required',
+            'advance' => 'required_if:advance_status,0|min:0',
             // 'price' => 'required|numeric|min:0',
         ], [
             'name.required' => 'Product name is required!',
@@ -645,34 +651,22 @@ class ProductController extends Controller
     {
         $queryParam = [];
         $search = $request['search'];
-        $key = explode(' ', $request['search']);
-        $queryParam = ['search' => $request['search']];
-        // dd($key);
-        $vendor = $this->vendor->find($id);
+        if ($request->has('search')) {
+            $key = explode(' ', $request['search']);
+            $query = $this->product->where(['status' => 0, 'vender_id' => $id])->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('id', 'like', "%{$value}%")
+                        ->orWhere('name', 'like', "%{$value}%");
+                }
+            })->latest();
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $query = $this->product->where(['status' => 0, 'vender_id' => $id])->latest();
+        }
+        $products = $query->with('vendors')->paginate(Helpers_getPagination())->appends($queryParam);
 
-        $vendor->setRelation('vendorproducts',function($query) use ($key){
-                $query->when($key != '' && $key != null, function ($q) use ($key){
-                    foreach ($key as $value) {
-                        $q->orWhere('id', 'like', "%{$value}%")
-                            ->orWhere('name', 'like', "%{$value}%");
-                    }
-                });
-            },$vendor->vendorproducts()->paginate(Helpers_getPagination()));
-        // ->with('vendorproducts',function($query) use ($key){
-        //     $query->when($key != '' && $key != null, function ($q) use ($key){
-        //         foreach ($key as $value) {
-        //             $q->orWhere('id', 'like', "%{$value}%")
-        //                 ->orWhere('name', 'like', "%{$value}%");
-        //         }
-        //     });
-        // })->paginate(Helpers_getPagination())->appends($queryParam)
-        
-
-        dd($vendor);
-        return view('Admin.views.product.approved-products-list', compact('vendor','search'));
+        return view('Admin.views.product.approved-products-list', compact('products','search'));
     }
-
-
     
     /**
      * @return Factory|View|Application
@@ -701,15 +695,17 @@ class ProductController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param $id
      * @return Factory|View|Application
      */
-    public function RejectedProductList(Request $request): View|Factory|Application
+    public function RejectedProductList(Request $request, $id): View|Factory|Application
     {
         $queryParam = [];
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $query = $this->product->where(function ($q) use ($key) {
+            $query = $this->product->where(['status' => 3 , 'vender_id' => $id])->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('id', 'like', "%{$value}%")
                         ->orWhere('name', 'like', "%{$value}%");
@@ -717,7 +713,7 @@ class ProductController extends Controller
             })->latest();
             $queryParam = ['search' => $request['search']];
         }else{
-            $query = $this->product->where('status', 2)->latest();
+            $query = $this->product->where(['status' => 3 , 'vender_id' => $id])->latest();
         }
         $products = $query->with('vendors')->paginate(Helpers_getPagination())->appends($queryParam);
 
@@ -730,13 +726,199 @@ class ProductController extends Controller
      */
     public function AllListView($id): View|Factory|RedirectResponse|Application
     {
-        $product = $this->product->where(['id' => $id])->first();
-        if (!$product){
-            flash()->error(translate('product not found'));
-            return back();
+        $product = $this->product->find($id);
+
+        $product->brand_name = json_encode($this->brand->find($product->brand_id));
+       
+        $categories = $this->category->where(['parent_id' => 0])->get();
+        $subcategories = $this->category->status()->where('parent_id' , $product->category_id)->get();
+        $brand = $this->brand->status()->get();
+        $installationsall = $this->Installation->status()->get();
+
+        return view('Admin.views.product.product-approval-view', compact('product','categories','subcategories','brand','installationsall'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
+    public function UpdateProduct(Request $request, $id): \Illuminate\Http\JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'category_id' => 'required',
+            'attribute_id' => 'required',
+            'advance_status' => 'required',
+            'advance' => 'required_if:advance_status,0|min:0',
+            'product_status' => 'required',
+            'product_remark' => 'required_if:product_status,3',
+        ], [
+            'name.required' => 'Product name is required!',
+            'category_id.required' => 'category  is required!',
+        ]);
+
+        if ($request['discount_type'] == 'percent') {
+            $discount = ($request['price'] / 100) * $request['discount'];
+        } else {
+            $discount = $request['discount'];
         }
 
-        return view('Admin.views.product.product-approval-view', compact('product'));
+        // if ($request['price'] <= $discount) {
+        //     $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
+        // }
+
+        $tags = [];
+        if ($request->tags != null) {
+            $tag = explode(",", str_replace(" ", "",$request->tags));
+        }
+        if(isset($tag)){
+            foreach ($tag as $key => $value) {
+                if($value != ""){
+                    $tags[] = $value;
+                }
+            }
+        }
+
+        $product = $this->product->find($id);
+
+        $images = json_decode($product->image);
+        if (!empty($request->file('images'))) {
+            foreach ($request->images as $img) {
+                $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
+                $images[] = $imageData;
+            }
+
+        }
+
+        if (!count($images)) {
+            $validator->getMessageBag()->add('images', 'Image can not be empty!');
+        }
+
+        // $category = [];
+        // if ($request->category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->category_id,
+        //         'position' => 1,
+        //     ];
+        // }
+        // if ($request->sub_category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->sub_category_id,
+        //         'position' => 2,
+        //     ];
+        // }
+        // if ($request->sub_sub_category_id != null) {
+        //     $category[] = [
+        //         'id' => $request->sub_sub_category_id,
+        //         'position' => 3,
+        //     ];
+        // }
+        
+        $choiceOptions = [];
+        if ($request->has('choice')) {
+            foreach ($request->choice_no as $key => $no) {
+                $str = 'choice_options_' . $no;
+                if ($request[$str][0] == null) {
+                    $validator->getMessageBag()->add('name', 'Attribute choice option values can not be null!');
+                    return response()->json(['errors' => Helpers_error_processor($validator)]);
+                }
+                $item['name'] = 'choice_' . $no;
+                $item['title'] = $request->choice[$key];
+                $item['options'] = explode(',', str_replace(' ', '',implode('|', preg_replace('/\s+/', ' ', $request[$str]))));
+                $choiceOptions[] = $item;
+            }
+        }
+        
+        $variations = [];
+        $options = [];
+        if ($request->has('choice_no')) {
+            foreach ($request->choice_no as $key => $no) {
+                $name = 'choice_options_' . $no;
+                $my_str = implode('|', $request[$name]);
+                $options[] = explode(',', $my_str);
+            }
+        }
+       
+        $combinations = Helpers_combinations($options);
+        $stockCount = 0;
+        if (count($combinations[0]) > 0) {
+            foreach ($combinations as $key => $combination) {
+                $str = '';
+                foreach ($combination as $k => $item) {
+                    if ($k > 0) {
+                        $str .= '-' . str_replace(' ', '', $item);
+                    } else {
+                        $str .= str_replace(' ', '', $item);
+                    }
+                }
+                $item = [];
+                $item['type'] = $str;
+                $item['price'] = abs($request['price_' . str_replace('.', '_', $str)]);
+                $item['stock'] = abs($request['stock_' . str_replace('.', '_', $str)]);
+
+                if ($request['discount_type'] == 'amount' && $item['price'] <= $request['discount'] ){
+                    $validator->getMessageBag()->add('discount_mismatch', 'Discount can not be more or equal to the price. Please change variant '. $item['type'] .' price or change discount amount!');
+                }
+
+                $variations[] = $item;
+                $stockCount += $item['stock'];
+            }
+        } else {
+            $stockCount = (integer)$request['total_stock'];
+        }
+        
+        if ((integer)$request['total_stock'] != $stockCount) {
+            $validator->getMessageBag()->add('total_stock', 'Stock calculation mismatch!');
+        }
+
+        if ($validator->getMessageBag()->count() > 0) {
+            return response()->json(['errors' => Helpers_error_processor($validator)]);
+        }
+
+        $product->name = $request->name;
+        $product->brand_name = json_encode($this->brand->find($request->brand));
+        $product->brand_id = $request->brand;
+        if(isset($request->otherbrand) && !is_null($request->otherbrand))
+        {
+            $product->brandname_if_other = $request->otherbrand;
+        }
+        $product->category_id = $request->category_id;
+        $product->sub_category_id = $request->sub_category_id;
+        $product->description = $request->description;
+        $product->choice_options = json_encode($choiceOptions);
+        $product->variations = json_encode($variations);
+        $product->price = $variations[0]['price'];
+        $product->unit = $request->unit;
+        $product->image = json_encode($images);
+        $product->tags = json_encode($tags);
+        $product->tax = $request->tax_type == 'amount' ? $request->tax : $request->tax;
+        $product->tax_type = $request->tax_type;
+        $product->discount = $request->discount_type == 'amount' ? $request->discount : $request->discount;
+        $product->discount_type = $request->discount_type;
+        $product->total_stock = $request->total_stock;
+        $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
+        $product->status = $request->product_status;
+        if($request->product_status == '3')
+        {
+            $product->remark = $request->product_remark;
+        }
+        if(isset($request->installation) && !is_null($request->installation))
+        {
+            $Installations = $this->Installation->find($request->installation);
+            $product->installation_name = $Installations->installation_name; 
+            $product->installation_charges = $Installations->installation_charges; 
+            $product->installation_description = $Installations->installation_description; 
+        }
+
+        $product->is_advance = $request->advance_status;
+        if($request->advance_status == 1)
+        {
+            $product->advance = $request->advance;
+        }
+        $product->save();
+        
+        return response()->json([], 200);
     }
 
     /**

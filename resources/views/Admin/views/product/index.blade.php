@@ -33,10 +33,10 @@
                                 placeholder="{{translate('New Product')}}" required>
                         </div>
                         <div class="form-group mb-0">
-                            <label class="input-label" for="exampleFormControlInput1">{{translate('short')}}
-                                {{translate('description')}} (EN)</label>
-                            <textarea name="description" class="form-control h--172px summernote"
-                                id="hiddenArea"></textarea>
+                            <label class="input-label" for="exampleFormControlInput1">
+                                {{translate('short')}} {{translate('description')}} (EN)
+                            </label>
+                            <textarea name="description" class="form-control h--172px summernote" id="hiddenArea"></textarea>
                         </div>
                     </div>
                 </div>
@@ -91,15 +91,16 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-6 d-none" id="installation-inputs">
                             <div class="form-group">
                                 <label class="input-label"
                                     for="exampleFormControlInput1">{{translate('Installation')}}</label>
-                                <select name="installation" class="form-control js-select2-custom" id="selectbrand">
-                                    <option value="">---{{translate('select')}}---</option>
+                                <select name="installation" class="form-control js-select2-custom" id="selectedinstallation">
+                                    <option value="none">---{{translate('select')}}---</option>
                                     @foreach($Installations as $value)
-                                    <option value="{{$value['id']}}" data-name="{{$value['name']}}">
-                                      {{translate(Str::limit($value['installation_name'], $limit = 20, $end = '...'))}} ● {{translate(Helpers_set_symbol($value['installation_charges']))}}</option>
+                                        <option value="{{$value['id']}}" data-name="{{$value['name']}}">
+                                            {{translate(Str::limit($value['installation_name'], $limit = 20, $end = '...'))}} ● {{translate(Helpers_set_symbol($value['installation_charges']))}}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -335,6 +336,21 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+    $('#sub-categories').change(function() {
+        var category_id = $(this).val();
+
+        if($('option:selected', this).attr('data-id') == '0') 
+        {
+            $('#installation-inputs').removeClass('d-none');
+            $('#selectedinstallation').val('none').change();
+        }
+        else
+        {
+            $('#installation-inputs').addClass('d-none');
+            $('#selectedinstallation').val('none').change();
+        }
+    });
+
     $('.summernote').summernote({
         height: 200,
     });
@@ -465,9 +481,9 @@ $(document).on('ready', function() {
                 parent_id: $('#get_category').val()
             },
             success: function(data) {
-                console.log(data.options);
-                console.log(data.option);
-                console.log($('#get_category').val());
+                // console.log(data.options);
+                // console.log(data.option);
+                // console.log($('#get_category').val());
                 $('#sub-categories').html(data.options);
             }
         });

@@ -129,16 +129,14 @@
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <!-- Dropdown -->
                                     <div class="btn--container justify-content-center">
-                                        <a class="action-btn"
-                                            href="{{route('admin.product.all-view',[$product['id']])}}">
-                                            <i class="tio-invisible"></i></a>
-                                        <a class="action-btn btn--danger btn-outline-danger" href="javascript:"
-                                            onclick="form_alert('product-{{$product['id']}}','{{ translate("Want to delete this") }}')">
+                                        <a class="action-btn" href="{{route('admin.product.all-view',[$product['id']])}}">
+                                            <i class="tio-invisible"></i>
+                                        </a>
+                                        <a class="action-btn btn--danger btn-outline-danger" href="javascript:" onclick="form_alert('product-{{$product['id']}}','{{ translate("Want to delete this") }}')">
                                             <i class="tio-delete-outlined"></i>
                                         </a>
                                     </div>
-                                    <form action="{{route('admin.product.delete',[$product['id']])}}"
-                                        method="post" id="product-{{$product['id']}}">
+                                    <form action="{{route('admin.product.delete',[$product['id']])}}" method="post" id="product-{{$product['id']}}">
                                         @csrf @method('delete')
                                     </form>
                                     <!-- End Dropdown -->

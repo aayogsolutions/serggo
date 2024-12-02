@@ -11,8 +11,8 @@
                 <img src="{{asset('assets/admin/img/products.png')}}" class="w--24" alt="" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
             </span>
             <span>
-                {{ translate('Approved product List') }}
-                <span class="badge badge-soft-secondary">{{ $vendor->vendorproducts->total() }}</span>
+                {{ translate(' Rejected product List') }}
+                <span class="badge badge-soft-secondary">{{ $products->total() }}</span>
             </span>
         </h1>
     </div>
@@ -55,51 +55,51 @@
                         </thead>
 
                         <tbody id="set-rows">
-                          
-                            @foreach($vendor->vendorproducts as $key => $Vendorproducts)
+                       
+                            @foreach($products as $key=>$product)
                             <tr>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
-                                    {{$vendor->vendorproducts->firstItem()+$key}}
+                                    {{$products->firstItem()+$key}}
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <a href="javascript:void(0)" class="product-list-media">
-                                        @if (!empty(json_decode($Vendorproducts['image'],true)))
-                                        <img src="{{ asset(json_decode($Vendorproducts->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                        @if (!empty(json_decode($product['image'],true)))
+                                        <img src="{{ asset(json_decode($product->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         @else
                                         <img src="{{asset('assets/admin/img/400x400/img2.jpg')}}">
                                         @endif
                                         <h6 class="name line--limit-2">
-                                            {{\Illuminate\Support\Str::limit($Vendorproducts['name'], 20, $end='...')}}
+                                            {{\Illuminate\Support\Str::limit($product['name'], 20, $end='...')}}
                                         </h6>
                                     </a>
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <div class="max-85 text-right">
-                                        {{ Helpers_set_symbol($Vendorproducts['price']) }}
+                                        {{ Helpers_set_symbol($product['price']) }}
                                     </div>
                                 </td>
                                 <td class="text-center">
                                     <a href="javascript:void(0)" class="product-list-media">
-                                        <img class="rounded-full" src="{{ asset($vendor->image)}}" alt="{{ translate('vendor') }}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                        <img class="rounded-full" src="{{ asset($product->vendors->image)}}" alt="{{ translate('vendor') }}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                         <h6 class="name line--limit-2">
-                                            {{\Illuminate\Support\Str::limit($vendor->name, 20, $end='...')}}
+                                            {{\Illuminate\Support\Str::limit($product->vendors->name, 20, $end='...')}}
                                         </h6>
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    {{$Vendorproducts->tax}} %
+                                    {{$product->tax}} %
                                 </td>
                                 <td class="text-center">
-                                    {{$Vendorproducts->discount}} %
+                                    {{$product->discount}} %
                                 </td>
                                 <td class="text-center">
-                                    {{$Vendorproducts->total_stock}}
+                                    {{$product->total_stock}}
                                 </td>
                                 
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <!-- Dropdown -->
                                     <div class="btn--container justify-content-center">
-                                        <a class="action-btn" href="{{route('admin.product.approval-list')}}">
+                                        <a class="action-btn" href="{{route('admin.product.all-view',[$product['id']])}}">
                                             <i class="tio-invisible"></i>
                                         </a>
                                     </div>
@@ -113,11 +113,11 @@
                     <div class="page-area">
                         <table>
                             <tfoot class="border-top">
-                                {!! $vendor->vendorproducts->links('pagination::bootstrap-4') !!}
+                                {!! $products->links('pagination::bootstrap-4') !!}
                             </tfoot>
                         </table>
                     </div>
-                    @if(count($vendor->vendorproducts)==0)
+                    @if(count($products)==0)
                     <div class="text-center p-4">
                         <img class="w-120px mb-3" src="{{asset('/assets/admin/svg/illustrations/sorry.svg')}}" alt="Image Description">
                         <p class="mb-0">{{translate('No_data_to_show')}}</p>

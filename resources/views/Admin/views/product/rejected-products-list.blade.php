@@ -99,9 +99,9 @@
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <!-- Dropdown -->
                                     <div class="btn--container justify-content-center">
-                                        <a class="action-btn"
-                                            href="{{route('admin.product.rejected-list')}}">
-                                            <i class="tio-invisible"></i></a>
+                                        <a class="action-btn" href="{{route('admin.product.all-view',[$product['id']])}}">
+                                            <i class="tio-invisible"></i>
+                                        </a>
                                     </div>
                                     <!-- End Dropdown -->
                                 </td>

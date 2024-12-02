@@ -104,6 +104,7 @@ class OrderController extends Controller
             ],
             'data' => [
                 'products' => $products,
+                'wallet' => Auth::user()->wallet_balance,
                 'cod' => $cod,
                 'digital_payment' => $digital_payment,
                 'partial_payment' => $partial_payment,

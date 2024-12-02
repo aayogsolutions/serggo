@@ -262,4 +262,41 @@ class VendorController extends Controller
         
         return view('Admin.views.vendor.kyc.list', compact('vendors','search'));
     }
+
+    /**
+     * @param $id
+     * @return Application|Factory|View
+     */
+    public function kycView($id): View|Factory|Application
+    {
+        $vendor = $this->vendor->where('id' , $id)->first();
+        
+        return view('Admin.views.vendor.kyc.view', compact('vendor'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function kycStore(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'status' => 'required',
+            'reject_reason' => 'required_if:status,3'
+        ]);
+
+        $vendor = $this->vendor->find($id);
+        $vendor->is_verify = $request->status;
+        $vendor->kyc_remark = $request->reject_reason;
+        $vendor->save();
+
+        if ($request->status == 2) {
+            flash()->success(translate('Vendor approved!'));
+        }else{
+            flash()->success(translate('Vendor rejected!'));
+        }
+        
+        return redirect()->route('admin.vendor.kyc.list');
+    }
 }

@@ -67,7 +67,55 @@
 
         @include('Admin.layouts.partials._footer')
 
-            <div class="modal fade" id="popup-modal">
+            <div class="modal fade" id="popup-modal-order">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="text-center">
+                                        <h2 class="order-check-colour">
+                                            <i class="tio-shopping-cart-outlined"></i> {{translate('You have new order, Check Please.')}}
+                                        </h2>
+                                        <hr>
+                                        <a href="{{ route('admin.orders.approval_request') }}">
+                                            <button id="check-order" class="btn btn-primary">
+                                                {{translate('Ok, let me check')}}
+                                            </button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="popup-modal-kyc-vendor">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="text-center">
+                                        <h2 class="order-check-colour">
+                                            <i class="tio-shopping-cart-outlined"></i> {{translate('your vendor submitted their KYC, Check Please.')}}
+                                        </h2>
+                                        <hr>
+                                        <a href="{{ route('admin.vendor.kyc.list') }}">
+                                            <button id="check-order" class="btn btn-primary">
+                                                {{translate('Ok, let me check')}}
+                                            </button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="popup-modal-kyc-partner">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-body">
@@ -92,6 +140,12 @@
             </div>
 
         </main>
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <span class="close">×</span>
+            <img class="modal-content" id="img01">
+            <div id="caption"></div>
+        </div>
 
         <script src="{{asset('assets/admin')}}/js/custom.js"></script>
 
@@ -100,7 +154,8 @@
         <script src="{{asset('assets/admin')}}/js/sweet_alert.js"></script>
         <script src="{{asset('assets/admin')}}/js/toastr.js"></script>
         <script src="{{asset('assets/admin/js/owl.min.js')}}"></script>
-
+        <script src="{{ asset('assets/admin/js/zoom/jquery.zoom.js')}}"></script>
+        
         @stack('script')
 
         @if ($errors->any())
@@ -179,7 +234,13 @@
                         dataType: 'json',
                         success: function (response) {
                             if (response.data.new_order > 0) {
-                                $('#popup-modal').appendTo("body").modal('show');
+                                $('#popup-modal-order').appendTo("body").modal('show');
+                                playAudio();
+                            }else if (response.data.new_vendor_kyc > 0) {
+                                $('#popup-modal-kyc-vendor').appendTo("body").modal('show');
+                                playAudio();
+                            }else if (response.data.new_partner_kyc > 0) {
+                                $('#popup-modal-kyc-partner').appendTo("body").modal('show');
                                 playAudio();
                             }
                         },

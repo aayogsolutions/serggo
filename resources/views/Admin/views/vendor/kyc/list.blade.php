@@ -35,29 +35,6 @@
                         </div>
                     </div>
                 </form>
-
-                <div class="hs-unfold ml-auto">
-                    <a class="js-hs-unfold-invoker btn btn-sm btn-outline-primary-2 dropdown-toggle min-height-40"
-                        href="javascript:;" data-hs-unfold-options='{
-                            "target": "#usersExportDropdown",
-                            "type": "css-animation"
-                            }'>
-                        <i class="tio-download-to mr-1"></i> {{ translate('export') }}
-                    </a>
-
-                    <div id="usersExportDropdown"
-                        class="hs-unfold-content dropdown-unfold dropdown-menu dropdown-menu-sm-right">
-                        <span class="dropdown-header">{{ translate('download') }}
-                            {{ translate('options') }}</span>
-                        <a id="export-excel" class="dropdown-item"
-                            href="{{route('admin.customer.export', ['search'=>Request::get('search')])}}">
-                            <img class="avatar avatar-xss avatar-4by3 mr-2"
-                                src="{{ asset('assets/admin') }}/svg/components/excel.svg"
-                                alt="{{ translate('excel') }}">
-                            {{ translate('excel') }}
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -70,10 +47,8 @@
                         </th>
                         <th class="table-column-pl-0">{{translate('Vendor name')}}</th>
                         <th>{{translate('contact info')}}</th>
-                        <th class="text-center">{{translate('wallet_balance')}}</th>
-                        <th class="text-center">{{translate('Total Orders')}}</th>
-                        <th class="text-center">{{translate('Total Order Amount')}}</th>
-                        <th class="text-center">{{translate('status')}}</th>
+                        <th class="text-center">{{translate('Business_name')}}</th>
+                        <th class="text-center">{{translate('shop_address')}}</th>
                         <th class="text-center">{{translate('action')}}</th>
 
                     </tr>
@@ -103,36 +78,13 @@
                             </div>
                         </td>
                         <td>
-                            {{$vendor['wallet_balance']}}
+                            {{$vendor['business_name']}}
                         </td>
                         <td>
-                            <div class="text-center">
-                                <a href="#">
-                                    <span class="badge badge-soft-info py-2 px-3 font-medium">
-                                        {{ $vendor->vendororders->count() }}
-                                    </span>
-                                </a>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="text-center">
-                                {{ Helpers_set_symbol(\App\Models\vendor::total_order_amount($vendor->id)) }}
-                            </div>
-                        </td>
-                        <td>
-                            <label class="toggle-switch my-0">
-                                <input type="checkbox" class="toggle-switch-input status-change-alert"
-                                    id="stocksCheckbox{{ $vendor->id }}"
-                                    data-route="{{ route('admin.vendor.status', [$vendor->id, $vendor->is_block == 1 ? 0 : 1]) }}"
-                                    data-message="{{ $vendor->is_block == 1? translate('you_want_to_change_the_status_for_this_customer'): translate('you_want_to_change_the_status_for_this_customer') }}"
-                                    {{ $vendor->is_block == 0? 'checked' : '' }}>
-                                <span class="toggle-switch-label mx-auto text">
-                                    <span class="toggle-switch-indicator"></span>
-                                </span>
-                            </label>
+                            {{$vendor['address']}}
                         </td>
                         <td class="btn--container justify-content-center">
-                            <a class="action-btn" href="{{route('admin.vendor.view',[$vendor['id']])}}">
+                            <a class="action-btn" href="{{route('admin.vendor.kyc.view',[$vendor['id']])}}">
                                 <i class="tio-invisible"></i>
                             </a>
                         </td>
