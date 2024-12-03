@@ -110,6 +110,7 @@
                         @php($totalItemDiscount=0)
                         @php($price_after_discount=0)
                         @php($updatedTotalTax=0)
+                        @php($advance=0)
                         @php($vatStatus = '')
                         <div class="table-responsive">
                             <table class="table table-borderless table-nowrap table-align-middle card-table dataTable no-footer mb-0">
@@ -119,7 +120,8 @@
                                         @if($order['editable']== 1 || $order['editable']== 3)
                                             <th class="border-0">{{translate('Replace')}}</th>
                                         @endif
-                                        <th class="border-0">{{translate('Item details')}}</th>
+                                        <th class="border-0">{{translate('Item')}}</th>
+                                        <th class="border-0">{{translate('details')}}</th>
                                         <th class="border-0 text-right">{{translate('Price')}}</th>
                                         <th class="border-0 text-right">{{translate('Discount')}}</th>
                                         <th class="text-right border-0">{{translate('Total Price')}}</th>
@@ -150,9 +152,21 @@
                                                                 @endif
                                                             </div>
                                                             <div class='media-body'>
-                                                                <h5 class='line--limit-1' title="{{$pro_d['name']}}">{{$pro_d['name']}}</h5>
-                                                                <h5 class='mt-1'><span class='text-body'>{{translate('Unit')}}</span>: {{$pro_d['unit']}} </h5>
-                                                                <h5 class='mt-1'><span class='text-body'>{{translate('Unit Price')}}</span>: {{$pro_d['price']}} </h5>
+                                                                <h5 class='line--limit-1' title="{{$pro_d['name']}}">
+                                                                    {{$pro_d['name']}}
+                                                                </h5>
+                                                                <h5 class='mt-1'>
+                                                                    <span class='text-body'>
+                                                                        {{translate('Unit')}}
+                                                                    </span>
+                                                                    : {{$pro_d['unit']}} 
+                                                                </h5>
+                                                                <h5 class='mt-1'>
+                                                                    <span class='text-body'>
+                                                                        {{translate('Unit Price')}}
+                                                                    </span>
+                                                                    : {{$pro_d['price']}} 
+                                                                </h5>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -188,11 +202,34 @@
                                                                 </div>
                                                             @endforeach
                                                         @endif
-                                                        <h5 class="mt-1"><span class="text-body">{{translate('Unit')}}</span> : {{$detail['unit']}} </h5>
-                                                        <h5 class="mt-1"><span class="text-body">{{translate('Unit Price')}}</span> : {{$detail['price']}} </h5>
-                                                        <h5 class="mt-1"><span class="text-body">{{translate('QTY')}}</span> : {{$detail['quantity']}} </h5>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('Unit')}}
+                                                    </span>
+                                                    : {{$detail['unit']}} 
+                                                </h5>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('Unit Price')}}
+                                                    </span> 
+                                                    : {{$detail['price']}} 
+                                                </h5>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('Advance')}}
+                                                    </span> 
+                                                    : {{$detail['advance_payment']}} 
+                                                </h5>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('QTY')}}
+                                                    </span> 
+                                                    : {{$detail['quantity']}} 
+                                                </h5>
                                             </td>
                                             <td class="text-right">
                                                 <h6>{{ Helpers_set_symbol($detail['price'] * $detail['quantity']) }}</h6>
@@ -251,11 +288,19 @@
                                     </dd>
                                     <dt class="col-6 text-left">
                                         <div class="ml-auto max-w-130px">
-                                            {{translate('GST')}} {{ $vatStatus == 'included' ? translate('(included)') : '' }}:
+                                            {{translate('GST')}} {{ $order['tax_type'] == 'included' ? (translate('included')) : (translate('excluded')) }}:
                                         </div>
                                     </dt>
                                     <dd class="col-6 col-xl-5 pr-5">
                                         {{ Helpers_set_symbol($totalTax) }}
+                                    </dd>
+                                    <dt class="col-6 text-left">
+                                        <div class="ml-auto max-w-130px">
+                                            {{translate('Advance')}}
+                                        </div>
+                                    </dt>
+                                    <dd class="col-6 col-xl-5 pr-5">
+                                        - {{ Helpers_set_symbol($order['advance_payment']) }}
                                     </dd>
                                     <dt class="col-6 text-left">
                                         <div class="ml-auto max-w-130px">
@@ -278,7 +323,7 @@
                                         </div>
                                     </dt>
                                     <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['extra_discount']) }}
+                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['extra_discount']-$order['advance_payment']) }}
                                         <hr>
                                     </dd>
                                     @if ($order->partial_payment != null)
@@ -293,8 +338,8 @@
                                             {{ Helpers_set_symbol($partial_payment['wallet_applied']) }}
                                         </dd>
                                         <?php
-                                        $due_amount = 0;
-                                        $due_amount = $order->grand_total;
+                                            $due_amount = 0;
+                                            $due_amount = $order->grand_total;
                                         ?>
                                         <dt class="col-6 text-left">
                                             <div class="ml-auto max-w-130px">
@@ -343,8 +388,7 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="hs-unfold w-100 mt-3">
+                                <!-- <div class="hs-unfold w-100 mt-3">
                                     <span class="d-block form-label font-bold mb-2">{{translate('Payment Status')}}:</span>
                                     <div class="dropdown">
                                         <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button"
@@ -357,30 +401,7 @@
                                             <a class="dropdown-item change-payment-status" data-status="unpaid" data-route="{{route('admin.orders.payment-status',['id'=>$order['id'],'payment_status'=>'unpaid'])}}">{{ translate('unpaid') }}</a>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="mt-3">
-                                    <span class="d-block form-label mb-2 font-bold">
-                                        {{translate('Delivery Date & Time')}}:
-                                    </span>
-                                    <div class="d-flex flex-wrap g-2">
-                                        <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                            <label for="from_date">
-                                                <input class="form-control min-h-45px" type="date" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}" name="deliveryDate" id="from_date" required>
-                                            </label>
-                                        </div>
-                                        <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                            <select class="custom-select custom-select time_slote" name="timeSlot" id="timeSlot">
-                                                <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
-                                                @foreach($timeslots as $timeslot)
-                                                    <option value="{{$timeslot['id']}}" {{$timeslot->id == $order->time_slot_id ?'selected':''}}>
-                                                        {{date('H:i A',strtotime($timeslot['start_time']))}} - {{date('H:i A', strtotime($timeslot['end_time']))}}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+                                </div> -->
                             @endif
                         </div>
                     </div>
@@ -462,6 +483,81 @@
                         @endif
                     </div>
                 </div>
+
+                @if($order['order_type'] =='goods')
+                    <div class="card mt-2">
+                        <div class="card-body">
+                            @php($address=\App\Models\CustomerAddresses::find($order['delivery_address_id']))
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title">
+                                    <span class="card-header-icon">
+                                        <i class="tio-user"></i>
+                                    </span>
+                                    <span>
+                                        {{translate('delivery information')}}
+                                    </span>
+                                </h5>
+                            </div>
+
+                            @if(isset($address))
+                                <div class="delivery--information-single flex-column mt-3">
+                                    <div class="d-flex">
+                                        <span class="name">
+                                            {{translate('name')}}
+                                        </span>
+                                        <span class="info">
+                                            {{$address['contact_person_name']}}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex">
+                                        <span class="name">
+                                            {{translate('phone')}}
+                                        </span>
+                                        <span class="info">
+                                            {{ $address['contact_person_number']}}
+                                        </span>
+                                    </div>
+                                    @if($address['house_road'])
+                                        <div class="d-flex">
+                                            <span class="name">
+                                                {{translate('house')}}
+                                            </span>
+                                            <span class="info">
+                                                #{{ $address['house_road']}}
+                                            </span>
+                                        </div>
+                                    @endif
+                                    @if($address['address1'])
+                                        <div class="d-flex">
+                                            <span class="name">{{translate('address')}}</span>
+                                            <span class="info">#{{ $address['address1']}}</span>
+                                        </div>
+                                    @endif
+                                    @if($address['address2'])
+                                        <div class="d-flex">
+                                            <span class="name">{{translate('address')}}</span>
+                                            <span class="info">#{{ $address['address2']}}</span>
+                                        </div>
+                                    @endif
+                                    @if($address['city'])
+                                        <div class="d-flex">
+                                            <span class="name">{{translate('city')}}</span>
+                                            <span class="info">#{{ $address['city']}}</span>
+                                        </div>
+                                    @endif
+                                    <hr class="w-100">
+                                    <div>
+                                        <a target="_blank"
+                                            href="http://maps.google.com/maps?z=12&t=m&q=loc:{{$address['latitude']}}+{{$address['longitude']}}">
+                                            <i class="tio-poi"></i> {{$address['city']}}
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
 
                 @if($order->order_image && $order->order_image->isNotEmpty())
                     <div class="card mt-2">

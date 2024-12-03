@@ -125,7 +125,8 @@
                                         @if($order['editable']== 1 || $order['editable']== 3)
                                             <th class="border-0">{{translate('Replace')}}</th>
                                         @endif
-                                        <th class="border-0">{{translate('Item details')}}</th>
+                                        <th class="border-0">{{translate('Item')}}</th>
+                                        <th class="border-0">{{translate('details')}}</th>
                                         <th class="border-0 text-right">{{translate('Price')}}</th>
                                         <th class="border-0 text-right">{{translate('Discount')}}</th>
                                         <th class="text-right border-0">{{translate('Total Price')}}</th>
@@ -194,11 +195,34 @@
                                                                 </div>
                                                             @endforeach
                                                         @endif
-                                                        <h5 class="mt-1"><span class="text-body">{{translate('Unit')}}</span> : {{$detail['unit']}} </h5>
-                                                        <h5 class="mt-1"><span class="text-body">{{translate('Unit Price')}}</span> : {{$detail['price']}} </h5>
-                                                        <h5 class="mt-1"><span class="text-body">{{translate('QTY')}}</span> : {{$detail['quantity']}} </h5>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('Unit')}}
+                                                    </span>
+                                                    : {{$detail['unit']}} 
+                                                </h5>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('Unit Price')}}
+                                                    </span> 
+                                                    : {{$detail['price']}} 
+                                                </h5>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('Advance')}}
+                                                    </span> 
+                                                    : {{$detail['advance_payment']}} 
+                                                </h5>
+                                                <h5 class="mt-1">
+                                                    <span class="text-body">
+                                                        {{translate('QTY')}}
+                                                    </span> 
+                                                    : {{$detail['quantity']}} 
+                                                </h5>
                                             </td>
                                             <td class="text-right">
                                                 <h6>{{ Helpers_set_symbol($detail['price'] * $detail['quantity']) }}</h6>
@@ -265,6 +289,14 @@
                                     </dd>
                                     <dt class="col-6 text-left">
                                         <div class="ml-auto max-w-130px">
+                                            {{translate('Advance')}}
+                                        </div>
+                                    </dt>
+                                    <dd class="col-6 col-xl-5 pr-5">
+                                        - {{ Helpers_set_symbol($order['advance_payment']) }}
+                                    </dd>
+                                    <dt class="col-6 text-left">
+                                        <div class="ml-auto max-w-130px">
                                             {{translate('delivery')}} {{translate('fee')}} :
                                         </div>
                                     </dt>
@@ -284,10 +316,10 @@
                                         </div>
                                     </dt>
                                     <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['extra_discount']) }}
+                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['advance_payment']) }}
                                         <hr>
                                     </dd>
-                                    @if ($order->partial_payment != null)
+                                    @if ($order->partial_payment != null)FDevil
                                         @php($partial_payment = json_decode($order->partial_payment,true))
                                             <dt class="col-6 text-left">
                                                 <div class="ml-auto max-w-130px">
@@ -385,11 +417,11 @@
                                     <div class="d-flex flex-wrap g-2">
                                         <div class="hs-unfold w-0 flex-grow min-w-160px">
                                             <label class="input-date">
-                                                <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}" name="deliveryDate" id="from_date" data-id="{{ $order['id'] }}" required>
+                                                <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}" name="deliveryDate" id="deliveryDate" data-id="{{ $order['id'] }}" required>
                                             </label>
                                         </div>
                                         <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                            <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}">
+                                            <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}" id="timeSlot">
                                                 <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
                                                 @foreach(\App\Models\TimeSlot::all() as $timeSlot)
                                                     <option value="{{$timeSlot['id']}}" {{$timeSlot->id == $order->delivery_timeslot_id ?'selected':''}}>
@@ -931,8 +963,6 @@
                         url: "{{ route('admin.orders.status', ['id' => $order['id']]) }}",
                         data: {
                             _token: "{{ csrf_token() }}",
-                            delivery_date : $('#from_date').val(),
-                            timeSlot : $('#timeSlot').val(),
                             order_status : order_status,
                         },
                         success: function (data) {
@@ -1027,6 +1057,48 @@
                 });
             }
         }
+
+        $('#deliveryDate').change(function ()
+        {
+            $.ajax({
+                type: "GET",
+                url: "{{route('admin.orders.order.date')}}",
+                data: {
+                    id : "{{$order['id']}}",
+                    date : $(this).val()
+                },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function () {
+                    toastr.error('Add valid data', {
+                        CloseButton: true,
+                        ProgressBar: true
+                    });
+                }
+            });
+        });
+        
+        $('#timeSlot').change(function ()
+        {
+            $.ajax({
+                type: "GET",
+                url: "{{route('admin.orders.order.time')}}",
+                data: {
+                    id : "{{$order['id']}}",
+                    time : $(this).val()
+                },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function () {
+                    toastr.error('Add valid data', {
+                        CloseButton: true,
+                        ProgressBar: true
+                    });
+                }
+            });
+        });
 
         $(document).on('ready', function () {
             $('.js-select2-custom').each(function () {

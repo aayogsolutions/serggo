@@ -126,6 +126,8 @@ class OrderController extends Controller
             'product.*.is_installation' => 'required|numeric',
             'product.*.delivery' => 'required|numeric',
             'product.*.discount' => 'required|numeric',
+            'product.*.is_advance' => 'required|numeric',
+            'product.*.advance' => 'nullable|numeric',
             'product.*.tax' => 'required|numeric',
             'address_id' => 'required|numeric',
             'partial_payment' => 'required|numeric',
@@ -197,7 +199,6 @@ class OrderController extends Controller
                         $adminOrder->payment_by = $request->payment_by;
                         $adminOrder->transaction_reference = $request->transaction_reference;
                     }
-                    $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
                     $adminOrder->free_delivery = $request->free_delivery;
                     $adminOrder->delivered_by = 0;
@@ -218,6 +219,7 @@ class OrderController extends Controller
                     $delivery = 0;
                     $discount = 0;
                     $installation = 0;
+                    $advance = 0;
                     $tax_type = $request->tax_type;
                     foreach ($products as $key1 => $value) 
                     {
@@ -254,11 +256,17 @@ class OrderController extends Controller
                             $order_details->gst_status = 'included';
                         }
                         $order_details->tax_amount = $value['tax'];
+                        if($value['is_advance'] == 0)
+                        {
+                            $order_details->advance_payment = $value['tax'];
+                            $advance = $advance + $value['advance'];
+                        }
+                        
                         $order_details->save();
     
                         $tax_amount += $value['tax'] * $value['quantity'];
                         $amount += $price * $value['quantity'];
-                        $delivery = $value['delivery'];
+                        $delivery = $delivery + $value['delivery'];
                         $discount += $value['discount'] * $value['quantity'];
                     }
     
@@ -269,6 +277,7 @@ class OrderController extends Controller
                     $adminOrder->total_discount = $discount;
                     $adminOrder->total_installation	 = $installation;
                     $adminOrder->item_total = $amount;
+                    $adminOrder->advance_payment = $advance;
                     if($request->free_delivery == 0)
                     {
                         $adminOrder->free_delivery_amount = $delivery;
@@ -395,6 +404,7 @@ class OrderController extends Controller
                     $delivery = 0;
                     $discount = 0;
                     $installation = 0;
+                    $advance = 0;
                     $partial_payment_amount = 0;
                     $tax_type = $request->tax_type;
                     foreach ($products as $key1 => $value) 
@@ -432,11 +442,16 @@ class OrderController extends Controller
                             $order_details->gst_status = 'included';
                         }
                         $order_details->tax_amount = $value['tax'];
+                        if($value['is_advance'] == 0)
+                        {
+                            $order_details->advance_payment = $value['tax'];
+                            $advance = $advance + $value['advance'];
+                        }
                         $order_details->save();
     
                         $tax_amount += $value['tax'] * $value['quantity'];
                         $amount += $price * $value['quantity'];
-                        $delivery = $value['delivery'];
+                        $delivery = $delivery + $value['delivery'];
                         $discount += $value['discount'] * $value['quantity'];
                     }
     
@@ -447,6 +462,7 @@ class OrderController extends Controller
                     $adminOrder->total_discount = $discount;
                     $adminOrder->total_installation	 = $installation;
                     $adminOrder->item_total = $amount;
+                    $adminOrder->advance_payment = $advance;
                     if($request->free_delivery == 0)
                     {
                         $adminOrder->free_delivery_amount = $delivery;

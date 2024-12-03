@@ -92,26 +92,32 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-sm-6">
-                            <div class="form-group">
-                                <label class="input-label" for="exampleFormControlInput1">
-                                    {{translate('Installation')}}
-                                </label>
-                                <select name="installation" class="form-control js-select2-custom" id="selectbrand">
-                                    <option value="">---{{translate('select')}}---</option>
-                                    @if($product['installation_name'] != null && $product['installation_charges'] != '0')
-                                        <option value="0" selected>
-                                            {{translate(Str::limit($product['installation_name'], $limit = 20, $end = '...'))}} ● {{translate(Helpers_set_symbol($product['installation_charges']))}}
-                                        </option>
-                                    @endif
-                                    @foreach($installationsall as $value)
-                                        <option value="{{$value['id']}}">
-                                            {{translate(Str::limit($value['installation_name'], $limit = 20, $end = '...'))}} ● {{translate(Helpers_set_symbol($value['installation_charges']))}}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            
+                            <div class="col-sm-6 {{ $product['installation_name'] != null && $product['installation_charges'] != 0.00 ? '' : 'd-none' }} installation-inputs">
+                                <div class="form-group">
+                                    <label class="input-label" for="exampleFormControlInput1">
+                                        {{translate('Installation')}}
+                                    </label>
+                                    <input type="text" name="installation_name" id="installation_name" value="{{$product['installation_name']}}" class="form-control">
+                                </div>
                             </div>
-                        </div>
+                            <div class="col-sm-6 {{ $product['installation_name'] != null && $product['installation_charges'] != 0.00 ? '' : 'd-none' }} installation-inputs">
+                                <div class="form-group">
+                                    <label class="input-label" for="exampleFormControlInput1">
+                                        {{translate('Installation')}}
+                                    </label>
+                                    <input type="text" name="installation_description" id="installation_description" value="{{$product['installation_description']}}" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 {{ $product['installation_name'] != null && $product['installation_charges'] != 0.00 ? '' : 'd-none' }} installation-inputs">
+                                <div class="form-group">
+                                    <label class="input-label" for="exampleFormControlInput1">
+                                        {{translate('Installation')}}
+                                    </label>
+                                    <input type="number" min="0" name="installation_charges" id="installation_charges" value="{{$product['installation_charges']}}" class="form-control">
+                                </div>
+                            </div>
+                            
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label class="input-label"
@@ -288,25 +294,27 @@
                                             class="form-control" placeholder="{{ translate('Ex : $ 100') }}" required>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group mb-0">
-                                        <label class="input-label" for="exampleFormControlInput1">
-                                            {{translate('product_status')}}
-                                        </label>
-                                        <select name="product_status" id="product_status" class="form-control js-select2-custom">
-                                            <option value="0">{{translate('Accept')}}</option>
-                                            <option value="3">{{translate('Reject')}}</option>
-                                        </select>
+                                @if($product['status'] == 2)
+                                    <div class="col-sm-6">
+                                        <div class="form-group mb-0">
+                                            <label class="input-label" for="exampleFormControlInput1">
+                                                {{translate('product_status')}}
+                                            </label>
+                                            <select name="product_status" id="product_status" class="form-control js-select2-custom">
+                                                <option value="0">{{translate('Accept')}}</option>
+                                                <option value="3">{{translate('Reject')}}</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group mb-0">
-                                        <label class="input-label" for="exampleFormControlInput1">
-                                            {{translate('Remark')}}
-                                        </label>
-                                        <textarea name="product_remark" id="product_remark" cols="30" rows="3" class="form-control"></textarea>
+                                    <div class="col-sm-6">
+                                        <div class="form-group mb-0">
+                                            <label class="input-label" for="exampleFormControlInput1">
+                                                {{translate('Remark')}}
+                                            </label>
+                                            <textarea name="product_remark" id="product_remark" cols="30" rows="3" class="form-control"></textarea>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -359,7 +367,7 @@
             </div>
             <div class="col-12">
                 <div class="btn--container justify-content-end">
-                    <button type="reset" class="btn btn--reset">{{translate('clear')}}</button>
+                    <button type="reset" class="btn">{{translate('clear')}}</button>
                     <button type="submit" class="btn btn--primary">{{translate('update')}}</button>
                 </div>
             </div>
@@ -375,6 +383,25 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+            $('#sub-categories').change(function() {
+                var category_id = $(this).val();
+
+                if($('option:selected', this).attr('data-id') == '0') 
+                {
+                    $('.installation-inputs').removeClass('d-none');
+                    $('#installation_name').val();
+                    $('#installation_charges').val();
+                    $('#installation_description').val();
+                }
+                else
+                {
+                    $('.installation-inputs').addClass('d-none');
+                    $('#installation_name').val();
+                    $('#installation_charges').val();
+                    $('#installation_description').val();
+                }
+            });
+            
             $('.summernote').summernote({
                 height: 200
             });
@@ -545,7 +572,7 @@
                             ProgressBar: true
                         });
                         setTimeout(function () {
-                            location.href = "{{route('admin.product.pending-list')}}";
+                            location.href = "{{ URL::previous() }}";
                         }, 2000);
                     }
                 }

@@ -19,6 +19,7 @@ use App\Models\{
     User,
     Vendor,
 };
+use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\{JsonResponse,RedirectResponse};
@@ -182,18 +183,9 @@ class OrderController extends Controller
     public function ApprovalRequestAction(Request $request,$id): jsonResponse
     {
         $request->validate([
-            'deliveryDate' => 'nullable|date',
-            'timeSlot' => 'nullable',
+            'status' => 'nullable',
         ]);
         $order = $this->order->find($id);
-
-        if(!empty($request->delivery_date) && $request->delivery_date != null) {
-            $order->delivery_date = $request->delivery_date;
-        }
-
-        if(!empty($request->timeSlot) && $request->timeSlot != null) {
-            $order->delivery_timeslot_id = $request->timeSlot;
-        }
 
         if($request->status == 'accept') {
             $order->order_approval = 'accepted';
@@ -277,9 +269,54 @@ class OrderController extends Controller
     {
         $order = $this->order->find($request->id);
 
+        if($request->order_status == 'delivered' || $request->order_status == 'returned' || $request->order_status == 'failed' || $request->order_status == 'canceled' || $request->order_status == 'rejected') 
+        {
+            flash()->success(translate('Cannot do this update on '.$request->order_status.' status!'));
+            return back();
+        }
         $order->order_category = $request->order_status;
         $order->save();
         flash()->success(translate('Order Category updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function OrderDate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $order = $this->order->find($request->id);
+
+        if($request->order_status == 'delivered' || $request->order_status == 'returned' || $request->order_status == 'failed' || $request->order_status == 'canceled' || $request->order_status == 'rejected') 
+        {
+            flash()->success(translate('Cannot do this update on '.$request->order_status.' status!'));
+            return back();
+        }
+
+        $order->delivery_date = Carbon::parse($request->date)->format('Y-m-d');
+        $order->save();
+        flash()->success(translate('Order Date updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function OrderTime(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $order = $this->order->find($request->id);
+
+        if($request->order_status == 'delivered' || $request->order_status == 'returned' || $request->order_status == 'failed' || $request->order_status == 'canceled' || $request->order_status == 'rejected') 
+        {
+            flash()->success(translate('Cannot do this update on '.$request->order_status.' status!'));
+            return back();
+        }
+
+        $order->delivery_timeslot_id = $request->time;
+        $order->save();
+        flash()->success(translate('Order TimeSlot updated!'));
         return back();
     }
 
@@ -291,7 +328,6 @@ class OrderController extends Controller
      */
     public function addServiceman(Request $request): \Illuminate\Http\JsonResponse
     {
-        
         $request->validate([
             'service_item' => 'required',
             'service_man' => 'required',
@@ -564,33 +600,54 @@ class OrderController extends Controller
         }
         
         //editable
-        if ($request->order_status == 'out_for_delivery') {
-            
-            if ($order['delivery_date'] != 'null' && $order['delivery_timeslot_id'] != 'null') {
-                
-
-            }else{
+        if ($request->order_status == 'out_for_delivery') 
+        {
+            if ($order['delivery_date'] == 'null' && $order['delivery_timeslot_id'] == 'null') 
+            {
                 flash()->warning(translate('Please assign delivery Information first!'));
                 return response()->json(['status' => true]);
             }
         }
-        
 
         if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') {
             flash()->warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
             return response()->json(['status' => true]);
         }
 
-        
+        if ($request->order_status == 'delivered') {
+            if($order['delivery_date'] == 'null' && $order['delivery_timeslot_id'] == 'null' && $order['delivery_man_id'] == 'null')
+            {
+                flash()->warning(translate('Please assign delivery Information first!'));
+                return response()->json(['status' => true]);
+            }
 
-        
+            foreach ($order->OrderDetails as $key => $value) {
+                if($value['installation'] == 0 && $value['service_man_id'] != null)
+                {
+                    flash()->warning(translate('Please assign Service and Installation Information first!'));
+                    return response()->json(['status' => true]);
+                }
+            }
+
+            // if ($order['payment_method'] == 'cash_on_delivery') {
+            //     $partialData = OrderPartialPayment::where(['order_id' => $order->id])->first();
+            //     if ($partialData) {
+            //         $partial = new OrderPartialPayment;
+            //         $partial->order_id = $order['id'];
+            //         $partial->paid_with = 'cash_on_delivery';
+            //         $partial->paid_amount = $partialData->due_amount;
+            //         $partial->due_amount = 0;
+            //         $partial->save();
+            //     }
+            // }
+        }
 
         //stock adjust
         if ($request->order_status == 'returned' || $request->order_status == 'failed' || $request->order_status == 'canceled') {
             
             foreach ($order->OrderDetails as $detail) {
                 if (!isset($detail->variant)) {
-                    if ($detail['is_stock_decreased'] == 1) {
+                    if ($detail['is_stock_decreased'] == 0) {
                         $product = $this->product->find($detail['product_id']);
                         if (!isset($detail->variant)) {
                             dd('ache');
@@ -608,46 +665,7 @@ class OrderController extends Controller
                             $this->product->where(['id' => $product['id']])->update([
                                 'variations' => json_encode($variationStore),
                                 'total_stock' => $product['total_stock'] + $detail['quantity'],
-                            ]);
-                            $this->order_detail->where(['id' => $detail['id']])->update([
-                                'is_stock_decreased' => 0,
-                            ]);
-                        } else {
-                            flash()->warning(translate('Product_deleted'));
-                        }
-                    }
-                }
-            }
-            die;
-        } else {
-            foreach ($order->OrderDetails as $detail) {
-                if (!isset($detail->variant)) {
-                    if ($detail['is_stock_decreased'] == 0) {
-
-                        $product = $this->product->find($detail['product_id']);
-                        if ($product != null) {
-                            foreach ($order->details as $c) {
-                                $product = $this->product->find($c['product_id']);
-                                $type = json_decode($c['variation'])[0]->type;
-                                foreach (json_decode($product['variations'], true) as $var) {
-                                    if ($type == $var['type'] && $var['stock'] < $c['quantity']) {
-                                        flash()->error(translate('Stock is insufficient!'));
-                                        return back();
-                                    }
-                                }
-                            }
-
-                            $type = json_decode($detail['variation'])[0]->type;
-                            $variationStore = [];
-                            foreach (json_decode($product['variations'], true) as $var) {
-                                if ($type == $var['type']) {
-                                    $var['stock'] -= $detail['quantity'];
-                                }
-                                $variationStore[] = $var;
-                            }
-                            $this->product->where(['id' => $product['id']])->update([
-                                'variations' => json_encode($variationStore),
-                                'total_stock' => $product['total_stock'] - $detail['quantity'],
+                                'total_sale' => $product['total_sale'] - $detail['quantity'],
                             ]);
                             $this->order_detail->where(['id' => $detail['id']])->update([
                                 'is_stock_decreased' => 1,
@@ -656,57 +674,6 @@ class OrderController extends Controller
                             flash()->warning(translate('Product_deleted'));
                         }
                     }
-                }
-            }
-        }
-
-        if ($request->order_status == 'delivered') {
-            if ($order->is_guest == 0) {
-                // if($order->user_id) 
-                // {
-                //     CustomerLogic::create_loyalty_point_transaction($order->user_id, $order->id, $order->order_amount, 'order_place');
-                // }
-
-                // $user = $this->user->find($order->user_id);
-                // $isFirstOrder = $this->order->where(['user_id' => $user->id, 'order_status' => 'delivered'])->count('id');
-                // $referredByUser = $this->user->find($user->referred_by);
-
-                // if ($isFirstOrder < 2 && isset($user->referred_by) && isset($referredByUser))
-                // {
-                //     if($this->business_setting->where('key','ref_earning_status')->first()->value == 1)
-                //     {
-                //         CustomerLogic::referral_earning_wallet_transaction($order->user_id, 'referral_order_place', $referredByUser->id);
-                //     }
-                // }
-
-                // if ($order->user_id) {
-                //     $distributed_amount = $order->total_distributed_amount;
-                //     $user = User::find($order->user_id);
-                //     if ($user->referred_by != NULL) {
-                //         $level_user = $user->referred_by;
-                //         $level_data = Referral_setting::orderBy('Level', 'ASC')->get();
-
-                //         for ($i = 0; $i < count($level_data); $i++) {
-                //             if ($level_user != NULL) {
-                //                 $single_level_data = $level_data[$i];
-                //                 CustomerLogic::referral_level_earning_loyalty_transaction($level_user, 'referral_level_order_income', $order->id, $single_level_data->percentage, $distributed_amount);
-
-                //                 $level_user = User::find($level_user)->referred_by;
-                //             }
-                //         }
-                //     }
-                // }
-            }
-
-            if ($order['payment_method'] == 'cash_on_delivery') {
-                $partialData = OrderPartialPayment::where(['order_id' => $order->id])->first();
-                if ($partialData) {
-                    $partial = new OrderPartialPayment;
-                    $partial->order_id = $order['id'];
-                    $partial->paid_with = 'cash_on_delivery';
-                    $partial->paid_amount = $partialData->due_amount;
-                    $partial->due_amount = 0;
-                    $partial->save();
                 }
             }
         }
@@ -738,6 +705,28 @@ class OrderController extends Controller
         flash()->success(translate('Order status updated!'));
         return response()->json(['status' => true]);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

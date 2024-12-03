@@ -34,6 +34,7 @@ return new class extends Migration
             $table->tinyInteger('installation')->default(1)->comment('0 = required | 1 = not required');
             $table->decimal('installastion_amount',15,2)->default(0);
             $table->enum('gst_status',['included','excluded'])->default('excluded');
+            $table->decimal('advance_payment',8,2)->default(0);
             $table->timestamps();
         });
     }

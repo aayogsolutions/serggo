@@ -341,7 +341,7 @@
                                             </a>
                                         </li>
 
-                                        <li class="nav-item {{Request::is('admin/product/vendor/approval-list')?'active':''}}">
+                                        <li class="nav-item {{Request::is('admin/product/vendor/approval*')?'active':''}}">
                                             <a class="nav-link " href="{{route('admin.product.approval-list')}}" title="{{translate('sub_categories')}}">
                                                 <span class="tio-circle nav-indicator-icon"></span>
                                                 <span class="text-truncate">
@@ -350,7 +350,7 @@
                                             </a>
                                         </li>
 
-                                        <li class="nav-item {{Request::is('admin/product/vendor/rejected-list')?'active':''}}">
+                                        <li class="nav-item {{Request::is('admin/product/vendor/rejected*')?'active':''}}">
                                             <a class="nav-link " href="{{route('admin.product.rejected-list')}}" title="{{translate('categories')}}">
                                                 <span class="tio-circle nav-indicator-icon"></span>
                                                 <span class="text-truncate">

@@ -67,25 +67,9 @@ class AdminController extends Controller
             ['created_at', '>=' , $to->format('Y-m-d H:i:s')],
         ])->count();
 
-        $newvendorkyc = Vendor::where([
-            ['role', '=', '0'],
-            ['is_verify', '=', 1],
-            ['created_at', '<=' , $from->format('Y-m-d H:i:s')],
-            ['created_at', '>=' , $to->format('Y-m-d H:i:s')],
-        ])->count();
-
-        $newpartnerkyc = Vendor::where([
-            ['role', '=', '1'],
-            ['is_verify', '=', 1],
-            ['created_at', '<=' , $from->format('Y-m-d H:i:s')],
-            ['created_at', '>=' , $to->format('Y-m-d H:i:s')],
-        ])->count();
-
         return response()->json([
             'data' => [
                 'new_order' => $neworder,
-                'new_vendor_kyc' => $newvendorkyc,
-                'new_partner_kyc' => $newpartnerkyc
             ]
         ]);
     }

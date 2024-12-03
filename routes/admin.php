@@ -350,6 +350,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('add-delivery-man/{order_id}', [OrderController::class, 'addDeliveryman'])->name('add.delivery.man');
             Route::get('payment-status', [OrderController::class, 'paymentStatus'])->name('payment-status');
             Route::get('order-category', [OrderController::class, 'OrderCategory'])->name('order.category');
+            Route::get('order-date', [OrderController::class, 'OrderDate'])->name('order.date');
+            Route::get('order-time', [OrderController::class, 'OrderTime'])->name('order.time');
             Route::get('generate-invoice/{id}', [OrderController::class, 'generateInvoice'])->name('generate-invoice')->withoutMiddleware(['module:order_management']);
             
             
@@ -437,7 +439,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('pending-list', [ProductController::class, 'PendingList'])->name('pending-list');
 
                 Route::get('approval-list', [ProductController::class, 'ApprovalList'])->name('approval-list');
-                Route::get('approved-products-list/{id}', [ProductController::class, 'ApprovedProductList'])->name('approved-products-list');
+                Route::get('approval-products-list/{id}', [ProductController::class, 'ApprovedProductList'])->name('approved-products-list');
 
                 Route::get('rejected-list', [ProductController::class, 'RejectedList'])->name('rejected-list');
                 Route::get('rejected-products-list/{id}', [ProductController::class, 'RejectedProductList'])->name('rejected-products-list');

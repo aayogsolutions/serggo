@@ -517,12 +517,16 @@ class ProductController extends Controller
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = $request->status? $request->status:0;
-        if(isset($request->installation) && !is_null($request->installation))
+        if(isset($request->installation) && $request->installation != 'none')
         {
             $Installations = $this->Installation->find($request->installation);
             $product->installation_name = $Installations->installation_name; 
             $product->installation_charges = $Installations->installation_charges; 
             $product->installation_description = $Installations->installation_description; 
+        }else{
+            $product->installation_name = null; 
+            $product->installation_charges = null; 
+            $product->installation_description = 0;
         }
 
         $product->is_advance = $request->advance_status;
@@ -751,8 +755,6 @@ class ProductController extends Controller
             'attribute_id' => 'required',
             'advance_status' => 'required',
             'advance' => 'required_if:advance_status,0|min:0',
-            'product_status' => 'required',
-            'product_remark' => 'required_if:product_status,3',
         ], [
             'name.required' => 'Product name is required!',
             'category_id.required' => 'category  is required!',
@@ -898,17 +900,23 @@ class ProductController extends Controller
         $product->discount_type = $request->discount_type;
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
-        $product->status = $request->product_status;
-        if($request->product_status == '3')
+        if(isset($request->product_status))
         {
-            $product->remark = $request->product_remark;
+            $product->status = $request->product_status;
+            if($request->product_status == '3')
+            {
+                $product->remark = $request->product_remark;
+            }
         }
-        if(isset($request->installation) && !is_null($request->installation))
+        if($request->installation_name != null && $request->installation_charges != 0)
         {
-            $Installations = $this->Installation->find($request->installation);
-            $product->installation_name = $Installations->installation_name; 
-            $product->installation_charges = $Installations->installation_charges; 
-            $product->installation_description = $Installations->installation_description; 
+            $product->installation_name = $request->installation_name; 
+            $product->installation_charges = $request->installation_charges; 
+            $product->installation_description = $request->installation_description; 
+        }else{
+            $product->installation_name = null; 
+            $product->installation_charges = null; 
+            $product->installation_description = 0;
         }
 
         $product->is_advance = $request->advance_status;
