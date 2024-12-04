@@ -382,7 +382,6 @@ class OrderController extends Controller
                         $adminOrder->payment_by = $request->payment_by;
                         $adminOrder->transaction_reference = $request->transaction_reference;
                     }
-                    $adminOrder->payment_method = $request->payment_method;
                     $adminOrder->delivery_address_id = $request->address_id;
                     $adminOrder->free_delivery = $request->free_delivery;
                     $adminOrder->vender_id = $key;

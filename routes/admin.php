@@ -546,6 +546,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                     Route::delete('delete/{id}', [TimeSlotController::class, 'delete'])->name('delete');
                 });
 
+                // Timr Slot Setup
+                Route::group(['prefix' => 'service/timeSlot', 'as' => 'service.timeSlot.'], function () {
+                    Route::get('add-new', [TimeSlotController::class, 'ServiceIndex'])->name('add-new');
+                    Route::post('store', [TimeSlotController::class, 'ServiceStore'])->name('store');
+                    Route::get('update/{id}', [TimeSlotController::class, 'ServiceEdit'])->name('update');
+                    Route::post('update/{id}', [TimeSlotController::class, 'ServiceUpdate']);
+                    Route::get('status/{id}/{status}', [TimeSlotController::class, 'ServiceStatus'])->name('status');
+                    Route::post('priority/{id}', [TimeSlotController::class, 'ServicePriority'])->name('priority');
+                    Route::delete('delete/{id}', [TimeSlotController::class, 'ServiceDelete'])->name('delete');
+                });
+
 
                 // Route::get('currency-position/{position}', [BusinessSettingsController::class, 'currencySymbolPosition'])->name('currency-position');
                 // Route::get('self-pickup/{status}', [BusinessSettingsController::class, 'selfPickupStatus'])->name('self-pickup');

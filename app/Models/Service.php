@@ -14,9 +14,14 @@ class Service extends Model
         return $this->query()->where('status', 0);
     }
 
-    public function Services()
+    public function Services() : \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ServiceCategory::class,'child_category_id');
+    }
+
+    public function Subcategory() : \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ServiceCategory::class,'id' ,'sub_category_id');
     }
 
     public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany

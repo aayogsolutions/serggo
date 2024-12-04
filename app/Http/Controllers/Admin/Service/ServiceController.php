@@ -114,7 +114,6 @@ class ServiceController extends Controller
             'name' => 'required',
             'category_id' => 'required',
             'images' => 'required',
-            // 'total_stock' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:0',
             'time_duration' => 'required',
            

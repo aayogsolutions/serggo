@@ -27,12 +27,18 @@
                 @csrf
                 <div class="row align-items-end g-4">
                     <div class="col-sm-6 lang_form" id="-form">
-                        <label class="input-label"
-                            for="exampleFormControlInput1">{{translate('name')}}
+                        <label class="input-label" for="exampleFormControlInput1">
+                            {{translate('name')}}
+                        </label>
+                        <input type="text" name="name" value="{{$category['name']}}" class="form-control" maxlength="255" placeholder="{{ translate('New Category') }}" required>
+
+                        <br>
+                        <div class="{{ $category->position != 1 ? 'd-none' : '' }}">
+                            <label class="input-label" for="exampleFormControlInput1">
+                                {{translate('name')}}
                             </label>
-                        <input type="text" name="name" value="{{$category['name']}}"
-                            class="form-control" oninvalid="document.getElementById('en-link').click()"
-                            placeholder="{{ translate('New Category') }}" required>
+                            <input type="text" name="fees" value="{{$category['fees']}}" class="form-control" placeholder="{{ translate('New Category') }}" required>
+                        </div>
                     </div>
                     <input name="position" value="0" hidden>
                     <div class="col-sm-6">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ServiceTimeSlot;
 use Illuminate\Http\Request;
 use App\Models\TimeSlot;
 use Illuminate\Contracts\Foundation\Application;
@@ -14,7 +15,8 @@ use Illuminate\Support\Facades\DB;
 class TimeSlotController extends Controller
 {
     public function __construct(
-        private TimeSlot $timeSlot
+        private TimeSlot $timeSlot,
+        private ServiceTimeSlot $servicetimeSlot
     ){}
 
     /**
@@ -138,6 +140,109 @@ class TimeSlotController extends Controller
     public function delete(Request $request): \Illuminate\Http\RedirectResponse
     {
         $timeSlot = $this->timeSlot->find($request->id);
+        $timeSlot->delete();
+        flash()->success(translate('Time Slot removed!'));
+        return back();
+    }
+
+    // Service Time Slot
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function ServiceIndex(): View|Factory|Application
+    {
+        $timeSlots = $this->servicetimeSlot->orderBy('priority', 'asc')->get();
+        return view('Admin.views.timeSlot.service.index', compact('timeSlots'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function ServiceStore(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'time' => 'required',
+        ]);
+        
+        if(!$this->servicetimeSlot->where('time', $request->time)->exists()) {
+           $time = $this->servicetimeSlot;
+           $time->time = $request->time;
+           $time->save();
+
+           flash()->success(translate('Time Slot added successfully!'));
+           return back();
+        }else{
+           flash()->error(translate('Time Slot already exists!'));
+           return back(); 
+        }
+    }
+
+    /**
+     * @param $id
+     * @return Factory|View|Application
+     */
+    public function ServiceEdit($id): View|Factory|Application
+    {
+        $timeSlots = $this->servicetimeSlot->where(['id' => $id])->first();
+        return view('Admin.views.timeSlot.service.edit', compact('timeSlots'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function ServiceUpdate(Request $request, $id): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'time' => 'required',
+        ]);
+
+        $time = $this->servicetimeSlot->find($id);
+        $time->time = $request->time;
+        $time->save();
+
+        flash()->success(translate('Time Slot updated successfully!'));
+        return redirect()->route('admin.business-settings.store.service.timeSlot.add-new');
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function ServiceStatus(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $timeSlot = $this->servicetimeSlot->find($request->id);
+        $timeSlot->status = $request->status;
+        $timeSlot->save();
+        flash()->success(translate('TimeSlot status updated!'));
+        return back();
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ServicePriority(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $timeSlot = $this->servicetimeSlot->find($request->id);
+        $timeSlot->priority = $request->priority;
+        $timeSlot->save();
+        flash()->success(translate('TimeSlot priority updated!'));
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function ServiceDelete(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $timeSlot = $this->servicetimeSlot->find($request->id);
         $timeSlot->delete();
         flash()->success(translate('Time Slot removed!'));
         return back();

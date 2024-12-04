@@ -27,6 +27,11 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link {{Request::is('admin/business-settings/store/service/timeSlot*')?'active':''}}" href="{{route('admin.business-settings.store.service.timeSlot.add-new')}}">
+                {{translate('Service Time Slot')}}
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link {{Request::is('admin/business-settings/store/delivery-setup')?'active':''}}" href="{{route('admin.business-settings.store.delivery-setup')}}">
                 {{translate('Delivery Fee Setup')}}
             </a>

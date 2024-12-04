@@ -77,17 +77,17 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\User::class,
         ],
 
         'admin' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\Admin::class),
+            'model' => App\Models\Admin::class,
         ],
 
         'vendor' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\Vendor::class),
+            'model' => App\Models\Vendor::class,
         ],
 
         'branches' => [

@@ -185,7 +185,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
 
         Route::group(['prefix' => 'service'], function(){
 
-            Route::get('checkout',[ServiceOrderController::class,'CheckOut']);
+            Route::get('checkout/{id}',[ServiceOrderController::class,'CheckOut']);
             Route::post('place-order',[ServiceOrderController::class,'PlaceOrder']);
 
             // Order History

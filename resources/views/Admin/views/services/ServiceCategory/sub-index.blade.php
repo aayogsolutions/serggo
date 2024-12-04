@@ -28,17 +28,29 @@
                             <div class="col-md-6">
                                 <br>
                                 <div class="lang_form" id="-form">
-                                    <label class="form-label" for="exampleFormControlInput1">{{translate('sub_category')}} {{translate('name')}}</label>
+                                    <label class="form-label" for="exampleFormControlInput1">
+                                        {{translate('sub_category')}} {{translate('name')}}
+                                        <span class="input-label-secondary">*</span>
+                                    </label>
                                     <input type="text" name="name" class="form-control" placeholder="{{ translate('New Sub Category') }}" required>
+                                </div>
+                                <br>
+                                <div class="lang_form" id="-form">
+                                    <label class="form-label" for="exampleFormControlInput1">
+                                        {{translate('platform')}} {{translate('fees')}}
+                                        <span class="input-label-secondary">*</span>
+                                    </label>
+                                    <input type="number" name="fees" class="form-control" min="0" placeholder="{{ translate('platform fees') }}" required>
                                 </div>
 
                                 <input name="position" value="1" hidden>
                                 <br>
                                 <div class="">
                                     <div class="form-group">
-                                        <label class="form-label"
-                                            for="exampleFormControlSelect1">{{translate('main')}} {{translate('category')}}
-                                            <span class="input-label-secondary">*</span></label>
+                                        <label class="form-label" for="exampleFormControlSelect1">
+                                            {{translate('main')}} {{translate('category')}}
+                                            <span class="input-label-secondary">*</span>
+                                        </label>
                                         <select id="exampleFormControlSelect1" name="parent_id" class="form-control" required>
                                             @foreach(\App\Models\ServiceCategory::where(['position'=>0])->get() as $category)
                                             <option value="{{$category['id']}}">{{$category['name']}}</option>
@@ -103,6 +115,7 @@
                             <th class="text-center">{{translate('Image')}}</th>
                             <th>{{translate('main')}} {{translate('category')}}</th>
                             <th>{{translate('sub_category')}}</th>
+                            <th>{{translate('platform_fees')}}</th>
                             <th>{{translate('status')}}</th>
                             <th class="text-center">{{translate('action')}}</th>
                         </tr>
@@ -126,6 +139,12 @@
                             <td>
                                 <span class="d-block font-size-sm text-body">
                                     {{$category['name']}}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="d-block font-size-sm text-body">
+                                    {{$category['fees']}}
                                 </span>
                             </td>
 

@@ -113,6 +113,7 @@ class ServiceCategoryController extends Controller
         $category->image = Helpers_upload('Images/category/',  $image->getClientOriginalExtension() , $image);;
         $category->parent_id = $request->parent_id ?? 0;
         $category->position = $request->position;
+        $category->fees = $request->fees;
         $category->save();
         
         if($request->parent_id == 0)
@@ -204,6 +205,7 @@ class ServiceCategoryController extends Controller
 
         $category = ServiceCategory::find($id);
         $category->name = $request->name;
+        $category->fees = $request->fees;
         $category->image = $request->has('image') ? Helpers_update('Images/category/', $category->image, $request->file('image')->getClientOriginalExtension(), $request->file('image')) : $category->image;
         $category->save();
         

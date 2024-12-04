@@ -30,6 +30,7 @@
                             </div>
 
                             <input name="position" value="0" hidden>
+                            <input name="fees" value="0" hidden>
                             <div class="col-sm-6">
                                 <div>
                                     <div class="text-center mb-3">
