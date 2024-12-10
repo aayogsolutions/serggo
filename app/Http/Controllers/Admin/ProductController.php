@@ -8,6 +8,8 @@ use App\Models\{
     Brands, 
     BusinessSetting,
     Category,
+    DisplaySectionContent,
+    HomeSliderBanner,
     Products,
     ProductReview,
     Vendor,
@@ -136,7 +138,7 @@ class ProductController extends Controller
             'images' => 'required',
             'total_stock' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:0',
-            'brand' => 'required',
+            // 'brand' => 'required',
             'attribute_id' => 'required',
             'advance_status' => 'required',
             'advance' => 'required_if:advance_status,0|min:0',
@@ -232,11 +234,14 @@ class ProductController extends Controller
 
         $product = $this->product;
         $product->name = $request->name;
-        $product->brand_name = json_encode($this->brand->find($request->brand));
-        $product->brand_id = $request->brand;
-        if(isset($request->otherbrand) && !is_null($request->otherbrand))
+        if($request->brand != null)
         {
-            $product->brandname_if_other = $request->otherbrand;
+            $product->brand_name = json_encode($this->brand->find($request->brand));
+            $product->brand_id = $request->brand;
+            if(isset($request->otherbrand) && !is_null($request->otherbrand))
+            {
+                $product->brandname_if_other = $request->otherbrand;
+            }
         }
         $product->admin_id = auth('admins')->user()->id;
         $product->category_id = $request->category_id;
@@ -261,7 +266,10 @@ class ProductController extends Controller
         $product->total_stock = $request->total_stock;
         $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $product->status = 0;
-        $product->tags = json_encode($request->tag_name);
+        if($request->tag_name != null)
+        {
+            $product->tags = json_encode($request->tag_name);
+        }
         $product->is_advance = $request->advance_status;
         if($request->advance_status == 1)
         {
@@ -294,6 +302,19 @@ class ProductController extends Controller
      */
     public function status(Request $request): RedirectResponse
     {
+        if($request->status == 1){
+            if(HomeSliderBanner::where(['item_type' => 'product', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Slider Banner is available for this product! Cannot Change Status!'));
+                return back();
+            }
+
+            if(DisplaySectionContent::where(['item_type' => 'product', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Display Section Content is available for this product! Cannot Change Status!'));
+                return back();
+            }
+        }
         $product = $this->product->find($request->id);
         $product->status = $request->status;
         $product->save();
@@ -387,16 +408,20 @@ class ProductController extends Controller
         // }
 
         $tags = [];
-        if ($request->tags != null) {
-            $tag = explode(",", str_replace(" ", "",$request->tags));
-        }
-        if(isset($tag)){
-            foreach ($tag as $key => $value) {
-                if($value != ""){
-                    $tags[] = $value;
+        if($request->tags != null)
+        {
+            if ($request->tags != null) {
+                $tag = explode(",", str_replace(" ", "",$request->tags));
+            }
+            if(isset($tag)){
+                foreach ($tag as $key => $value) {
+                    if($value != ""){
+                        $tags[] = $value;
+                    }
                 }
             }
         }
+        
 
         $product = $this->product->find($id);
 
@@ -495,11 +520,14 @@ class ProductController extends Controller
         }
 
         $product->name = $request->name;
-        $product->brand_name = json_encode($this->brand->find($request->brand));
-        $product->brand_id = $request->brand;
-        if(isset($request->otherbrand) && !is_null($request->otherbrand))
+        if($request->brand != null)
         {
-            $product->brandname_if_other = $request->otherbrand;
+            $product->brand_name = json_encode($this->brand->find($request->brand));
+            $product->brand_id = $request->brand;
+            if(isset($request->otherbrand) && !is_null($request->otherbrand))
+            {
+                $product->brandname_if_other = $request->otherbrand;
+            }
         }
         $product->category_id = $request->category_id;
         $product->sub_category_id = $request->sub_category_id;
@@ -579,13 +607,25 @@ class ProductController extends Controller
      */
     public function delete(Request $request): \Illuminate\Http\RedirectResponse
     {
+        if(HomeSliderBanner::where(['item_type' => 'product', 'item_id' => $request->id])->exists())
+        {
+            flash()->warning(translate('Slider Banner is available for this product! Cannot delete!'));
+            return back();
+        }
+
+        if(DisplaySectionContent::where(['item_type' => 'product', 'item_id' => $request->id])->exists())
+        {
+            flash()->warning(translate('Display Section Content is available for this product! Cannot delete!'));
+            return back();
+        }
+
         $product = $this->product->find($request->id);
+
         foreach (json_decode($product['image'], true) as $img) {
             if (File::exists($img)) {
                 File::delete($img);
             }
         }
-
         
         $product_reviews = ProductReview::where('product_id', $product->id)->get();
         foreach ($product_reviews as $review) {

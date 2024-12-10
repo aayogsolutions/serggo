@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\RedirectResponse;
-use App\Models\{Category,Color};
+use App\Models\{Category,Color, DisplaySectionContent, HomeSliderBanner, Products};
 use Illuminate\Support\Facades\File;
 
 class CategoryController extends Controller
@@ -120,6 +120,36 @@ class CategoryController extends Controller
     public function status(Request $request): RedirectResponse
     {
         $category = Category::find($request->id);
+
+        if($request->status == 1)
+        {
+            if($category->parent_id == 0)
+            {
+                if(Category::where(['parent_id' => $category->id])->exists())
+                {
+                    flash()->error(translate('Sub Category exists!'));
+                    return back();
+                }
+            }else{
+                if(Products::where(['sub_category_id' => $category->id])->exists())
+                {
+                    flash()->error(translate('Product exists!'));
+                    return back();
+                }
+            }
+
+            if(HomeSliderBanner::where(['item_type' => 'category', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Slider Banner is available for this Category! Cannot Change Status!'));
+                return back();
+            }
+
+            if(DisplaySectionContent::where(['item_type' => 'category', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Display Section Content is available for this Category! Cannot Change Status!'));
+                return back();
+            }
+        }
         $category->status = $request->status;
         $category->save();
         flash()->success($category->parent_id == 0 ? translate('Category status updated!') : translate('Sub Category status updated!'));
@@ -177,6 +207,31 @@ class CategoryController extends Controller
     public function delete(Request $request): RedirectResponse
     {
         $category = Category::find($request->id);
+        
+        if(Category::where(['parent_id' => $category->id])->exists())
+        {
+            flash()->error(translate('Sub Category exists!'));
+            return back();
+        }
+    
+        if(Products::where(['sub_category_id' => $category->id])->exists())
+        {
+            flash()->error(translate('Product exists!'));
+            return back();
+        }
+
+        if(HomeSliderBanner::where(['item_type' => 'category', 'item_id' => $request->id])->exists())
+        {
+            flash()->warning(translate('Slider Banner is available for this Category! Cannot delete!'));
+            return back();
+        }
+
+        if(DisplaySectionContent::where(['item_type' => 'category', 'item_id' => $request->id])->exists())
+        {
+            flash()->warning(translate('Display Section Content is available for this Category! Cannot delete!'));
+            return back();
+        }
+
         if ($category->childes->count() == 0) {
             if (File::exists($category['image'])) {
                 File::delete($category['image']);
@@ -186,7 +241,7 @@ class CategoryController extends Controller
         } else {
             flash()->warning($category->parent_id == 0 ? translate('Remove subcategories first!') : translate('Sub Remove subcategories first!'));
         }
-       
+
         return back();
     }
 

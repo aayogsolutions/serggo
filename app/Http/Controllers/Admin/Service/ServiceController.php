@@ -208,12 +208,6 @@ class ServiceController extends Controller
      
         $service = $this->service;
         $service->name = $request->name;
-        // $product->brand_name = json_encode($this->brand->find($request->brand));
-        // $product->brand_id = $request->brand;
-        // if(isset($request->otherbrand) && !is_null($request->otherbrand))
-        // {
-        //     $product->brandname_if_other = $request->otherbrand;
-        // }
         $service->category_id = $request->category_id;
         $service->sub_category_id = $request->sub_category_id;
         $service->child_category_id = $request->child_category_id;
@@ -228,14 +222,11 @@ class ServiceController extends Controller
         $service->tax_type = $request->tax_type;
         $service->discount = $request->discount_type == 'amount' ? $request->discount : $request->discount;
         $service->discount_type = $request->discount_type;
-        // $product->installation_name = $installations->installation_name;
-        // $product->installation_description = $installations->installation_description;
-        // $product->installation_charges = $installations->installation_charges;
-        // $product->total_stock = $request->total_stock;
-        // $product->attributes = $request->has('attribute_id') ? json_encode($request->attribute_id) : json_encode([]);
         $service->status = 0;
-        $service->tags = json_encode($request->tag_name);
-        
+        if($request->tag_name != null)
+        {
+            $service->tags = json_encode($request->tag_name);
+        }
         $service->save();
 
         return response()->json([], 200);
@@ -364,16 +355,20 @@ class ServiceController extends Controller
         }
 
         $tags = [];
-        if ($request->tags != null) {
-            $tag = explode(",", str_replace(" ", "",$request->tags));
-        }
-        if(isset($tag)){
-            foreach ($tag as $key => $value) {
-                if($value != ""){
-                    $tags[] = $value;
+        if($request->tags != null)
+        {
+            if ($request->tags != null) {
+                $tag = explode(",", str_replace(" ", "",$request->tags));
+            }
+            if(isset($tag)){
+                foreach ($tag as $key => $value) {
+                    if($value != ""){
+                        $tags[] = $value;
+                    }
                 }
             }
         }
+        
 
         $service = $this->service->find($id);
 

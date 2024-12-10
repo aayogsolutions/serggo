@@ -275,12 +275,12 @@ if(! function_exists('homesliderbanner_data_formatting')) {
                     if(!is_null($updated_product) && $updated_product != [])
                     {
                         $item->item_detail = product_data_formatting($updated_product,false,false,true);
+                    }else {
+                        $item->item_detail = product_data_formatting($item->item_detail,false,false,true);
                     }
-                    // $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? product_data_formatting($item->item_detail,false,false,true) : product_data_formatting(json_decode($item->item_detail),false,false,true);
                 }else{
                     $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : json_decode($item->item_detail);
                 }
-                // $item->item_detail = gettype(json_decode($item->item_detail)) == 'array' ? $item->item_detail : product_data_formatting(json_decode($item->item_detail));
                 
                 array_push($storage, $item);
             }
@@ -292,14 +292,12 @@ if(! function_exists('homesliderbanner_data_formatting')) {
                 if(!is_null($updated_product) && $updated_product != [])
                 {
                     $data->item_detail = product_data_formatting($updated_product,false,false,true);
+                }else{
+                    $data->item_detail = product_data_formatting($data->item_detail,false,false,true);
                 }
-                // $data->item_detail = product_data_formatting(Products::find($data->item_id),false,false,true);
-                // $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? product_data_formatting($data->item_detail,false,false,true) : product_data_formatting(json_decode($data->item_detail),false,false,true);
             }else{
                 $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
             }
-            // $data->item_detail = gettype(json_decode($data->item_detail)) == 'array' ? $data->item_detail : json_decode($data->item_detail);
-            
         }
 
         return $data;
@@ -320,9 +318,9 @@ if(! function_exists('display_data_formatting')) {
                         if(!is_null($updated_product) && $updated_product != [])
                         {
                             $child->item_detail = product_data_formatting($updated_product,false,false,true);
+                        }else{
+                            $child->item_detail = product_data_formatting($child->item_detail,false,false,true);
                         }
-                        // $child->item_detail = product_data_formatting(Products::find($child->item_id),false,false,true);
-                        // $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
                     }else{
                         $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? $child->item_detail : json_decode($child->item_detail);
                     }
@@ -338,9 +336,9 @@ if(! function_exists('display_data_formatting')) {
                     if(!is_null($updated_product) && $updated_product != [])
                     {
                         $child->item_detail = product_data_formatting($updated_product,false,false,true);
+                    }else {
+                        $child->item_detail = product_data_formatting($child->item_detail,false,false,true);
                     }
-                    // $child->item_detail = product_data_formatting(Products::find($child->item_id),false,false,true);
-                    // $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? product_data_formatting($child->item_detail) : product_data_formatting(json_decode($child->item_detail));
                 }else{
                     $child->item_detail = gettype(json_decode($child->item_detail)) == 'array' ? $child->item_detail : json_decode($child->item_detail);
                 }

@@ -206,6 +206,15 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });
+
+        Route::group(['prefix' => 'orders'], function(){
+
+            Route::get('/info', [VendorProductController::class,'CreateProduct']);
+            Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
+            Route::post('/store', [VendorProductController::class,'StoreProduct']);
+            Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
+            Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
+        });
     });
 
     Route::group(['prefix' => 'partner'], function(){

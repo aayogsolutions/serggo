@@ -218,4 +218,48 @@ class OrderController extends Controller
             'data' => $adminOrder->id
         ],200);
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function OrderHistory()
+    {
+        try {
+            $order = Order::where(['order_type' => 'service','user_id' => Auth::user()->id])->orderBy('id', 'desc')->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Order History',
+                'data' => $order
+            ],200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ],401);
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function OrderItems($id)
+    {
+        try {
+            $order = Order::where('id', $id)->first();
+            return response()->json([
+                'status' => true,
+                'message' => 'Order Status',
+                'data' => $order
+            ],200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ],401);
+        }
+    }
 }

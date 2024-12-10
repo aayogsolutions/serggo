@@ -7,7 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Http\RedirectResponse;
-use App\Models\{ServiceCategory,Color};
+use App\Models\{
+    Category, 
+    ServiceCategory, 
+    DisplaySectionContent, 
+    HomeSliderBanner,  
+    Service
+};
 use Illuminate\Support\Facades\File;
 
 class ServiceCategoryController extends Controller
@@ -180,6 +186,37 @@ class ServiceCategoryController extends Controller
     public function status(Request $request): RedirectResponse
     {
         $category = ServiceCategory::find($request->id);
+        
+        if($category->position == 0 || $category->position == 1)
+        {
+            if(Category::where(['parent_id' => $category->id])->exists())
+            {
+                flash()->error(translate('Childs of this Category! exists!'));
+                return back();
+            }
+        }else{
+            if(Service::where(['child_category_id' => $category->id])->exists())
+            {
+                flash()->error(translate('Product exists!'));
+                return back();
+            }
+        }
+        if($category->position == 0)
+        {
+            if(HomeSliderBanner::where(['item_type' => 'service', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Slider Banner is available for this Category! Cannot Change Status!'));
+                return back();
+            }
+
+            if(DisplaySectionContent::where(['item_type' => 'service', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Display Section Content is available for this Category! Cannot Change Status!'));
+                return back();
+            }
+        }
+
+        
         $category->status = $request->status;
         $category->save();
         flash()->success($category->parent_id == 0 ? translate('Category status updated!') : translate('Sub Category status updated!'));
@@ -228,7 +265,38 @@ class ServiceCategoryController extends Controller
      */
     public function delete(Request $request): RedirectResponse
     {
+        
         $category = ServiceCategory::find($request->id);
+
+        if($category->position == 0 || $category->position == 1)
+        {
+            if(Category::where(['parent_id' => $category->id])->exists())
+            {
+                flash()->error(translate('Childs of this Category! exists!'));
+                return back();
+            }
+        }else{
+            if(Service::where(['child_category_id' => $category->id])->exists())
+            {
+                flash()->error(translate('Product exists!'));
+                return back();
+            }
+        }
+        if($category->position == 0)
+        {
+            if(HomeSliderBanner::where(['item_type' => 'service', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Slider Banner is available for this Category! Cannot delete!'));
+                return back();
+            }
+
+            if(DisplaySectionContent::where(['item_type' => 'service', 'item_id' => $request->id])->exists())
+            {
+                flash()->warning(translate('Display Section Content is available for this Category! Cannot delete!'));
+                return back();
+            }
+        }
+        
         if ($category->childes->count() == 0) {
             if (File::exists($category['image'])) {
                 File::delete($category['image']);
