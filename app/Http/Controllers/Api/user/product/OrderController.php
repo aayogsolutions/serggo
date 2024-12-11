@@ -593,7 +593,7 @@ class OrderController extends Controller
     public function OrderHistory() : JsonResponse
     {
         try {
-            $orders = $this->order->where(['order_type' => 'service','user_id' => Auth::user()->id])->orderBy('id', 'desc')->with('OrderDetails')->get();
+            $orders = $this->order->where(['order_type' => 'goods','user_id' => Auth::user()->id])->orderBy('id', 'desc')->with('OrderDetails')->get();
 
             $orders = Helpers_Orders_formatting($orders, true, true, false);
             return response()->json([

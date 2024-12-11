@@ -52,27 +52,28 @@ class CustomerWalletController extends Controller
      */
     public function addFund(Request $request): RedirectResponse
     {
-      
-        $validator = Validator::make($request->all(), [
-            'customer_id'=>'exists:users,id',
-            'amount'=>'numeric|min:.01',
+        $request->validate([
+            'customer_id' => 'required',
+            'amount' => 'required|numeric|min:.01',
+            'referance' => 'required',
         ]);
 
-         $customer = User::find($request->customer_id);
-         $customer->wallet_balance += $request->amount;
-         $customer->save();
+        $customer = User::find($request->customer_id);
+        $customer->wallet_balance += $request->amount;
+        $customer->save();
 
-         $transactions = new WalletTranscation();
-         $transactions->user_id = $request->customer_id;
-         $transactions->transactions_id = Helpers_generate_transction_id();
-         $transactions->credit = $request->amount;
-         $transactions->debit = 0;
-         $transactions->transactions_type = "Add_fund_by_admin";
-         $transactions->reference = $request->referance;
-         $transactions->balance = $customer->wallet_balance;
+        $transactions = new WalletTranscation();
+        $transactions->user_id = $request->customer_id;
+        $transactions->transactions_id = Helpers_generate_transction_id();
+        $transactions->credit = $request->amount;
+        $transactions->debit = 0;
+        $transactions->transactions_type = "Add_fund_by_admin";
+        $transactions->reference = $request->referance ?? 'Add_fund_by_admin';
+        $transactions->balance = $customer->wallet_balance;
         $transactions->save();
-         flash()->success(translate('Add Fund successfully!'));
-         return back();
+
+        flash()->success(translate('Add Fund successfully!'));
+        return back();
     }
 
     /**
