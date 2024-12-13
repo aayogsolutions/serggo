@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
@@ -29,33 +29,55 @@ class DashboardController extends Controller
                     'status' => false,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'You Need to Submit KYC',
-                    'data' => []
+                    'data' => $vendor
                 ],200);
-            }elseif ($vendor->is_verify == 1) 
+            }
+            elseif ($vendor->is_verify == 1) 
             {
+                $vendor->aadhar_document =  gettype($vendor->aadhar_document) == 'array' ? $vendor->aadhar_document : json_decode($vendor->aadhar_document, true);
+                $vendor->category =  gettype($vendor->category) == 'array' ? $vendor->category : json_decode($vendor->category, true);
+                $vendor->working_days =  gettype($vendor->working_days) == 'array' ? $vendor->working_days : json_decode($vendor->working_days, true);
+                
+
                 return response()->json([
                     'status' => true,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'KYC Approval Pending',
                     'data' => [
-                        'vendor' => $vendor
+                        'banner' => [],
+                        'vendor' => $vendor,
+                        'order' => []
                     ]
                 ],200);
-            }elseif ($vendor->is_verify == 2) 
+            }
+            elseif ($vendor->is_verify == 2) 
             {
+                $orders = Helpers_Orders_formatting(Order::where(['vender_id' => $vendor->id , 'order_approval' => 'pending'])->orderby('id','desc')->with(['customer','OrderDetails'])->get(), true, true, false);
                 
-                // Partner Orders
+                $vendor->aadhar_document =  gettype($vendor->aadhar_document) == 'array' ? $vendor->aadhar_document : json_decode($vendor->aadhar_document, true);
+                $vendor->category =  gettype($vendor->category) == 'array' ? $vendor->category : json_decode($vendor->category, true);
+                $vendor->working_days =  gettype($vendor->working_days) == 'array' ? $vendor->working_days : json_decode($vendor->working_days, true);
+                
+
+                // Vender Orders
                 return response()->json([
                     'status' => true,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'Dashboard',
                     'data' => [
+                        'banner' => [],
                         'vendor' => $vendor,
-                        'order' => []
+                        'order' => $orders
                     ]
                 ],200);
-            }elseif ($vendor->is_verify == 3) 
+            }
+            elseif ($vendor->is_verify == 3) 
             {
+                $vendor->aadhar_document =  gettype($vendor->aadhar_document) == 'array' ? $vendor->aadhar_document : json_decode($vendor->aadhar_document, true);
+                $vendor->category =  gettype($vendor->category) == 'array' ? $vendor->category : json_decode($vendor->category, true);
+                $vendor->working_days =  gettype($vendor->working_days) == 'array' ? $vendor->working_days : json_decode($vendor->working_days, true);
+                
+
                 return response()->json([
                     'status' => false,
                     'is_verify' => $vendor->is_verify,

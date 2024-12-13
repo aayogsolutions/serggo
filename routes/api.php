@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\user\service\{
 use App\Http\Controllers\Api\vendor\{
     AuthController as VendorAuthController,
     DashboardController as VenderDashboardController,
+    OrderController as VendorOrderController,
     ProductController as VendorProductController
 };
 use Illuminate\Support\Facades\Route;
@@ -213,13 +214,9 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });
 
-        Route::group(['prefix' => 'orders'], function(){
+        Route::group(['prefix' => 'order'], function(){
 
-            Route::get('/info', [VendorProductController::class,'CreateProduct']);
-            Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
-            Route::post('/store', [VendorProductController::class,'StoreProduct']);
-            Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
-            Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
+            Route::get('/list', [VendorOrderController::class,'OrderList']);
         });
     });
 

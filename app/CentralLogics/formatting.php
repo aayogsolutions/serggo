@@ -391,10 +391,11 @@ if(! function_exists('Helpers_Orders_formatting')) {
                 {
                     foreach ($item->OrderDetails as $child)
                     {
-                        $child->product_details = product_data_formatting(json_decode($child->product_details),false,false,true);
-                        $child->variation = gettype($child->variation) == 'array' ? $child->variation : json_decode($child->variation);
                         if($item->order_type == 'service')
                         {
+                            $child->product_details = Service_data_formatting(json_decode($child->product_details),false,false);
+                            $child->variation = gettype($child->variation) == 'array' ? $child->variation : json_decode($child->variation);
+
                             if(ServiceReview::where(['order_id' => $item->id,'service_id' => $child->product_id])->exists())
                             {
                                 $child->is_reviewed = true;
@@ -407,6 +408,8 @@ if(! function_exists('Helpers_Orders_formatting')) {
                         }
                         else
                         {
+                            $child->product_details = product_data_formatting(json_decode($child->product_details),false,false,true);
+                            $child->variation = gettype($child->variation) == 'array' ? $child->variation : json_decode($child->variation);
                             if(ProductReview::where(['order_id' => $item->id,'product_id' => $child->product_id])->exists())
                             {
                                 $child->is_reviewed = true;
@@ -421,7 +424,35 @@ if(! function_exists('Helpers_Orders_formatting')) {
                 }
                 else
                 {
-                    $item->OrderDetails->product_details = product_data_formatting(json_decode($item->order_details->product_details),false,false,true);
+                    if($item->order_type == 'service')
+                    {
+                        $item->product_details = Service_data_formatting(json_decode($item->product_details),false,false);
+
+                        if(ServiceReview::where(['order_id' => $item->id,'service_id' => $item->OrderDetails->product_id])->exists())
+                        {
+                            $item->OrderDetails->is_reviewed = true;
+                            $item->OrderDetails->product_review = ServiceReview::where(['order_id' => $item->id,'service_id' => $item->OrderDetails->product_id])->first();
+                        }
+                        else
+                        {
+                            $item->OrderDetails->is_reviewed = false;
+                        }
+                    }
+                    else
+                    {
+                        $item->product_details = product_data_formatting(json_decode($item->product_details),false,false,true);
+                        $item->variation = gettype($item->variation) == 'array' ? $item->variation : json_decode($item->variation);
+                        if(ProductReview::where(['order_id' => $item->id,'product_id' => $item->OrderDetails->product_id])->exists())
+                        {
+                            $item->OrderDetails->is_reviewed = true;
+                            $item->OrderDetails->product_review = ProductReview::where(['order_id' => $item->id,'product_id' => $item->OrderDetails->product_id])->first();
+                        }
+                        else
+                        {
+                            $item->OrderDetails->is_reviewed = false;
+                        }
+                    }
+                    // $item->OrderDetails->product_details = product_data_formatting(json_decode($item->order_details->product_details),false,false,true);
                 }
                 array_push($storage, $item);
             }
@@ -462,7 +493,35 @@ if(! function_exists('Helpers_Orders_formatting')) {
             }
             else 
             {
-                $data->OrderDetails->product_details = product_data_formatting(json_decode($data->OrderDetails->product_details),false,false,true);
+                if($data->order_type == 'service')
+                {
+                    $data->product_details = Service_data_formatting(json_decode($data->product_details),false,false);
+
+                    if(ServiceReview::where(['order_id' => $data->id,'service_id' => $data->OrderDetails->product_id])->exists())
+                    {
+                        $data->OrderDetails->is_reviewed = true;
+                        $data->OrderDetails->product_review = ServiceReview::where(['order_id' => $data->id,'service_id' => $data->OrderDetails->product_id])->first();
+                    }
+                    else
+                    {
+                        $data->OrderDetails->is_reviewed = false;
+                    }
+                }
+                else
+                {
+                    $data->product_details = product_data_formatting(json_decode($data->product_details),false,false,true);
+                    $data->variation = gettype($data->variation) == 'array' ? $data->variation : json_decode($data->variation);
+                    if(ProductReview::where(['order_id' => $data->id,'product_id' => $data->OrderDetails->product_id])->exists())
+                    {
+                        $data->OrderDetails->is_reviewed = true;
+                        $data->OrderDetails->product_review = ProductReview::where(['order_id' => $data->id,'product_id' => $data->OrderDetails->product_id])->first();
+                    }
+                    else
+                    {
+                        $data->OrderDetails->is_reviewed = false;
+                    }
+                }
+                // $data->OrderDetails->product_details = product_data_formatting(json_decode($data->OrderDetails->product_details),false,false,true);
             }
         }
         return $data;
