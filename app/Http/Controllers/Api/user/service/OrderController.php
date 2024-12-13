@@ -9,6 +9,7 @@ use App\Models\Notifications;
 use App\Models\Order;
 use App\Models\Order_details;
 use App\Models\Service;
+use App\Models\ServiceReview;
 use App\Models\ServiceTimeSlot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -22,6 +23,7 @@ class OrderController extends Controller
         private Order $order,
         private CustomerAddresses $customeraddress,
         private Service $service,
+        private ServiceReview $servicereview,
     ){}
 
     /**
@@ -227,7 +229,7 @@ class OrderController extends Controller
     public function OrderHistory()
     {
         try {
-            $order = Order::where(['order_type' => 'service','user_id' => Auth::user()->id])->orderBy('id', 'desc')->get();
+            $order = Helpers_Orders_formatting(Order::where(['order_type' => 'service','user_id' => Auth::user()->id])->orderBy('id', 'desc')->get(), true, true, false);
             return response()->json([
                 'status' => true,
                 'message' => 'Order History',
@@ -249,17 +251,58 @@ class OrderController extends Controller
     public function OrderItems($id)
     {
         try {
-            $order = Order::where('id', $id)->first();
+            $order = Helpers_Orders_formatting(Order::where('id', $id)->with('OrderDetails')->first(), false, true, false);
             return response()->json([
                 'status' => true,
                 'message' => 'Order Status',
                 'data' => $order
             ],200);
-        } catch (\Exception $e) {
+    } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
             ],401);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function OrderProductReview(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'service_id' => 'required|exists:services,id',
+            'order_id' => 'required|exists:orders,id',
+            'rating' => 'required',
+            'comment' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+        
+        try {
+            $review = $this->servicereview;
+            $review->service_id = $request->service_id;
+            $review->user_id = Auth::user()->id;
+            $review->order_id = $request->order_id;
+            $review->comment = $request->rating;
+            $review->rating = $request->comment;
+            $review->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Service Review created successfully',
+                'data' => [],
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'errors' => 'Unexpected Error '.$th->getMessage(),
+            ], 401);
         }
     }
 }

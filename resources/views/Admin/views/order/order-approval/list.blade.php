@@ -96,13 +96,13 @@
                         </thead>
 
                         <tbody id="set-rows">
-                        @foreach($orders as $key=>$order)
+                        @foreach($orders as $key => $order)
                             <tr class="status-{{$order['order_status']}} class-all">
                                 <td class="">
                                     {{$orders->firstItem()+$key}}
                                 </td>
                                 <td class="table-column-pl-0">
-                                    <a href="{{route('admin.orders.details',['id'=>$order['id']])}}">
+                                    <a href="{{ $order->order_type == 'goods' ? route('admin.orders.approval.request.product.view',['id'=>$order['id']]) : route('admin.orders.approval.request.service.view',['id'=>$order['id']]) }}">
                                         {{$order['id']}}
                                     </a>
                                 </td>
@@ -110,14 +110,18 @@
                                     <span class="badge badge-soft-info py-2 px-3">
                                         {{$order['order_type']}}
                                     </span>
-                                </td>                           
+                                </td>    
+                                            
                                 <td>
                                     <div>
-                                        <a class="text-body text-capitalize font-medium"
-                                            href="{{route('admin.customer.view',[$order['user_id']])}}">{{$order->customer['name']}}</a>
+                                        <a class="text-body text-capitalize font-medium" href="{{route('admin.customer.view',$order['user_id'])}}">
+                                            {{ $order->customer['name'] ?? 'Guest User' }}
+                                        </a>
                                     </div>
                                     <div class="text-sm">
-                                        <a href="Tel:{{$order->customer['number']}}">{{$order->customer['number']}}</a>
+                                        <a href="Tel:{{ $order->customer['number'] ?? ''}}">
+                                            {{ $order->customer['number'] ?? 'Not Found'}}
+                                        </a>
                                     </div>
                                 </td>
                                 <td>
@@ -179,9 +183,9 @@
                                 <td class="text-capitalize text-center">
                                     @php($address = json_decode($order['delivery_address'],true))
                                     @if($address != null)
-                                        {{translate($address['house_road'].', '.$address['address1'])}}
+                                        {{translate($address['house_road'].','.$address['address1'])}}
                                         <br>
-                                        {{translate($address['address2'].', '.$address['city'])}}
+                                        {{translate($address['address2'].','.$address['city'])}}
                                     @endif
                                 </td>
                                 

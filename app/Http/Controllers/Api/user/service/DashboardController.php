@@ -132,16 +132,19 @@ class DashboardController extends Controller
         foreach ($all as $a)
         {
             $a->tags = json_decode($a->tags);
-            foreach ($a->tags as $key => $tag) 
+            if($a->tags != null)
             {
-                foreach ($keys as $key1 => $value) 
+                foreach ($a->tags as $key => $tag) 
                 {
-                    // dump($a->id, $value,stripos($tag, $value));
-                    if (stripos($tag, $value) !== false)
+                    foreach ($keys as $key1 => $value) 
                     {
-                        //if $c starts with $input, add to matches list
-                        $matches[] = $a->id;
-                        break;
+                        // dump($a->id, $value,stripos($tag, $value));
+                        if (stripos($tag, $value) !== false)
+                        {
+                            //if $c starts with $input, add to matches list
+                            $matches[] = $a->id;
+                            break;
+                        }
                     }
                 }
             }

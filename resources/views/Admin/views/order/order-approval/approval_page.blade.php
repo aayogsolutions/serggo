@@ -240,12 +240,14 @@
                                             <td class="text-right">
                                                 @php($amount+=$detail['price']*$detail['quantity'])
                                                 @php($totalTax+=$detail['tax_amount']*$detail['quantity'])
-                                                @php($updatedTotalTax+= $detail['vat_status'] === 'included' ? 0 : $detail['tax_amount']*$detail['quantity'])
+                                                @php($updatedTotalTax+= $detail['vat_status'] === 'included' ? 0 : $detail['tax_amount'] * $detail['quantity'])
                                                 @php($vatStatus = $detail['vat_status'])
                                                 @php($totalItemDiscount += $detail['discount_on_product'] * $detail['quantity'])
                                                 @php($price_after_discount+=$amount-$totalItemDiscount)
                                                 @php($subTotal+=$price_after_discount)
-                                                <h5>{{ Helpers_set_symbol(($detail['price'] * $detail['quantity']) - ($detail['discount_on_product'] * $detail['quantity'])) }}</h5>
+                                                <h5>
+                                                    {{ Helpers_set_symbol(($detail['price'] * $detail['quantity']) - ($detail['discount_on_product'] * $detail['quantity'])) }}
+                                                </h5>
                                             </td>
                                         </tr>
                                     @endif

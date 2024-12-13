@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('service_id');
             $table->bigInteger('user_id');
-            // $table->bigInteger('order_id');
+            $table->bigInteger('order_id');
             $table->text('comment');
             // $table->mediumText('attachment');
             $table->integer('rating')->default(0);

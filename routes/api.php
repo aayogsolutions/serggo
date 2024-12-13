@@ -181,6 +181,9 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             // Order History
             Route::get('order/history',[OrderController::class,'OrderHistory']);
             Route::get('order/{id}',[OrderController::class,'OrderItems']);
+
+            // Product Review Route
+            Route::post('review',[OrderController::class,'OrderProductReview']);
         });
 
         Route::group(['prefix' => 'service'], function(){
@@ -191,6 +194,9 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             // Order History
             Route::get('order/history',[ServiceOrderController::class,'OrderHistory']);
             Route::get('order/{id}',[ServiceOrderController::class,'OrderItems']);
+
+            // Product Review Route
+            Route::post('review',[ServiceOrderController::class,'OrderProductReview']);
         });
     });
 

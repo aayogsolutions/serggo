@@ -13,6 +13,7 @@ use App\Models\{
     Notifications,
     Order,
     Order_details,
+    ProductReview,
     Products,
     User,
     Vendor
@@ -28,6 +29,7 @@ class OrderController extends Controller
         private CustomerAddresses $customeraddress,
         private User $user,
         private Notifications $notifications,
+        private ProductReview $productreview,
     ){}
     
     /**
@@ -606,7 +608,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'status' => false,
-                'errors' => 'Unexpected Error',
+                'errors' => 'Unexpected Error '.$th->getMessage(),
             ], 406);
         }
     }
@@ -645,28 +647,46 @@ class OrderController extends Controller
         }
     }
 
-    private function point2point_distance($lat1, $lon1, $lat2, $lon2, $unit='K') 
-    { 
-        $theta = $lon1 - $lon2; 
-        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta)); 
-        $dist = acos($dist); 
-        $dist = rad2deg($dist); 
-        $miles = $dist * 60 * 1.1515;
-        $unit = strtoupper($unit);
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function OrderProductReview(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'product_id' => 'required|exists:products,id',
+            'order_id' => 'required|exists:orders,id',
+            'rating' => 'required',
+            'comment' => 'required',
+        ]);
 
-        if ($unit == "K") 
-        {
-            return ($miles * 1.609344); 
-        } 
-        else if ($unit == "N") 
-        {
-            return ($miles * 0.8684);
-        } 
-        else 
-        {
-            return $miles;
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
         }
-    } 
+        
+        try {
+            $review = $this->productreview;
+            $review->product_id = $request->product_id;
+            $review->user_id = Auth::user()->id;
+            $review->order_id = $request->order_id;
+            $review->comment = $request->rating;
+            $review->rating = $request->comment;
+            $review->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Product Review created successfully',
+                'data' => [],
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'errors' => 'Unexpected Error '.$th->getMessage(),
+            ], 401);
+        }
+    }
 
     private function find_delivery_charge($distance)
     {
@@ -694,4 +714,27 @@ class OrderController extends Controller
         }    
         return 0;
     }
+
+    private function point2point_distance($lat1, $lon1, $lat2, $lon2, $unit='K') 
+    { 
+        $theta = $lon1 - $lon2; 
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta)); 
+        $dist = acos($dist); 
+        $dist = rad2deg($dist); 
+        $miles = $dist * 60 * 1.1515;
+        $unit = strtoupper($unit);
+
+        if ($unit == "K") 
+        {
+            return ($miles * 1.609344); 
+        } 
+        else if ($unit == "N") 
+        {
+            return ($miles * 0.8684);
+        } 
+        else 
+        {
+            return $miles;
+        }
+    } 
 }

@@ -144,8 +144,7 @@ class OrderController extends Controller
         }
 
         $orders = $query->orderBy('id', 'desc')->paginate(Helpers_getPagination())->appends($queryParam);
-
-        
+       
         return view('Admin.views.order.order-approval.list', compact('orders',  'search'));
     }
 
@@ -157,8 +156,8 @@ class OrderController extends Controller
     public function ApprovalRequestView($id): View|Factory|Application
     {
         $order = $this->order->with(['customer','OrderDetails','vendororders'])->where(['id' => $id])->first();
-        $timeslots = $this->timeslots->where(['status' => 1,])->get();
-        $serviceman = Vendor::where(['role' => 1])->where('is_block',0)->get();
+        $timeslots = $this->timeslots->where(['status' => 1])->get();
+        $serviceman = Vendor::where(['is_block' => 0])->get();
         return view('Admin.views.order.order-approval.approval_page', compact('order','timeslots', 'serviceman'));
     }
 
@@ -170,8 +169,8 @@ class OrderController extends Controller
     public function ApprovalRequestServiceView($id): View|Factory|Application
     {
         $order = $this->order->with(['customer','OrderDetails','vendororders'])->where(['id' => $id])->first();
-        $timeslots = $this->timeslots->where(['status' => 1,])->get();
-        $serviceman = Vendor::where(['role' => 1])->where('is_block',0)->get();
+        $timeslots = $this->timeslots->where(['status' => 1])->get();
+        $serviceman = Vendor::where(['role' => 1,'is_block' => 0])->get();
         return view('Admin.views.order.order-approval.approval_page', compact('order','timeslots', 'serviceman'));
     }
 
