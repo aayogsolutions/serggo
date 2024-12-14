@@ -26,8 +26,8 @@
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('coupon')}} {{translate('type')}}</label>
                                         <select name="coupon_type" class="form-control coupon-type">
                                             <option value="default" {{$coupon['coupon_type']=='default'?'selected':''}}>{{translate('default')}}</option>
-                                            <option value="first_order" {{$coupon['coupon_type']=='first_order'?'selected':''}}>{{translate('first')}} {{translate('order')}}</option>
-                                            <option value="free_delivery" {{$coupon['coupon_type']=='free_delivery'?'selected':''}}>{{translate('free_delivery')}}</option>
+                                            <!-- <option value="first_order" {{$coupon['coupon_type']=='first_order'?'selected':''}}>{{translate('first')}} {{translate('order')}}</option> -->
+                                            <!-- <option value="free_delivery" {{$coupon['coupon_type']=='free_delivery'?'selected':''}}>{{translate('free_delivery')}}</option> -->
                                             <option value="customer_wise" {{$coupon['coupon_type']=='customer_wise'?'selected':''}}>{{translate('customer_wise')}}</option>
                                         </select>
                                     </div>

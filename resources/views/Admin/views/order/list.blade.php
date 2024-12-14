@@ -288,7 +288,15 @@
                                     {{$order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'Not Assigned'}}
                                 </td>
                                 <td>
-                                    <span>{{$order->delivery_timeslot_id != null ? date('H:i A', strtotime($order->TimeSlot['start_time'])).' - ' .date('H:i A', strtotime($order->TimeSlot['end_time'])) : translate('No Time Slot')}}</span>
+                                    @if($order->order_type == 'goods')
+                                        <span>
+                                            {{$order->delivery_timeslot_id != null ? date('H:i A', strtotime($order->TimeSlot['start_time'])).' - ' .date('H:i A', strtotime($order->TimeSlot['end_time'])) : translate('No Time Slot')}}
+                                        </span>
+                                    @else
+                                        <span>
+                                            {{$order->delivery_timeslot_id != null ? date('H:i A', strtotime($order->ServiceTimeSlot['time'] ?? translate('No Time Slot'))) : translate('No Time Slot')}}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($order->is_guest == 0)
@@ -321,7 +329,7 @@
                                     <div class="mw-90">
                                         <div>
                                             <?php
-                                                $vatStatus = $order->details ? $order->details[0]->vat_status : '';
+                                                $vatStatus = $order->details ? $order->details[0]->gst_status : '';
                                                 if($vatStatus == 'included'){
                                                     $orderAmount = $order['order_amount'] - $order['total_tax_amount'];
                                                 }else{

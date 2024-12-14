@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
+use App\Models\Coupons;
 use App\Models\Notifications;
+use App\Models\Order;
 use App\Models\User;
 use App\Models\WalletTranscation;
 use Illuminate\Http\Request;
@@ -266,5 +268,132 @@ class CustomerController extends Controller
         }
 
         
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     */
+    public function Coupon(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => 'required|exists:coupons,code',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $code = Coupons::where('code',$request->code)->first();
+            $user_id = Auth::user()->id;
+            
+            if($code->status != 0)
+            {
+                return response()->json([
+                    'status' => false,
+                    'code' => 2,
+                    'message' => 'Coupon Code Expired',
+                    'data' => []
+                ],401);
+            }
+
+            if($code->coupon_type == 'customer_wise')
+            {
+                if($code->customer_id == $user_id)
+                {
+                    if(Carbon::parse($code->start_date)->format('Y-m-d') <= Carbon::now()->format('Y-m-d') && Carbon::parse($code->expire_date)->format('Y-m-d') >= Carbon::now()->format('Y-m-d'))
+                    {
+                        $count = Order::where(['user_id' => $user_id,'coupon_code' => $code->code])->count();
+
+                        if($count < $code->limit)
+                        {
+                            return response()->json([
+                                'status' => true,
+                                'code' => 1,
+                                'message' => 'Coupon Applied Successfully',
+                                'data' => [
+                                    'code' => $code->code,
+                                    'discount_type' => $code->discount_type,
+                                    'discount' => $code->discount,
+                                    'min_purchase' => $code->min_purchase,
+                                    'max_discount' => $code->max_discount
+                                ]
+                            ],200);
+                        }else{
+                            return response()->json([
+                                'status' => false,
+                                'code' => 2,
+                                'message' => 'Coupon Code Expired',
+                                'data' => []
+                            ],401);
+                        }
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'status' => false,
+                            'code' => 2,
+                            'message' => 'Coupon Code Expired',
+                            'data' => []
+                        ],401);
+                    }
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'code' => 1,
+                        'message' => 'Invalid Coupon Code',
+                        'data' => []
+                    ],401);
+                }
+            }else{
+                if(Carbon::parse($code->start_date)->format('Y-m-d') <= Carbon::now()->format('Y-m-d') && Carbon::parse($code->expire_date)->format('Y-m-d') >= Carbon::now()->format('Y-m-d'))
+                {
+                    $count = Order::where(['user_id' => $user_id,'coupon_code' => $code->code])->count();
+
+                    if($count < $code->limit)
+                    {
+                        return response()->json([
+                            'status' => true,
+                            'code' => 1,
+                            'message' => 'Coupon Applied Successfully',
+                            'data' => [
+                                'code' => $code->code,
+                                'discount_type' => $code->discount_type,
+                                'discount' => $code->discount,
+                                'min_purchase' => $code->min_purchase,
+                                'max_discount' => $code->max_discount
+                            ]
+                        ],200);
+                    }else{
+                        return response()->json([
+                            'status' => false,
+                            'code' => 2,
+                            'message' => 'Coupon Code Expired',
+                            'data' => []
+                        ],401);
+                    }
+                }
+                else
+                {
+                    return response()->json([
+                        'status' => false,
+                        'code' => 2,
+                        'message' => 'Coupon Code Expired',
+                        'data' => []
+                    ],401);
+                }
+            }
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Unexpected error',
+                'data' => []
+            ],409);
+        }
     }
 }

@@ -56,7 +56,7 @@ class OrderController extends Controller
 
         $this->order->where(['checked' => 0])->update(['checked' => 1]);
 
-        $query = $this->order->where('order_approval' , '!=', 'pending')->with(['customer','TimeSlot'])
+        $query = $this->order->where('order_approval' , '!=', 'pending')->with(['customer','TimeSlot','ServiceTimeSlot'])
             ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
                 return $query->whereDate('created_at', '>=', $startDate)
                     ->whereDate('created_at', '<=', $endDate);
@@ -184,7 +184,7 @@ class OrderController extends Controller
         $request->validate([
             'status' => 'nullable',
         ]);
-        $order = $this->order->find($id);
+        $order = $this->order->where('id',$id)->with('OrderDetails')->first();
 
         if($request->status == 'accept') {
             $order->order_approval = 'accepted';
@@ -201,15 +201,33 @@ class OrderController extends Controller
             $order->order_approval = 'rejected';
             $order->order_status = 'rejected';
 
+            if($order->payment_status == 'paid') 
+            {
+                $total = $order->order_amount - $order->coupon_amount;
+
+                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
+            }
+            else
+            {
+                $total = 0;
+                foreach ($order->OrderDetails as $key => $value) {
+                    $total += $value->advance_payment;
+                }
+
+                if($order->partial_payment != null) {
+                    $total += json_decode($order['partial_payment'], true)['wallet_applied'];
+                }
+
+                if($total > 0) {
+                    Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
+                }
+            }
+            
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
             $notifications->title = 'Order Rejected';
             $notifications->description = 'Your Order No. '.$order->id.' Rejected';
             $notifications->save();
-
-            if ($order->partial_payment != null) {
-                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, json_decode($order['partial_payment'], true)->wallet_applied, json_decode($order['partial_payment'], true)->wallet_applied);
-            }
 
             flash()->warning(translate('Order Rejected'));
         }
@@ -531,24 +549,73 @@ class OrderController extends Controller
         }
 
         //refund amount to wallet
-        if (in_array($request['order_status'], ['returned', 'failed', 'canceled', 'rejected'])) {
-            if ($order['partial_payment'] != null) {
-                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, json_decode($order['partial_payment'], true)->wallet_applied, json_decode($order['partial_payment'], true)->wallet_applied);
+        if (in_array($request['order_status'], ['returned', 'failed', 'canceled', 'rejected'])) 
+        {
+            if($order['partial_payment'] == 'paid') 
+            {
+                $total = $order['order_amount'] - $order['coupon_amount'];
+
+                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
             }
+            else
+            {
+                $total = 0;
+                foreach ($order['OrderDetails'] as $key => $value) {
+                    $total += $value['advance_payment'];
+                }
+
+                if($order['partial_payment'] != null) {
+                    $total += json_decode($order['partial_payment'], true)['wallet_applied'];
+                }
+
+                if($total > 0) {
+                    Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
+                }
+            }
+            
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Rejected';
+            $notifications->description = 'Your Order No. '.$order->id.' Rejected';
+            $notifications->save();
         }
 
-        if ($request->order_status == 'packaging') {
-            foreach ($order->OrderDetails as $detail) {
-                if (isset($detail['variation'])) {
+        if ($request->order_status == 'pending') 
+        {
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Pending';
+            $notifications->description = 'Your Order No. '.$order->id.' is transfered to Pending';
+            $notifications->save();
+        }
+
+        if ($request->order_status == 'confirmed')
+        {
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Confirmed';
+            $notifications->description = 'Your Order No. '.$order->id.' Confirmed';
+            $notifications->save();
+        }
+
+        if ($request->order_status == 'packaging') 
+        {
+            foreach ($order->OrderDetails as $detail) 
+            {
+                if (isset($detail['variation'])) 
+                {
                     if ($detail['is_stock_decreased'] == 1) {
 
                         $product = $this->product->find($detail['product_id']);
     
-                        if ($product != null) {
+                        if ($product != null) 
+                        {
                             $type = json_decode($detail['variation'])->type;
                             $variationStore = [];
-                            foreach (json_decode($product['variations'], true) as $var) {
-                                if ($type == $var['type']) {
+                            foreach (json_decode($product['variations'], true) as $var) 
+                            {
+                                if ($type == $var['type']) 
+                                {
                                     $var['stock'] = $var['stock'] - $detail['quantity'];
                                 }
                                 $variationStore[] = $var;
@@ -601,19 +668,27 @@ class OrderController extends Controller
         //editable
         if ($request->order_status == 'out_for_delivery') 
         {
-            if ($order['delivery_date'] == 'null' && $order['delivery_timeslot_id'] == 'null') 
+            if ($order['delivery_date'] == 'null' || $order['delivery_timeslot_id'] == 'null') 
             {
                 flash()->warning(translate('Please assign delivery Information first!'));
                 return response()->json(['status' => true]);
             }
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Out for Delivery';
+            $notifications->description = 'Your Order No. '.$order->id.' out for delivery';
+            $notifications->save();
         }
 
-        if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') {
+        if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') 
+        {
             flash()->warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
             return response()->json(['status' => true]);
         }
 
-        if ($request->order_status == 'delivered') {
+        if ($request->order_status == 'delivered') 
+        {
             if($order['delivery_date'] == 'null' && $order['delivery_timeslot_id'] == 'null' && $order['delivery_man_id'] == 'null')
             {
                 flash()->warning(translate('Please assign delivery Information first!'));
@@ -639,6 +714,12 @@ class OrderController extends Controller
             //         $partial->save();
             //     }
             // }
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Delivered';
+            $notifications->description = 'Your Order No. '.$order->id.' Delivered';
+            $notifications->save();
         }
 
         //stock adjust
@@ -681,8 +762,7 @@ class OrderController extends Controller
         $order->save();
 
         $message = Helpers_order_status_update_message($request->order_status);
-        $languageCode = $order->is_guest == 0 ? ($order->customer ? $order->customer->language_code : 'en') : ($order->guest ? $order->guest->language_code : 'en');
-        $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->cm_firebase_token : null) : ($order->guest ? $order->guest->fcm_token : null);
+        $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->fmc_token : null) : ($order->guest ? $order->guest->fcm_token : null);
         
         $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
 

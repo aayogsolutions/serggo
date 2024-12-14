@@ -4,6 +4,7 @@ use App\Models\{
     BusinessSetting,
     ProductReview,
     CategoryDiscount,
+    Notifications,
     Order,
     WalletTranscation,
 };
@@ -513,6 +514,19 @@ if(!function_exists('Helpers_send_push_notif_to_device')) {
             }
             return $data;
         } catch (\Throwable $th) {
+        }
+    }
+}
+
+if(!function_exists('Helpers_order_notifiation_message')) {
+    function Helpers_order_notifiation_message($message)
+    {
+        try {
+            
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
         }
     }
 }

@@ -170,6 +170,9 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::post('/update/{id}', [AddressController::class,'addressUpdate']);
             Route::post('/delete/{id}', [AddressController::class,'addressDelete']);
         });
+
+        // Coupon route
+        Route::get('/coupon', [CustomerController::class,'Coupon']);
     });
 
     Route::group(['prefix' => 'order'], function(){

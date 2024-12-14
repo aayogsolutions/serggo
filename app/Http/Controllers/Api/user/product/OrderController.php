@@ -143,8 +143,11 @@ class OrderController extends Controller
             'transaction_reference' => 'required',
             'due_amount' => 'required|numeric',
             'free_delivery' => 'required|numeric',
+            'coupon_applied' => 'required|in:0,1',
+            'coupon_amount' => 'required|numeric|min:0',
+            'coupon_code' => 'nullable',
         ]);
-
+        
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
@@ -260,7 +263,7 @@ class OrderController extends Controller
                         $order_details->tax_amount = $value['tax'];
                         if($value['is_advance'] == 0)
                         {
-                            $order_details->advance_payment = $value['tax'];
+                            $order_details->advance_payment = $value['advance'];
                             $advance = $advance + $value['advance'];
                         }
                         
@@ -445,7 +448,7 @@ class OrderController extends Controller
                         $order_details->tax_amount = $value['tax'];
                         if($value['is_advance'] == 0)
                         {
-                            $order_details->advance_payment = $value['tax'];
+                            $order_details->advance_payment = $value['advance'];
                             $advance = $advance + $value['advance'];
                         }
                         $order_details->save();

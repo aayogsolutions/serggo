@@ -39,4 +39,9 @@ class Order extends Model
     {
         return $this->belongsTo(TimeSlot::class, 'delivery_timeslot_id');
     }
+
+    public function ServiceTimeSlot(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ServiceTimeSlot::class, 'delivery_timeslot_id');
+    }
 }

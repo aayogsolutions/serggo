@@ -47,6 +47,7 @@ return new class extends Migration
             $table->text('order_note')->nullable();
             $table->bigInteger('vender_id')->nullable();
             $table->string('coupon_code')->nullable();
+            $table->decimal('coupon_amount',8,2)->default(0);
             $table->date('date')->nullable();
             $table->time('servicetime')->nullable();
             $table->date('delivery_date')->nullable();

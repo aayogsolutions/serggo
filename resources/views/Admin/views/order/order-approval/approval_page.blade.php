@@ -241,8 +241,8 @@
                                                 <td class="text-right">
                                                     @php($amount+=$detail['price']*$detail['quantity'])
                                                     @php($totalTax+=$detail['tax_amount']*$detail['quantity'])
-                                                    @php($updatedTotalTax+= $detail['vat_status'] === 'included' ? 0 : $detail['tax_amount'] * $detail['quantity'])
-                                                    @php($vatStatus = $detail['vat_status'])
+                                                    @php($updatedTotalTax+= $detail['gst_status'] === 'included' ? 0 : $detail['tax_amount'] * $detail['quantity'])
+                                                    @php($vatStatus = $detail['gst_status'])
                                                     @php($totalItemDiscount += $detail['discount_on_product'] * $detail['quantity'])
                                                     @php($price_after_discount+=$amount-$totalItemDiscount)
                                                     @php($subTotal+=$price_after_discount)
@@ -284,13 +284,7 @@
                                                                     </h5>
                                                                     <h5 class='mt-1'>
                                                                         <span class='text-body'>
-                                                                            {{translate('Unit')}}
-                                                                        </span>
-                                                                        : {{$pro_d['unit']}} 
-                                                                    </h5>
-                                                                    <h5 class='mt-1'>
-                                                                        <span class='text-body'>
-                                                                            {{translate('Unit Price')}}
+                                                                            {{translate('Price')}}
                                                                         </span>
                                                                         : {{$pro_d['price']}} 
                                                                     </h5>
@@ -322,21 +316,9 @@
                                                 <td>
                                                     <h5 class="mt-1">
                                                         <span class="text-body">
-                                                            {{translate('Unit')}}
-                                                        </span>
-                                                        : {{$detail['unit']}} 
-                                                    </h5>
-                                                    <h5 class="mt-1">
-                                                        <span class="text-body">
-                                                            {{translate('Unit Price')}}
+                                                            {{translate('Price')}}
                                                         </span> 
                                                         : {{$detail['price']}} 
-                                                    </h5>
-                                                    <h5 class="mt-1">
-                                                        <span class="text-body">
-                                                            {{translate('Advance')}}
-                                                        </span> 
-                                                        : {{$detail['advance_payment']}} 
                                                     </h5>
                                                     <h5 class="mt-1">
                                                         <span class="text-body">
@@ -346,21 +328,21 @@
                                                     </h5>
                                                 </td>
                                                 <td class="text-right">
-                                                    <h6>{{ Helpers_set_symbol($detail['price'] * $detail['quantity']) }}</h6>
+                                                    <h6>{{ Helpers_set_symbol($detail['price']) }}</h6>
                                                 </td>
                                                 <td class="text-right">
-                                                    <h6>{{ Helpers_set_symbol($detail['discount_on_product'] * $detail['quantity']) }}</h6>
+                                                    <h6>{{ Helpers_set_symbol($detail['discount_on_product']) }}</h6>
                                                 </td>
                                                 <td class="text-right">
-                                                    @php($amount+=$detail['price']*$detail['quantity'])
-                                                    @php($totalTax+=$detail['tax_amount']*$detail['quantity'])
-                                                    @php($updatedTotalTax+= $detail['vat_status'] === 'included' ? 0 : $detail['tax_amount'] * $detail['quantity'])
-                                                    @php($vatStatus = $detail['vat_status'])
-                                                    @php($totalItemDiscount += $detail['discount_on_product'] * $detail['quantity'])
+                                                    @php($amount+=$detail['price'])
+                                                    @php($totalTax+=$detail['tax_amount'])
+                                                    @php($updatedTotalTax+= $detail['gst_status'] === 'included' ? 0 : $detail['tax_amount'])
+                                                    @php($vatStatus = $detail['gst_status'])
+                                                    @php($totalItemDiscount += $detail['discount_on_product'])
                                                     @php($price_after_discount+=$amount-$totalItemDiscount)
                                                     @php($subTotal+=$price_after_discount)
                                                     <h5>
-                                                        {{ Helpers_set_symbol(($detail['price'] * $detail['quantity']) - ($detail['discount_on_product'] * $detail['quantity'])) }}
+                                                        {{ Helpers_set_symbol($detail['price'] - $detail['discount_on_product']) }}
                                                     </h5>
                                                 </td>
                                             </tr>
@@ -431,6 +413,15 @@
                                             @php($del_c=$order['delivery_charge'])
                                         @endif
                                         {{ Helpers_set_symbol($del_c) }}
+                                    </dd>
+
+                                    <dt class="col-6 text-left">
+                                        <div class="ml-auto max-w-130px">
+                                            {{translate('Coupon')}} :
+                                        </div>
+                                    </dt>
+                                    <dd class="col-6 col-xl-5 pr-5">
+                                        - {{ Helpers_set_symbol($order['coupon_amount']) }}
                                         <hr>
                                     </dd>
 
@@ -440,7 +431,7 @@
                                         </div>
                                     </dt>
                                     <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['extra_discount']-$order['advance_payment']) }}
+                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['extra_discount']-$order['advance_payment']-$order['coupon_amount']) }}
                                         <hr>
                                     </dd>
                                     @if ($order->partial_payment != null)
@@ -466,7 +457,7 @@
                                             </div>
                                         </dt>
                                         <dd class="col-6 col-xl-5 pr-5">
-                                            {{ Helpers_set_symbol($due_amount) }}
+                                            {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['advance_payment']-$order['coupon_amount']-$partial_payment['wallet_applied']) }}
                                         </dd>
                                     @endif
                                 </dl>

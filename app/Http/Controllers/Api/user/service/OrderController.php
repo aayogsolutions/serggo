@@ -91,6 +91,9 @@ class OrderController extends Controller
             'services.discount' => 'required|numeric',
             'services.tax' => 'required|numeric',
             'services.tax_type' => 'required|in:included,excluded',
+            'coupon_applied' => 'required|in:0,1',
+            'coupon_amount' => 'required|numeric|min:0',
+            'coupon_code' => 'nullable',
         ]);
 
         if ($validator->fails()) {

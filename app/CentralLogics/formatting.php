@@ -386,6 +386,7 @@ if(! function_exists('Helpers_Orders_formatting')) {
             foreach($data as $item)
             {
                 $item->delivery_address = gettype($item->delivery_address) == 'array' ? $item->delivery_address : json_decode($item->delivery_address);
+                $item->partial_payment = gettype($item->partial_payment) == 'array' ? $item->partial_payment : json_decode($item->partial_payment);
                 if($multi_child == true)
                 {
                     foreach ($item->OrderDetails as $child)
@@ -458,6 +459,8 @@ if(! function_exists('Helpers_Orders_formatting')) {
             $data = $storage;
         } else {
             $data->delivery_address = gettype($data->delivery_address) == 'array' ? $data->delivery_address : json_decode($data->delivery_address);
+            $data->partial_payment = gettype($data->partial_payment) == 'array' ? $data->partial_payment : json_decode($data->partial_payment);
+
             if($multi_child == true)
             {
                 foreach ($data->OrderDetails as $child)
