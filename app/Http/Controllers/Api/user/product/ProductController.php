@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\{
+    Admin,
     Category,
     Products,
     DisplaySection,
@@ -509,10 +510,32 @@ class ProductController extends Controller
             ], 406);
         }
 
+        $products = json_decode($request->products);
+
+        foreach ($products as $key => $value) {
+            if(Products::find($value)->vender_id == null)
+            {
+                $distance = $this->point2point_distance(Admin::select('latitude','longitude')->where('id',1)->first()->latitude, Admin::select('latitude','longitude')->where('id',1)->first()->longitude, $request->latitude, $request->longitude,'K');
+            }else{
+                $vendor = Products::select('id','vender_id')->where('id', $value)->with('vendorproducts')->first();
+
+                $distance = $this->point2point_distance($vendor->vendorproducts->latitude, $vendor->vendorproducts->longitude, $request->latitude, $request->longitude,'K');
+            }
+
+            $time = $this->calculateDilevaryTime($distance);
+            $data[$key] = [
+                'product_id' => $value,
+                'time' => $time
+            ];
+        }
+        
+        array_multisort(array_column($data, 'time'), SORT_ASC, $data);
+
         return response()->json([
             'status' => true,
             'message' => 'Data Provided',
-            'data' => '2 Hours'
+            'timelimit' => '24 hour',
+            'data' => $data[0]
         ], 200);
     }
   
@@ -581,5 +604,50 @@ class ProductController extends Controller
         {
             return $miles;
         }
+    } 
+
+    private function calculateDilevaryTime($distance) 
+    { 
+        if($distance < 10)
+        {
+            $time = '1 Hour';
+        }
+        else if($distance < 20)
+        {
+            $time = '2 Hour';
+        }
+        else if($distance < 30)
+        {
+            $time = '4 Hour';
+        }
+        else if($distance < 40)
+        {
+            $time = '5 Hour';
+        }
+        else if($distance < 50)
+        {
+            $time = '8 Hour';
+        }
+        else if($distance < 60)
+        {
+            $time = '12 Hour';
+        }
+        else if($distance < 70)
+        {
+            $time = '16 Hour';
+        }
+        else if($distance < 80)
+        {
+            $time = '20 Hour';
+        }
+        else if($distance < 100)
+        {
+            $time = '24 Hour';
+        }
+        else
+        {
+            $time = '25 Hour';
+        }
+        return $time;
     } 
 }

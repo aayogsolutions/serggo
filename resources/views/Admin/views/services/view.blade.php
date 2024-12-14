@@ -54,7 +54,6 @@
                             </div>
                             <div class="col-lg-8 col-md-6 mx-auto">
                                 <ul class="list-unstyled list-unstyled-py-2 mb-0 rating--review-right py-3">
-
                                     @php($total = $product->reviews->count())
                                     <li class="d-flex align-items-center font-size-sm">
                                         @php($five = Helpers_rating_count($product['id'],5))
@@ -82,7 +81,7 @@
                                         <span class="ml-3">{{$four}}</span>
                                     </li>
                                     <!-- End Review Ratings -->
-
+                                    
                                     <!-- Review Ratings -->
                                     <li class="d-flex align-items-center font-size-sm">
                                         @php($three = Helpers_rating_count($product['id'],3))
@@ -127,6 +126,7 @@
                 </div>
             </div>
         </div>
+        
         <div class="card mb-3 text-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">

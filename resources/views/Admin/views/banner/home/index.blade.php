@@ -44,7 +44,7 @@
                                     <select name="type" class="form-control show-item">
                                         <option value="user_product">{{translate('user_product')}}</option>
                                         <option value="user_service">{{translate('user_service')}}</option>
-                                        <option value="vender_service">{{translate('vender_service')}}</option>
+                                        <!-- <option value="vender_service">{{translate('vender_service')}}</option> -->
                                     </select>
                                 </div>
                             </div>

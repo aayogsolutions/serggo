@@ -203,6 +203,35 @@
                         format: 'M/DD hh:mm A'
                     }
                 });
+
+                $('input[name="section"]').change(function () {
+                    var value = $(this).val();
+                    if(value == 'side_bar_service'){
+                        $('#side_bar_service').show();
+                        $('#side_bar_product').hide();
+                        localStorage.setItem('section', 'side_bar_service');
+                    }else{
+                        $('#side_bar_product').show();
+                        $('#side_bar_service').hide();
+                        localStorage.setItem('section', 'side_bar_product');
+                    }
+                });
+
+                let storedValue = localStorage.getItem('section');
+                if(storedValue == null){
+                    $('#side_bar_product').show();
+                    $('#side_bar_service').hide();
+                    $('input[value="side_bar_product"]').attr('checked', true);
+                    localStorage.setItem('section', 'side_bar_product');
+                }else if(storedValue == 'side_bar_service'){
+                    $('#side_bar_service').show();
+                    $('#side_bar_product').hide();
+                    $('input[value="side_bar_service"]').attr('checked', true);
+                }else{
+                    $('#side_bar_product').show();
+                    $('#side_bar_service').hide();
+                    $('input[value="side_bar_product"]').attr('checked', true);
+                }
             });
         </script>
 

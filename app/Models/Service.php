@@ -26,6 +26,6 @@ class Service extends Model
 
     public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ServiceReview::class, 'service_man_id', 'id')->latest();
+        return $this->hasMany(ServiceReview::class, 'service_id', 'id')->latest();
     }
 }

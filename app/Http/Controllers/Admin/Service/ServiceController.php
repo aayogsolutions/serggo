@@ -240,10 +240,10 @@ class ServiceController extends Controller
     {
         $product = $this->service->where(['id' => $id])->first();
         if (!$product){
-            flash()->error(translate('product not found'));
+            flash()->error(translate('Service not found'));
             return back();
         }
-        $reviews = $this->review->where(['service_man_id' => $id])->latest()->paginate(20);
+        $reviews = $this->review->where(['service_id' => $id])->latest()->paginate(20);
         return view('Admin.views.services.view', compact('product', 'reviews'));
     }
 
