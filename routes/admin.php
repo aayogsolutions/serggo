@@ -244,7 +244,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('status/{id}/{status}', [CouponController::class, 'status'])->name('status');
             Route::delete('delete/{id}', [CouponController::class, 'delete'])->name('delete');
             Route::get('quick-view-details', [CouponController::class, 'details'])->name('quick-view-details');
-
         });
 
         Route::group(['prefix' => 'notification', 'as' => 'notification.'], function () {

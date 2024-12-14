@@ -42,7 +42,11 @@ class CouponController extends Controller
         }else{
             $coupons = $this->coupon;
         }
-        $customers = $this->user->where('is_block', 0)->get();
+        $customers = $this->user->where([
+            'is_block'=> 0,
+            'registration' => 1,
+            'number_verify' => 1
+        ])->get();
         $coupons = $coupons->withCount('order')->latest()->paginate(Helpers_getPagination())->appends($queryParam);
 
         return view('Admin.views.coupon.index', compact('coupons','search', 'customers'));
@@ -59,8 +63,8 @@ class CouponController extends Controller
             'title' => 'required|max:100',
             'start_date' => 'required',
             'expire_date' => 'required',
-            'discount' => 'required_if:coupon_type,default,first_order,customer_wise',
-            'limit' => 'required_if:coupon_type,default,customer_wise,free_delivery',
+            'discount' => 'required_if:coupon_type,default,customer_wise',
+            'limit' => 'required_if:coupon_type,default,customer_wise',
         ],[
             'expire_date.required' => translate('Expired date is required')
         ]);
@@ -75,7 +79,7 @@ class CouponController extends Controller
         $data = [
             'title' => $request->title,
             'code' => $request->code,
-            'limit' => $request->coupon_type!='first_order' ? $request->limit : null,
+            'limit' => $request->coupon_type != 'first_order' ? $request->limit : null,
             'coupon_type' => $request->coupon_type,
             'start_date' => $request->start_date,
             'expire_date' => $request->expire_date,
@@ -84,7 +88,7 @@ class CouponController extends Controller
             'discount' => $discount,
             'discount_type' => $request->discount_type,
             'customer_id' => $request->customer_id,
-            'status' => 1,
+            'status' => 0,
             'created_at' => now(),
             'updated_at' => now()
         ];
@@ -104,7 +108,11 @@ class CouponController extends Controller
     public function edit($id): View|Factory|Application
     {
         $coupon = $this->coupon->where(['id' => $id])->first();
-        $customers = $this->user->where('is_block', 0)->get();
+        $customers = $this->user->where([
+            'is_block'=> 0,
+            'registration' => 1,
+            'number_verify' => 1
+        ])->get();
         return view('Admin.views.coupon.edit', compact('coupon','customers'));
     }
 

@@ -121,7 +121,7 @@
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('customer')}}</label>
                                         <select name="customer_id" id="customer_id" class="form-control js-select2-custom">
                                             @foreach($customers as $customer)
-                                                <option value="{{$customer->id}}" {{ $customer->id == $coupon['customer_id'] ? 'selected' : '' }}>{{$customer->f_name.' '. $customer->l_name}}</option>
+                                                <option value="{{$customer->id}}" {{ $customer->id == $coupon['customer_id'] ? 'selected' : '' }}>{{$customer->name.' | '. $customer->number}}</option>
                                             @endforeach
                                         </select>
 

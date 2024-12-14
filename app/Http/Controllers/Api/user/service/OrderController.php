@@ -274,7 +274,7 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), [
             'service_id' => 'required|exists:services,id',
             'order_id' => 'required|exists:orders,id',
-            'rating' => 'required',
+            'rating' => 'required|numeric|min:1|max:5',
             'comment' => 'required',
         ]);
 
@@ -290,8 +290,8 @@ class OrderController extends Controller
             $review->service_id = $request->service_id;
             $review->user_id = Auth::user()->id;
             $review->order_id = $request->order_id;
-            $review->comment = $request->rating;
-            $review->rating = $request->comment;
+            $review->comment = $request->comment;
+            $review->rating = $request->rating;
             $review->save();
             return response()->json([
                 'status' => true,

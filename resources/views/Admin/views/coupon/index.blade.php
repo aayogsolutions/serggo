@@ -26,8 +26,8 @@
                                         <label class="input-label" for="exampleFormControlInput1">{{translate('coupon type')}}</label>
                                         <select name="coupon_type" class="form-control coupon-type">
                                             <option value="default">{{translate('default')}}</option>
-                                            <option value="first_order">{{translate('first order')}}</option>
-                                            <option value="free_delivery">{{translate('free delivery')}}</option>
+                                            <!-- <option value="first_order">{{translate('first order')}}</option> -->
+                                            <!-- <option value="free_delivery">{{translate('free delivery')}}</option> -->
                                             <option value="customer_wise">{{translate('customer wise')}}</option>
                                         </select>
                                     </div>
@@ -104,15 +104,19 @@
                                         <select name="customer_id" id="customer_id" class="form-control js-select2-custom">
                                             <option value="">{{translate('select customer')}}</option>
                                             @foreach($customers as $customer)
-                                                <option value="{{$customer->id}}">{{$customer->f_name.' '. $customer->l_name}}</option>
+                                                <option value="{{$customer->id}}">{{$customer->name.' | '. $customer->number}}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="btn--container justify-content-end">
-                                <button type="reset" class="btn btn--reset">{{translate('reset')}}</button>
-                                <button type="submit" class="btn btn--primary">{{translate('submit')}}</button>
+                                <button type="reset" class="btn btn--reset">
+                                    {{translate('reset')}}
+                                </button>
+                                <button type="submit" class="btn btn--primary">
+                                    {{translate('submit')}}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -171,7 +175,7 @@
                                         <div>{{ translate($coupon->coupon_type === 'free_delivery' ? translate('Free Delivery') : translate('discount in '). $coupon['discount_type']) }}</div>
                                     </td>
                                     <td>
-                                        {{Carbon\Carbon::parse($coupon->start_date)->format('d M, Y')}} - {{Carbon\Carbon::parse($coupon->start_date)->format('d M, Y')}}
+                                        {{Carbon\Carbon::parse($coupon->start_date)->format('d M, Y')}} - {{Carbon\Carbon::parse($coupon->expire_date)->format('d M, Y')}}
                                     </td>
                                     <td>
                                         <span>{{ translate('Limit') }} : <strong>{{ $coupon->coupon_type === 'first_order' ? '-' : $coupon['limit'] }},</strong></span>

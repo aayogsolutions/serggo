@@ -636,6 +636,18 @@
                                     </ul>
                                 </li>
                             @endif
+                            @if(Helpers_module_permission_check(MANAGEMENT_SECTION['coupons']))
+                                <li class="navbar-vertical-aside-has-menu {{Request::is('admin/coupon*')?'active':''}}">
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link"
+                                    href="{{route('admin.coupon.add-new')}}"
+                                    title="{{translate('coupons')}}"
+                                    >
+                                        <i class="tio-gift nav-icon"></i>
+                                        <span
+                                            class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('coupons')}}</span>
+                                    </a>
+                                </li>
+                            @endif
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['send_notification']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/notification*')?'active':''}}">
                                     <a class="js-navbar-vertical-aside-menu-link nav-link"

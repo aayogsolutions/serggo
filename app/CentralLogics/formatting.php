@@ -202,7 +202,6 @@ if(! function_exists('Service_data_formatting')) {
             }
             $data = $storage;
         } else {
-            
             $variations = [];
             
             $data->image =  gettype($data->image) == 'array' ? $data->image : json_decode($data->image);
@@ -235,7 +234,7 @@ if(! function_exists('Service_data_formatting')) {
                 $data->reviews = $views;
             }else{
                 $views = ServiceReview::StatusStatic()->where('service_id',$data->id)->get();
-
+                
                 $data->reviewsCount = $views->count();
                 $data->reviewsAverage = $views->avg('rating');
             }
@@ -463,10 +462,10 @@ if(! function_exists('Helpers_Orders_formatting')) {
             {
                 foreach ($data->OrderDetails as $child)
                 {
-                    $child->product_details = product_data_formatting(json_decode($child->product_details),false,false,true);
-                    $child->variation = gettype($child->variation) == 'array' ? $child->variation : json_decode($child->variation);
                     if($data->order_type == 'service')
                     {
+                        $child->product_details = Service_data_formatting(json_decode($child->product_details),false,false);
+
                         if(ServiceReview::where(['order_id' => $data->id,'service_id' => $child->product_id])->exists())
                         {
                             $child->is_reviewed = true;
@@ -479,6 +478,8 @@ if(! function_exists('Helpers_Orders_formatting')) {
                     }
                     else
                     {
+                        $child->product_details = product_data_formatting(json_decode($child->product_details),false,false,true);
+                        $child->variation = gettype($child->variation) == 'array' ? $child->variation : json_decode($child->variation);
                         if(ProductReview::where(['order_id' => $data->id,'product_id' => $child->product_id])->exists())
                         {
                             $child->is_reviewed = true;
