@@ -213,6 +213,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::get('/create', [VendorProductController::class,'CreateProduct']);
             Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
             Route::post('/store', [VendorProductController::class,'StoreProduct']);
+            Route::get('/list', [VendorProductController::class,'ListProduct']);
             Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });
@@ -220,6 +221,7 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
         Route::group(['prefix' => 'order'], function(){
 
             Route::get('/list', [VendorOrderController::class,'OrderList']);
+            Route::get('/approval/{id}', [VendorOrderController::class,'OrderList']);
         });
     });
 

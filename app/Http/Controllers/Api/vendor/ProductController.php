@@ -150,9 +150,9 @@ class ProductController extends Controller
             // }
     
             $imageNames = [];
-            if (!empty($request->file('images'))) {
-                foreach ($request->images as $img) {
-                    $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
+            if (!empty($request->images) && count(json_decode($request->images)) > 0) {
+                foreach (json_decode($request->images) as $img) {
+                    $imageData = Helpers_upload('Images/productImages/', $img->extension() , $img);
                     $imageNames[] = $imageData;
                 }
                 $imageData = json_encode($imageNames);
@@ -271,7 +271,29 @@ class ProductController extends Controller
                 'status' => true,
                 'message' => 'Category Data',
                 'data' => Products::find($product->id)
-            ],201);
+            ],200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],401);
+        }
+    }
+
+    /** 
+     * @return JsonResponse
+     */
+    public function ProductList() : JsonResponse
+    {
+        try {
+            $product = $this->product->where('vender_id' , Auth::user()->id)->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Product Data',
+                'data' => $product
+            ],200);
 
         } catch (\Throwable $th) {
             return response()->json([

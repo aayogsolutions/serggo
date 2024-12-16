@@ -507,6 +507,16 @@
                                         </span>
                                     </a>
                                     <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/vendor*') ? 'block' : 'none'}}">
+
+                                        <li class="nav-item {{Request::is('admin/vendor/banner*')?'active':''}}">
+                                            <a class="nav-link" href="{{ route('admin.vendor.banner.add') }}" title="{{translate('Dashboard Banner')}}">
+                                                <i class="tio-circle nav-indicator-icon"></i>
+                                                <span class="text-truncate">
+                                                    {{translate('Dashboard Banner')}}
+                                                </span>
+                                            </a>
+                                        </li>
+
                                         <li class="nav-item {{Request::is('admin/vendor/category*')?'active':''}}">
                                             <a class="nav-link" href="{{ route('admin.vendor.category.add') }}" title="{{translate('category setup')}}">
                                                 <i class="tio-circle nav-indicator-icon"></i>
@@ -638,13 +648,11 @@
                             @endif
                             @if(Helpers_module_permission_check(MANAGEMENT_SECTION['coupons']))
                                 <li class="navbar-vertical-aside-has-menu {{Request::is('admin/coupon*')?'active':''}}">
-                                    <a class="js-navbar-vertical-aside-menu-link nav-link"
-                                    href="{{route('admin.coupon.add-new')}}"
-                                    title="{{translate('coupons')}}"
-                                    >
+                                    <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.coupon.add-new')}}" title="{{translate('coupons')}}">
                                         <i class="tio-gift nav-icon"></i>
-                                        <span
-                                            class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('coupons')}}</span>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                            {{translate('coupons')}}
+                                        </span>
                                     </a>
                                 </li>
                             @endif

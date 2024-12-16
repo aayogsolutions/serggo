@@ -408,12 +408,12 @@ class AuthController extends Controller
                 $vendor->aadhar_no = $request->aadhar_no;
     
                 $vendor->aadhar_document = json_encode([
-                    'aadhar_front' => Helpers_upload('Images/vendor/kyc/', $request->file('aadhar_front')->getClientOriginalExtension(), $request->file('aadhar_front')),
-                    'aadhar_back' => Helpers_upload('Images/vendor/kyc/', $request->file('aadhar_back')->getClientOriginalExtension(), $request->file('aadhar_back')),
-                    'gst_document' => Helpers_upload('Images/vendor/kyc/', $request->file('gst_document')->getClientOriginalExtension(), $request->file('gst_document')),
+                    'aadhar_front' => Helpers_upload('Images/vendor/kyc/', $request->aadhar_front->extension(), $request->aadhar_front),
+                    'aadhar_back' => Helpers_upload('Images/vendor/kyc/', $request->aadhar_back->extension(), $request->aadhar_back),
+                    'gst_document' => Helpers_upload('Images/vendor/kyc/', $request->gst_document->extension(), $request->gst_document),
                 ]);
     
-                $vendor->image = Helpers_upload('Images/vendor/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $vendor->image = Helpers_upload('Images/vendor/', $request->image->extension(), $request->image);
                 
                 $vendor->is_verify = 1;
     

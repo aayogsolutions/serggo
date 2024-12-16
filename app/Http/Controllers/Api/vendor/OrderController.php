@@ -25,7 +25,7 @@ class OrderController extends Controller
             
             if ($vendor != null) 
             {
-                $orders = Helpers_Orders_formatting(Order::where(['vender_id' => $vendor->id])->orderby('id','desc')->with(['customer','OrderDetails'])->get(), true, true, false);
+                $orders = Helpers_Orders_formatting(Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->orderby('id','desc')->with(['customer','OrderDetails'])->get(), true, true, false);
 
                 // Vender Orders
                 return response()->json([

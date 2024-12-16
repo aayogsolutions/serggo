@@ -19,7 +19,6 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Http\{JsonResponse, RedirectResponse};
 use Illuminate\Support\Facades\File;
-use PHPUnit\TextUI\Help;
 
 class BannersController extends Controller
 {

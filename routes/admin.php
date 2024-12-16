@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\Service\{
     ServiceTagController,
     ServiceAttributeController,
 };
+use App\Http\Controllers\Admin\vendor\BannerController;
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/', [AdminController::class,'login'])->name('login');
@@ -290,7 +291,19 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             
             Route::get('status/{id}/{status}', [VendorController::class, 'status'])->name('status');
 
-            Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
+            Route::group(['prefix' => 'banner', 'as' => 'banner.'], function () 
+            {
+                Route::get('add', [BannerController::class, 'index'])->name('add');
+                Route::post('store', [BannerController::class, 'store'])->name('store');
+                Route::get('edit/{id}', [BannerController::class, 'edit'])->name('edit');
+                Route::post('update/{id}', [BannerController::class, 'update'])->name('update');
+                Route::get('status/{id}/{status}', [BannerController::class, 'Status'])->name('status');
+                Route::delete('delete/{id}', [BannerController::class, 'delete'])->name('delete');
+                Route::get('priority', [BannerController::class, 'priority'])->name('priority');
+            });
+
+            Route::group(['prefix' => 'category', 'as' => 'category.'], function () 
+            {
                 Route::get('add', [VendorController::class, 'index'])->name('add');
                 Route::post('store', [VendorController::class, 'store'])->name('store');
                 Route::get('edit/{id}', [VendorController::class, 'edit'])->name('edit');
@@ -300,7 +313,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('priority', [VendorController::class, 'priority'])->name('priority');
             });
 
-            Route::group(['prefix' => 'kyc', 'as' => 'kyc.'], function () {
+            Route::group(['prefix' => 'kyc', 'as' => 'kyc.'], function () 
+            {
                 Route::get('list', [VendorController::class, 'kycList'])->name('list');
                 Route::get('view/{id}', [VendorController::class, 'kycView'])->name('view');
                 Route::post('store/{id}', [VendorController::class, 'kycStore'])->name('store');
