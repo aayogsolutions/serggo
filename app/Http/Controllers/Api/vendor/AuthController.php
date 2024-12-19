@@ -38,29 +38,11 @@ class AuthController extends Controller
         }
 
         try {
-            if(Auth::guard('vendors')->attempt([
-                'number' => $request->number,
-                'password' => $request->password,
-            ]))
+            if(Vendor::where('number' , $request->number)->exists())
             {
-                $vendor = $this->vendor->find(Auth::guard('vendors')->user()->id);
-                
-                if($vendor->number_verfiy == 0){
-                    
-                    $token = $vendor->createToken('auth_token')->plainTextToken;
-
-                    return response()->json([
-                        'status' => true,
-                        'required' => false,
-                        'message' => 'Logged in successfully',
-                        'data' => [
-                            'token' => $token,
-                            'user' => $vendor,
-                        ]
-                    ],200);
-                    
-                }else {
-
+                $vendor = Vendor::where('number' , $request->number)->first();
+                if($vendor->number_verfiy != 0)
+                {
                     $otp = rand(1000, 9999);
                     $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
 
@@ -78,14 +60,56 @@ class AuthController extends Controller
                         ]
                     ],200);
                 }
-                
+                if($vendor->registration != 0)
+                {
+                    return response()->json([
+                        'status' => true,
+                        'required' => 'registration_verification',
+                        'message' => 'Registration Required',
+                        'data' => $vendor
+                    ],200);
+                }
+                if($vendor->is_verify == 0)
+                {
+                    return response()->json([
+                        'status' => true,
+                        'required' => 'kyc_verification',
+                        'message' => 'KYC Required',
+                        'data' => $vendor
+                    ],200);
+                }
+
+                if(Auth::guard('vendors')->attempt([
+                    'number' => $request->number,
+                    'password' => $request->password,
+                ]))
+                {
+                    $token = $vendor->createToken('auth_token')->plainTextToken;
+    
+                    return response()->json([
+                        'status' => true,
+                        'required' => false,
+                        'message' => 'Logged in successfully',
+                        'data' => [
+                            'token' => $token,
+                            'user' => $vendor,
+                        ]
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Number Or Password Not Match',
+                        'data' => []
+                    ],401);
+                }
             }else{
                 return response()->json([
                     'status' => false,
-                    'message' => 'Number Or Password Not Match',
+                    'message' => 'User Not Found, Create Your New Account',
                     'data' => []
                 ],401);
             }
+            
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

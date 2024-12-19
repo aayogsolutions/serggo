@@ -66,7 +66,7 @@ class OrderController extends Controller
                 'status' => false,
                 'error' => $th->getMessage(),
                 'data' => []
-            ], 401);
+            ], 408);
         }
     }
 
@@ -242,7 +242,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
-            ],401);
+            ],408);
         }
     }
 
@@ -264,7 +264,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
-            ],401);
+            ],408);
         }
     }
 
@@ -305,7 +305,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'errors' => 'Unexpected Error '.$th->getMessage(),
-            ], 401);
+            ], 408);
         }
     }
 }

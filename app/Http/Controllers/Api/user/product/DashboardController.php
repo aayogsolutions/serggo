@@ -117,7 +117,7 @@ class DashboardController extends Controller
                     '0 is for' => 'Mobile View',
                     '1 is for' => 'Web View'
                 ]
-            ],406);
+            ],408);
         }
     }
 
@@ -147,13 +147,13 @@ class DashboardController extends Controller
                     'status' => false,
                     'message' => 'Data not found',
                     'data' => []
-                ],404);
+                ],408);
 
             }else{
                 return response()->json([
                     'status' => false,
                     'message' => 'Parameter must be only user'
-                ],400);
+                ],408);
             }
             
         } catch (\Throwable $th) {
@@ -161,7 +161,7 @@ class DashboardController extends Controller
                 'status' => false,
                 'error' => $th->getMessage(),
                 'data' => []
-            ],409);
+            ],408);
         }
     }
 }

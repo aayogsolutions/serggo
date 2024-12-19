@@ -72,7 +72,7 @@ class OrderController extends Controller
                 'status' => false,
                 'message' => $th->getMessage(),
                 'data' => []
-            ], 409);
+            ], 408);
         }
 
         try {
@@ -176,7 +176,7 @@ class OrderController extends Controller
                 'status' => false,
                 'message' => $th->getMessage(),
                 'data' => []
-            ], 409);
+            ], 408);
         }
         
         try {
@@ -582,7 +582,7 @@ class OrderController extends Controller
                 'status' => false,
                 'error' => 'Something went wrong'.$th->getMessage(),
                 'data' => []
-            ], 401);
+            ], 408);
         }
 
         return response()->json([
@@ -632,7 +632,7 @@ class OrderController extends Controller
                     'status' => false,
                     'message' => 'Order Not Found',
                     'data' => [],
-                ], 401);
+                ], 408);
             }
 
             return response()->json([
@@ -646,7 +646,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'errors' => 'Unexpected Error',
-            ], 401);
+            ], 408);
         }
     }
 
@@ -687,7 +687,7 @@ class OrderController extends Controller
             return response()->json([
                 'status' => false,
                 'errors' => 'Unexpected Error '.$th->getMessage(),
-            ], 401);
+            ], 408);
         }
     }
 

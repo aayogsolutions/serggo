@@ -43,7 +43,7 @@ class BannerController extends Controller
                     'status' => false,
                     'message' => 'Data not found',
                     'data' => []
-                ],404);
+                ],408);
             }else{
                 return response()->json([
                     'status' => false,
@@ -68,7 +68,7 @@ class BannerController extends Controller
                     'status' => false,
                     'message' => 'Data not found',
                     'data' => []
-                ],404);
+                ],408);
             }else{
                 return response()->json([
                     'status' => false,
@@ -108,7 +108,7 @@ class BannerController extends Controller
                 'status' => false,
                 'message' => 'Data not found',
                 'data' => []
-            ],404);
+            ],408);
 
         }elseif ($ui == 'vender') {
             $data = $this->splashBanner->status()->where('ui_type', 'vender')->first();
@@ -125,7 +125,7 @@ class BannerController extends Controller
                 'status' => false,
                 'message' => 'Data not found',
                 'data' => []
-            ],404);
+            ],408);
 
         }else{
             return response()->json([

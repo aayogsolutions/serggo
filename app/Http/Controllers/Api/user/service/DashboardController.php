@@ -101,7 +101,7 @@ class DashboardController extends Controller
                     '0 is for' => 'Mobile View',
                     '1 is for' => 'Web View'
                 ]
-            ],406);
+            ],408);
         }
     }
 
@@ -215,7 +215,7 @@ class DashboardController extends Controller
                 'status' => false,
                 'message' => 'unexpected error',
                 'data' => []
-            ], 406);
+            ], 408);
         }
         
     }

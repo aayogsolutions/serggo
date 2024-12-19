@@ -76,7 +76,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 
@@ -100,7 +100,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 
@@ -131,7 +131,8 @@ class ProductController extends Controller
             'installable_price' => 'required_if:is_installable,0|numeric|min:0',
         ]);
 
-        if ($validator->fails()) {
+        if ($validator->fails()) 
+        {
             return response()->json([
                 'errors' => Helpers_error_processor($validator)
             ], 406);
@@ -148,10 +149,12 @@ class ProductController extends Controller
             // if ($request['price'] <= $discount) {
             //     $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
             // }
-    
+            
             $imageNames = [];
-            if (!empty($request->images) && count(json_decode($request->images)) > 0) {
-                foreach (json_decode($request->images) as $img) {
+            if (!empty($request->images))
+            {
+                foreach (json_decode($request->images) as $img)
+                {
                     $imageData = Helpers_upload('Images/productImages/', $img->extension() , $img);
                     $imageNames[] = $imageData;
                 }
@@ -162,7 +165,8 @@ class ProductController extends Controller
     
             $choiceOptions = [];
             if ($request->has('choice')) {
-                foreach (json_decode($request->attribute_id) as $key => $no) {
+                foreach (json_decode($request->attribute_id) as $key => $no)
+                {
                     $str = 'choice_options_' . $no;
                     
                     if ($request[$str] == null) {
@@ -223,19 +227,21 @@ class ProductController extends Controller
                 }
             }
     
-            if ((integer)$request['total_stock'] != $stockCount) {
+            if ((integer)$request['total_stock'] != $stockCount) 
+            {
                 $validator->getMessageBag()->add('total_stock', 'Stock calculation mismatch!');
                 return response()->json([
                     'status' => false,
                     'errors' => 'Stock calculation mismatch!'
-                ],401);
+                ],408);
             }
     
-            if ($validator->getMessageBag()->count() > 0) {
+            if ($validator->getMessageBag()->count() > 0) 
+            {
                 return response()->json([
                     'status' => false,
                     'errors' => Helpers_error_processor($validator)
-                ],401);
+                ],408);
             }
             
             $product = new Products();
@@ -278,7 +284,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 
@@ -300,7 +306,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 
@@ -319,7 +325,7 @@ class ProductController extends Controller
                     'status' => false,
                     'message' => 'This Product is not belongs to you',
                     'data' => []
-                ],401);
+                ],408);
             }
             
             return response()->json([
@@ -333,7 +339,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 
@@ -462,14 +468,14 @@ class ProductController extends Controller
                 return response()->json([
                     'status' => false,
                     'errors' => 'Stock calculation mismatch!'
-                ],401);
+                ],408);
             }
     
             if ($validator->getMessageBag()->count() > 0) {
                 return response()->json([
                     'status' => false,
                     'errors' => Helpers_error_processor($validator)
-                ],401);
+                ],408);
             }
             
             $product = $this->product->find($id);
@@ -512,7 +518,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 }

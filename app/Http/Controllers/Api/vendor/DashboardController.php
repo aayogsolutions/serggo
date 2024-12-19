@@ -45,9 +45,7 @@ class DashboardController extends Controller
                     'is_verify' => $vendor->is_verify,
                     'message' => 'KYC Approval Pending',
                     'data' => [
-                        'banner' => [],
                         'vendor' => $vendor,
-                        'order' => []
                     ]
                 ],200);
             }
@@ -95,7 +93,7 @@ class DashboardController extends Controller
                 'status' => false,
                 'message' => 'unexpected error'.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
     }
 }

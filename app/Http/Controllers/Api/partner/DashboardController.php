@@ -70,8 +70,7 @@ class DashboardController extends Controller
                 'status' => false,
                 'message' => 'unexpected error'.$th->getMessage(),
                 'data' => []
-            ],401);
+            ],408);
         }
-        
     }
 }

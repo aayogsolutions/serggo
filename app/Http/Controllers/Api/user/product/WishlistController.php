@@ -97,7 +97,7 @@ class WishlistController extends Controller
                 'status' => false,
                 'message' => 'Unexpected Error',
                 'data' => [$th->getMessage(),$list]
-            ],404);
+            ],408);
         }
 
         if($list == [])
@@ -193,7 +193,7 @@ class WishlistController extends Controller
                 'status' => false,
                 'message' => 'Unexpected Error',
                 'data' => [$th->getMessage(),$list]
-            ],404);
+            ],408);
         }
 
         if($list == [])

@@ -37,7 +37,7 @@ class InformationController extends Controller
                 'status' => false,
                 'error' => 'Data not found',
                 'data' => []
-            ],409);
+            ],408);
         }
        
     }
@@ -71,7 +71,7 @@ class InformationController extends Controller
                 'status' => false,
                 'error' => 'Data not found',
                 'data' => []
-            ],409);
+            ],408);
         }
        
     }
@@ -107,7 +107,7 @@ class InformationController extends Controller
                 'status' => false,
                 'error' => 'Data not found',
                 'data' => []
-            ],409);
+            ],408);
         }
        
     }

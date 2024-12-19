@@ -299,7 +299,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'Product Not exists',
                 'data' => []
-            ],404);
+            ],408);
         }
     }
       
@@ -345,7 +345,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'Section data not available',
                 'data' => []
-            ],404);
+            ],408);
         }
     }
 
@@ -390,7 +390,7 @@ class ProductController extends Controller
                 'status' => false,
                 'message' => 'No Details Available',
                 'data' => []
-            ], 404);
+            ], 408);
         }
     }
 

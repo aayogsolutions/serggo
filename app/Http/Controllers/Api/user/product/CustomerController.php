@@ -264,10 +264,8 @@ class CustomerController extends Controller
                 'status' => false,
                 'error' => 'unexpected error',
                 'data' => []
-            ],200);
+            ],408);
         }
-
-        
     }
 
     /**
@@ -298,7 +296,7 @@ class CustomerController extends Controller
                     'code' => 2,
                     'message' => 'Coupon Code Expired',
                     'data' => []
-                ],401);
+                ],408);
             }
 
             if($code->coupon_type == 'customer_wise')
@@ -329,7 +327,7 @@ class CustomerController extends Controller
                                 'code' => 2,
                                 'message' => 'Coupon Code Expired',
                                 'data' => []
-                            ],401);
+                            ],408);
                         }
                     }
                     else
@@ -339,7 +337,7 @@ class CustomerController extends Controller
                             'code' => 2,
                             'message' => 'Coupon Code Expired',
                             'data' => []
-                        ],401);
+                        ],408);
                     }
                 }else{
                     return response()->json([
@@ -347,7 +345,7 @@ class CustomerController extends Controller
                         'code' => 1,
                         'message' => 'Invalid Coupon Code',
                         'data' => []
-                    ],401);
+                    ],408);
                 }
             }else{
                 if(Carbon::parse($code->start_date)->format('Y-m-d') <= Carbon::now()->format('Y-m-d') && Carbon::parse($code->expire_date)->format('Y-m-d') >= Carbon::now()->format('Y-m-d'))
@@ -374,7 +372,7 @@ class CustomerController extends Controller
                             'code' => 2,
                             'message' => 'Coupon Code Expired',
                             'data' => []
-                        ],401);
+                        ],408);
                     }
                 }
                 else
@@ -384,7 +382,7 @@ class CustomerController extends Controller
                         'code' => 2,
                         'message' => 'Coupon Code Expired',
                         'data' => []
-                    ],401);
+                    ],408);
                 }
             }
 

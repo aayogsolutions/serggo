@@ -135,11 +135,11 @@ class ReportController extends Controller
     /**
      * @return mixed
      */
-    public function exportSaleReport(): mixed
+    public function exportSaleReport()
     {
         $data = session('export_sale_data');
-        $pdf = PDF::loadView('Admin.views.report.partials._report', compact('data'));
-        return $pdf->download('sale_report_'.rand(00001,99999) . '.pdf');
+        // $pdf = PDF::loadView('Admin.views.report.partials._report', compact('data'));
+        // return $pdf->download('sale_report_'.rand(00001,99999) . '.pdf');
     }
 
     /**
@@ -534,7 +534,7 @@ class ReportController extends Controller
         ];
 
         $mpdfView = View::make('Admin.views.report.expense-summary-pdf', compact('data'));
-        Helpers_gen_mpdf($mpdfView, 'expense-summary-report-', $dateType);
+        // Helpers_gen_mpdf($mpdfView, 'expense-summary-report-', $dateType);
 
     }
 

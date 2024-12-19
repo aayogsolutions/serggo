@@ -462,15 +462,13 @@
                             <div class="hs-unfold w-100">
                                 <span class="d-block form-label font-bold mb-2">{{translate('Change Order Status')}}:</span>
                                 <div class="dropdown">
-                                    <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button"
-                                            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
+                                    <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         {{$order['order_status'] == 'processing' ? translate('packaging') : translate($order['order_status'])}}
                                     </button>
                                     <div class="dropdown-menu text-capitalize" aria-labelledby="dropdownMenuButton">
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="pending">{{ translate('pending') }}</a>
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="confirmed">{{ translate('confirmed') }}</a>
-                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="packaging">{{ translate('packaging') }}</a>
+                                        <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="packing">{{ translate('packaging') }}</a>
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="out_for_delivery">{{ translate('out_for_delivery') }}</a>
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="delivered">{{ translate('delivered') }}</a>
                                         <a class="dropdown-item manage-status" href="javascript:void(0);" data-order_status="returned">{{ translate('returned') }}</a>
@@ -687,7 +685,7 @@
                                     @if(isset($order->customer) )
                                         <div class="media align-items-center deco-none customer--information-single">
                                             <div class="avatar avatar-circle">
-                                                <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}">
+                                                <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                             </div>
                                             <div class="media-body">
                                                 <span class="fz--14px text--title font-semibold text-hover-primary d-block">

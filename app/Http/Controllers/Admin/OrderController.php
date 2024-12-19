@@ -597,41 +597,38 @@ class OrderController extends Controller
             $notifications->description = 'Your Order No. '.$order->id.' Confirmed';
             $notifications->save();
         }
-
+        
         if ($request->order_status == 'packaging') 
         {
             foreach ($order->OrderDetails as $detail) 
             {
-                if (isset($detail['variation'])) 
-                {
-                    if ($detail['is_stock_decreased'] == 1) {
+                if ($detail['is_stock_decreased'] == 1) {
 
-                        $product = $this->product->find($detail['product_id']);
-    
-                        if ($product != null) 
+                    $product = $this->product->find($detail['product_id']);
+
+                    if ($product != null) 
+                    {
+                        $type = json_decode($detail['variation'])->type;
+                        $variationStore = [];
+                        foreach (json_decode($product['variations'], true) as $var) 
                         {
-                            $type = json_decode($detail['variation'])->type;
-                            $variationStore = [];
-                            foreach (json_decode($product['variations'], true) as $var) 
+                            if ($type == $var['type']) 
                             {
-                                if ($type == $var['type']) 
-                                {
-                                    $var['stock'] = $var['stock'] - $detail['quantity'];
-                                }
-                                $variationStore[] = $var;
+                                $var['stock'] = $var['stock'] - $detail['quantity'];
                             }
-                            $this->product->where(['id' => $product['id']])->update([
-                                'variations' => json_encode($variationStore),
-                                'total_stock' => $product['total_stock'] - $detail['quantity'],
-                                'total_sale' => $product['total_sale'] + $detail['quantity'],
-                            ]);
-                            $this->order_detail->where(['id' => $detail['id']])->update([
-                                'is_stock_decreased' => 0,
-                            ]);
-                        } else {
-                            flash()->warning(translate('Product_deleted'));
-                            return response()->json(['status' => true]);
+                            $variationStore[] = $var;
                         }
+                        $this->product->where(['id' => $product['id']])->update([
+                            'variations' => json_encode($variationStore),
+                            'total_stock' => $product['total_stock'] - $detail['quantity'],
+                            'total_sale' => $product['total_sale'] + $detail['quantity'],
+                        ]);
+                        $this->order_detail->where(['id' => $detail['id']])->update([
+                            'is_stock_decreased' => 0,
+                        ]);
+                    } else {
+                        flash()->warning(translate('Product_deleted'));
+                        return response()->json(['status' => true]);
                     }
                 }
             }
@@ -662,7 +659,6 @@ class OrderController extends Controller
             $notifications->title = 'Your order is packing';
             $notifications->description = 'Your Order No. '.$order->id.' Packing';
             $notifications->save();
-            return response()->json(['status' => true]);
         }
         
         //editable
@@ -760,7 +756,7 @@ class OrderController extends Controller
 
         $order->order_status = $request->order_status;
         $order->save();
-
+        
         $message = Helpers_order_status_update_message($request->order_status);
         $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->fmc_token : null) : ($order->guest ? $order->guest->fcm_token : null);
         

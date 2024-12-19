@@ -35,8 +35,8 @@ use App\Http\Controllers\Api\vendor\{
 use Illuminate\Support\Facades\Route;
 
 
-Route::group(['prefix' => 'auth'], function() {
-
+Route::group(['prefix' => 'auth'], function() 
+{
     Route::post('/',[ApiAuthController::class, 'OTPRequest']);
     Route::get('/resendOtp/{number}',[ApiAuthController::class, 'resendOtp']);
     Route::post('/signup/{provider}', [ApiAuthController::class,'SignupWithSocial']);
@@ -44,7 +44,8 @@ Route::group(['prefix' => 'auth'], function() {
 
     Route::put('/register', [ApiAuthController::class,'registeruser']);
 
-    Route::group(['prefix' => 'partner'], function() {
+    Route::group(['prefix' => 'partner'], function() 
+    {
         //Login Route
         Route::post('/login',[AuthController::class, 'LogIn']);
 
@@ -61,7 +62,8 @@ Route::group(['prefix' => 'auth'], function() {
         Route::post('/forget/password/submit',[AuthController::class, 'ForgetPasswordSubmit']);
     });
 
-    Route::group(['prefix' => 'vendor'], function() {
+    Route::group(['prefix' => 'vendor'], function() 
+    {
         //Login Route
         Route::post('/login',[VendorAuthController::class, 'LogIn']);
 
@@ -80,14 +82,14 @@ Route::group(['prefix' => 'auth'], function() {
     });
 });
 
-Route::group(['prefix' => 'banner'], function() {
-
+Route::group(['prefix' => 'banner'], function() 
+{
     Route::get('/auth/{ui}/{section}',[BannerController::class, 'Auth']);
     Route::get('/splash/{ui}',[BannerController::class, 'Splash']);
 });
 
-Route::group(['prefix' => 'information'], function() {
-
+Route::group(['prefix' => 'information'], function() 
+{
     // User Information Routes
     Route::get('/about-us',[InformationController::class, 'AboutUs']);
     Route::get('/term-conditions',[InformationController::class, 'TermConditions']);
@@ -99,8 +101,8 @@ Route::group(['prefix' => 'information'], function() {
     });
 });
 
-Route::group(['prefix' => 'product'], function(){
-
+Route::group(['prefix' => 'product'], function()
+{
     Route::get('/dashboard', [DashboardController::class,'Index']);
     Route::get('/category_display/{ui}', [DashboardController::class,'CategoryDisplay']);
     Route::post('/display_section_details', [ProductController::class,'Display']);
@@ -117,8 +119,8 @@ Route::group(['prefix' => 'product'], function(){
     Route::get('/selection/deliver/timeline', [ProductController::class,'DeliveryTimeLine']);
 });
 
-Route::group(['prefix' => 'service'], function(){
-
+Route::group(['prefix' => 'service'], function()
+{
     Route::get('/dashboard', [ServiceDashboardController::class,'Index']);
     Route::get('/search', [ServiceDashboardController::class,'Search']);
 
@@ -127,10 +129,10 @@ Route::group(['prefix' => 'service'], function(){
     Route::get('/sub-category/details/{category_id}', [ServiceDashboardController::class,'SubCategoryDetails']);
 });
 
-Route::group(['middleware' => ['auth:sanctum']], function(){
-
-    Route::group(['prefix' => 'user'], function(){
-
+Route::group(['middleware' => ['auth:sanctum']], function()
+{
+    Route::group(['prefix' => 'user'], function()
+    {
         // User Location Routes
         Route::post('/user-location', [CustomerController::class,'UserLocation']);
 
@@ -141,8 +143,8 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
         // Referral Info Route
         Route::get('/referral/info', [CustomerController::class,'ReferralInfo']);
 
-        Route::group(['prefix' => 'product'], function(){
-            
+        Route::group(['prefix' => 'product'], function()
+        {
             Route::get('/cart', [CartController::class,'Cart']);
 
             // Product Favorite Routes
@@ -150,7 +152,8 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::get('/favorite/list', [WishlistController::class,'FavoriteList']);
         });
 
-        Route::group(['prefix' => 'service'], function(){
+        Route::group(['prefix' => 'service'], function()
+        {
             // Service Favorite Routes
             Route::get('/favorite', [WishlistController::class,'ServiceFavorite']);
             Route::get('/favorite/list', [WishlistController::class,'ServiceFavoriteList']);
@@ -163,8 +166,8 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
         Route::get('/notification', [CustomerController::class,'Notification']);
 
         // User Address Routes
-        Route::group(['prefix' => 'address'], function(){
-
+        Route::group(['prefix' => 'address'], function()
+        {
             Route::get('/list', [AddressController::class,'addresslist']);
             Route::post('/store', [AddressController::class,'addressStore']);
             Route::post('/update/{id}', [AddressController::class,'addressUpdate']);
@@ -175,10 +178,10 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
         Route::get('/coupon', [CustomerController::class,'Coupon']);
     });
 
-    Route::group(['prefix' => 'order'], function(){
-
-        Route::group(['prefix' => 'product'], function(){
-
+    Route::group(['prefix' => 'order'], function()
+    {
+        Route::group(['prefix' => 'product'], function()
+        {
             Route::get('checkout',[OrderController::class,'Checkout']);
             Route::post('place-order',[OrderController::class,'PlaceOrder']);
 
@@ -190,8 +193,8 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::post('review',[OrderController::class,'OrderProductReview']);
         });
 
-        Route::group(['prefix' => 'service'], function(){
-
+        Route::group(['prefix' => 'service'], function()
+        {
             Route::get('checkout/{id}',[ServiceOrderController::class,'CheckOut']);
             Route::post('place-order',[ServiceOrderController::class,'PlaceOrder']);
 
@@ -204,12 +207,12 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
         });
     });
 
-    Route::group(['prefix' => 'vendor'], function(){
-  
+    Route::group(['prefix' => 'vendor'], function()
+    {
         Route::get('/dashboard', [VenderDashboardController::class,'Index']);
 
-        Route::group(['prefix' => 'product'], function(){
-
+        Route::group(['prefix' => 'profile'], function()
+        {
             Route::get('/create', [VendorProductController::class,'CreateProduct']);
             Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
             Route::post('/store', [VendorProductController::class,'StoreProduct']);
@@ -218,15 +221,27 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });
 
-        Route::group(['prefix' => 'order'], function(){
+        Route::group(['prefix' => 'product'], function()
+        {
+            Route::get('/create', [VendorProductController::class,'CreateProduct']);
+            Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
+            Route::post('/store', [VendorProductController::class,'StoreProduct']);
+            Route::get('/list', [VendorProductController::class,'ListProduct']);
+            Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
+            Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
+        });
 
+        Route::group(['prefix' => 'order'], function()
+        {
             Route::get('/list', [VendorOrderController::class,'OrderList']);
-            Route::get('/approval/{id}', [VendorOrderController::class,'OrderList']);
+            Route::get('/detail/{id}', [VendorOrderController::class,'OrderDetail']);
+            Route::get('/approval/{id}', [VendorOrderController::class,'OrderApproval']);
+            Route::get('/status/{id}', [VendorOrderController::class,'OrderStatus']);
         });
     });
 
-    Route::group(['prefix' => 'partner'], function(){
-
+    Route::group(['prefix' => 'partner'], function()
+    {
         Route::get('dashboard', [PartnerDashboardController::class,'Index']);
     });
 });

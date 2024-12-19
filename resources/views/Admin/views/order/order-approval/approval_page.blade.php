@@ -559,7 +559,7 @@
                             @if(isset($order->customer) )
                                 <div class="media align-items-center deco-none customer--information-single">
                                     <div class="avatar avatar-circle">
-                                        <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}">
+                                        <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
                                     </div>
                                     <div class="media-body">
                                         <span class="fz--14px text--title font-semibold text-hover-primary d-block">

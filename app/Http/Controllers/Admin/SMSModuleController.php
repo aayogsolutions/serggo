@@ -97,27 +97,27 @@ class SMSModuleController extends Controller
         if ($request['status'] == 1) {
             foreach (['twilio','nexmo','2factor','msg91', 'signal_wire', 'alphanet_sms'] as $gateway) {
                 if ($module != $gateway) {
-                    $keep = AddonSetting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->first();
+                    // $keep = AddonSetting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->first();
                     if (isset($keep)) {
                         $hold = $keep->live_values;
                         $hold['status'] = 0;
-                        AddonSetting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->update([
-                            'live_values' => $hold,
-                            'test_values' => $hold,
-                            'is_active' => 0,
-                        ]);
+                        // AddonSetting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->update([
+                        //     'live_values' => $hold,
+                        //     'test_values' => $hold,
+                        //     'is_active' => 0,
+                        // ]);
                     }
                 }
             }
 
-            $firebaseOTP = Helpers::get_business_settings('firebase_otp_verification');
+            // $firebaseOTP = Helpers::get_business_settings('firebase_otp_verification');
 
-            DB::table('business_settings')->updateOrInsert(['key' => 'firebase_otp_verification'], [
-                'value' => json_encode([
-                    'status'  => 0,
-                    'web_api_key' => $firebaseOTP['web_api_key'],
-                ]),
-            ]);
+            // DB::table('business_settings')->updateOrInsert(['key' => 'firebase_otp_verification'], [
+            //     'value' => json_encode([
+            //         'status'  => 0,
+            //         'web_api_key' => $firebaseOTP['web_api_key'],
+            //     ]),
+            // ]);
         }
         return back();
     }

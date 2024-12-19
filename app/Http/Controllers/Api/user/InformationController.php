@@ -30,14 +30,14 @@ class InformationController extends Controller
                     'status' => false,
                     'message' => 'Data not found',
                     'data' => []
-                ],404); 
+                ],408); 
             }
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
                 'error' => 'Data not found',
                 'data' => []
-            ],409);
+            ],408);
         }
        
     }
@@ -64,14 +64,14 @@ class InformationController extends Controller
                     'status' => false,
                     'message' => 'Data not found',
                     'data' => []
-                ],404); 
+                ],408); 
             }                       
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
                 'error' => 'Data not found',
                 'data' => []
-            ],409);
+            ],408);
         }
        
     }
@@ -99,7 +99,7 @@ class InformationController extends Controller
                     'status' => false,
                     'message' => 'Data not found',
                     'data' => []
-                ],404); 
+                ],408); 
             }
 
         } catch (\Throwable $th) {
@@ -107,7 +107,7 @@ class InformationController extends Controller
                 'status' => false,
                 'error' => 'Data not found',
                 'data' => []
-            ],409);
+            ],408);
         }
        
     }

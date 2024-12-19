@@ -175,7 +175,7 @@ class CustomerController extends Controller
             $emailServices = Helpers_get_business_settings('mail_config');
             if (isset($emailServices['status']) && $emailServices['status'] == 1 && isset($customer['email'])) {
                 $name = $customer->f_name. ' '. $customer->l_name;
-                Mail::to($customer->email)->send(new \App\Mail\Customer\CustomerDelete($name));
+                // Mail::to($customer->email)->send(new \App\Mail\Customer\CustomerDelete($name));
             }
         } catch (\Exception $e) {
         }
@@ -197,7 +197,7 @@ class CustomerController extends Controller
         try {
             $emailServices = Helpers_get_business_settings('mail_config');
             if (isset($emailServices['status']) && $emailServices['status'] == 1 && isset($user['email'])) {
-                Mail::to($user->email)->send(new \App\Mail\Customer\CustomerChangeStatus($user));
+                // Mail::to($user->email)->send(new \App\Mail\Customer\CustomerChangeStatus($user));
             }
         } catch (\Exception $e) {
         }
