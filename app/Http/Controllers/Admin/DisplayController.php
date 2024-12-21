@@ -513,12 +513,12 @@ class DisplayController extends Controller
         $request->validate([
             'title' => 'required|max:255',
             'image' => 'required|image',
-            // 'type' => 'required',
+            'category_id' => 'required',
             // 'item_type' => 'required',
         ], [
             'title.required' => translate('Title is required'),
             'image.required' => translate('Image is required'),
-            // 'type.required' => translate('Type is required'),
+            'category_id.required' => translate('Category is required'),
             // 'item_type.required' => translate('Item Type is required'),
         ]);
         

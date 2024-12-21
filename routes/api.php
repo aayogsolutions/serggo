@@ -237,6 +237,10 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::get('/detail/{id}', [VendorOrderController::class,'OrderDetail']);
             Route::get('/approval/{id}', [VendorOrderController::class,'OrderApproval']);
             Route::get('/status/{id}', [VendorOrderController::class,'OrderStatus']);
+            Route::post('/date/{id}', [VendorOrderController::class,'OrderDate']);
+
+            Route::get('/timesolts', [VendorOrderController::class,'OrderGetTimeSlots']);
+            Route::post('/timesolts/{id}', [VendorOrderController::class,'OrderTimeSlots']);
         });
     });
 

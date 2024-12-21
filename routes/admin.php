@@ -359,6 +359,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('list/{status}', [OrderController::class, 'list'])->name('list');
             Route::get('details/{id}', [OrderController::class, 'details'])->name('details');
             Route::get('status', [OrderController::class, 'status'])->name('status');
+            Route::get('status-service', [OrderController::class, 'statusService'])->name('status.service');
             Route::get('add-service-man/{order_id}', [OrderController::class, 'addServiceman'])->name('add.service.man');
             Route::get('add-delivery-man/{order_id}', [OrderController::class, 'addDeliveryman'])->name('add.delivery.man');
             Route::get('payment-status', [OrderController::class, 'paymentStatus'])->name('payment-status');

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Order;
 use App\Models\Order_details;
 use App\Models\Products;
+use App\Models\TimeSlot;
 
 class OrderController extends Controller
 {
@@ -197,7 +198,7 @@ class OrderController extends Controller
         }
 
         try {
-            if(Order::where(['id' => $id, 'vender_id' => auth('sanctum')->user()->id])->exists())
+            if(Order::where(['id' => $id, 'vender_id' => auth('sanctum')->user()->id, 'delivered_by' => 1])->exists())
             {
                 $order = Order::where(['id' => $id, 'vender_id' => auth('sanctum')->user()->id])->with('OrderDetails')->first();
 
@@ -460,6 +461,111 @@ class OrderController extends Controller
                     'data' => Helpers_Orders_formatting($order, false, true, false)
                 ],200);
             }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function OrderDate(Request $request, int $id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            if(Order::where(['id' => $id, 'vender_id' => auth('sanctum')->user()->id, 'delivered_by' => 1])->exists())
+            {
+                $order = Order::find($id);
+                $order->delivery_date = $request->date;
+                $order->save();
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order not found',
+                    'data' => []
+                ],408);
+            }
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     */
+    public function OrderGetTimeSlots(): JsonResponse
+    {
+        try {
+            $slots = TimeSlot::where('status' , 1)->get();
+        
+            return response()->json([
+                'status' => true,
+                'message' => 'TimeSlots',
+                'data' => $slots
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function OrderTimeSlots(Request $request, int $id): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'timeslot' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            if(Order::where(['id' => $id, 'vender_id' => auth('sanctum')->user()->id, 'delivered_by' => 1])->exists())
+            {
+                $order = Order::find($id);
+                $order->delivery_timeslot_id = $request->timeslot;
+                $order->save();
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order not found',
+                    'data' => []
+                ],408);
+            }
+            
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

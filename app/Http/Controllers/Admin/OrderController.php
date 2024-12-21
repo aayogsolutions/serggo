@@ -781,7 +781,152 @@ class OrderController extends Controller
         return response()->json(['status' => true]);
     }
 
+/**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function statusService(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $order = $this->order->where('id',$request->id)->with('OrderDetails')->first();
 
+        if (in_array($order->order_status, ['delivered', 'canceled', 'rejected'])) {
+            flash()->warning(translate('you_can_not_change_the_status_of ' . $order->order_status . ' order'));
+            return back();
+        }
+
+        //refund amount to wallet
+        if (in_array($request['order_status'], ['canceled', 'rejected'])) 
+        {
+            if($order['partial_payment'] == 'paid') 
+            {
+                $total = $order['order_amount'] - $order['coupon_amount'];
+
+                Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
+            }
+            else
+            {
+                $total = 0;
+                foreach ($order['OrderDetails'] as $key => $value) {
+                    $total += $value['advance_payment'];
+                }
+
+                if($order['partial_payment'] != null) {
+                    $total += json_decode($order['partial_payment'], true)['wallet_applied'];
+                }
+
+                if($total > 0) {
+                    Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
+                }
+            }
+            
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Rejected';
+            $notifications->description = 'Your Order No. '.$order->id.' Rejected';
+            $notifications->save();
+        }
+
+        if ($request->order_status == 'pending') 
+        {
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Pending';
+            $notifications->description = 'Your Order No. '.$order->id.' is transfered to Pending';
+            $notifications->save();
+        }
+
+        if ($request->order_status == 'confirmed')
+        {
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Confirmed';
+            $notifications->description = 'Your Order No. '.$order->id.' Confirmed';
+            $notifications->save();
+        }
+        
+        //editable
+        if ($request->order_status == 'out_for_delivery') 
+        {
+            if ($order['delivery_date'] == 'null' || $order['delivery_timeslot_id'] == 'null') 
+            {
+                flash()->warning(translate('Please assign delivery Information first!'));
+                return response()->json(['status' => true]);
+            }
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Out for Delivery';
+            $notifications->description = 'Your Order No. '.$order->id.' out for delivery';
+            $notifications->save();
+        }
+
+        if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') 
+        {
+            flash()->warning(translate('you_can_not_delivered_a_order_when_order_status_is_not_paid. please_update_payment_status_first'));
+            return response()->json(['status' => true]);
+        }
+
+        if ($request->order_status == 'delivered') 
+        {
+            if($order['delivery_date'] == 'null' && $order['delivery_timeslot_id'] == 'null' && $order['delivery_man_id'] == 'null')
+            {
+                flash()->warning(translate('Please assign delivery Information first!'));
+                return response()->json(['status' => true]);
+            }
+
+            foreach ($order->OrderDetails as $key => $value) {
+                if($value['installation'] == 0 && $value['service_man_id'] != null)
+                {
+                    flash()->warning(translate('Please assign Service and Installation Information first!'));
+                    return response()->json(['status' => true]);
+                }
+            }
+
+            // if ($order['payment_method'] == 'cash_on_delivery') {
+            //     $partialData = OrderPartialPayment::where(['order_id' => $order->id])->first();
+            //     if ($partialData) {
+            //         $partial = new OrderPartialPayment;
+            //         $partial->order_id = $order['id'];
+            //         $partial->paid_with = 'cash_on_delivery';
+            //         $partial->paid_amount = $partialData->due_amount;
+            //         $partial->due_amount = 0;
+            //         $partial->save();
+            //     }
+            // }
+
+            $notifications = new Notifications();
+            $notifications->user_id = $order->user_id;
+            $notifications->title = 'Order Delivered';
+            $notifications->description = 'Your Order No. '.$order->id.' Delivered';
+            $notifications->save();
+        }
+
+        $order->order_status = $request->order_status;
+        $order->save();
+        
+        $message = Helpers_order_status_update_message($request->order_status);
+        $customerFcmToken = $order->is_guest == 0 ? ($order->customer ? $order->customer->fmc_token : null) : ($order->guest ? $order->guest->fcm_token : null);
+        
+        $value = $this->dynamic_key_replaced_message(message: $message, type: 'order', order: $order);
+
+        try {
+            if ($value) {
+                $data = [
+                    'title' => translate('Order'),
+                    'description' => $value,
+                    'order_id' => $order['id'],
+                    'image' => '',
+                    'type' => 'order'
+                ];
+                Helpers_send_push_notif_to_device($customerFcmToken, $data);
+            }
+        } catch (\Exception $e) {
+            flash()->warning(translate('Push notification failed for Customer!'));
+        }
+
+        flash()->success(translate('Order status updated!'));
+        return response()->json(['status' => true]);
+    }
 
 
 
