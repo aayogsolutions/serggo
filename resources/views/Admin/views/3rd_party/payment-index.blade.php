@@ -110,11 +110,10 @@
                                 <label class="switch--custom-label toggle-switch toggle-switch-sm d-inline-flex">
                                     <span class="mr-2 switch--custom-label-text text-primary on text-uppercase">on</span>
                                     <span class="mr-2 switch--custom-label-text off text-uppercase">off</span>
-                                    <input type="checkbox" name="status" value="1"
-                                           class="toggle-switch-input" {{$payment['is_active']==1?'checked':''}}>
+                                    <input type="checkbox" name="status" value="{{ $payment['is_active'] == 0 ? 1 : 0 }}" class="toggle-switch-input" {{ $payment['is_active'] == 0 ? 'checked' : '' }}>
                                     <span class="toggle-switch-label text">
-                                            <span class="toggle-switch-indicator"></span>
-                                        </span>
+                                        <span class="toggle-switch-indicator"></span>
+                                    </span>
                                 </label>
                             </div>
 
@@ -131,7 +130,7 @@
                                 <input name="gateway" value="{{$payment->key_name}}" class="d-none">
 
                                 @php($mode = json_decode($payment->live_values)->mode)
-                                <div class="form-floating mb-2">
+                                <div class="form-floating mb-2" hidden>
                                     <select class="js-select form-control theme-input-style w-100" name="mode">
                                         <option value="live" {{$mode=='live'?'selected':''}}>Live</option>
                                         <option value="test" {{$mode=='test'?'selected':''}}>Test</option>

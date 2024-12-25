@@ -33,12 +33,12 @@ class DatabaseSeeder extends Seeder
         // Brands::factory(20)->create();
         // Category::factory(20)->create();
         // Vendor::factory(30)->create();
-        Products::factory(30)->create();
+        // Products::factory(30)->create();
         
         $this->call([
             // MasterAdminSeeder::class,
             // ProductSeeder::class,
-            // PaymentGatewaysSeeder::class
+            PaymentGatewaysSeeder::class
         ]);
     }
 }

@@ -124,9 +124,12 @@ Route::group(['prefix' => 'service'], function()
     Route::get('/dashboard', [ServiceDashboardController::class,'Index']);
     Route::get('/search', [ServiceDashboardController::class,'Search']);
 
+    Route::get('/display/details/{id}', [ServiceDashboardController::class,'DisplayDetails']);
+
     // Category Details Route
     Route::get('/category/{id}', [ServiceDashboardController::class,'CategoryDetails']);
     Route::get('/sub-category/details/{category_id}', [ServiceDashboardController::class,'SubCategoryDetails']);
+    
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function()
@@ -213,12 +216,12 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
         Route::group(['prefix' => 'profile'], function()
         {
-            Route::get('/create', [VendorProductController::class,'CreateProduct']);
-            Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
-            Route::post('/store', [VendorProductController::class,'StoreProduct']);
-            Route::get('/list', [VendorProductController::class,'ListProduct']);
-            Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
-            Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
+            // Route::get('/create', [VendorProductController::class,'CreateProduct']);
+            // Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
+            // Route::post('/store', [VendorProductController::class,'StoreProduct']);
+            // Route::get('/list', [VendorProductController::class,'ListProduct']);
+            // Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
+            // Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });
 
         Route::group(['prefix' => 'product'], function()
@@ -226,7 +229,7 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::get('/create', [VendorProductController::class,'CreateProduct']);
             Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
             Route::post('/store', [VendorProductController::class,'StoreProduct']);
-            Route::get('/list', [VendorProductController::class,'ListProduct']);
+            Route::get('/list', [VendorProductController::class,'ProductList']);
             Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
         });

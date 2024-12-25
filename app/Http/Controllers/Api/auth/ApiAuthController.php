@@ -150,6 +150,7 @@ class ApiAuthController extends Controller
                     } else {
                         if ($user->number == $request->number && $user->is_block == 0) {
                             $user->number_verify = 1;
+                            $user->fmc_token = $request->fmc_token;
                             $user->save();
                             $token = $user->createToken(($user->name) != null ? $user->name : $user->number)->plainTextToken;
 
@@ -265,6 +266,11 @@ class ApiAuthController extends Controller
                         ],
                     ], 203);
                 }else{
+
+                    $user = User::where('number', $request->number)->first();
+                    $user->fmc_token = $request->fmc_token;
+                    $user->save();
+
                     $token = $user->createToken($user->name)->plainTextToken;
                    
                     return response()->json([
@@ -348,7 +354,11 @@ class ApiAuthController extends Controller
             if ($provider == 'google') {
                 
                 $userdata = User::where('email', $request->email)->first();
-                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) {
+                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) 
+                {
+                    $userdata->fmc_token = $request->fmc_token;
+                    $userdata->save();
+
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
@@ -428,7 +438,11 @@ class ApiAuthController extends Controller
             } elseif ($provider == 'facebook') {
 
                 $userdata = User::where('email', $request->email)->first();
-                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) {
+                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) 
+                {
+                    $userdata->fmc_token = $request->fmc_token;
+                    $userdata->save();
+
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,
@@ -509,7 +523,11 @@ class ApiAuthController extends Controller
 
                 // Find or create user
                 $userdata = User::where('provider_id', $request->id)->first();
-                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) {
+                if (!is_null($userdata) && $userdata->registration == 1 && $userdata->number_verify == 1) 
+                {
+                    $userdata->fmc_token = $request->fmc_token;
+                    $userdata->save();
+                    
                     $token = $userdata->createToken(($userdata->name) != null ? $userdata->name : $userdata->email)->plainTextToken;
                     return response()->json([
                         'status' => true,

@@ -354,23 +354,39 @@ if(! function_exists('Format_category_to_service')) {
     {
         $storage = [];
         if ($multi_data == true) {
-            foreach ($data as $item) {
+            foreach ($data as $item) 
+            {
+                $category_review_average = 0;
+                $category_review_count = 0;
                 foreach ($item->childes as $child)
                 {
+                    $service_review_average = 0;
+                    $service_review_count = 0;
                     foreach ($child->services as $service)
                     {
                         $service = Service_data_formatting($service,false,false);
+                        $service_review_average += $service->reviewsAverage;
+                        $service_review_count += 1;
                     }
+                    $child->reviewsAverage = $service_review_average / $service_review_count;
+                    $category_review_average += $child->reviewsAverage;
+                    $category_review_count += 1;
                 }
+                $item->reviewsAverage = $category_review_average / $category_review_count;
                 array_push($storage, $item);
             }
             $data = $storage;
         } else {
             foreach ($data->childes as $child){
+                $category_review_average = 0;
+                $category_review_count = 0;
                 foreach ($child->services as $service)
                 {
                     $service = Service_data_formatting($service,false,false);
+                    $category_review_average += $service->reviewsAverage;
+                    $category_review_count += 1;
                 }
+                $child->reviewsAverage = $category_review_average / $category_review_count;
             }
         }
         return $data;

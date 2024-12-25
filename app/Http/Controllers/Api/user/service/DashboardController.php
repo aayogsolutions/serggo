@@ -202,9 +202,38 @@ class DashboardController extends Controller
     public function CategoryDetails($id) : JsonResponse
     {
         try {
-            $categorys = $this->servicecategory->where('id',$id)->withCount('childes')->having('childes_count', '>', 0)->with('childes',function($q){
+            $categorys = $this->servicecategory->where('id',$id)->withCount('childes')->having('childes_count', '>', 0)->with('childes' , function($q){
                 $q->withCount('childes')->having('childes_count', '>', 0);
             })->first();
+
+            $category_review_average = 0;
+            $category_review_count = 0;
+            foreach ($categorys->childes as $key => $value) 
+            {
+                $childes = $value->childes()->get();
+                $subcategory_review_average = 0;
+                $subcategory_review_count = 0;
+                foreach ($childes as $key => $value1) 
+                {
+                    $value1->Services = $value1->Services()->get();
+                    $service_review_average = 0;
+                    $service_review_count = 0;
+                    foreach ($value1->Services as $key => $value2) 
+                    {
+                        $service = Service_data_formatting($value2,false,false);
+                        $service_review_average += $service->reviewsAverage;
+                        $service_review_count += 1;
+                    }
+                    $value1->reviewsAverage = $service_review_average / $service_review_count;
+                    $subcategory_review_average += $value1->reviewsAverage;
+                    $subcategory_review_count += 1;
+                }
+                $value->reviewsAverage = $subcategory_review_average / $subcategory_review_count;
+                $category_review_average += $value->reviewsAverage;
+                $category_review_count += 1;
+            }
+            $categorys->reviewsAverage = $category_review_average / $category_review_count;
+            
             return response()->json([
                 'status' => true,
                 'message' => 'Category Data',
@@ -259,6 +288,29 @@ class DashboardController extends Controller
                 'message' => 'unexpected error',
                 'data' => []
             ], 406);
+        }
+    }
+
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function DisplayDetails($id) : JsonResponse
+    {
+        try {
+            $data = display_data_formatting($this->displaysection->where('id',$id)->with('childes')->get(), true);
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Display Data',
+                'data' => $data
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error',
+                'data' => []
+            ], 408);
         }
     }
 }

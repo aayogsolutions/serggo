@@ -626,14 +626,14 @@ class OrderController extends Controller
         
             $orders = Helpers_Orders_formatting($orders, false, true, false);
 
-            if($orders->user_id != Auth::user()->id)
-            {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Order Not Found',
-                    'data' => [],
-                ], 408);
-            }
+            // if($orders->user_id != Auth::user()->id)
+            // {
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => 'Order Not Found',
+            //         'data' => [],
+            //     ], 408);
+            // }
 
             return response()->json([
                 'status' => true,
