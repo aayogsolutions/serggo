@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
+use App\Models\CouponApplied;
 use App\Models\Coupons;
 use App\Models\Notifications;
 use App\Models\Order;
@@ -305,7 +306,7 @@ class CustomerController extends Controller
                 {
                     if(Carbon::parse($code->start_date)->format('Y-m-d') <= Carbon::now()->format('Y-m-d') && Carbon::parse($code->expire_date)->format('Y-m-d') >= Carbon::now()->format('Y-m-d'))
                     {
-                        $count = Order::where(['user_id' => $user_id,'coupon_code' => $code->code])->count();
+                        $count = CouponApplied::where(['user_id' => $user_id,'coupon_code' => $code->code])->count();
 
                         if($count < $code->limit)
                         {
@@ -350,7 +351,7 @@ class CustomerController extends Controller
             }else{
                 if(Carbon::parse($code->start_date)->format('Y-m-d') <= Carbon::now()->format('Y-m-d') && Carbon::parse($code->expire_date)->format('Y-m-d') >= Carbon::now()->format('Y-m-d'))
                 {
-                    $count = Order::where(['user_id' => $user_id,'coupon_code' => $code->code])->count();
+                    $count = CouponApplied::where(['user_id' => $user_id,'coupon_code' => $code->code])->count();
 
                     if($count < $code->limit)
                     {

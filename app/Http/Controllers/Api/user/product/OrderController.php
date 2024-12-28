@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\{
     Admin,
     BusinessSetting,
+    CouponApplied,
     CustomerAddresses,
     Notifications,
     Order,
@@ -131,6 +132,7 @@ class OrderController extends Controller
             'product.*.is_advance' => 'required|numeric',
             'product.*.advance' => 'nullable|numeric',
             'product.*.tax' => 'required|numeric',
+            'product.*.coupon_amount' => 'required|numeric|min:0',
             'address_id' => 'required|numeric',
             'partial_payment' => 'required|numeric',
             'wallet_applied' => 'required|numeric',
@@ -144,7 +146,6 @@ class OrderController extends Controller
             'due_amount' => 'required|numeric',
             'free_delivery' => 'required|numeric',
             'coupon_applied' => 'required|in:0,1',
-            'coupon_amount' => 'required|numeric|min:0',
             'coupon_code' => 'nullable',
         ]);
         
@@ -221,6 +222,7 @@ class OrderController extends Controller
     
                     $tax_amount = 0;
                     $amount = 0;
+                    $coupon_amount = 0;
                     $delivery = 0;
                     $discount = 0;
                     $installation = 0;
@@ -254,6 +256,11 @@ class OrderController extends Controller
                             $order_details->installation = $value['is_installation'];
                             $installation += $product->installation_charges;
                         }
+                        if($value['coupon_applied'] == 0)
+                        {
+                            $order_details->coupon_amount = $value['coupon_amount'];
+                            $coupon_amount = $coupon_amount + $value['coupon_amount'];
+                        }
                         if($tax_type == null || $tax_type == 'excluded')
                         {
                             $order_details->gst_status = 'excluded';
@@ -283,6 +290,11 @@ class OrderController extends Controller
                     $adminOrder->total_installation	 = $installation;
                     $adminOrder->item_total = $amount;
                     $adminOrder->advance_payment = $advance;
+                    if($request->coupon_applied == 0)
+                    {
+                        $adminOrder->coupon_amount = $coupon_amount;
+                        $adminOrder->coupon_code = $request->coupon_code;
+                    }
                     if($request->free_delivery == 0)
                     {
                         $adminOrder->free_delivery_amount = $delivery;
@@ -405,6 +417,7 @@ class OrderController extends Controller
     
                     $tax_amount = 0;
                     $amount = 0;
+                    $coupon_amount = 0;
                     $delivery = 0;
                     $discount = 0;
                     $installation = 0;
@@ -439,6 +452,11 @@ class OrderController extends Controller
                             $order_details->installation = $value['is_installation'];
                             $installation += $product->installation_charges;
                         }
+                        if($value['coupon_applied'] == 0)
+                        {
+                            $order_details->coupon_amount = $value['coupon_amount'];
+                            $coupon_amount = $coupon_amount + $value['coupon_amount'];
+                        }
                         if($tax_type == null || $tax_type == 'excluded')
                         {
                             $order_details->gst_status = 'excluded';
@@ -470,6 +488,11 @@ class OrderController extends Controller
                     if($request->free_delivery == 0)
                     {
                         $adminOrder->free_delivery_amount = $delivery;
+                    }
+                    if($request->coupon_applied == 0)
+                    {
+                        $adminOrder->coupon_amount = $coupon_amount;
+                        $adminOrder->coupon_code = $request->coupon_code;
                     }
                     if($request->tax_type == 'excluded')
                     {
@@ -559,6 +582,14 @@ class OrderController extends Controller
                     $order_ids[] = $adminOrder->id;
                 }
 
+                if($request->coupon_applied == 0)
+                {
+                    $code = new CouponApplied();
+                    $code->user_id = Auth::user()->id;
+                    $code->coupon_code = $request->coupon_code;
+                    $code->save();
+                }
+
                 if (!BusinessSetting::where(['key' => 'order_place_message'])->first()) {
                     BusinessSetting::updateOrInsert(['key' => 'order_place_message'], [
                         'value' => json_encode([
@@ -625,15 +656,6 @@ class OrderController extends Controller
             $orders = $this->order->where('id', $id)->with('OrderDetails')->first();
         
             $orders = Helpers_Orders_formatting($orders, false, true, false);
-
-            // if($orders->user_id != Auth::user()->id)
-            // {
-            //     return response()->json([
-            //         'status' => false,
-            //         'message' => 'Order Not Found',
-            //         'data' => [],
-            //     ], 408);
-            // }
 
             return response()->json([
                 'status' => true,

@@ -413,6 +413,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::group(['prefix' => 'wallet', 'as' => 'wallet.'], function () {
                 Route::get('add-fund', [CustomerWalletController::class, 'addFundView'])->name('add-fund');
                 Route::post('add-fund', [CustomerWalletController::class, 'addFund'])->name('add-fund-store');
+
+                Route::get('deduct-fund', [CustomerWalletController::class, 'DeductFundView'])->name('deduct-fund');
+                Route::post('deduct-fund', [CustomerWalletController::class, 'DeductFund'])->name('deduct-fund-store');
+                
                 Route::get('report', [CustomerWalletController::class, 'report'])->name('report');
 
                 Route::group(['prefix' => 'bonus', 'as' => 'bonus.'], function () {
@@ -546,6 +550,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('order-status/{status}', [BusinessSettingsController::class, 'orderStatus'])->name('order-status');
                 Route::post('order-setup-update', [BusinessSettingsController::class, 'orderSetupUpdate'])->name('order-setup-update');
 
+                // Commission Setup
+                Route::get('commission-setup', [BusinessSettingsController::class, 'CommissionSetup'])->name('commission-setup');
+                Route::post('commission-setup-update', [BusinessSettingsController::class, 'CommissionSetupUpdate'])->name('commission-setup-update');
+
                 // Customer Setup
                 Route::get('customer-setup', [BusinessSettingsController::class, 'customerSetup'])->name('customer-setup');
                 Route::post('customer-setup-update', [BusinessSettingsController::class, 'customerSetupUpdate'])->name('customer-setup-update');
@@ -586,6 +594,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 // Payment Methods
                 Route::get('payment-method', [BusinessSettingsController::class, 'paymentIndex'])->name('payment-method');
                 Route::post('payment-method-update/{payment_method}', [BusinessSettingsController::class, 'paymentUpdate'])->name('payment-method-update');
+                Route::post('payment-status-update', [BusinessSettingsController::class, 'PaymentStatusUpdate'])->name('payment-status-update');
+                Route::post('payment-mode-update', [BusinessSettingsController::class, 'PaymentModeUpdate'])->name('payment-mode-update');
                 Route::post('payment-config-update', [BusinessSettingsController::class, 'paymentConfigUpdate'])->name('payment-config-update');
 
                 // Firebase Config

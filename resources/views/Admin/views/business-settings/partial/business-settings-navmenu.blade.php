@@ -68,5 +68,11 @@
                 {{translate('orders')}}
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link {{Request::is('admin/business-settings/store/commission-setup')?'active':''}}" href="{{route('admin.business-settings.store.commission-setup')}}">
+                {{translate('Commission Setup')}}
+            </a>
+        </li>
     </ul>
 </div>

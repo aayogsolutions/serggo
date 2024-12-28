@@ -518,10 +518,26 @@ if(!function_exists('Helpers_send_push_notif_to_device')) {
     }
 }
 
-if(!function_exists('Helpers_order_notifiation_message')) {
-    function Helpers_order_notifiation_message($message)
+if(!function_exists('Helpers_order_settlement')) {
+    function Helpers_order_settlement($order_id)
     {
         try {
+            $order = Order::find($order_id);
+
+            if($order->order_status == 'delivered')
+            {
+                if($order->payment_method == 'cod')
+                {
+                    
+                }
+            }
+            else
+            {
+                return [
+                    'status' => false,
+                    'message' => 'Order is not delivered'
+                ];
+            }
             
 
             return true;

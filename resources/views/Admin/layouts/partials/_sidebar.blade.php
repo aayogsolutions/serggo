@@ -742,13 +742,9 @@
                                     {{translate('Customer Wallet')}}
                                 </span>
                             </a>
-                            <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                style="display: {{Request::is('admin/customer/wallet*')?'block':'none'}}">
-
+                            <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/customer/wallet*')?'block':'none'}}">
                                 <li class="nav-item {{Request::is('admin/customer/wallet/add-fund')?'active':''}}">
-                                    <a class="nav-link"
-                                        href="{{route('admin.customer.wallet.add-fund')}}"
-                                        title="{{translate('add_fund')}}">
+                                    <a class="nav-link" href="{{route('admin.customer.wallet.add-fund')}}" title="{{translate('add_fund')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
                                             {{translate('add_fund')}}
@@ -756,17 +752,24 @@
                                     </a>
                                 </li>
 
+                                <li class="nav-item {{Request::is('admin/customer/wallet/deduct-fund')?'active':''}}">
+                                    <a class="nav-link" href="{{route('admin.customer.wallet.deduct-fund')}}" title="{{translate('deduct_fund')}}">
+                                        <span class="tio-circle nav-indicator-icon"></span>
+                                        <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                            {{translate('deduct_fund')}}
+                                        </span>
+                                    </a>
+                                </li>
+
                                 <li class="nav-item {{Request::is('admin/customer/wallet/report')?'active':''}}">
-                                    <a class="nav-link"
-                                        href="{{route('admin.customer.wallet.report')}}"
-                                        title="{{translate('report')}}">
+                                    <a class="nav-link" href="{{route('admin.customer.wallet.report')}}" title="{{translate('report')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
                                         <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
                                             {{translate('report')}}
                                         </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{Request::is('admin/customer/wallet/bonus*')?'active':''}}">
+                                <!-- <li class="nav-item {{Request::is('admin/customer/wallet/bonus*')?'active':''}}">
                                     <a class="nav-link"
                                         href="{{route('admin.customer.wallet.bonus.index')}}"
                                         title="{{translate('wallet_bonus_setup')}}">
@@ -775,7 +778,7 @@
                                             {{translate('wallet_bonus_setup')}}
                                         </span>
                                     </a>
-                                </li>
+                                </li> -->
 
                             </ul>
                         </li>

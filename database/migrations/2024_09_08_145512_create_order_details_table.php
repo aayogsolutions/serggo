@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('price',8,2)->default(0);
             $table->integer('quantity')->default(0);
             $table->decimal('tax_amount',8,2)->default(0);
+            $table->decimal('coupon_amount',8,2)->default(0);
             $table->text('product_details')->nullable();
             $table->text('variation')->nullable();
             $table->string('unit')->nullable();

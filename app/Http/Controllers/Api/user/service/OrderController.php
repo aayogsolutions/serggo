@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\user\service;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
+use App\Models\CouponApplied;
 use App\Models\CustomerAddresses;
 use App\Models\Notifications;
 use App\Models\Order;
@@ -148,7 +149,11 @@ class OrderController extends Controller
         $adminOrder->total_discount = $request->services['discount'];
         // $adminOrder->total_installation	 = $installation;
         $adminOrder->item_total = $service->price;
-
+        if($request->coupon_applied == 0)
+        {
+            $adminOrder->coupon_amount = $request->coupon_amount;
+            $adminOrder->coupon_code = $request->coupon_code;
+        }
         if($request->tax_type == 'excluded')
         {
             $grand_total = ($service->price + $request->services['tax'] + $request->services['fees']) - $request->services['discount'];
@@ -174,7 +179,6 @@ class OrderController extends Controller
                 $adminOrder->payment_status = 'paid';
             }
         }
-
         $adminOrder->save();
 
         
@@ -200,6 +204,13 @@ class OrderController extends Controller
         $order_details->tax_amount = $request->services['tax'];
         $order_details->save();
         
+        if($request->coupon_applied == 0)
+        {
+            $code = new CouponApplied();
+            $code->user_id = Auth::user()->id;
+            $code->coupon_code = $request->coupon_code;
+            $code->save();
+        }
 
         if (!BusinessSetting::where(['key' => 'order_place_message'])->first()) {
             BusinessSetting::updateOrInsert(['key' => 'order_place_message'], [

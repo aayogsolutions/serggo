@@ -190,9 +190,18 @@ class OrderController extends Controller
             $order->order_approval = 'accepted';
             $order->order_status = 'confirmed';
 
+            if (!BusinessSetting::where(['key' => 'order_approval_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'order_approval_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Order Accepted',
+                    ]),
+                ]);
+            }
+
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
-            $notifications->title = 'Order Accepted';
+            $notifications->title = helpers_get_business_settings('order_approval_message')['message'];
             $notifications->description = 'Your Order No. '.$order->id.' Approved';
             $notifications->save();
             
@@ -222,10 +231,19 @@ class OrderController extends Controller
                     Helpers_generate_wallet_transaction($order['user_id'], $order['id'], 'refund', 0, $total, $total);
                 }
             }
+
+            if (!BusinessSetting::where(['key' => 'order_rejected_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'order_rejected_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Order Rejected',
+                    ]),
+                ]);
+            }
             
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
-            $notifications->title = 'Order Rejected';
+            $notifications->title = helpers_get_business_settings('order_rejected_message')['message'];
             $notifications->description = 'Your Order No. '.$order->id.' Rejected';
             $notifications->save();
 
@@ -573,9 +591,18 @@ class OrderController extends Controller
                 }
             }
             
+            if (!BusinessSetting::where(['key' => 'add_fund_wallet_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'add_fund_wallet_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Amount added to your wallet',
+                    ]),
+                ]);
+            }
+            
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
-            $notifications->title = 'Order Rejected';
+            $notifications->title = helpers_get_business_settings('add_fund_wallet_message')['message'];
             $notifications->description = 'Your Order No. '.$order->id.' Rejected';
             $notifications->save();
         }
@@ -654,9 +681,18 @@ class OrderController extends Controller
             //     flash()->warning(translate('Push notification failed for DeliveryMan!'));
             // }
 
+            if (!BusinessSetting::where(['key' => 'order_processing_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'order_processing_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Your order is packing',
+                    ]),
+                ]);
+            }
+
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
-            $notifications->title = 'Your order is packing';
+            $notifications->title = helpers_get_business_settings('order_processing_message')['message'];
             $notifications->description = 'Your Order No. '.$order->id.' Packing';
             $notifications->save();
         }
@@ -670,9 +706,18 @@ class OrderController extends Controller
                 return response()->json(['status' => true]);
             }
 
+            if (!BusinessSetting::where(['key' => 'out_for_delivery_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'out_for_delivery_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Order Out for Delivery',
+                    ]),
+                ]);
+            }
+            
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
-            $notifications->title = 'Order Out for Delivery';
+            $notifications->title = helpers_get_business_settings('out_for_delivery_message')['message'];
             $notifications->description = 'Your Order No. '.$order->id.' out for delivery';
             $notifications->save();
         }
@@ -711,9 +756,18 @@ class OrderController extends Controller
             //     }
             // }
 
+            if (!BusinessSetting::where(['key' => 'order_delivered_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'order_delivered_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Order Delivered',
+                    ]),
+                ]);
+            }
+            
             $notifications = new Notifications();
             $notifications->user_id = $order->user_id;
-            $notifications->title = 'Order Delivered';
+            $notifications->title = helpers_get_business_settings('order_delivered_message')['message'];
             $notifications->description = 'Your Order No. '.$order->id.' Delivered';
             $notifications->save();
         }

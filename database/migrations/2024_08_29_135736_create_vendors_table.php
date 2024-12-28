@@ -31,6 +31,7 @@ return new class extends Migration
             $table->tinyInteger('delivery_choice')->default(1)->comment('0 = accept | 1 = not reject');
             $table->enum('role',['0' , '1'])->comment('0 = vender | 1 = service');
             $table->decimal('wallet_balance',24,2)->default(0);
+            $table->decimal('cash_in_hand',24,2)->default(0);
             $table->string('business_name')->nullable();
             $table->string('gst_no')->nullable();
             $table->mediumText('address')->nullable();

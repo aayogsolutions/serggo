@@ -474,6 +474,47 @@ class BusinessSettingsController extends Controller
     /**
      * @return Application|Factory|View
      */
+    public function CommissionSetup(): Factory|View|Application
+    {
+        if (!$this->businessSettings->where(['key' => 'vender_commission'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'vender_commission'], [
+                'value' => 0,
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'serviceman_commission'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'serviceman_commission'], [
+                'value' => 0,
+            ]);
+        }
+
+        $amount = Helpers_get_business_settings('vender_commission');
+        $serviceman_commission = Helpers_get_business_settings('serviceman_commission');
+
+        return view('Admin.views.business-settings.commission-setup-index',compact('amount','serviceman_commission'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function CommissionSetupUpdate(Request $request): RedirectResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'vender_commission'], [
+            'value' => $request['amount'],
+        ]);
+
+        BusinessSetting::updateOrInsert(['key' => 'serviceman_commission'], [
+            'value' => $request['serviceman_commission'],
+        ]);
+
+        flash()->success(translate('commission_updated_successfully'));
+        return back();
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
     public function customerSetup(): Factory|View|Application
     {
         $data = $this->businessSettings->where('key','like','wallet_%')
@@ -612,119 +653,134 @@ class BusinessSettingsController extends Controller
     public function paymentConfigUpdate(Request $request)
     {
         $validation = [
-            'gateway' => 'required|in:ssl_commerz,paypal,stripe,razor_pay,senang_pay,paystack,paymob_accept,flutterwave,bkash,mercadopago',
+            'gateway' => 'required|in:razor_pay,phone_pay',
             'mode' => 'required|in:live,test'
         ];
-
-        $request['status'] = $request->has('status') ? 0 : 1;
 
         $additionalData = [];
 
         if ($request['gateway'] == 'phone_pay') {
             $additionalData = [
-                'status' => 'required|in:1,0',
-                'api_key' => 'required_if:status,0',
-                'api_secret' => 'required_if:status,0'
+                'merchant_id' => 'required',
+                'salt_key' => 'required',
+                'salt_index' => 'required',
             ];
-        } 
-        // elseif ($request['gateway'] == 'paypal') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'client_id' => 'required_if:status,1',
-        //         'client_secret' => 'required_if:status,1'
-        //     ];
-        // } elseif ($request['gateway'] == 'stripe') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'api_key' => 'required_if:status,0',
-        //         'published_key' => 'required_if:status,0',
-        //     ];
-        // } 
-        elseif ($request['gateway'] == 'razor_pay') {
+        } elseif ($request['gateway'] == 'razor_pay') {
             $additionalData = [
-                'status' => 'required|in:1,0',
-                'api_key' => 'required_if:status,0',
-                'api_secret' => 'required_if:status,0'
+                'api_key' => 'required',
+                'api_secret' => 'required',
             ];
-        } 
-        // elseif ($request['gateway'] == 'senang_pay') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'callback_url' => 'required_if:status,0',
-        //         'secret_key' => 'required_if:status,0',
-        //         'merchant_id' => 'required_if:status,1'
-        //     ];
-        // }elseif ($request['gateway'] == 'paystack') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'public_key' => 'required_if:status,1',
-        //         'secret_key' => 'required_if:status,1',
-        //         'merchant_email' => 'required_if:status,1'
-        //     ];
-        // } elseif ($request['gateway'] == 'paymob_accept') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'callback_url' => 'required_if:status,1',
-        //         'api_key' => 'required_if:status,1',
-        //         'iframe_id' => 'required_if:status,1',
-        //         'integration_id' => 'required_if:status,1',
-        //         'hmac' => 'required_if:status,1'
-        //     ];
-        // } elseif ($request['gateway'] == 'mercadopago') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'access_token' => 'required_if:status,1',
-        //         'public_key' => 'required_if:status,1'
-        //     ];
-        // } elseif ($request['gateway'] == 'flutterwave') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'secret_key' => 'required_if:status,1',
-        //         'public_key' => 'required_if:status,1',
-        //         'hash' => 'required_if:status,1'
-        //     ];
-        // }  elseif ($request['gateway'] == 'bkash') {
-        //     $additionalData = [
-        //         'status' => 'required|in:1,0',
-        //         'app_key' => 'required_if:status,0',
-        //         'app_secret' => 'required_if:status,0',
-        //         'username' => 'required_if:status,0',
-        //         'password' => 'required_if:status,0',
-        //     ];
-        // }
-
-        $request->validate(array_merge($validation, $additionalData));
-
-        $settings = PaymentGateways::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->first();
-
-        $additionalDataImage = $settings['additional_data'] != null ? json_decode($settings['additional_data']) : null;
-
-        if ($request->has('gateway_image')) {
-            $gatewayImage = Helpers_upload('payment_modules/gateway_image/', 'png', $request['gateway_image']);
-        } else {
-            $gatewayImage = $additionalDataImage != null ? $additionalDataImage->gateway_image : '';
         }
 
-        $payment_additional_data = [
-            'gateway_title' => $request['gateway_title'],
-            'gateway_image' => $gatewayImage,
-        ];
+        $request->validate(array_merge($validation, $additionalData));
+        
+        $settings = PaymentGateways::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->first();
+        
+        if ($request->has('gateway_image')) {
+            $gatewayImage = Helpers_upload('payment_modules/gateway_image/', $request->gateway_image->getClientOriginalExtension() , $request['gateway_image']);
 
-        $validator = Validator::make($request->all(), array_merge($validation, $additionalData));
-        // dd($request->status);
-        PaymentGateways::updateOrCreate(['key_name' => $request['gateway'], 'settings_type' => 'payment_config'], [
+            $payment_additional_data = [
+                'gateway_title' => $request['gateway_title'],
+                'gateway_image' => $gatewayImage,
+            ];
+        }
+        else
+        {
+            $payment_additional_data = [
+                'gateway_title' => $request['gateway_title'],
+                'gateway_image' => json_decode($settings->additional_data)->gateway_image,
+            ];
+        }
+
+        $data = $request->all();
+
+        unset($data['_token']);
+        unset($data['gateway_title']);
+
+        if($settings->mode == 'live')
+        {
+            $live_value = json_encode(
+                $data
+            );
+
+            $test_value = $settings->test_values;
+        }else{
+            $test_value = json_encode(
+                $data
+            );
+
+            $live_value = $settings->live_values;
+        }
+        // dd($live_value, $test_value);
+        PaymentGateways::where(['key_name' => $request['gateway'], 'settings_type' => 'payment_config'])->update([
             'key_name' => $request['gateway'],
-            'live_values' => $validator->validate(),
-            'test_values' => $validator->validate(),
+            'live_values' => $live_value,
+            'test_values' => $test_value,
             'settings_type' => 'payment_config',
             'mode' => $request['mode'],
-            'is_active' => $request->status,
             'additional_data' => json_encode($payment_additional_data),
         ]);
 
         flash()->success(translate('Payment gateway updated successfully'));
         return back();
 
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function PaymentStatusUpdate(Request $request): JsonResponse
+    {
+        $request->validate([
+            'gateway' => 'required|in:razor_pay,phone_pay',
+        ]);
+
+        try {
+            if(PaymentGateways::where('key_name', $request['gateway'])->first()->is_active == 0)
+            {
+                PaymentGateways::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->update([
+                    'is_active' => 1,
+                ]);
+            }
+            else
+            {
+                PaymentGateways::where('settings_type', 'payment_config')->update([
+                    'is_active' => 1,
+                ]);
+    
+                PaymentGateways::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->update([
+                    'is_active' => 0,
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function PaymentModeUpdate(Request $request): JsonResponse
+    {
+        $request->validate([
+            'gateway' => 'required|in:razor_pay,phone_pay',
+            'mode' => 'required|in:live,test',
+        ]);
+
+        try {
+            PaymentGateways::where('key_name', $request['gateway'])->where('settings_type', 'payment_config')->update([
+                'mode' => $request['mode'],
+            ]);
+            
+        } catch (\Throwable $th) {
+            return response()->json(['success' => false]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**

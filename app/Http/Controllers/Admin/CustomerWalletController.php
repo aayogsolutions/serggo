@@ -35,12 +35,6 @@ class CustomerWalletController extends Controller
      */
     public function addFundView(): View|Factory|RedirectResponse|Application
     {
-
-        // if(Helpers_get_business_settings('wallet_status'));
-        // {
-        //     flash()->error(translate('customer_wallet_status_is_disable'));
-        //     return back();
-        // }
         $all_user = $this->user->status()->get();
 
         return view('Admin.views.customer.wallet.add-fund',compact('all_user'));
@@ -55,7 +49,7 @@ class CustomerWalletController extends Controller
         $request->validate([
             'customer_id' => 'required',
             'amount' => 'required|numeric|min:.01',
-            'referance' => 'required',
+            'referance' => 'nullable',
         ]);
 
         $customer = User::find($request->customer_id);
@@ -73,6 +67,46 @@ class CustomerWalletController extends Controller
         $transactions->save();
 
         flash()->success(translate('Add Fund successfully!'));
+        return back();
+    }
+
+    /**
+     * @return Application|Factory|View|RedirectResponse
+     */
+    public function DeductFundView(): View|Factory|RedirectResponse|Application
+    {
+        $all_user = $this->user->status()->get();
+
+        return view('Admin.views.customer.wallet.deduct-fund',compact('all_user'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function DeductFund(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'customer_id' => 'required',
+            'amount' => 'required|numeric|min:.01',
+            'referance' => 'nullable',
+        ]);
+
+        $customer = User::find($request->customer_id);
+        $customer->wallet_balance -= $request->amount;
+        $customer->save();
+
+        $transactions = new WalletTranscation();
+        $transactions->user_id = $request->customer_id;
+        $transactions->transactions_id = Helpers_generate_transction_id();
+        $transactions->credit = 0;
+        $transactions->debit = $request->amount;
+        $transactions->transactions_type = "Deduct_fund_by_admin";
+        $transactions->reference = $request->referance ?? 'Deduct_fund_by_admin';
+        $transactions->balance = $customer->wallet_balance;
+        $transactions->save();
+
+        flash()->success(translate('Deduct Fund successfully!'));
         return back();
     }
 
