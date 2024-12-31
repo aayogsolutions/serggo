@@ -117,7 +117,7 @@ class ProductController extends Controller
             'sub_category_id' => 'required',
             'brand' => 'required',
             'unit' => 'required',
-            'images' => 'required',
+            //'images' => 'required',
             'tags' => 'required',
             'discount' => 'required',
             'tax' => 'required|numeric|min:0',
@@ -129,6 +129,7 @@ class ProductController extends Controller
             'installable_name' => 'required_if:is_installable,0',
             'installable_description' => 'nullable',
             'installable_price' => 'required_if:is_installable,0|numeric|min:0',
+            'imageCount' => 'required'
         ]);
 
         if ($validator->fails()) 
@@ -149,20 +150,49 @@ class ProductController extends Controller
             // if ($request['price'] <= $discount) {
             //     $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
             // }
-            
+            // $c = 1;
+            //  $imageNames = [];
+            // for($i=0; $i<=$request->imageCount;$i++){
+            //     if($request->hasFile('image_'.$c.'')){
+            //         return response()->json([
+            //             'errors' => 'yes'
+            //         ], 406);
+            //         $name = 'image_'.$c;
+            //         $image = $request->file();
+            //         $imageData = Helpers_upload('Images/productImages/', $image->extension() , $img);
+            //         $imageNames[] = $imageData;
+            //     }
+            //     $c++;
+            // }
+            // $imageData = json_encode($imageNames);
+            // return response()->json([
+            //     'errors' => $imageNames
+            // ], 406);
+            // $imageNames = [];
+            // if (!empty($request->images))
+            // {
+            //     foreach (json_decode($request->images) as $img)
+            //     {
+            //         $imageData = Helpers_upload('Images/productImages/', $img->extension() , $img);
+            //         $imageNames[] = $imageData;
+            //     }
+            //     $imageData = json_encode($imageNames);
+            // } else {
+            //     $imageData = json_encode([]);
+            // }
+            $imageCount = $request->imageCount;
             $imageNames = [];
-            if (!empty($request->images))
-            {
-                foreach (json_decode($request->images) as $img)
-                {
-                    $imageData = Helpers_upload('Images/productImages/', $img->extension() , $img);
+            for ($i = 1; $i <= $imageCount; $i++) {
+                $imageKey = "image_{$i}";
+                if ($request->hasFile($imageKey)) {
+                    $file = $request->file($imageKey);
+                    $imageData = Helpers_upload('Images/productImages/', $file->extension() , $file);
                     $imageNames[] = $imageData;
                 }
-                $imageData = json_encode($imageNames);
-            } else {
-                $imageData = json_encode([]);
-            }
-    
+             }
+             $imageData = json_encode($imageNames);
+             
+            
             $choiceOptions = [];
             if ($request->has('choice')) {
                 foreach (json_decode($request->attribute_id) as $key => $no)
