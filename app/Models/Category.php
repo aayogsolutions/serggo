@@ -22,12 +22,12 @@ class Category extends Model
 
     public function CategoryProduct(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Products::class, 'category_id');
+        return $this->hasMany(Products::class, 'category_id', 'id');
     }
 
     public function SubCategoryProduct(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Products::class, 'sub_category_id');
+        return $this->hasMany(Products::class, 'sub_category_id', 'id');
     }
 
     public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo

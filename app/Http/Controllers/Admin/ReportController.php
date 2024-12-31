@@ -87,7 +87,7 @@ class ReportController extends Controller
         $startDate = $request['start_date'];
         $endDate = $request['end_date'];
 
-        $orders = $this->order
+        $orders = $this->order->where('order_approval' , '!=', 'pending')
             ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
                 return $query->whereDate('created_at', '>=', $startDate)
                     ->whereDate('created_at', '<=', $endDate);
@@ -140,6 +140,63 @@ class ReportController extends Controller
         $data = session('export_sale_data');
         // $pdf = PDF::loadView('Admin.views.report.partials._report', compact('data'));
         // return $pdf->download('sale_report_'.rand(00001,99999) . '.pdf');
+    }
+
+    /**
+     * @param Request $request
+     * @return Factory|\Illuminate\Contracts\View\View|Application
+     */
+    public function OrderLogsReport(Request $request): \Illuminate\Contracts\View\View|Factory|Application
+    {
+        $queryParam = [];
+        $branches = $this->branch->all();
+        $branchId = $request['branch_id'];
+        $startDate = $request['start_date'];
+        $endDate = $request['end_date'];
+
+        $orders = $this->order->where('order_approval' , '!=', 'pending')
+            ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
+                return $query->whereDate('created_at', '>=', $startDate)
+                    ->whereDate('created_at', '<=', $endDate);
+            })
+            ->pluck('id')->toArray();
+
+        if (!is_null($branchId) && $branchId != 'all') {
+            $orders = $this->order->where(['branch_id' => $branchId])
+                ->when((!is_null($startDate) && !is_null($endDate)), function ($query) use ($startDate, $endDate) {
+                    return $query->whereDate('created_at', '>=', $startDate)
+                        ->whereDate('created_at', '<=', $endDate);
+                })
+                ->pluck('id')->toArray();
+        }
+
+        $queryParam = ['branch_id' => $branchId, 'start_date' => $startDate,'end_date' => $endDate ];
+
+        $orderDetails = $this->orderDetail->withCount(['OrderDetails'])
+            ->whereIn('order_id', $orders)
+            ->orderBy('id', 'DESC')
+            ->paginate(Helpers_getPagination())
+            ->appends($queryParam);
+
+        $data = [];
+        $totalSold = 0;
+        $totalQty = 0;
+        foreach ($this->orderDetail->whereIn('order_id', $orders)->get() as $detail) {
+            $price = $detail['price'] - $detail['discount_on_product'];
+            $orderTotal = $price * $detail['quantity'];
+
+            $product = json_decode($detail->product_details, true);
+
+            $data[] = [
+                'product_id' => $product['id'],
+            ];
+            $totalSold += $orderTotal;
+            $totalQty += $detail['quantity'];
+        }
+
+        $totalOrder = count($data);
+
+        return view('Admin.views.report.order-logs', compact( 'orders', 'totalOrder', 'totalSold', 'totalQty', 'orderDetails', 'branches', 'branchId', 'startDate', 'endDate'));
     }
 
     /**

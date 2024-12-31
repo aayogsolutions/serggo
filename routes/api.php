@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\Api\user\{
     BannerController,
-    InformationController
+    InformationController,
+    PaymentController
 };
 use App\Http\Controllers\Api\auth\{
     ApiAuthController
@@ -32,6 +33,8 @@ use App\Http\Controllers\Api\vendor\{
     OrderController as VendorOrderController,
     ProductController as VendorProductController
 };
+use App\Models\PaymentGateways;
+use Faker\Provider\ar_EG\Payment;
 use Illuminate\Support\Facades\Route;
 
 
@@ -98,6 +101,12 @@ Route::group(['prefix' => 'information'], function()
     Route::group(['prefix' => 'partner'], function() {
         
         Route::get('/term-conditions',[PartnerInformationController::class, 'TermConditions']);
+    });
+
+    // Payment Gateway Routes
+    Route::group(['prefix' => 'payment'], function()
+    {
+        Route::get('/gateway', [PaymentController::class,'PaymentGateway']);
     });
 });
 
@@ -179,6 +188,12 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
         // Coupon route
         Route::get('/coupon', [CustomerController::class,'Coupon']);
+
+        // Payment Gateway Routes
+        Route::group(['prefix' => 'payment'], function()
+        {
+            Route::get('/gateway', [PaymentController::class,'PaymentGateway']);
+        });
     });
 
     Route::group(['prefix' => 'order'], function()

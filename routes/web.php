@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\user\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Artisan,Route};
 
@@ -15,6 +16,15 @@ Route::get('/optimize', function () {
     } catch (\Throwable $th) {
         echo 'error';
     }
+});
+
+// Payment Gateway Routes
+Route::group(['prefix' => 'payment','as' => 'payment.'], function()
+{
+    Route::get('/gateway', [PaymentController::class,'PaymentGateway']);
+    Route::post('/gateway', [PaymentController::class,'PaymentGatewayOrder'])->name('gateway');
+    Route::post('/gateway/response', [PaymentController::class,'PaymentGatewayResponse'])->name('gateway.response');
+    Route::post('/gateway/data', [PaymentController::class,'PaymentGatewaydata'])->name('gateway.data');
 });
 
 require "admin.php";

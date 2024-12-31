@@ -195,6 +195,41 @@ class DisplayController extends Controller
             flash()->error(translate('Image size is wrong.!'));
             return redirect()->back();
         } 
+        elseif ($request->ui_type == 'user_product' && $request->type == 'slider') 
+        {
+            // dd($request->all());
+            $request->validate([
+                'image' => 'required|image',
+                'item_type' => 'required',
+            ], [
+                'image.required' => translate('Image is required'),
+                'item_type.required' => translate('Item Type is required'),
+            ]);
+
+            $file_size = getimagesize($request->file('image'));
+            // Width Check              Height Check
+            if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
+                $banner = $this->displaysectioncontent;
+                $banner->section_id = $id;
+                $banner->item_type = $request->item_type;
+                if($request->item_type == 'product')
+                {
+                    $data = $this->product->find($request->product_id);
+                    $banner->item_id = $request->product_id;
+                    $banner->item_detail = $data;
+                }else{
+                    $data = $this->category->find($request->category_id);
+                    $banner->item_id = $request->category_id;
+                    $banner->item_detail = $data;
+                }
+                $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $banner->save();
+                flash()->success(translate('Item Added successfully!'));
+                return redirect()->back();
+            }
+            flash()->error(translate('Image size is wrong.!'));
+            return redirect()->back();
+        } 
         elseif ($request->type == 'cart') 
         {
             $request->validate([

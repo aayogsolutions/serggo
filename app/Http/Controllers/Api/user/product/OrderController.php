@@ -256,7 +256,7 @@ class OrderController extends Controller
                             $order_details->installation = $value['is_installation'];
                             $installation += $product->installation_charges;
                         }
-                        if($value['coupon_applied'] == 0)
+                        if($request->coupon_applied == 0)
                         {
                             $order_details->coupon_amount = $value['coupon_amount'];
                             $coupon_amount = $coupon_amount + $value['coupon_amount'];
@@ -452,7 +452,7 @@ class OrderController extends Controller
                             $order_details->installation = $value['is_installation'];
                             $installation += $product->installation_charges;
                         }
-                        if($value['coupon_applied'] == 0)
+                        if($request->coupon_applied == 0)
                         {
                             $order_details->coupon_amount = $value['coupon_amount'];
                             $coupon_amount = $coupon_amount + $value['coupon_amount'];

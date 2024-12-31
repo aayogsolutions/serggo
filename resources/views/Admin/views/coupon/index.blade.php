@@ -249,7 +249,7 @@
             let id = $(this).data('id');
             $.ajax({
                 type: 'GET',
-                url: '{{route('admin.coupon.quick-view-details')}}',
+                url: "{{route('admin.coupon.quick-view-details')}}",
                 data: {
                     id: id
                 },

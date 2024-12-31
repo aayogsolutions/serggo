@@ -23,6 +23,10 @@ const MANAGEMENT_SECTION = [
     'category_setup' => 'category_setup',
     'service_setup' => 'service_setup',
 
+    'amc_management' => 'amc_management',
+    'category_setup' => 'category_setup',
+    'service_setup' => 'service_setup',
+
     'vendors_management' => 'vendors_management',
     'vendors' => 'vendors',
     'partners' => 'partners',
@@ -38,6 +42,7 @@ const MANAGEMENT_SECTION = [
     'sales_report' => 'sales_report',
     'order_report' => 'order_report',
     'earning_report' => 'earning_report',
+    'order_logs' => 'order_logs',
 
     'user_management' => 'user_management',
     'customer_list' => 'customer_list',

@@ -294,11 +294,11 @@ class ProductController extends Controller
     public function ProductList() : JsonResponse
     {
         try {
-            $product = $this->product->where('vender_id' , Auth::user()->id)->get();
+            $product = $this->product->where('vender_id' , Auth::user()->id)->with(['CategoryProduct','SubCategoryProduct'])->get();
             return response()->json([
                 'status' => true,
                 'message' => 'Product Data',
-                'data' => $product
+                'data' => product_data_formatting($product,true,true,true)
             ],200);
 
         } catch (\Throwable $th) {

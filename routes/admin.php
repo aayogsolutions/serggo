@@ -349,9 +349,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('set-date', [ReportController::class, 'setDate'])->name('set-date');
             Route::get('sale-report', [ReportController::class, 'saleReportIndex'])->name('sale-report');
             Route::get('export-sale-report', [ReportController::class, 'exportSaleReport'])->name('export-sale-report');
-            Route::get('expense', [ReportController::class, 'expenseIndex'])->name('expense');
-            Route::get('expense-export-excel', [ReportController::class, 'expenseExportExcel'])->name('expense.export.excel');
-            Route::get('expense-export-pdf', [ReportController::class, 'expenseSummaryPdf'])->name('expense.export.pdf');
+            Route::get('order-logs', [ReportController::class, 'OrderLogsReport'])->name('order.logs');
+            // Route::get('expense', [ReportController::class, 'expenseIndex'])->name('expense');
+            // Route::get('expense-export-excel', [ReportController::class, 'expenseExportExcel'])->name('expense.export.excel');
+            // Route::get('expense-export-pdf', [ReportController::class, 'expenseSummaryPdf'])->name('expense.export.pdf');
+            
         });
 
         Route::group(['prefix' => 'orders', 'as' => 'orders.'], function () {

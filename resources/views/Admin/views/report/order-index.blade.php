@@ -262,7 +262,7 @@ ini_set('memory_limit', '-1');
                 @php
                     $x=1;
                     $y=12;
-                    $total=\App\Models\Order::whereBetween('created_at', [date('Y-'.$x.'-01'), date('Y-'.$y.'-30')])->count()
+                    $total=\App\Models\Order::where('order_approval' , '!=' , 'pending')->whereBetween('created_at', [date('Y-'.$x.'-01'), date('Y-'.$y.'-30')])->count()
                 @endphp
                 <h6 class="card-subtitle mb-0">{{translate('total')}} {{translate('orders')}} of {{date('Y')}}: <span
                         class="h3 ml-sm-2">{{round($total)}}</span>
@@ -413,7 +413,7 @@ ini_set('memory_limit', '-1');
             </div>
         </div>
 
-        <div class="row">
+        <!-- <div class="row">
             <div class="col-lg-12 mb-3 mb-lg-12">
                 <div class="card h-100">
                     <div class="card-header flex-wrap __gap-2">
@@ -501,7 +501,7 @@ ini_set('memory_limit', '-1');
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 @endsection
 

@@ -177,16 +177,40 @@
                                         <div class="col-md-12">
                                             <div class="row g-3">
                                                 <div class="col-12">
-                                                    <label class="input-label" for="exampleFormControlSelect1">
-                                                        {{translate('product')}}
-                                                        <span class="input-label-secondary">*</span>
-                                                    </label>
-                                                    <select name="product_id" class="form-control js-select2-custom">
-                                                        <option selected disabled>Select Product</option>
-                                                        @foreach($products as $product)
-                                                        <option value="{{$product['id']}}">{{$product['name']}}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    <div class="form-group mb-0">
+                                                        <label class="input-label" for="exampleFormControlSelect1">{{translate('item')}} {{translate('type')}}<span
+                                                                class="input-label-secondary">*</span></label>
+                                                        <select name="item_type" class="form-control show-item">
+                                                            <option value="product">{{translate('product')}}</option>
+                                                            <option value="category">{{translate('category')}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group mb-0" id="type-product">
+                                                        <label class="input-label" for="exampleFormControlSelect1">
+                                                            {{translate('product')}}
+                                                            <span class="input-label-secondary">*</span>
+                                                        </label>
+                                                        <select name="product_id" class="form-control js-select2-custom">
+                                                            <option selected disabled>Select Product</option>
+                                                            @foreach($products as $product)
+                                                            <option value="{{$product['id']}}">{{$product['name']}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group mb-0" id="type-category" style="display:none;">
+                                                        <label class="input-label" for="exampleFormControlSelect1">
+                                                            {{translate('category')}}
+                                                            <span class="input-label-secondary">*</span>
+                                                        </label>
+                                                        <select name="category_id" class="form-control js-select2-custom">
+                                                            <option selected disabled>Select Category</option>
+                                                            @foreach($categories as $category)
+                                                            <option value="{{$category['id']}}">{{$category['name']}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -410,17 +434,42 @@
                                     <img class="upload--vertical--preview" src="{{ asset($value->attechment )}}" alt="{{ translate('banner image') }}">
                                 </div>
                             </td>
-                            <td>@php($images = json_decode($value->item_detail)->image)
-                                <a href="{{route('admin.product.view',[json_decode($value->item_detail)->id])}}" class="product-list-media">
-                                    @if($banner->ui_type == 'user_product')
-                                        <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
-                                    @else
-                                        <img class="upload--vertical--preview" src="{{ asset($images)}}" alt="{{ translate('banner image') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
-                                    @endif
-                                    <h6 class="name line--limit-2">
-                                        {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
-                                    </h6>
-                                </a>
+                            <td>
+                                <span class="d-block font-size-sm text-body text-trim-25">
+                                    {{$value['item_type']}}
+                                </span>
+                            </td>
+                            <td>
+                                @if($value->item_type == 'product')
+                                    @php($images = json_decode($value->item_detail)->image)
+                                    <a href="{{route('admin.product.view',[json_decode($value->item_detail)->id])}}" class="product-list-media">
+                                        <img class="upload--vertical--preview" src="{{ asset(json_decode($images)[0])}}" alt="{{ translate('banner image') }}"
+                                            onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                        <h6 class="name line--limit-2">
+                                            {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
+                                        </h6>
+                                    </a>
+                                @else
+                                    @php($images = json_decode($value->item_detail)->image)
+                                    <a href="{{route('admin.category.add')}}" class="product-list-media">
+                                    <img src="{{ asset($images)}}" class="img--50" alt="{{ translate('category') }}"
+                                            onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                        <h6 class="name line--limit-2">
+                                            {{\Illuminate\Support\Str::limit(json_decode($value->item_detail)->name, 20, $end='...')}}
+                                        </h6>
+                                    </a>
+                                    
+                                @endif
+                            </td>
+                            <td>
+                                <div class="max-85">
+                                    <select name="priority" class="custom-select"
+                                        onchange="location.href='{{ route('admin.display.priority', ['id' => $value['id'], 'priority' => '']) }}' + this.value">
+                                        @for($i = 0; $i <= 6; $i++)
+                                            <option value="{{ $i }}" {{ $value->priority == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
                             </td>
                             <td>
                                 <div class="btn--container justify-content-center">
