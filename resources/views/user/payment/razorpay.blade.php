@@ -23,10 +23,10 @@
                 data : {
                     "amount": "{{$amount}}",
                     "user_id": "{{$user_id}}",
+                    "reference": "{{$reference}}",
                 },
                 success : function(data) {
                     let site_transactionid = data.site_transaction_id
-                    console.log(data);
                     let options = {
 
                         "key": data.key, // Enter the Key ID generated from the Dashboard
@@ -55,6 +55,9 @@
                                 // $("#createmodel").css('display', 'none');
                                 // $(".service-detail-model").css('display', 'flex');
                                 console.log("Server response:", data);
+                                if (data.status == 'success') {
+                                    window.location.href = "{{URL::TO('/payment/gateway/success?gateway=razor_pay&transaction_id=')}}" + response.razorpay_payment_id;
+                                }
                             });
                         },
                         "prefill": {
@@ -68,18 +71,39 @@
                     };
 
                     const rzp = new Razorpay(options);
-                    rzp.on('payment.failed', function (response) {
-                        alert("Payment Failed!");
-                        console.error(response.error);
-                    });
+                    // rzp.on('payment.failed', function (response) {
+                    //     alert("Payment Failed!");
+                    //     console.error(response.error);
+                    // });
 
                     rzp.open();
                     // document.getElementById('loader').classList.remove('loader-visible');
 
-                    rzp.on('payment.failed', function (response) {
-                        //alert("Payment Failed: " + response.error.description);
-                        //console.log("Razorpay Error:", response.error);
-                        // document.getElementById('loader').classList.remove('loader-visible');
+                    rzp.on('payment.failed', function (response) 
+                    {
+                        console.log("Razorpay Error:", response.error);
+                        // fetch("{{ route('payment.gateway.failed') }}", {
+                        //     method: 'POST',
+                        //     headers: {
+                        //         'Content-Type': 'application/json',
+                        //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        //     },
+                        //     body: JSON.stringify({
+                        //         razorpay_payment_id: response.metadata.payment_id,
+                        //         site_transactionid: site_transactionid,
+                        //     })
+                        // });
+                        $.ajax({
+                            url : "{{ route('payment.gateway.failed') }}",
+                            method : "POST",
+                            data : {
+                                 _token : "{{ csrf_token() }}",
+                                "razorpay_payment_id": response.metadata.payment_id,
+                                "site_transactionid": site_transactionid,
+                            },
+                            success : function(data) {
+                            }
+                        });
                     });
                 }
             });

@@ -186,8 +186,9 @@ class ProductController extends Controller
                 $imageKey = "image_{$i}";
                 if ($request->hasFile($imageKey)) {
                     $file = $request->file($imageKey);
-                    $imageData = Helpers_upload('Images/productImages/', $file->extension() , $file);
-                    $imageNames[] = $imageData;
+                     $imageData = Helpers_upload('Images/productImages/', $file->extension() , $file);
+                     $imageNames[] = $imageData;
+                    
                 }
              }
              $imageData = json_encode($imageNames);
@@ -301,6 +302,11 @@ class ProductController extends Controller
             $product->attributes = $request->attribute_id;
             $product->status = 2;
             $product->tags = $request->tags;
+            if(Auth::user()->advance != 0)
+            {
+                $product->is_advance = 0;
+                $product->advance = Auth::user()->advance;
+            }
             $product->save();
             
             return response()->json([

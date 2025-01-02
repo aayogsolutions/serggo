@@ -84,6 +84,8 @@ class AuthController extends Controller
                     'password' => $request->password,
                 ]))
                 {
+                    $vendor->fmc_token = $request->fmc_token;
+                    $vendor->save();
                     $token = $vendor->createToken('auth_token')->plainTextToken;
     
                     return response()->json([
@@ -440,7 +442,7 @@ class AuthController extends Controller
                 $vendor->image = Helpers_upload('Images/vendor/', $request->image->extension(), $request->image);
                 
                 $vendor->is_verify = 1;
-    
+                $vendor->fmc_token = $request->fmc_token;
                 $vendor->save();
     
                 $token = $vendor->createToken('auth_token')->plainTextToken;
@@ -600,6 +602,7 @@ class AuthController extends Controller
 
             if ($vendor) {
                 $vendor->password = $request->password;
+                $vendor->fmc_token = $request->fmc_token;
                 $vendor->save();
 
                 $token = $vendor->createToken('auth_token')->plainTextToken;

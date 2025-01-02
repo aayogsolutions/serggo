@@ -97,6 +97,7 @@ Route::group(['prefix' => 'information'], function()
     Route::get('/about-us',[InformationController::class, 'AboutUs']);
     Route::get('/term-conditions',[InformationController::class, 'TermConditions']);
     Route::get('/privacy-policy',[InformationController::class, 'PrivacyPolicy']);
+    Route::get('/user-cities',[InformationController::class, 'UserCities']);
 
     Route::group(['prefix' => 'partner'], function() {
         

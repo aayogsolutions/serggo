@@ -90,6 +90,10 @@ class CategoryController extends Controller
         $category->image = Helpers_upload('Images/category/',  $image->getClientOriginalExtension() , $image);;
         $category->parent_id = $request->parent_id ?? 0;
         $category->position = $request->position;
+        if($request->position == 1)
+        {
+            $category->commission = $request->commission_rate;
+        }
         $category->save();
         
         if($request->parent_id == 0)
@@ -188,6 +192,10 @@ class CategoryController extends Controller
         $category = Category::find($id);
         $category->name = $request->name;
         $category->image = $request->has('image') ? Helpers_update('Images/category/', $category->image, $request->file('image')->getClientOriginalExtension(), $request->file('image')) : $category->image;
+        if($category->position == 1)
+        {
+            $category->commission = $request->commission_rate;
+        }
         $category->save();
         
         if($category->parent_id == 0)

@@ -71,6 +71,8 @@
                         <th class="table-column-pl-0">{{translate('Vendor name')}}</th>
                         <th>{{translate('contact info')}}</th>
                         <th class="text-center">{{translate('wallet_balance')}}</th>
+                        <th class="text-center">{{translate('cash_in_hand')}}</th>
+                        <th class="text-center">{{translate('Advance')}} (%)</th>
                         <th class="text-center">{{translate('Total Orders')}}</th>
                         <th class="text-center">{{translate('Total Order Amount')}}</th>
                         <th class="text-center">{{translate('status')}}</th>
@@ -96,6 +98,9 @@
                         </td>
                         <td>
                             <h5 class="m-0">
+                                <a href="mailto:{{$vendor['email']}}">{{$vendor['business_name']}}</a>
+                            </h5>
+                            <h5 class="m-0">
                                 <a href="mailto:{{$vendor['email']}}">{{$vendor['email']}}</a>
                             </h5>
                             <div>
@@ -104,6 +109,14 @@
                         </td>
                         <td>
                             {{$vendor['wallet_balance']}}
+                        </td>
+
+                        <td>
+                            {{$vendor['cash_in_hand']}}
+                        </td>
+                        
+                        <td class="advance--amount" data-id="{{$vendor['id']}}">
+                            {{$vendor['advance']}}
                         </td>
                         <td>
                             <div class="text-center">
@@ -157,3 +170,35 @@
     </div>
 </div>
 @endsection
+
+@push('script')
+<script>
+    $(document).on('ready', function() {    
+        $('.advance--amount').click(function(){
+            $(this).attr('contenteditable', true);
+        })
+        
+        $('.advance--amount').on("keypress", function(e){
+            if(e.which == 13){
+                $(this).attr('contenteditable', false);
+                var id = $(this).attr('data-id');
+                var amount = $(this).text();
+                $.ajax({
+                    url: "{{route('admin.vendor.advance.update')}}",
+                    type: 'POST',
+                    data: {
+                        'id': id,
+                        'amount': amount,
+                        '_token': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        if(data.status == true){
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        });
+    })
+</script>
+@endpush

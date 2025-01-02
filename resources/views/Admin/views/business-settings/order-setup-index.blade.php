@@ -10,6 +10,26 @@
         <div class="tab-pane fade show active" id="business-setting">
             <div class="card">
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 pt-5">
+                            <div class="form-group">
+                                <label class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
+                                        <span class="pr-1 d-flex align-items-center switch--label">
+                                            <span class="line--limit-1">
+                                                <strong>{{translate('Automatically Assign Order')}}</strong>
+                                            </span>
+                                            <span class="form-label-secondary text-danger d-flex ml-1" data-toggle="tooltip" data-placement="right" data-original-title="{{translate('If this field is active the order will be automatically assigned')}}">
+                                                <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
+                                            </span>
+                                        </span>
+                                    <input type="checkbox" class="toggle-switch-input" id="order-status" data-route="{{route('admin.business-settings.store.order-autoassign',[$auto == 0 ? 1 : 0])}}" {{ $auto == 0 ? 'checked' : '' }}>
+                                    <span class="toggle-switch-label text">
+                                            <span class="toggle-switch-indicator"></span>
+                                        </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <form action="{{route('admin.business-settings.store.order-setup-update')}}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">

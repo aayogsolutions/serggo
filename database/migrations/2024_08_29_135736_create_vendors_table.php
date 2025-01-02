@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('latitude')->nullable();
             $table->tinyInteger('is_block')->default(0)->comment('0 = active | 1 = inactive');
             $table->string('fmc_token')->nullable();
+            $table->integer('advance')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

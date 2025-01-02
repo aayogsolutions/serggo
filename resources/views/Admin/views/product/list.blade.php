@@ -114,10 +114,8 @@
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <label class="toggle-switch my-0">
-                                        <input type="checkbox"
-                                            onclick="status_change_alert('{{ route('admin.product.status', [$product->id, $product->status == 1 ? 0 : 1]) }}', '{{ $product->status? translate('you want to disable this product'): translate('you want to active this product') }}', event)"
-                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}"
-                                            {{ $product->status == 0 ? 'checked' : '' }}>
+                                        <input type="checkbox" onclick="status_change_alert('{{ route('admin.product.status', [$product->id, $product->status == 1 ? 0 : 1]) }}', '{{ $product->status == 0? translate('you want to disable this product'): translate('you want to active this product') }}', event)"
+                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}" {{ $product->status == 0 ? 'checked' : '' }}>
                                         <span class="toggle-switch-label mx-auto text">
                                             <span class="toggle-switch-indicator"></span>
                                         </span>

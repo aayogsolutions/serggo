@@ -288,6 +288,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
           
             Route::get('list', [VendorController::class, 'list'])->name('list');
             Route::get('view/{user_id}', [VendorController::class, 'view'])->name('view');
+            Route::post('advance/update', [VendorController::class, 'AdvanceUpdate'])->name('advance.update');
             
             Route::get('status/{id}/{status}', [VendorController::class, 'status'])->name('status');
 
@@ -550,11 +551,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 // Order Setup
                 Route::get('order-setup', [BusinessSettingsController::class, 'orderSetup'])->name('order-setup');
                 Route::get('order-status/{status}', [BusinessSettingsController::class, 'orderStatus'])->name('order-status');
+                Route::get('order-autoassign/{status}', [BusinessSettingsController::class, 'orderAutoAssign'])->name('order-autoassign');
                 Route::post('order-setup-update', [BusinessSettingsController::class, 'orderSetupUpdate'])->name('order-setup-update');
 
                 // Commission Setup
                 Route::get('commission-setup', [BusinessSettingsController::class, 'CommissionSetup'])->name('commission-setup');
                 Route::post('commission-setup-update', [BusinessSettingsController::class, 'CommissionSetupUpdate'])->name('commission-setup-update');
+
+                // city Setup
+                Route::get('city-setup', [BusinessSettingsController::class, 'CitySetup'])->name('city-setup');
+                Route::post('city-setup-update', [BusinessSettingsController::class, 'CitySetupUpdate'])->name('city-setup-update');
+                Route::get('city-status/{id}', [BusinessSettingsController::class, 'CityStatus'])->name('city.status');
+                Route::get('city-edit/{id}', [BusinessSettingsController::class, 'CityEdit'])->name('city.edit');
+                Route::post('city-update/{id}', [BusinessSettingsController::class, 'CityUpdate'])->name('city.update');
+                Route::delete('city-delete/{id}', [BusinessSettingsController::class, 'CityDelete'])->name('city.delete');
 
                 // Customer Setup
                 Route::get('customer-setup', [BusinessSettingsController::class, 'customerSetup'])->name('customer-setup');

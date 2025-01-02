@@ -18,31 +18,6 @@
                                     <label class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
                                         <span class="pr-1 d-flex align-items-center switch--label">
                                             <span class="line--limit-1">
-                                                <strong>{{translate('Vender Commission')}}</strong>
-                                            </span>
-                                            <span class="form-label-secondary text-danger d-flex ml-1" data-toggle="tooltip" data-placement="right" data-original-title="{{translate('If this field is Stands for Vender Commission apply')}}">
-                                                <img src="{{asset('assets/admin/img/info-circle.svg')}}" alt="info">
-                                            </span>
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <div class="form-group mb-0">
-                                    <label class="input-label text-capitalize">
-                                        {{translate('Vender Commission in (%)')}}
-                                    </label>
-                                    <input type="number" value="{{$amount}}"  step="0.1" name="amount" class="form-control" placeholder="">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 pt-5">
-                                <div class="form-group">
-                                    <label class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
-                                        <span class="pr-1 d-flex align-items-center switch--label">
-                                            <span class="line--limit-1">
                                                 <strong>
                                                     {{translate('Service Man Commission')}}
                                                 </strong>

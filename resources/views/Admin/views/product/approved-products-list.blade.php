@@ -11,7 +11,7 @@
                 <img src="{{asset('assets/admin/img/products.png')}}" class="w--24" alt="" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
             </span>
             <span>
-                {{ translate(' Rejected product List') }}
+                {{ translate(' Approved product List') }}
                 <span class="badge badge-soft-secondary">{{ $products->total() }}</span>
             </span>
         </h1>
@@ -50,6 +50,7 @@
                                 <th class="text-center">{{translate('tax')}}(%)</th>
                                 <th class="text-center">{{translate('discount')}}(%)</th>
                                 <th class="text-center">{{translate('total_stock')}}</th>
+                                <th class="text-center">{{translate('status')}}</th>
                                 <th class="text-center">{{translate('action')}}</th>
                             </tr>
                         </thead>
@@ -96,6 +97,15 @@
                                     {{$product->total_stock}}
                                 </td>
                                 
+                                <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
+                                    <label class="toggle-switch my-0">
+                                        <input type="checkbox" onclick="status_change_alert('{{ route('admin.product.status', [$product->id, $product->status == 1 ? 0 : 1]) }}', '{{ $product->status == 0? translate('you want to disable this product'): translate('you want to active this product') }}', event)"
+                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}" {{ $product->status == 0 ? 'checked' : '' }}>
+                                        <span class="toggle-switch-label mx-auto text">
+                                            <span class="toggle-switch-indicator"></span>
+                                        </span>
+                                    </label>
+                                </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <!-- Dropdown -->
                                     <div class="btn--container justify-content-center">

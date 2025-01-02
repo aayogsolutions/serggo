@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('image')->default('def.png');
             $table->tinyInteger('priority')->default(1);
             $table->tinyInteger('is_installable')->default(1)->commet('0 = active | 1 = inactive');
+            $table->decimal('commission',8,2)->default(0);
             $table->timestamps();
         });
     }

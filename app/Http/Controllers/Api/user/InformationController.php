@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\user;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserCities;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -109,6 +110,29 @@ class InformationController extends Controller
                 'data' => []
             ],408);
         }
-       
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     * 
+     */
+    public function UserCities() : JsonResponse
+    {   
+        try {
+            $data = UserCities::select('name','km')->where('status',0)->orderBy('name','asc')->get();
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Get User Cities',
+                'data' => $data
+            ],200);                        
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Data not found',
+                'data' => []            
+            ],408);
+        }
     }
 }

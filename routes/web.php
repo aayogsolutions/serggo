@@ -24,7 +24,8 @@ Route::group(['prefix' => 'payment','as' => 'payment.'], function()
     Route::get('/gateway', [PaymentController::class,'PaymentGateway']);
     Route::post('/gateway', [PaymentController::class,'PaymentGatewayOrder'])->name('gateway');
     Route::post('/gateway/response', [PaymentController::class,'PaymentGatewayResponse'])->name('gateway.response');
-    Route::post('/gateway/data', [PaymentController::class,'PaymentGatewaydata'])->name('gateway.data');
+    Route::get('/gateway/success', [PaymentController::class,'PaymentGatewaySuccess'])->name('gateway.success');
+    Route::post('/gateway/failed', [PaymentController::class,'PaymentGatewayFailed'])->name('gateway.failed');
 });
 
 require "admin.php";

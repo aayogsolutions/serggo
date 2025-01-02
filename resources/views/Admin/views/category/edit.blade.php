@@ -25,12 +25,18 @@
                 @csrf
                 <div class="row align-items-end g-4">
                     <div class="col-sm-6 lang_form" id="-form">
-                        <label class="input-label"
-                            for="exampleFormControlInput1">{{translate('name')}}
-                            </label>
-                        <input type="text" name="name" value="{{$category['name']}}"
-                            class="form-control" oninvalid="document.getElementById('en-link').click()"
-                            placeholder="{{ translate('New Category') }}" required>
+                        <label class="input-label" for="exampleFormControlInput1">
+                            {{translate('name')}}
+                        </label>
+                        <input type="text" name="name" value="{{$category['name']}}" class="form-control" oninvalid="document.getElementById('en-link').click()" placeholder="{{ translate('New Category') }}" required>
+
+                        @if($category->position == 1)
+                            <br>
+                            <div class="lang_form">
+                                <label class="form-label" for="exampleFormControlInput1">{{translate('Commission')}} {{translate('Rate')}} (%)</label>
+                                <input type="number" value="{{$category->commission}}" name="commission_rate" class="form-control" placeholder="{{ translate('Ex: 5') }}" required>
+                            </div>
+                        @endif
                     </div>
                     <input name="position" value="0" hidden>
                     <div class="col-sm-6">

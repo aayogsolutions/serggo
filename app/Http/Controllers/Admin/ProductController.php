@@ -697,7 +697,7 @@ class ProductController extends Controller
         $search = $request['search'];
         if ($request->has('search')) {
             $key = explode(' ', $request['search']);
-            $query = $this->product->where(['status' => 0, 'vender_id' => $id])->where(function ($q) use ($key) {
+            $query = $this->product->where(['vender_id' => $id])->WhereIn('status' , [0,1])->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('id', 'like', "%{$value}%")
                         ->orWhere('name', 'like', "%{$value}%");
@@ -705,7 +705,7 @@ class ProductController extends Controller
             })->latest();
             $queryParam = ['search' => $request['search']];
         }else{
-            $query = $this->product->where(['status' => 0, 'vender_id' => $id])->latest();
+            $query = $this->product->where(['vender_id' => $id])->WhereIn('status' , [0,1])->latest();
         }
         $products = $query->with('vendors')->paginate(Helpers_getPagination())->appends($queryParam);
 

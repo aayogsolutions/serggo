@@ -27,10 +27,12 @@ class PaymentController extends Controller
         $request->validate([
             'amount' => 'required|numeric',
             'user_id' => 'required|numeric',
+            'reference' => 'required',
         ]);
 
         $amount = $request->amount;
         $user_id = $request->user_id;
+        $reference = $request->reference;
         $gateway = PaymentGateways::where('is_active', 0)->first();
 
         if (!$gateway) {
@@ -50,7 +52,7 @@ class PaymentController extends Controller
             $id = $data->api_key;
             $secret = $data->api_secret;
 
-            return view('user.payment.razorpay', compact('amount','id','secret','user_id'));
+            return view('user.payment.razorpay', compact('amount','id','secret','user_id','reference'));
         }
     }
 
@@ -64,6 +66,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), [
             'amount' => 'required|numeric',
             'user_id' => 'required|numeric',
+            'reference' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -92,8 +95,10 @@ class PaymentController extends Controller
             }
             $api = new Api($data->api_key, $data->api_secret);
             $transaction = new PaymentTransactions();
+            // $transaction->user_id = Auth::user()->id; // For Live
             $transaction->user_id = $request->user_id; // For testing
             $transaction->amount = $request->amount;
+            $transaction->reference = $request->reference;
             $transaction->save();
             $id = $transaction->id;
             $transactionid = rand(10000,99999).$id;
@@ -144,7 +149,54 @@ class PaymentController extends Controller
 
         $transaction = PaymentTransactions::where('transaction_id','=',$request->site_transactionid);
         $transaction->update([
-            'transaction_status' =>"1"
+            'transaction_status' =>"1",
+            'payment_id' => $request->razorpay_payment_id
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+    }
+
+    /**
+     * Create a new controller instance.
+     * @param Request $request
+     * @return View|Application|Factory|JsonResponse
+     */
+    public function PaymentGatewaySuccess(Request $request): View|Application|Factory|JsonResponse
+    {
+        dump('Payment Success');die;
+        return response()->json([
+            'status' => 'success',
+        ], 200);
+
+    }
+
+    /**
+     * Create a new controller instance.
+     * @param Request $request
+     * @return View|Application|Factory|JsonResponse
+     */
+    public function PaymentGatewayFailed(Request $request): View|Application|Factory|JsonResponse
+    {
+        dump('Payment Failed');die;
+        $validator = Validator::make($request->all(), [
+            'razorpay_payment_id' => 'required',
+            'site_transactionid' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 406);
+        }
+
+        $transaction = PaymentTransactions::where('transaction_id','=',$request->site_transactionid);
+        $transaction->update([
+            'transaction_status' =>"2",
+            'payment_id' => $request->razorpay_payment_id
         ]);
 
         return response()->json([

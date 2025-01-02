@@ -45,8 +45,10 @@ class AuthController extends Controller
             {
                 $vendor = $this->vendor->find(Auth::guard('vendors')->user()->id);
                 
-                if($vendor->number_verfiy == 0){
-                    
+                if($vendor->number_verfiy == 0)
+                {
+                    $vendor->fmc_token = $request->fmc_token;
+                    $vendor->save();
                     $token = $vendor->createToken('auth_token')->plainTextToken;
 
                     return response()->json([
@@ -359,7 +361,7 @@ class AuthController extends Controller
                 $vendor->image = Helpers_upload('Images/partners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                 
                 $vendor->is_verify = 1;
-
+                $vendor->fmc_token = $request->fmc_token;
                 $vendor->save();
 
                 $token = $vendor->createToken('auth_token')->plainTextToken;
@@ -518,6 +520,7 @@ class AuthController extends Controller
 
             if ($vendor) {
                 $vendor->password = $request->password;
+                $vendor->fmc_token = $request->fmc_token;
                 $vendor->save();
 
                 $token = $vendor->createToken('auth_token')->plainTextToken;

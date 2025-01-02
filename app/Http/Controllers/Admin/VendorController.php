@@ -10,6 +10,7 @@ use Illuminate\Http\{JsonResponse,RedirectResponse};
 use App\Models\{
     Vendor,
     Order,
+    Products,
     VendorCategory,
 };
 use Illuminate\Support\Facades\File;
@@ -35,7 +36,7 @@ class VendorController extends Controller
             $vendors = $this->vendor->where('role','0')->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('name', 'like', "%{$value}%");
-                    $q->orWhere('id', 'like', "%{$value}%");
+                    $q->orWhere('business_name', 'like', "%{$value}%");
                 }
             })->orderBy('id', 'DESC');
             $queryParam = ['search' => $request['search']];
@@ -56,6 +57,20 @@ class VendorController extends Controller
         $vendor = Vendor::find($request->id);
         $vendor->is_block = $request->status;
         $vendor->save();
+
+        if(Products::where('vender_id', $request->id)->count() > 0)
+        {
+            $products = Products::where('vender_id', $request->id)->get();
+            foreach($products as $product)
+            {
+                if($product->status == 0 || $product->status == 1)
+                {
+                    $product->status = $request->status;
+                    $product->save();
+                }
+            }
+        }
+
         flash()->success(translate('Vendor status updated!'));
         return back();
     }
@@ -298,5 +313,35 @@ class VendorController extends Controller
         }
         
         return redirect()->route('admin.vendor.kyc.list');
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function AdvanceUpdate(Request $request): JsonResponse
+    {
+        $vendor = Vendor::find($request->id);
+        $vendor->advance = $request->amount;
+        $vendor->save();
+
+        if($vendor->advance > 0)
+        {
+            $products = Products::where('vender_id', $vendor->id)->get();
+            foreach ($products as $key => $product) {
+                $product->is_advance = 0;
+                $product->advance = $vendor->advance;
+                $product->save();
+            }
+        }else{
+            $products = Products::where('vender_id', $vendor->id)->get();
+            foreach ($products as $key => $product) {
+                $product->is_advance = 1;
+                $product->advance = 0;
+                $product->save();
+            }
+        }
+        flash()->success(translate('Vendor Advance Payment updated!'));
+        return response()->json(['status' => true]);
     }
 }

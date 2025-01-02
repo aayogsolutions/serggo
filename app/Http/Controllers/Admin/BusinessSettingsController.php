@@ -10,6 +10,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Routing\Redirector;
 use App\Models\Branch;
+use App\Models\UserCities;
 use Illuminate\Support\Facades\Validator;
 
 class BusinessSettingsController extends Controller
@@ -428,6 +429,12 @@ class BusinessSettingsController extends Controller
             ]);
         }
 
+        if (!$this->businessSettings->where(['key' => 'auto_assign_order'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'auto_assign_order'], [
+                'value' => 1,
+            ]);
+        }
+
         if (!$this->businessSettings->where(['key' => 'maximum_amount_for_cod_order'])->first()) {
             BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order'], [
                 'value' => 0,
@@ -436,8 +443,9 @@ class BusinessSettingsController extends Controller
 
         $status = Helpers_get_business_settings('maximum_amount_for_cod_order_status');
         $amount = Helpers_get_business_settings('maximum_amount_for_cod_order');
+        $auto = Helpers_get_business_settings('auto_assign_order');
 
-        return view('Admin.views.business-settings.order-setup-index',compact('status','amount'));
+        return view('Admin.views.business-settings.order-setup-index',compact('status','amount','auto'));
     }
 
     /**
@@ -447,6 +455,23 @@ class BusinessSettingsController extends Controller
     public function orderStatus($status): \Illuminate\Http\JsonResponse
     {
         BusinessSetting::updateOrInsert(['key' => 'maximum_amount_for_cod_order_status'], 
+        [
+            'value' => $status
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => translate('status updated')
+        ]);
+    }
+
+    /**
+     * @param $status
+     * @return JsonResponse
+     */
+    public function orderAutoAssign($status): \Illuminate\Http\JsonResponse
+    {
+        BusinessSetting::updateOrInsert(['key' => 'auto_assign_order'], 
         [
             'value' => $status
         ]);
@@ -476,22 +501,14 @@ class BusinessSettingsController extends Controller
      */
     public function CommissionSetup(): Factory|View|Application
     {
-        if (!$this->businessSettings->where(['key' => 'vender_commission'])->first()) {
-            BusinessSetting::updateOrInsert(['key' => 'vender_commission'], [
-                'value' => 0,
-            ]);
-        }
-
         if (!$this->businessSettings->where(['key' => 'serviceman_commission'])->first()) {
             BusinessSetting::updateOrInsert(['key' => 'serviceman_commission'], [
                 'value' => 0,
             ]);
         }
-
-        $amount = Helpers_get_business_settings('vender_commission');
         $serviceman_commission = Helpers_get_business_settings('serviceman_commission');
 
-        return view('Admin.views.business-settings.commission-setup-index',compact('amount','serviceman_commission'));
+        return view('Admin.views.business-settings.commission-setup-index',compact('serviceman_commission'));
     }
 
     /**
@@ -500,15 +517,109 @@ class BusinessSettingsController extends Controller
      */
     public function CommissionSetupUpdate(Request $request): RedirectResponse
     {
-        BusinessSetting::updateOrInsert(['key' => 'vender_commission'], [
-            'value' => $request['amount'],
-        ]);
-
         BusinessSetting::updateOrInsert(['key' => 'serviceman_commission'], [
             'value' => $request['serviceman_commission'],
         ]);
 
         flash()->success(translate('commission_updated_successfully'));
+        return back();
+    }
+
+    /**
+     * @return Application|Factory|View
+     */
+    public function CitySetup(): Factory|View|Application
+    {
+        $cities = UserCities::orderby('name' , 'asc')->get();
+
+        return view('Admin.views.business-settings.city-setup',compact('cities'));
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function CitySetupUpdate(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|max:255',
+            'km' => 'required|numeric',
+        ]);
+
+        $data = new UserCities();
+        $data->name = $request['name'];
+        $data->km = $request['km'];
+        $data->save();
+
+        flash()->success(translate('city_created_successfully'));
+        return back();
+    }
+
+    /**
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function CityStatus($id): RedirectResponse
+    {
+
+        $data = UserCities::findOrFail($id);
+        if ($data->status == 0) {
+            $data->status = 1;
+        }else{
+            $data->status = 0;
+        }
+        $data->save();
+
+        flash()->success(translate('status_updated_successfully'));
+        return back();
+    }
+
+    /**
+     * @param $id
+     * @return View|Factory|Application
+     */
+    public function CityEdit($id): View|Factory|Application
+    {
+        $city = UserCities::find($id);
+        if (!$city) {
+            abort(404);
+        }
+        return view('Admin.views.business-settings.city-edit', compact('city'));
+    }
+
+    /**
+     * @param Request $request, $id
+     * @return RedirectResponse
+     */
+    public function CityUpdate(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|max:255',
+            'km' => 'required|numeric',
+        ]);
+
+        $data = UserCities::find($id);
+        $data->name = $request['name'];
+        $data->km = $request['km'];
+        $data->save();
+
+        flash()->success(translate('city_updated_successfully'));
+        return redirect()->route('admin.business-settings.store.city-setup');
+    }
+
+    /**
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function CityDelete($id): RedirectResponse
+    {
+        $data = UserCities::find($id);
+        if (!$data) {
+            abort(404);
+        }
+        $data->delete();
+
+        flash()->success(translate('city_deleted_successfully'));
         return back();
     }
 

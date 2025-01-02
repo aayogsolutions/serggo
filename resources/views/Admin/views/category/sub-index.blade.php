@@ -46,6 +46,12 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <br>
+                                <div class="lang_form">
+                                    <label class="form-label" for="exampleFormControlInput1">{{translate('Commission')}} {{translate('Rate')}} (%)</label>
+                                    <input type="number" value="0" name="commission_rate" class="form-control" placeholder="{{ translate('Ex: 5') }}" required>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div>
@@ -103,6 +109,7 @@
                             <th class="text-center">{{translate('Image')}}</th>
                             <th>{{translate('main')}} {{translate('category')}}</th>
                             <th>{{translate('sub_category')}}</th>
+                            <th>{{translate('commission_rate')}} (%)</th>
                             <th>{{translate('status')}}</th>
                             <th>{{translate('Installable')}}</th>
                             <th class="text-center">{{translate('action')}}</th>
@@ -127,6 +134,12 @@
                             <td>
                                 <span class="d-block font-size-sm text-body">
                                     {{$category['name']}}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="d-block font-size-sm text-body">
+                                    {{$category['commission']}}
                                 </span>
                             </td>
 
@@ -157,12 +170,10 @@
 
                             <td>
                                 <div class="btn--container justify-content-center">
-                                    <a class="action-btn"
-                                        href="{{route('admin.category.edit',[$category['id']])}}">
+                                    <a class="action-btn" href="{{route('admin.category.edit',[$category['id']])}}">
                                         <i class="tio-edit"></i></a>
                                     <a class="action-btn btn--danger btn-outline-danger form-alert" href="javascript:"
-                                        data-id="category-{{$category['id']}}"
-                                        data-message="{{ translate("Want to delete this") }}?">
+                                        data-id="category-{{$category['id']}}" data-message="{{ translate("Want to delete this") }}?">
                                         <i class="tio-delete-outlined"></i>
                                     </a>
                                 </div>
