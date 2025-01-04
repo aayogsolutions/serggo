@@ -248,6 +248,8 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::get('/list', [VendorProductController::class,'ProductList']);
             Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
+            Route::post('/delete/{id}', [VendorProductController::class,'DeleteProduct']);
+            Route::post('/delete/image/{id}/{image}', [VendorProductController::class,'DeleteImage']);
         });
 
         Route::group(['prefix' => 'order'], function()
@@ -260,6 +262,13 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
             Route::get('/timesolts', [VendorOrderController::class,'OrderGetTimeSlots']);
             Route::post('/timesolts/{id}', [VendorOrderController::class,'OrderTimeSlots']);
+        });
+
+        Route::group(['prefix' => 'transaction'], function()
+        {
+            Route::post('/withdrawal/request', [VenderDashboardController::class,'WithdrawalRequest']);
+            Route::get('/withdrawal/list', [VenderDashboardController::class,'WithdrawalList']);
+            Route::get('/transaction/list', [VenderDashboardController::class,'TransactionList']);
         });
     });
 

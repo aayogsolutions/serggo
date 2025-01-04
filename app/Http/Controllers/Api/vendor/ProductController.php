@@ -16,6 +16,7 @@ use Illuminate\Http\{
 };
 use Illuminate\Support\Facades\{
     Auth,
+    File,
     Validator
 };
 
@@ -190,8 +191,8 @@ class ProductController extends Controller
                      $imageNames[] = $imageData;
                     
                 }
-             }
-             $imageData = json_encode($imageNames);
+            }
+            $imageData = json_encode($imageNames);
              
             
             $choiceOptions = [];
@@ -404,7 +405,7 @@ class ProductController extends Controller
             'is_installable' => 'required',
             'installable_name' => 'required_if:is_installable,0',
             'installable_description' => 'nullable',
-            'installable_price' => 'required_if:is_installable,0|numeric|min:0',
+            'imageCount' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -425,16 +426,27 @@ class ProductController extends Controller
             //     $validator->getMessageBag()->add('unit_price', 'Discount can not be more or equal to the price!');
             // }
     
+            $imageCount = $request->imageCount;
             $imageNames = [];
-            if (!empty($request->file('images'))) {
-                foreach ($request->images as $img) {
-                    $imageData = Helpers_upload('Images/productImages/', $img->getClientOriginalExtension() , $img);
-                    $imageNames[] = $imageData;
+
+            if(isset($request->oldimages)  && $request->oldimages != null)
+            {
+                $old = json_decode($request->oldimages);
+                foreach ($old as $key => $value) {
+                    $imageNames[] = $value;
                 }
-                $imageData = json_encode($imageNames);
-            } else {
-                $imageData = json_encode([]);
             }
+
+            for ($i = 1; $i <= $imageCount; $i++) {
+                $imageKey = "image_{$i}";
+                if ($request->hasFile($imageKey)) {
+                    $file = $request->file($imageKey);
+                    $imageData = Helpers_upload('Images/productImages/', $file->extension() , $file);
+                    $imageNames[] = $imageData;
+                    
+                }
+            }
+            $imageData = json_encode($imageNames);
     
             $choiceOptions = [];
             if ($request->has('choice')) {
@@ -549,6 +561,82 @@ class ProductController extends Controller
                 'data' => Products::find($product->id)
             ],201);
 
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param $id
+     * @return JsonResponse
+     */
+    public function DeleteProduct($id) : JsonResponse
+    {
+        try {
+            $product = $this->product->find($id);
+            
+            $variations = json_decode($product->variations);
+
+            foreach ($variations as $key => $value) 
+            {
+                $value->stock = 0;
+            }
+
+            $product->variations = json_encode($variations);
+            $product->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Product Deleted Successfully',
+                'data' => $product
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param $id
+     * @param $name
+     * @return JsonResponse
+     */
+    public function DeleteImage($id, $name) : JsonResponse
+    {
+        try {
+            $fullpath = "Images/productImages/".$name;
+            if (File::exists("Images/productImages/".$name))
+            {
+                File::delete("Images/productImages/".$name);
+                $name = "Images/productImages/".$name;
+            }
+            
+
+            $product = $this->product->find($id);
+            $imageArray = [];
+
+            foreach (json_decode($product['image'], true) as $img) {
+                if (strcmp($img, $fullpath) != 0) {
+                    $imageArray[] = $img;
+                }
+            }
+
+            $product = $this->product->where(['id' => $id])->update([
+                'image' => json_encode($imageArray),
+            ]);
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Image removed successfully!',
+                'data' => $product
+            ],200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

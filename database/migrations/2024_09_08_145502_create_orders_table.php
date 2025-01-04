@@ -60,6 +60,7 @@ return new class extends Migration
             $table->double('free_delivery_amount',8,2)->default(0);
             $table->tinyInteger('gst_invoice')->default(1)->comment("0 = Required | 1 = Not required");
             $table->decimal('advance_payment',8,2)->default(0);
+            $table->decimal('commission',8,2)->default(0);
             $table->timestamps();
         });
     }

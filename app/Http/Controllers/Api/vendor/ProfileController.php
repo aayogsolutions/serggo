@@ -20,14 +20,24 @@ class ProfileController extends Controller
     ){}
 
     /**
+     * 
      * @return JsonResponse
      */
     public function Profile() : JsonResponse
     {
-        return response()->json([
-            'status' => true,
-            'message' => 'Profile Data',
-            'data' => Auth::user()
-        ],200);
+        try {
+            $vendor = auth('sanctum')->user();
+            return response()->json([
+                'status' => true,
+                'message' => 'Profile',
+                'data' => $vendor
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
     }
 }

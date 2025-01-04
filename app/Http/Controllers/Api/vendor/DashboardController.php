@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\vendor;
 use App\Http\Controllers\Controller;
 use App\Models\HomeSliderBanner;
 use App\Models\Order;
+use App\Models\WithdrawalRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -96,4 +97,88 @@ class DashboardController extends Controller
             ],408);
         }
     }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function WithdrawalRequest(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'amount' => 'required',
+        ]);
+
+        if ($validator->fails()) 
+        {
+            return response()->json([
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        
+        
+        try {
+            $data = new WithdrawalRequests();
+            $data->vendor_id = auth('sanctum')->user()->id;
+            $data->amount = $request->amount;
+            $data->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Withdrawal Request',
+                'data' => []
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function WithdrawalList() : JsonResponse
+    {
+        try {
+            $data = WithdrawalRequests::where('vendor_id', auth('sanctum')->user()->id)->orderBy('id', 'desc')->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Withdrawal Request List || 0 = pending, 1 = approved, 2 = rejected',
+                'data' => $data
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     */
+    public function TransactionList() : JsonResponse
+    {
+        try {
+            $data = Order::select('id','order_amount','payment_method','commission','created_at')->where('vender_id', auth('sanctum')->user()->id)->orderBy('id', 'desc')->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Transaction List',
+                'data' => $data
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
 }
+
+
