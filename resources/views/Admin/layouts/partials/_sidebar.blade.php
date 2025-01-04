@@ -499,40 +499,14 @@
                                         class="nav-subtitle">{{translate('AMC_management')}} </small>
                                     <small class="tio-more-horizontal nav-subtitle-replacer"></small>
                                 </li>
-                                @if(Helpers_module_permission_check(MANAGEMENT_SECTION['category_setup']))
-                                    <li class="navbar-vertical-aside-has-menu {{Request::is('admin/category*')?'active':''}}">
-                                        <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:" title="{{translate('category setup')}}">
-                                            <i class="tio-category nav-icon"></i>
-                                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('category setup')}}</span>
+                                @if(Helpers_module_permission_check(MANAGEMENT_SECTION['plan_list']))
+                                    <li class="navbar-vertical-aside-has-menu {{Request::is('admin/amc/plan*')?'active':''}}">
+                                        <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.amc.plan.list')}}" title="{{translate('plan_list')}}">
+                                            <i class="tio-gift nav-icon"></i>
+                                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                                {{translate('plan_list')}}
+                                            </span>
                                         </a>
-                                        <ul class="js-navbar-vertical-aside-submenu nav nav-sub" style="display: {{Request::is('admin/service/category*')?'block':'none'}}">
-                                            <li class="nav-item {{Request::is('admin/service/category/add')?'active':''}}">
-                                                <a class="nav-link " href="{{route('admin.service.category.add')}}" title="{{translate('categories')}}">
-                                                    <span class="tio-circle nav-indicator-icon"></span>
-                                                    <span class="text-truncate">
-                                                        {{translate('categories')}}
-                                                    </span>
-                                                </a>
-                                            </li>
-    
-                                            <li class="nav-item {{Request::is('admin/service/category/add-sub-category')?'active':''}}">
-                                                <a class="nav-link " href="{{route('admin.service.category.add-sub-category')}}" title="{{translate('sub_categories')}}">
-                                                    <span class="tio-circle nav-indicator-icon"></span>
-                                                    <span class="text-truncate">
-                                                        {{translate('sub_categories')}}
-                                                    </span>
-                                                </a>
-                                            </li>
-    
-                                            <li class="nav-item {{Request::is('admin/service/category/add-child-category')?'active':''}}">
-                                                <a class="nav-link " href="{{route('admin.service.category.add-child-category')}}" title="{{translate('child_categories')}}">
-                                                    <span class="tio-circle nav-indicator-icon"></span>
-                                                    <span class="text-truncate">
-                                                        {{translate('child_categories')}}
-                                                    </span>
-                                                </a>
-                                            </li>
-                                        </ul>
                                     </li>
                                 @endif
                                 @if(Helpers_module_permission_check(MANAGEMENT_SECTION['service_setup']))

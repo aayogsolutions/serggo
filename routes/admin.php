@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\{
     AdminController,
+    AmcController,
     EmployeeController,
     CustomRoleController,
     CategoryController,
@@ -491,6 +492,21 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::post('Edit_product_column', [ProductController::class, 'Edit_product_column'])->name('Edit_product_column');
 
             
+        });
+
+        Route::group(['prefix' => 'amc', 'as' => 'amc.'], function () 
+        {
+            Route::group(['prefix' => 'plan', 'as' => 'plan.'], function () 
+            {
+                Route::get('add-new', [AmcController::class, 'index'])->name('add-new');
+                Route::post('add-new', [AmcController::class, 'store'])->name('store');
+                Route::get('list', [AmcController::class, 'List'])->name('list');
+                Route::get('update/{id}', [AmcController::class, 'edit'])->name('update');
+                Route::post('update/{id}', [AmcController::class, 'update']);
+                Route::get('status/{id}/{status}', [AmcController::class, 'status'])->name('status');
+                Route::get('priority/{id}/{number}', [AmcController::class, 'priority'])->name('priority');
+                Route::delete('delete/{id}', [AmcController::class, 'delete'])->name('delete');
+            });
         });
 
         Route::group(['prefix' => 'employee', 'as' => 'employee.'], function () {

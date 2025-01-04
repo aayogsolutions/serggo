@@ -24,7 +24,7 @@ const MANAGEMENT_SECTION = [
     'service_setup' => 'service_setup',
 
     'amc_management' => 'amc_management',
-    'category_setup' => 'category_setup',
+    'plan_list' => 'plan_list',
     'service_setup' => 'service_setup',
 
     'vendors_management' => 'vendors_management',

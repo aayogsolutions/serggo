@@ -197,17 +197,31 @@
                             </span>
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="p-2">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" name="tags" placeholder="Enter tags" value="@foreach(json_decode($product->tags) as $c) {{$c.','}} @endforeach" data-role="tagsinput">
+                    @if(is_array(json_decode($product->tags, true)))
+                        <div class="card-body">
+                            <div class="p-2">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" name="tags" placeholder="Enter tags" value="@foreach(json_decode($product->tags) as $c) {{$c.','}} @endforeach" data-role="tagsinput">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="card-body">
+                            <div class="p-2">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" name="tags" placeholder="Enter tags" value="{{$product->tags}}" data-role="tagsinput">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
             <div class="col-lg-6">
