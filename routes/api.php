@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\user\service\{
 use App\Http\Controllers\Api\vendor\{
     AuthController as VendorAuthController,
     DashboardController as VenderDashboardController,
+    InformationController as VendorInformationController,
     OrderController as VendorOrderController,
     ProductController as VendorProductController
 };
@@ -93,15 +94,27 @@ Route::group(['prefix' => 'banner'], function()
 
 Route::group(['prefix' => 'information'], function() 
 {
+    // FCM Routes
+    Route::post('/fcm/update', [VenderDashboardController::class,'FcmUpdate']);
+
     // User Information Routes
     Route::get('/about-us',[InformationController::class, 'AboutUs']);
     Route::get('/term-conditions',[InformationController::class, 'TermConditions']);
     Route::get('/privacy-policy',[InformationController::class, 'PrivacyPolicy']);
     Route::get('/user-cities',[InformationController::class, 'UserCities']);
 
-    Route::group(['prefix' => 'partner'], function() {
-        
+    Route::group(['prefix' => 'vendor'], function() 
+    {
+        Route::get('/term-conditions',[VendorInformationController::class, 'TermConditions']);
+        Route::get('/privacy-policy',[VendorInformationController::class, 'PrivacyPolicy']);
+        Route::get('/about-app',[VendorInformationController::class, 'AboutApp']);
+    });
+
+    Route::group(['prefix' => 'partner'], function() 
+    {
         Route::get('/term-conditions',[PartnerInformationController::class, 'TermConditions']);
+        Route::get('/privacy-policy',[PartnerInformationController::class, 'PrivacyPolicy']);
+        Route::get('/about-app',[PartnerInformationController::class, 'AboutApp']);
     });
 
     // Payment Gateway Routes

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\vendor;
 use App\Http\Controllers\Controller;
 use App\Models\HomeSliderBanner;
 use App\Models\Order;
+use App\Models\User;
 use App\Models\WithdrawalRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -114,10 +115,18 @@ class DashboardController extends Controller
                 'errors' => Helpers_error_processor($validator)
             ], 406);
         }
-
-        
         
         try {
+
+            if($request->amount > auth('sanctum')->user()->wallet_balance)
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Insufficient Balance',
+                    'data' => []
+                ],200);
+            }
+
             $data = new WithdrawalRequests();
             $data->vendor_id = auth('sanctum')->user()->id;
             $data->amount = $request->amount;
@@ -170,6 +179,52 @@ class DashboardController extends Controller
                 'status' => true,
                 'message' => 'Transaction List',
                 'data' => $data
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function FcmUpdate(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'fcm_token' => 'required',
+            'user_id' => 'required',
+        ]);
+
+        if ($validator->fails()) 
+        {
+            return response()->json([
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $data = User::find($request->user_id);
+
+            if(!$data)
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User Not Found',
+                    'data' => []
+                ],408);
+            }
+            $data->fmc_token = $request->fcm_token;
+            $data->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Added FCM Token',
+                'data' => []
             ],200);
         } catch (\Throwable $th) {
             return response()->json([

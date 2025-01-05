@@ -695,12 +695,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('terms-and-conditions', [PageSetupController::class, 'termsAndConditions'])->name('terms-and-conditions');
                 Route::post('terms-and-conditions', [PageSetupController::class, 'termsAndConditionsUpdate']);
                 Route::post('terms-and-conditions-partner', [PageSetupController::class, 'termsAndConditionsPartnerUpdate'])->name('terms.and.conditions.partner');
+                Route::post('terms-and-conditions-vendor', [PageSetupController::class, 'termsAndConditionsVendorUpdate'])->name('terms.and.conditions.vendor');
 
                 Route::get('privacy-policy', [PageSetupController::class, 'privacyPolicy'])->name('privacy-policy');
                 Route::post('privacy-policy', [PageSetupController::class, 'privacyPolicyUpdate']);
+                Route::post('privacy-policy-partner', [PageSetupController::class, 'privacyPolicyPartnerUpdate'])->name('privacy-policy.partner');
+                Route::post('privacy-policy-vendor', [PageSetupController::class, 'privacyPolicyVendorUpdate'])->name('privacy-policy.vendor');
 
                 Route::get('about-us', [PageSetupController::class, 'aboutUs'])->name('about-us');
                 Route::post('about-us', [PageSetupController::class, 'aboutUsUpdate']);
+                Route::post('about-us-partner', [PageSetupController::class, 'aboutUsPartnerUpdate'])->name('about-us.partner');
+                Route::post('about-us-vendor', [PageSetupController::class, 'aboutUsVendorUpdate'])->name('about-us.vendor');
 
                 Route::get('faq', [PageSetupController::class, 'faq'])->name('faq');
                 Route::post('faq', [PageSetupController::class, 'faqUpdate']);

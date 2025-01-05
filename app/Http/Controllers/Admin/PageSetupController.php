@@ -10,6 +10,8 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory,View};
 use Illuminate\Routing\Redirector;
 
+use function Pest\Laravel\json;
+
 class PageSetupController extends Controller
 {
     public function __construct(
@@ -32,10 +34,18 @@ class PageSetupController extends Controller
                 'value' => 'No data available',
             ]);
         }
+
+        if (!$this->businessSettings->where(['key' => 'terms_and_conditions_vendor'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'terms_and_conditions_vendor'], [
+                'value' => 'No data available',
+            ]);
+        }
+
         $termsAndConditions = $this->businessSettings->where(['key' => 'terms_and_conditions'])->first();
         $termsAndConditionspartner = $this->businessSettings->where(['key' => 'terms_and_conditions_partner'])->first();
+        $termsAndConditionsVendor = $this->businessSettings->where(['key' => 'terms_and_conditions_vendor'])->first();
 
-        return view('Admin.views.pages_&_media.terms-and-conditions', compact('termsAndConditions', 'termsAndConditionspartner'));
+        return view('Admin.views.pages_&_media.terms-and-conditions', compact('termsAndConditions', 'termsAndConditionspartner', 'termsAndConditionsVendor'));
     }
 
     /**
@@ -64,6 +74,18 @@ class PageSetupController extends Controller
         return back();
     }
 
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function termsAndConditionsVendorUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $this->businessSettings->where(['key' => 'terms_and_conditions_vendor'])->update([
+            'value' => $request->tnc,
+        ]);
+        flash()->success(translate('Terms and Conditions of Vendor updated!'));
+        return back();
+    }
 
     /**
      * @return Application|Factory|View
@@ -75,9 +97,24 @@ class PageSetupController extends Controller
                 'value' => '',
             ]);
         }
-        $data = $this->businessSettings->where(['key' => 'privacy_policy'])->first();
+
+        if (!$this->businessSettings->where(['key' => 'privacy_policy_partner'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'privacy_policy_partner'], [
+                'value' => '',
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'privacy_policy_vendor'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'privacy_policy_vendor'], [
+                'value' => '',
+            ]);
+        }
+
+        $data = json_decode($this->businessSettings->where(['key' => 'privacy_policy'])->first());
+        $vendor_data = json_decode($this->businessSettings->where(['key' => 'privacy_policy_vendor'])->first());
+        $partner_data = json_decode($this->businessSettings->where(['key' => 'privacy_policy_partner'])->first());
         
-        return view('Admin.views.pages_&_media.privacy-policy', compact('data'));
+        return view('Admin.views.pages_&_media.privacy-policy', compact('data', 'vendor_data', 'partner_data'));
     }
 
     public function privacyPolicyUpdate(Request $request): \Illuminate\Http\RedirectResponse
@@ -87,6 +124,26 @@ class PageSetupController extends Controller
         ]);
 
         flash()->success(translate('Privacy policy updated!'));
+        return back();
+    }
+
+    public function privacyPolicyVendorUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $this->businessSettings->where(['key' => 'privacy_policy_vendor'])->update([
+            'value' => $request->privacy_policy,
+        ]);
+
+        flash()->success(translate('Vendor Privacy policy updated!'));
+        return back();
+    }
+
+    public function privacyPolicyPartnerUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $this->businessSettings->where(['key' => 'privacy_policy_partner'])->update([
+            'value' => $request->privacy_policy,
+        ]);
+
+        flash()->success(translate('Partner Privacy policy updated!'));
         return back();
     }
 
@@ -100,9 +157,24 @@ class PageSetupController extends Controller
                 'value' => '',
             ]);
         }
-        $data = $this->businessSettings->where(['key' => 'about_us'])->first();
+
+        if (!$this->businessSettings->where(['key' => 'about_us_partner'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'about_us_partner'], [
+                'value' => '',
+            ]);
+        }
+
+        if (!$this->businessSettings->where(['key' => 'about_us_vendor'])->first()) {
+            BusinessSetting::updateOrInsert(['key' => 'about_us_vendor'], [
+                'value' => '',
+            ]);
+        }
         
-        return view('Admin.views.pages_&_media.about-us', compact('data'));
+        $data = json_decode($this->businessSettings->where(['key' => 'about_us'])->first());
+        $vendor_data = json_decode($this->businessSettings->where(['key' => 'about_us_vendor'])->first());
+        $partner_data = json_decode($this->businessSettings->where(['key' => 'about_us_partner'])->first());
+        
+        return view('Admin.views.pages_&_media.about-us', compact('data', 'vendor_data', 'partner_data'));
     }
 
     public function aboutUsUpdate(Request $request): \Illuminate\Http\RedirectResponse
@@ -112,6 +184,26 @@ class PageSetupController extends Controller
         ]);
 
         flash()->success(translate('About us updated!'));
+        return back();
+    }
+
+    public function aboutUsPartnerUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $this->businessSettings->where(['key' => 'about_us_partner'])->update([
+            'value' => $request->about_us,
+        ]);
+
+        flash()->success(translate('Partner About us updated!'));
+        return back();
+    }
+
+    public function aboutUsVendorUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $this->businessSettings->where(['key' => 'about_us_vendor'])->update([
+            'value' => $request->about_us,
+        ]);
+
+        flash()->success(translate('Vendor About us updated!'));
         return back();
     }
 
