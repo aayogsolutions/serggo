@@ -62,7 +62,7 @@
                             <a href="{{route('admin.product.limited-stock')}}" class="btn btn--primary-2 min-height-40">{{translate('limited stocks')}}</a>
                         </div> -->
                         <div>
-                            <a href="{{route('admin.product.add-new')}}" class="btn btn-primary min-height-40 py-2">
+                            <a href="{{route('admin.amc.plan.add-new')}}" class="btn btn-primary min-height-40 py-2">
                                 <i class="tio-add"></i>
                                 {{translate('add new Plan')}}
                             </a>
@@ -91,9 +91,9 @@
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <a href="{{ route('admin.product.view',$product->id) }}" class="product-list-media">
                                         @if (!empty(json_decode($product['image'],true)))
-                                        <img src="{{ asset(json_decode($product->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
+                                            <img src="{{ asset(json_decode($product->image)[0])}}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
                                         @else
-                                        <img src="{{asset('assets/admin/img/400x400/img2.jpg')}}">
+                                            <img src="{{asset('assets/admin/img/400x400/img2.jpg')}}">
                                         @endif
                                         <h6 class="name line--limit-2">
                                             {{\Illuminate\Support\Str::limit($product['name'], 20, $end='...')}}
@@ -105,16 +105,13 @@
                                         {{ Helpers_set_symbol($product['price']) }}
                                     </div>
                                 </td>
-                                <td class="text-center" onclick="stack_adjust('{{ route('admin.product.stack.adjust', $product->id) }}')" style="cursor: pointer">
-                                    {{ $product->total_stock }}
-                                </td>
                                 <td class="text-center">
-                                    {{ $product->total_sale }}
+                                    {{ translate($product->duration) }}
                                 </td>
                                 <td class="pt-1 pb-3  {{$key == 0 ? 'pt-4' : '' }}">
                                     <label class="toggle-switch my-0">
-                                        <input type="checkbox" onclick="status_change_alert('{{ route('admin.product.status', [$product->id, $product->status == 1 ? 0 : 1]) }}', '{{ $product->status == 0? translate('you want to disable this product'): translate('you want to active this product') }}', event)"
-                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}" {{ $product->status == 0 ? 'checked' : '' }}>
+                                        <input type="checkbox" onclick="status_change_alert('{{ route('admin.amc.plan.status', [$product->id, $product->status == 1 ? 0 : 1]) }}', '{{ $product->status == 1? translate('you want to disable this plan'): translate('you want to active this plan') }}', event)"
+                                            class="toggle-switch-input" id="stocksCheckbox{{ $product->id }}" {{ $product->status == 1 ? 'checked' : '' }}>
                                         <span class="toggle-switch-label mx-auto text">
                                             <span class="toggle-switch-indicator"></span>
                                         </span>
@@ -124,14 +121,14 @@
                                     <!-- Dropdown -->
                                     <div class="btn--container justify-content-center">
                                         <a class="action-btn"
-                                            href="{{route('admin.product.edit',[$product['id']])}}">
+                                            href="{{route('admin.amc.plan.update',[$product['id']])}}">
                                             <i class="tio-edit"></i></a>
                                         <a class="action-btn btn--danger btn-outline-danger" href="javascript:"
                                             onclick="form_alert('product-{{$product['id']}}','{{ translate("Want to delete this") }}')">
                                             <i class="tio-delete-outlined"></i>
                                         </a>
                                     </div>
-                                    <form action="{{route('admin.product.delete',[$product['id']])}}"
+                                    <form action="{{route('admin.amc.plan.delete',[$product['id']])}}"
                                         method="post" id="product-{{$product['id']}}">
                                         @csrf @method('delete')
                                     </form>

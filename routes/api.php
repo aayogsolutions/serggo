@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\partner\{
     DashboardController as PartnerDashboardController,
     InformationController as PartnerInformationController,
 };
+use App\Http\Controllers\Api\user\amc\DashboardController as AmcDashboardController;
 use App\Http\Controllers\Api\user\product\{
     AddressController,
     CategoryCntroller,
@@ -152,6 +153,19 @@ Route::group(['prefix' => 'service'], function()
     // Category Details Route
     Route::get('/category/{id}', [ServiceDashboardController::class,'CategoryDetails']);
     Route::get('/sub-category/details/{category_id}', [ServiceDashboardController::class,'SubCategoryDetails']);
+    
+});
+
+Route::group(['prefix' => 'amc'], function()
+{
+    Route::get('/dashboard', [AmcDashboardController::class,'Index']);
+    Route::get('/search', [AmcDashboardController::class,'Search']);
+
+    Route::get('/plan/details/{id}', [AmcDashboardController::class,'PlanDetails']);
+
+    // Category Details Route
+    Route::get('/category/{id}', [AmcDashboardController::class,'CategoryDetails']);
+    Route::get('/sub-category/details/{category_id}', [AmcDashboardController::class,'SubCategoryDetails']);
     
 });
 

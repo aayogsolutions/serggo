@@ -499,13 +499,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::group(['prefix' => 'plan', 'as' => 'plan.'], function () 
             {
                 Route::get('add-new', [AmcController::class, 'index'])->name('add-new');
-                Route::post('add-new', [AmcController::class, 'store'])->name('store');
+                Route::post('add-new', [AmcController::class, 'Store'])->name('store');
                 Route::get('list', [AmcController::class, 'List'])->name('list');
                 Route::get('update/{id}', [AmcController::class, 'edit'])->name('update');
                 Route::post('update/{id}', [AmcController::class, 'update']);
                 Route::get('status/{id}/{status}', [AmcController::class, 'status'])->name('status');
                 Route::get('priority/{id}/{number}', [AmcController::class, 'priority'])->name('priority');
                 Route::delete('delete/{id}', [AmcController::class, 'delete'])->name('delete');
+                Route::get('remove-image/{id}/{images}/{product?}/{name?}', [AmcController::class, 'removeImage'])->name('remove-image');
             });
         });
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\HomeSliderBanner;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\WithdrawalRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -198,6 +199,7 @@ class DashboardController extends Controller
         $validator = Validator::make($request->all(), [
             'fcm_token' => 'required',
             'user_id' => 'required',
+            'role' => 'required',
         ]);
 
         if ($validator->fails()) 
@@ -208,7 +210,14 @@ class DashboardController extends Controller
         }
 
         try {
-            $data = User::find($request->user_id);
+            if($request->role == 'vendor')
+            {
+                $data = Vendor::find($request->user_id);
+            }
+            else
+            {
+                $data = User::find($request->user_id);
+            }
 
             if(!$data)
             {

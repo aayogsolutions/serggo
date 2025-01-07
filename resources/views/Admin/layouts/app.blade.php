@@ -193,6 +193,10 @@
                     tags: true
                 });
 
+                $("#choice_service").select2({
+                    tags: true
+                });
+
                 $('.js-daterangepicker').daterangepicker();
 
                 $('.js-daterangepicker-times').daterangepicker({
