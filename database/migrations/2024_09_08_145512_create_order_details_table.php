@@ -36,6 +36,10 @@ return new class extends Migration
             $table->decimal('installastion_amount',15,2)->default(0);
             $table->enum('gst_status',['included','excluded'])->default('excluded');
             $table->decimal('advance_payment',8,2)->default(0);
+            $table->decimal('remaining_amount',8,2)->default(0);
+            $table->text('plan_details')->nullable();
+            $table->tinyInteger('service_activate')->default(0)->comment('0 = Activated | 1 = not Activated');
+            $table->integer('booked')->default(0);
             $table->timestamps();
         });
     }

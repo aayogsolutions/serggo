@@ -36,7 +36,7 @@
                                     <select name="type" class="form-control" disabled>
                                         <option value="user_product" {{$banner->ui_type == 'user_product' ? 'selected' : ''}}>{{translate('user_product')}}</option>
                                         <option value="user_service" {{$banner->ui_type == 'user_service' ? 'selected' : ''}}>{{translate('user_service')}}</option>
-                                        <!-- <option value="vender_service" {{$banner->ui_type == 'vender_service' ? 'selected' : ''}}>{{translate('vender_service')}}</option> -->
+                                        <option value="amc" {{$banner->ui_type == 'amc' ? 'selected' : ''}}>{{translate('AMC')}}</option>
                                     </select>
                                     <input type="text" value="{{$banner->ui_type}}" name="type" hidden>
                                 </div>

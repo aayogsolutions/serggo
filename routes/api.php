@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\partner\{
     InformationController as PartnerInformationController,
 };
 use App\Http\Controllers\Api\user\amc\DashboardController as AmcDashboardController;
+use App\Http\Controllers\Api\user\amc\OrderController as AmcOrderController;
 use App\Http\Controllers\Api\user\product\{
     AddressController,
     CategoryCntroller,
@@ -163,9 +164,9 @@ Route::group(['prefix' => 'amc'], function()
 
     Route::get('/plan/details/{id}', [AmcDashboardController::class,'PlanDetails']);
 
-    // Category Details Route
-    Route::get('/category/{id}', [AmcDashboardController::class,'CategoryDetails']);
-    Route::get('/sub-category/details/{category_id}', [AmcDashboardController::class,'SubCategoryDetails']);
+    // // Category Details Route
+    // Route::get('/category/{id}', [AmcDashboardController::class,'CategoryDetails']);
+    // Route::get('/sub-category/details/{category_id}', [AmcDashboardController::class,'SubCategoryDetails']);
     
 });
 
@@ -250,6 +251,20 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
             // Product Review Route
             Route::post('review',[ServiceOrderController::class,'OrderProductReview']);
+        });
+
+        Route::group(['prefix' => 'amc'], function()
+        {
+            Route::get('checkout',[AmcOrderController::class,'CheckOut']);
+            Route::post('place-order',[AmcOrderController::class,'PlaceOrder']);
+            Route::post('book',[AmcOrderController::class,'BookOrder']);
+
+            // Order History
+            Route::get('order/history',[AmcOrderController::class,'OrderHistory']);
+            Route::get('order/{id}',[AmcOrderController::class,'OrderItems']);
+
+            // Product Review Route
+            Route::post('review',[AmcOrderController::class,'OrderProductReview']);
         });
     });
 

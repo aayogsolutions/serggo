@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('home_banners', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->enum('ui_type',['user_product','user_service','vender_service']);
+            $table->enum('ui_type',['user_product','user_service','amc']);
             $table->string('attechment_type');
             $table->string('attechment');
             $table->string('background_color');

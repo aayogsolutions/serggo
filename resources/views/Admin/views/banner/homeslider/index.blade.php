@@ -63,7 +63,7 @@
                                         <option selected disabled>{{translate('Select UI type')}}</option>
                                         <option value="user_product">{{translate('user_product')}}</option>
                                         <option value="user_service">{{translate('user_service')}}</option>
-                                        <!-- <option value="vender_service">{{translate('vender_service')}}</option> -->
+                                        <option value="amc">{{translate('AMC')}}</option>
                                     </select>
                                 </div>
                             </div>
@@ -215,9 +215,11 @@
                                 {{ translate($banner->ui_type) }}
                             </td>
                             <td>
-                                Item Type :- {{ translate($banner->item_type) }}
-                                <br>
-                                Item Name :- {{ translate(json_decode($banner->item_detail)->name) }}
+                                @if($banner->ui_type != 'amc')
+                                    Item Type :- {{ translate($banner->item_type) }}
+                                    <br>
+                                    Item Name :- {{ translate(json_decode($banner->item_detail)->name) }}
+                                @endif
                             </td>
                             <td>
                                 <label class="toggle-switch my-0">

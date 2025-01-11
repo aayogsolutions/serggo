@@ -76,8 +76,11 @@ function show_section(type) {
     if (type == 'user_product') {
         $("#user_product").show();
         $("#user_service").hide();
-    } else {
+    } else if (type == 'user_service') {
         $("#user_product").hide();
         $("#user_service").show();
+    } else {
+        $("#user_product").hide();
+        $("#user_service").hide();
     }
 }

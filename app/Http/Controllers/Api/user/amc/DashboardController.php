@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Api\user\amc;
 use App\Http\Controllers\Controller;
 use App\Models\AMCPlan;
 use App\Models\AMCPlanServices;
+use App\Models\HomeBanner;
+use App\Models\HomeSliderBanner;
+use App\Models\Order;
+use App\Models\Order_details;
 use App\Models\Service;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
@@ -19,6 +25,90 @@ class DashboardController extends Controller
      */
     public function Index(Request $request) : JsonResponse
     {
+
+        try {
+            $maindata = HomeBanner::where(['status' => 0,'ui_type' => 'user_service'])->first();
+        } catch (\Throwable $th) {
+            $maindata->background_color = null;
+            $maindata->font_color = null;
+            $maindata->attechment_type = null;
+            $maindata->attechment = null;
+        }
+
+        try {
+            $homeslider = HomeSliderBanner::where(['status' => 0,'ui_type' => 'amc'])->orderBy('priority', 'asc')->limit(6)->get();
+        } catch (\Throwable $th) {
+            $homeslider = [];
+        }
+
+        if(Auth::guard('sanctum')->check())
+        {
+            if(Order::where(['order_type' => 'amc','user_id' => Auth::guard('sanctum')->user()->id,'plan_activate' => 1])->exists())
+            {
+                $order = Order::where(['order_type' => 'amc','user_id' => Auth::guard('sanctum')->user()->id,'plan_activate' => 1])->first();
+            }
+            
+            if(isset($order))
+            {
+                $plan = AMCPlan::where('id', $order->plan_id)->first();
+
+                if(Carbon::parse($order->created_at)->add(str_replace("_",",",$plan->duration)) > Carbon::now())
+                {
+                    $services = AMCPlanServices::where('plan_id', $order->plan_id)->get();
+
+                    $count = 0;
+                    foreach ($services as $key => $value) 
+                    {
+                        if($value->service_activate == 1)
+                        {
+                            $count += 1;
+                        }
+                    }
+
+                    if(($key + 1) == $count)
+                    {
+                        $order->plan_activate = 0;
+                        $order->save();
+                    }else{
+
+                        $order->order_details = Order_details::where('order_id', $order->id)->get();
+
+                        foreach ($order->order_details as $key => $value) {
+                            $value->product_details = json_decode($value->product_details);
+                            $value->product_details->service_details = Service_data_formatting(json_decode($value->product_details->service_details));
+                        }
+
+                        $plan->child = AMCPlanServices::where('plan_id', $plan->id)->get();
+
+                        foreach ($plan->child as $key => $value) {
+                            $value->service_details = Service_data_formatting(json_decode($value->service_details));
+                        }
+
+                        return response()->json([
+                            'status' => true,
+                            'plan' => false,
+                            'data' => [
+                                'colorcode' => $maindata->background_color ?? '#079AC2',
+                                'fontcode' => $maindata->font_color ?? '#ffffff',
+                                'bannerType' => $maindata->attechment_type ?? 'not found',
+                                'banner' => $maindata->attechment ?? 'not found',
+                                'array' => [
+                                    'Slider' => $homeslider,
+                                    'order' => $order,
+                                    'plan' => $plan
+                                ]
+                            ]
+                        ],200);
+                    }
+                }else{
+                    $order->plan_activate = 0;
+                    $order->save();
+                }
+            }
+        }
+        
+        
+
         if(isset($request->platform)){
 
             if($request->platform == 0)
@@ -30,15 +120,32 @@ class DashboardController extends Controller
             }
 
             try {
-                $data = AMCPlan::where('status',1)->orderBy('id','ASC')->get();
+                $data = AMCPlan::where('status',1)->orderBy('id','ASC')->with('PlanChild')->get();
             } catch (\Throwable $th) {
                 $data = [];
+            }
+
+            foreach ($data as $key => $value) 
+            {
+                foreach ($value->PlanChild as $key => $value1) 
+                {
+                    $value1->service_details = Service_data_formatting(json_decode($value1->service_details));
+                }
             }
     
             return response()->json([
                 'status' => true,
                 'plan' => false,
-                'data' => $data
+                'data' => [
+                    'colorcode' => $maindata->background_color ?? '#079AC2',
+                    'fontcode' => $maindata->font_color ?? '#ffffff',
+                    'bannerType' => $maindata->attechment_type ?? 'not found',
+                    'banner' => $maindata->attechment ?? 'not found',
+                    'array' => [
+                        'Slider' => $homeslider,
+                        'plan' => $data
+                    ]
+                ]
             ],200);
         }else{
             return response()->json([
@@ -81,7 +188,15 @@ class DashboardController extends Controller
             {
                 $q->orWhere('name', 'like', "%{$value}%");
             }
-        })->get();
+        })->with('PlanChild')->get();
+
+        foreach ($plans as $key => $value) 
+        {
+            foreach ($value->PlanChild as $key => $value1) 
+            {
+                $value1->service_details = Service_data_formatting(json_decode($value1->service_details));
+            }
+        }
 
         $services = Service::where(function ($q) use ($keys) 
         {
@@ -93,7 +208,15 @@ class DashboardController extends Controller
         
         $amcservices = AMCPlanServices::whereIn('service_id', $services)->pluck('plan_id');
 
-        $amcplans = AMCPlan::whereIn('id', $amcservices)->get();
+        $amcplans = AMCPlan::whereIn('id', $amcservices)->with('PlanChild')->get();
+
+        foreach ($amcplans as $key => $value) 
+        {
+            foreach ($value->PlanChild as $key => $value1) 
+            {
+                $value1->service_details = Service_data_formatting(json_decode($value1->service_details));
+            }
+        }
 
         // Finding Products
         

@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('home_slider_banners', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
-            $table->enum('ui_type',['user_product','user_service','vender_service']);
-            $table->enum('item_type',['product','category']);
-            $table->integer('item_id');
-            $table->text('item_detail');
+            $table->enum('ui_type',['user_product','user_service','amc']);
+            $table->enum('item_type',['product','category'])->nullable();
+            $table->integer('item_id')->nullable();
+            $table->text('item_detail')->nullable();
             $table->string('attechment');
             $table->tinyInteger('status')->default(0)->comment('0 = active | 1 = inactive');
             $table->tinyInteger('priority')->default(1);

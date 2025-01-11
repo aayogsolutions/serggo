@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id()->startingValue(1000000);
             $table->bigInteger('user_id');
-            $table->enum('order_type',['goods','service']);
+            $table->enum('order_type',['goods','service','amc']);
             $table->decimal('order_amount',24,2);
             $table->decimal('item_total',24,2);
             $table->string('order_status')->default('pending')->comment('[pending,confirmed,packing,out_for_delivery,delivered,canceled,returned,failed,rejected]');
@@ -61,6 +61,8 @@ return new class extends Migration
             $table->tinyInteger('gst_invoice')->default(1)->comment("0 = Required | 1 = Not required");
             $table->decimal('advance_payment',8,2)->default(0);
             $table->decimal('commission',8,2)->default(0);
+            $table->string('plan_id')->nullable();
+            $table->tinyInteger('plan_activate')->default(0)->comment("0 = Not activate | 1 = activate");
             $table->timestamps();
         });
     }

@@ -707,8 +707,7 @@ class BannersController extends Controller
                     $banner->item_id = $request->category_id;
                     $banner->item_detail = $data;
                 }
-            }
-            elseif ($request->type == 'user_service') {
+            } elseif ($request->type == 'user_service') {
 
                 $banner->item_type = 'category';
                 
@@ -738,13 +737,16 @@ class BannersController extends Controller
         {
             $products = $this->product->orderBy('name')->get();
             $categories = $this->category->where(['parent_id'=>0])->orderBy('name')->get();
-        }else{
+
+            return view('Admin.views.banner.homeslider.edit', compact('banner','categories','products'));
+        }elseif ($banner->ui_type == 'user_service') {
             $products = $this->servicecategory->where(['parent_id'=> 0])->orderBy('name')->get();
             $categories = $this->servicecategory->where(['parent_id'=> json_decode($banner->item_detail)->parent_id])->orderBy('name')->get();
-        }
-        
 
-        return view('Admin.views.banner.homeslider.edit', compact('banner','categories','products'));
+            return view('Admin.views.banner.homeslider.edit', compact('banner','categories','products'));
+        }else{
+            return view('Admin.views.banner.homeslider.edit', compact('banner'));
+        }
     }
 
     /**
