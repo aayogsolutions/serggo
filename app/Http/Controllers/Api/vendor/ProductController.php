@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\{
     File,
     Validator
 };
+use Illuminate\Support\Arr;
 
 class ProductController extends Controller
 {
@@ -326,17 +327,58 @@ class ProductController extends Controller
     }
 
     /** 
+     * @param Request $request
      * @return JsonResponse
      */
-    public function ProductList() : JsonResponse
+    public function ProductList(Request $request) : JsonResponse
     {
-        try {
-            $product = $this->product->where('vender_id' , Auth::user()->id)->with(['CategoryProduct','SubCategoryProduct'])->get();
+        $validator = Validator::make($request->all(), [
+            'page' => 'required|numeric',
+        ]);
+
+        if ($validator->fails()) {
             return response()->json([
-                'status' => true,
-                'message' => 'Product Data',
-                'data' => product_data_formatting($product,true,true,true)
-            ],200);
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        $limit = 5;
+
+        try {
+            $productcount = $this->product->where('vender_id' , Auth::user()->id)->count();
+            $totalpage = ceil($productcount / $limit);
+
+            if($request->page == 1)
+            {
+                $product = $this->product->where('vender_id' , Auth::user()->id)->with(['CategoryProduct','SubCategoryProduct'])->limit($limit)->get();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Product Data',
+                    'totalpages' => $totalpage,
+                    'currentpage' => $request->page,
+                    'data' => product_data_formatting($product,true,true,true)
+                    
+                ],200);
+            }elseif ($request->page > 1) {
+                $current = $limit * ($request->page - 1);
+
+                $product = $this->product->where('vender_id' , Auth::user()->id)->with(['CategoryProduct','SubCategoryProduct'])->offset($current)->limit($limit)->get();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Product Data',
+                    'totalpages' => $totalpage,
+                    'currentpage' => $request->page,
+                    'data' => product_data_formatting($product,true,true,true)
+                    
+                ],200);
+            }else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'First page should be 1',
+                ],408);
+            }
+            
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -641,6 +683,74 @@ class ProductController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ProductSearch(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'key' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+
+            $keys = explode(' ', $request->key);
+
+            // Finding Orders
+            $product1 = Products::where('vender_id', auth('sanctum')->user()->id)->where(function ($q) use ($keys) 
+            {
+                foreach ($keys as $value)
+                {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            })->with(['SubCategoryProduct','CategoryProduct'])->get();
+
+            $category = Category::where('position' , 0)->where(function ($q) use ($keys) 
+            {
+                foreach ($keys as $value)
+                {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            })->get();
+
+            $subcategory = Category::where('position' , 1)->where(function ($q) use ($keys) 
+            {
+                foreach ($keys as $value)
+                {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            })->get();
+
+            $product2 = Products::where(['vender_id' => auth('sanctum')->user()->id])->whereIn('category_id', $category->pluck('id'))->with(['SubCategoryProduct','CategoryProduct'])->get();
+
+            $product3 = Products::where(['vender_id' => auth('sanctum')->user()->id])->whereIn('sub_category_id', $subcategory->pluck('id'))->with(['SubCategoryProduct','CategoryProduct'])->get();
+            
+            $products = Arr::collapse([$product1,$product2,$product3]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Products',
+                'data' => product_data_formatting($products, true, true, false)
+            ],200);
+            // 
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
                 'data' => []
             ],408);
         }

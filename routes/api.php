@@ -163,11 +163,6 @@ Route::group(['prefix' => 'amc'], function()
     Route::get('/search', [AmcDashboardController::class,'Search']);
 
     Route::get('/plan/details/{id}', [AmcDashboardController::class,'PlanDetails']);
-
-    // // Category Details Route
-    // Route::get('/category/{id}', [AmcDashboardController::class,'CategoryDetails']);
-    // Route::get('/sub-category/details/{category_id}', [AmcDashboardController::class,'SubCategoryDetails']);
-    
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function()
@@ -258,13 +253,6 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::get('checkout',[AmcOrderController::class,'CheckOut']);
             Route::post('place-order',[AmcOrderController::class,'PlaceOrder']);
             Route::post('book',[AmcOrderController::class,'BookOrder']);
-
-            // Order History
-            Route::get('order/history',[AmcOrderController::class,'OrderHistory']);
-            Route::get('order/{id}',[AmcOrderController::class,'OrderItems']);
-
-            // Product Review Route
-            Route::post('review',[AmcOrderController::class,'OrderProductReview']);
         });
     });
 
@@ -292,6 +280,8 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
             Route::post('/delete/{id}', [VendorProductController::class,'DeleteProduct']);
             Route::post('/delete/image/{id}/{image}', [VendorProductController::class,'DeleteImage']);
+
+            Route::get('/search', [VendorProductController::class,'ProductSearch']);
         });
 
         Route::group(['prefix' => 'order'], function()
@@ -301,6 +291,8 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::get('/approval/{id}', [VendorOrderController::class,'OrderApproval']);
             Route::get('/status/{id}', [VendorOrderController::class,'OrderStatus']);
             Route::post('/date/{id}', [VendorOrderController::class,'OrderDate']);
+
+            Route::get('/search', [VendorOrderController::class,'OrderSearch']);
 
             Route::get('/timesolts', [VendorOrderController::class,'OrderGetTimeSlots']);
             Route::post('/timesolts/{id}', [VendorOrderController::class,'OrderTimeSlots']);

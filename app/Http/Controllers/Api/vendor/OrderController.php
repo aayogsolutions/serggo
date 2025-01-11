@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\Order_details;
 use App\Models\Products;
 use App\Models\TimeSlot;
+use Illuminate\Support\Arr;
 
 class OrderController extends Controller
 {
@@ -20,38 +21,73 @@ class OrderController extends Controller
     ){}
 
     /**
-     * 
+     * @param Request $request
      * @return JsonResponse
      */
-    public function OrderList() : JsonResponse
+    public function OrderList(Request $request) : JsonResponse
     {
-        try {
-            $vendor = auth('sanctum')->user();
-            
-            if ($vendor != null) 
-            {
-                $orders = Helpers_Orders_formatting(Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->orderby('id','desc')->with(['customer','OrderDetails'])->get(), true, true, false);
+        $validator = Validator::make($request->all(), [
+            'page' => 'required|numeric',
+        ]);
 
-                // Vender Orders
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        $vendor = auth('sanctum')->user();
+
+        if (!$vendor) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Vendor not found',
+                'data' => []
+            ], 404);
+        }
+
+        $limit = 5;
+
+        try {
+            $ordercount = Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->count();
+            $totalpage = ceil($ordercount / $limit);
+
+            if($request->page == 1)
+            {
+                $orders = Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->with(['customer','OrderDetails'])->limit($limit)->get();
                 return response()->json([
                     'status' => true,
-                    'is_verify' => $vendor->is_verify,
-                    'message' => 'Dashboard',
-                    'data' => [
-                        'order' => $orders,
-                    ]
+                    'message' => 'Order Data',
+                    'totalpages' => $totalpage,
+                    'currentpage' => $request->page,
+                    'data' => Helpers_Orders_formatting($orders,true,true,true)
+                    
                 ],200);
-            }else{
+            }elseif ($request->page > 1) {
+                $current = $limit * ($request->page - 1);
+
+                $orders = Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->with(['customer','OrderDetails'])->offset($current)->limit($limit)->get();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Order Data',
+                    'totalpages' => $totalpage,
+                    'currentpage' => $request->page,
+                    'data' => Helpers_Orders_formatting($orders,true,true,true)
+                    
+                ],200);
+            }else {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Vendor Not Found',
-                    'data' => []
+                    'message' => 'First page should be 1',
                 ],408);
             }
+            
+
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'unexpected error'.$th->getMessage(),
+                'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
             ],408);
         }
@@ -620,6 +656,60 @@ class OrderController extends Controller
                     'data' => []
                 ],408);
             }
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function OrderSearch(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'key' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+
+            $keys = explode(' ', $request->key);
+
+            // Finding Orders
+            $order1 = Order::where('vender_id', auth('sanctum')->user()->id)->where(function ($q) use ($keys) 
+            {
+                foreach ($keys as $value)
+                {
+                    $q->orWhere('id', 'like', "%{$value}%");
+                }
+            })->get();
+
+            $order2 = Order::where('vender_id', auth('sanctum')->user()->id)->with(['OrderDetails','customer' => function($qurey) use ($keys) {
+                foreach ($keys as $value)
+                {
+                    $qurey->orWhere('name', 'like', "%{$value}%");
+                }
+            }])->get();
+
+            $orders = Arr::collapse([$order1,$order2]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Orders',
+                'data' => Helpers_Orders_formatting($orders, true, true, false)
+            ],200);
             
         } catch (\Throwable $th) {
             return response()->json([
