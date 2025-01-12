@@ -64,6 +64,7 @@
                                         <option value="user_product">{{translate('user_product')}}</option>
                                         <option value="user_service">{{translate('user_service')}}</option>
                                         <option value="amc">{{translate('AMC')}}</option>
+                                        <option value="vendor">{{translate('Vendor')}}</option>
                                     </select>
                                 </div>
                             </div>
@@ -215,7 +216,7 @@
                                 {{ translate($banner->ui_type) }}
                             </td>
                             <td>
-                                @if($banner->ui_type != 'amc')
+                                @if($banner->ui_type != 'amc' && $banner->ui_type != 'vendor')
                                     Item Type :- {{ translate($banner->item_type) }}
                                     <br>
                                     Item Name :- {{ translate(json_decode($banner->item_detail)->name) }}

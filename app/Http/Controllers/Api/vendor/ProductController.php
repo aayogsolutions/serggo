@@ -334,6 +334,7 @@ class ProductController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'page' => 'required|numeric',
+            'ItemCount' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -343,7 +344,7 @@ class ProductController extends Controller
             ], 406);
         }
 
-        $limit = 5;
+        $limit = $request->ItemCount;
 
         try {
             $productcount = $this->product->where('vender_id' , Auth::user()->id)->count();
@@ -355,7 +356,7 @@ class ProductController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Product Data',
-                    'totalpages' => $totalpage,
+                    'totalproducts' => $productcount,
                     'currentpage' => $request->page,
                     'data' => product_data_formatting($product,true,true,true)
                     
@@ -367,7 +368,7 @@ class ProductController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Product Data',
-                    'totalpages' => $totalpage,
+                    'totalproducts' => $productcount,
                     'currentpage' => $request->page,
                     'data' => product_data_formatting($product,true,true,true)
                     

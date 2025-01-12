@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\Order_details;
 use App\Models\Products;
 use App\Models\TimeSlot;
+use App\Models\User;
 use Illuminate\Support\Arr;
 
 class OrderController extends Controller
@@ -28,6 +29,7 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'page' => 'required|numeric',
+            'ItemCount' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -47,7 +49,7 @@ class OrderController extends Controller
             ], 404);
         }
 
-        $limit = 5;
+        $limit = $request->ItemCount;
 
         try {
             $ordercount = Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->count();
@@ -59,7 +61,7 @@ class OrderController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Order Data',
-                    'totalpages' => $totalpage,
+                    'totalorders' => $ordercount,
                     'currentpage' => $request->page,
                     'data' => Helpers_Orders_formatting($orders,true,true,true)
                     
@@ -71,7 +73,7 @@ class OrderController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Order Data',
-                    'totalpages' => $totalpage,
+                    'totalorders' => $ordercount,
                     'currentpage' => $request->page,
                     'data' => Helpers_Orders_formatting($orders,true,true,true)
                     
@@ -402,7 +404,7 @@ class OrderController extends Controller
                 //editable
                 if ($request->order_status == 'out_for_delivery') 
                 {
-                    if ($order['delivery_date'] == null || $order['delivery_timeslot_id'] == null) 
+                    if ($order['delivery_date'] == null) 
                     {
                         return response()->json([
                             'status' => false,
@@ -438,7 +440,7 @@ class OrderController extends Controller
         
                 if ($request->order_status == 'delivered') 
                 {
-                    if($order['delivery_date'] == null && $order['delivery_timeslot_id'] == null && $order['delivery_man_id'] == null)
+                    if($order['delivery_date'] == null && $order['delivery_man_id'] == null)
                     {
                         return response()->json([
                             'status' => false,
@@ -694,14 +696,17 @@ class OrderController extends Controller
                 {
                     $q->orWhere('id', 'like', "%{$value}%");
                 }
-            })->get();
+            })->with(['OrderDetails','customer'])->get();
 
-            $order2 = Order::where('vender_id', auth('sanctum')->user()->id)->with(['OrderDetails','customer' => function($qurey) use ($keys) {
-                foreach ($keys as $value)
+            $customer = User::where(function ($q) use ($keys)
+            {
+                foreach ($keys as $value1)
                 {
-                    $qurey->orWhere('name', 'like', "%{$value}%");
+                    $q->orWhere('name', 'like', "%{$value1}%");
                 }
-            }])->get();
+            })->pluck('id')->toArray();
+
+            $order2 = Order::where(['vender_id' => auth('sanctum')->user()->id])->whereIn('user_id', $customer)->with(['OrderDetails','customer'])->get();
 
             $orders = Arr::collapse([$order1,$order2]);
 

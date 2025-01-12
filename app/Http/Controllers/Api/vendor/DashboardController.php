@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Api\vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\HomeSliderBanner;
+use App\Models\Notifications;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\WithdrawalRequests;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class DashboardController extends Controller
 {
@@ -25,6 +28,13 @@ class DashboardController extends Controller
     public function Index() : JsonResponse
     {
         try {
+
+            try {
+                $homeslider = HomeSliderBanner::where(['status' => 0,'ui_type' => 'vendor'])->orderBy('priority', 'asc')->get();
+            } catch (\Throwable $th) {
+                $homeslider = [];
+            }
+
             $vendor = auth('sanctum')->user();
             
             if($vendor->is_verify == 0)
@@ -33,7 +43,10 @@ class DashboardController extends Controller
                     'status' => false,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'You Need to Submit KYC',
-                    'data' => $vendor
+                    'data' => [
+                        'banner' => $homeslider,
+                        'vendor' => $vendor,
+                    ]
                 ],200);
             }
             elseif ($vendor->is_verify == 1) 
@@ -48,6 +61,7 @@ class DashboardController extends Controller
                     'is_verify' => $vendor->is_verify,
                     'message' => 'KYC Approval Pending',
                     'data' => [
+                        'banner' => $homeslider,
                         'vendor' => $vendor,
                     ]
                 ],200);
@@ -69,7 +83,7 @@ class DashboardController extends Controller
                     'is_verify' => $vendor->is_verify,
                     'message' => 'Dashboard',
                     'data' => [
-                        'banner' => $banner,
+                        'banner' => $homeslider,
                         'vendor' => $vendor,
                         'order' => $orders
                     ]
@@ -87,7 +101,8 @@ class DashboardController extends Controller
                     'is_verify' => $vendor->is_verify,
                     'message' => 'KYC Rejected by Admin',
                     'data' => [
-                        'vendor' => $vendor
+                        'banner' => $homeslider,
+                        'vendor' => $vendor,
                     ]
                 ],200);
             }
@@ -234,6 +249,92 @@ class DashboardController extends Controller
                 'status' => true,
                 'message' => 'Added FCM Token',
                 'data' => []
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     */
+    public function NotificationList() : JsonResponse
+    {
+        try {
+            $data = Notifications::where(['user_id' => auth('sanctum')->user()->id, 'type' => 1])->orderBy('id', 'desc')->get();
+            return response()->json([
+                'status' => true,
+                'message' => 'Notification List',
+                'data' => $data
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+    
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function SaleReport(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'from_date' => 'nullable|date',
+            'to_date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) 
+        {
+            return response()->json([
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $vendor = auth('sanctum')->user();
+            if(!is_null($request->from_date))
+            {
+                $data = Order::where('vender_id', $vendor->id)->with(['OrderDetails'])->whereDate('created_at', '>=', Carbon::parse($request->to_date)->format('Y-m-d 00:00:00'))->whereDate('created_at', '<=', Carbon::parse($request->to_date)->format('Y-m-d 00:00:00'))->get();
+            }
+            else
+            {
+                $data = Order::where('vender_id', $vendor->id)->with(['OrderDetails'])->get();
+            }
+
+            foreach ($data as $key => $value) {
+                foreach ($value->OrderDetails as $key => $value1) {
+                    $list[] = [
+                        'order_id' => $value->id,
+                        'order_amount' => $value->order_amount,
+                        'product_name' => json_decode($value1->product_details)->name,
+                        'price' => $value1->price,
+                        'quantity' => $value1->quantity,
+                        'tax_amount' => $value1->tax_amount,
+                        'discount_on_product' => $value1->discount_on_product,
+                        'coupon_amount' => $value1->coupon_amount,
+                        'coupon_code' => $value->coupon_code,
+                        'advance_payment' => $value1->advance_payment,
+                    ];
+                }
+            }
+
+            $FileName = str_replace(' ', '_', $vendor->name).'_'.Carbon::now()->format('Y-m-d_H-i-s').'.xlsx';
+
+            (new FastExcel($list))->export(public_path('excel\vendor\salereport\\'.$FileName));
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Sale Report',
+                'data' => 'excel/vendor/salereport/'.$FileName
             ],200);
         } catch (\Throwable $th) {
             return response()->json([

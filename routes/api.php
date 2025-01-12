@@ -34,7 +34,8 @@ use App\Http\Controllers\Api\vendor\{
     DashboardController as VenderDashboardController,
     InformationController as VendorInformationController,
     OrderController as VendorOrderController,
-    ProductController as VendorProductController
+    ProductController as VendorProductController,
+    ProfileController
 };
 use App\Models\PaymentGateways;
 use Faker\Provider\ar_EG\Payment;
@@ -259,15 +260,12 @@ Route::group(['middleware' => ['auth:sanctum']], function()
     Route::group(['prefix' => 'vendor'], function()
     {
         Route::get('/dashboard', [VenderDashboardController::class,'Index']);
+        Route::get('/download/sale/report', [VenderDashboardController::class,'SaleReport']);
+        Route::get('/notification/list', [VenderDashboardController::class,'NotificationList']);
 
         Route::group(['prefix' => 'profile'], function()
         {
-            // Route::get('/create', [VendorProductController::class,'CreateProduct']);
-            // Route::get('/sub-category-detail/{id}', [VendorProductController::class,'SubCategoryDetail']);
-            // Route::post('/store', [VendorProductController::class,'StoreProduct']);
-            // Route::get('/list', [VendorProductController::class,'ListProduct']);
-            // Route::get('/edit/{id}', [VendorProductController::class,'EditProduct']);
-            // Route::post('/update/{id}', [VendorProductController::class,'UpdateProduct']);
+            Route::get('/data', [ProfileController::class,'VendorData']);
         });
 
         Route::group(['prefix' => 'product'], function()

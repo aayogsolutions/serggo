@@ -37,6 +37,7 @@
                                         <option value="user_product" {{$banner->ui_type == 'user_product' ? 'selected' : ''}}>{{translate('user_product')}}</option>
                                         <option value="user_service" {{$banner->ui_type == 'user_service' ? 'selected' : ''}}>{{translate('user_service')}}</option>
                                         <option value="amc" {{$banner->ui_type == 'amc' ? 'selected' : ''}}>{{translate('AMC')}}</option>
+                                        <option value="vendor" {{$banner->ui_type == 'vendor' ? 'selected' : ''}}>{{translate('Vendor')}}</option>
                                     </select>
                                     <input type="text" value="{{$banner->ui_type}}" name="type" hidden>
                                 </div>
