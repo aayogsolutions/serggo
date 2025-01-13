@@ -244,7 +244,6 @@
                                 </div>
                             </th>
                             <th>{{translate('Delivery')}} {{translate('date')}}</th>
-                            <th>{{translate('Time Slot')}}</th>
                             <th>{{translate('customer')}}</th>
                             <th>{{translate('total amount')}}</th>
                             <th>
@@ -288,17 +287,6 @@
                                     {{$order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'Not Assigned'}}
                                 </td>
                                 <td>
-                                    @if($order->order_type == 'goods')
-                                        <span>
-                                            {{$order->delivery_timeslot_id != null ? date('H:i A', strtotime($order->TimeSlot['start_time'])).' - ' .date('H:i A', strtotime($order->TimeSlot['end_time'])) : translate('No Time Slot')}}
-                                        </span>
-                                    @else
-                                        <span>
-                                            {{$order->delivery_timeslot_id != null ? date('H:i A', strtotime($order->ServiceTimeSlot['time'] ?? translate('No Time Slot'))) : translate('No Time Slot')}}
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
                                     @if($order->is_guest == 0)
                                         @if(isset($order->customer))
                                             <div>
@@ -327,17 +315,25 @@
 
                                 <td>
                                     <div class="mw-90">
-                                        <div>
-                                            <?php
-                                                $vatStatus = $order->details ? $order->details[0]->gst_status : '';
-                                                if($vatStatus == 'included'){
-                                                    $orderAmount = $order['order_amount'] - $order['total_tax_amount'];
-                                                }else{
-                                                    $orderAmount = $order['order_amount'];
-                                                }
-                                            ?>
-                                            {{ Helpers_set_symbol($orderAmount) }}
-                                        </div>
+                                        @if($order['parent_order_id'] == null)
+                                            <div>
+                                                <?php
+                                                    $vatStatus = $order->details ? $order->details[0]->gst_status : '';
+                                                    if($vatStatus == 'included'){
+                                                        $orderAmount = $order['order_amount'] - $order['total_tax_amount'];
+                                                    }else{
+                                                        $orderAmount = $order['order_amount'];
+                                                    }
+                                                ?>
+                                                {{ Helpers_set_symbol($orderAmount) }}
+                                            </div>
+                                        @else
+                                            <div>
+                                                <span class="badge badge-soft-info py-2 px-3">
+                                                    {{ 'AMC Service' }}
+                                                </span>
+                                            </div>
+                                        @endif
                                         @if($order->payment_status=='paid')
                                             <span class="text-success">
                                                 {{translate('paid')}}

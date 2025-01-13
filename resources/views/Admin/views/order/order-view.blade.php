@@ -244,10 +244,10 @@
                                             </tr>
                                         @endif
                                     @endforeach
-                                @else
+                                @elseif($order['order_type'] == 'amc')
                                     @foreach($order->OrderDetails as $detail)
                                         @if($detail->product_details !=null)
-                                            @php($product = json_decode($detail->product_details, true))
+                                            @php($product = json_decode(json_decode($detail->product_details, true)['service_details'],true))
                                             <tr>
                                                 <td>
                                                     {{$loop->iteration}}
@@ -270,6 +270,82 @@
                                                                     @endif
                                                                 </div>
                                                                 <div class='media-body'>
+                                                                    <h5 class='line--limit-1' title="{{$pro_d['name']}}">
+                                                                        {{$pro_d['name']}}
+                                                                    </h5>
+                                                                    <h5 class='mt-1'>
+                                                                        <span class='text-body'>
+                                                                            {{translate('Price')}}
+                                                                        </span>
+                                                                        : {{$pro_d['price']}} 
+                                                                    </h5>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    @else
+                                                        <td class="text-right">
+                                                            <h6>This Item is not Replaced</h6>
+                                                        </td>
+                                                    @endif
+                                                @endif
+                                                <td>
+                                                    <div class="media media--sm">
+                                                        <div class="avatar avatar-xl mr-3">
+                                                            @if($detail->product && $detail->product['image'] != null )
+                                                            <img class="img-fluid rounded aspect-ratio-1" src="{{ asset(json_decode($detail->product->image)[0]) }}" alt="{{translate('Image Description')}}">
+                                                            @else
+                                                                <img src="{{asset('assets/admin/img/160x160/2.png')}}" class="img-fluid rounded aspect-ratio-1" />
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <h5 class="mt-1">
+                                                        <span class="text-body">
+                                                            {{translate('Name')}}
+                                                        </span> 
+                                                        : {{$product['name']}} 
+                                                    </h5>
+                                                    <h5 class="mt-1">
+                                                        <span class="text-body">
+                                                            {{translate('QTY')}}
+                                                        </span> 
+                                                        : {{$detail['quantity']}} 
+                                                    </h5>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h6>--</h6>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h6>--</h6>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h6>--</h6>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    @foreach($order->OrderDetails as $detail)
+                                        @if($detail->product_details !=null)
+                                            @php($product = json_decode($detail->product_details, true))
+                                            <tr>
+                                                <td>
+                                                    {{$loop->iteration}}
+                                                </td>
+                                                @if($order['editable']== 1 || $order['editable']== 3)
+                                                    @if($detail->alt_product_id != 0)
+                                                        @php($pro_d = App\Model\Product::find($detail->alt_product_id))
+                                                        <td>
+                                                            <div class='media media--sm'>
+                                                                <div class='avatar avatar-xl mr-3'>
+                                                                    @if($pro_d['image'] != null )
+                                                                        <img class="img-fluid rounded aspect-ratio-1" src="{{ $pro_d->identityImageFullPath[0] }}" alt="{{translate('Image Description')}}">
+                                                                    @else
+                                                                        <img src="{{asset('assets/admin/img/160x160/2.png')}}" class="img-fluid rounded aspect-ratio-1" >
+                                                                    @endif
+                                                                </div>
+                                                                <div class='media-body'>
                                                                     <h5 class='line--limit-1' title="{{$pro_d['name']}}">{{$pro_d['name']}}</h5>
                                                                     <h5 class='mt-1'><span class='text-body'>{{translate('Unit')}}</span>: {{$pro_d['unit']}} </h5>
                                                                     <h5 class='mt-1'><span class='text-body'>{{translate('Unit Price')}}</span>: {{$pro_d['price']}} </h5>
@@ -286,25 +362,29 @@
                                                     <div class="media media--sm">
                                                         <div class="avatar avatar-xl mr-3">
                                                             @if($detail->product && $detail->product['image'] != null )
-                                                            <img class="img-fluid rounded aspect-ratio-1"
-                                                                    src="{{ asset(json_decode($detail->product->image)[0]) }}"
-                                                                alt="{{translate('Image Description')}}">
+                                                                <img class="img-fluid rounded aspect-ratio-1" src="{{ asset(json_decode($detail->product->image)[0]) }}" alt="{{translate('Image Description')}}">
                                                             @else
-                                                                <img
-                                                                src="{{asset('assets/admin/img/160x160/2.png')}}"
-                                                                class="img-fluid rounded aspect-ratio-1"
-                                                                >
+                                                                <img src="{{asset('assets/admin/img/160x160/2.png')}}" class="img-fluid rounded aspect-ratio-1" >
                                                             @endif
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <h5 class="mt-1">
-                                                        <span class="text-body">
-                                                            {{translate('Price')}}
-                                                        </span> 
-                                                        : {{$detail['price']}} 
-                                                    </h5>
+                                                    @if($order['parent_order_id'] != null)
+                                                        <h5 class="mt-1">
+                                                            <span class="text-body">
+                                                                {{translate('Name')}}
+                                                            </span> 
+                                                            : {{$product['name']}} 
+                                                        </h5>
+                                                    @else
+                                                        <h5 class="mt-1">
+                                                            <span class="text-body">
+                                                                {{translate('Price')}}
+                                                            </span> 
+                                                            : {{$detail['price']}} 
+                                                        </h5>
+                                                    @endif
                                                     <h5 class="mt-1">
                                                         <span class="text-body">
                                                             {{translate('QTY')}}
@@ -313,10 +393,19 @@
                                                     </h5>
                                                 </td>
                                                 <td class="text-right">
-                                                    <h6>{{ Helpers_set_symbol($detail['price']) }}</h6>
+                                                    @if($order['parent_order_id'] != null)
+                                                        <h6>--</h6>
+                                                    @else
+                                                        <h6>{{ Helpers_set_symbol($detail['price']) }}</h6>
+                                                    @endif
                                                 </td>
                                                 <td class="text-right">
-                                                    <h6>{{ Helpers_set_symbol($detail['discount_on_product']) }}</h6>
+                                                    @if($order['parent_order_id'] != null)
+                                                        <h6>--</h6>
+                                                    @else
+                                                        <h6>{{ Helpers_set_symbol($detail['discount_on_product']) }}</h6>
+                                                    @endif
+                                                    
                                                 </td>
                                                 <td class="text-right">
                                                     @php($amount+=$detail['price'])
@@ -326,7 +415,13 @@
                                                     @php($totalItemDiscount += $detail['discount_on_product'])
                                                     @php($price_after_discount+=$amount-$totalItemDiscount)
                                                     @php($subTotal+=$price_after_discount)
-                                                    <h5>{{ Helpers_set_symbol(($detail['price']) - ($detail['discount_on_product'])) }}</h5>
+                                                    @if($order['parent_order_id'] != null)
+                                                        <h6>--</h6>
+                                                    @else
+                                                        <h5>
+                                                            {{ Helpers_set_symbol($detail['price'] - $detail['discount_on_product']) }}
+                                                        </h5>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endif
@@ -340,125 +435,199 @@
                             </table>
                         </div>
 
-                        <div class="row justify-content-md-end mb-3 mt-4">
-                            <div class="col-md-9 col-lg-8">
-                                <dl class="row text-right justify-content-end">
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('items')}} {{translate('price')}} :
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                            {{--{{ Helpers_set_symbol($subTotal) }}--}}
-                                            {{ Helpers_set_symbol($amount) }}
-                                    </dd>
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('Item Discount')}} :
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        - {{ Helpers_set_symbol($totalItemDiscount) }}
-                                    </dd>
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('Sub Total')}} :
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($total = $amount-$totalItemDiscount) }}
-                                    </dd>
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('GST')}} {{ $vatStatus == 'included' ? translate('(included)') : '' }}:
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($totalTax) }}
-                                    </dd>
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('Advance')}}
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        - {{ Helpers_set_symbol($order['advance_payment']) }}
-                                    </dd>
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('delivery')}} {{translate('fee')}} :
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        @if($order['order_type']=='self_pickup')
-                                            @php($del_c=0)
-                                        @else
-                                            @php($del_c=$order['delivery_charge'])
-                                        @endif
-                                        {{ Helpers_set_symbol($del_c) }}
-                                    </dd>
-
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('Coupon')}} :
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($order['coupon_amount']) }}
-                                        <hr>
-                                    </dd>
-
-                                    <dt class="col-6 text-left">
-                                        <div class="ml-auto max-w-130px">
-                                            {{translate('total')}}:
-                                        </div>
-                                    </dt>
-                                    <dd class="col-6 col-xl-5 pr-5">
-                                        {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['advance_payment']-$order['coupon_amount']) }}
-                                        <hr>
-                                    </dd>
-                                    @if ($order->partial_payment != null)FDevil
-                                        @php($partial_payment = json_decode($order->partial_payment,true))
+                        @if($order['parent_order_id'] == null)
+                            @if($order['order_type'] != 'amc')
+                                <div class="row justify-content-md-end mb-3 mt-4">
+                                    <div class="col-md-9 col-lg-8">
+                                        <dl class="row text-right justify-content-end">
                                             <dt class="col-6 text-left">
                                                 <div class="ml-auto max-w-130px">
-                                                    <span>{{translate('Paid By')}} ({{'Wallet'}})</span>
-                                                    <span>:</span>
+                                                    {{translate('items')}} {{translate('price')}} :
                                                 </div>
                                             </dt>
                                             <dd class="col-6 col-xl-5 pr-5">
-                                                {{ Helpers_set_symbol($partial_payment['wallet_applied']) }}
+                                                    {{--{{ Helpers_set_symbol($subTotal) }}--}}
+                                                    {{ Helpers_set_symbol($amount) }}
                                             </dd>
-                                            <?php
-                                            $due_amount = 0;
-                                            $due_amount = $order->grand_total;
-                                            ?>
-                                        <dt class="col-6 text-left">
-                                            <div class="ml-auto max-w-130px">
-                                            <span>
-                                                {{translate('Due Amount')}}</span>
-                                                <span>:</span>
-                                            </div>
-                                        </dt>
-                                        <dd class="col-6 col-xl-5 pr-5">
-                                            {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['advance_payment']-$order['coupon_amount']-$partial_payment['wallet_applied']) }}
-                                        </dd>
-                                    @endif
-                                </dl>
-                            </div>
-                        </div>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Item Discount')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                - {{ Helpers_set_symbol($totalItemDiscount) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Sub Total')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($total = $amount-$totalItemDiscount) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('GST')}} {{ $vatStatus == 'included' ? translate('(included)') : '' }}:
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($totalTax) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Advance')}}
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                - {{ Helpers_set_symbol($order['advance_payment']) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('delivery')}} {{translate('fee')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                @if($order['order_type']=='self_pickup')
+                                                    @php($del_c=0)
+                                                @else
+                                                    @php($del_c=$order['delivery_charge'])
+                                                @endif
+                                                {{ Helpers_set_symbol($del_c) }}
+                                            </dd>
+
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Coupon')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($order['coupon_amount']) }}
+                                                <hr>
+                                            </dd>
+
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('total')}}:
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['advance_payment']-$order['coupon_amount']) }}
+                                                <hr>
+                                            </dd>
+                                            @if ($order->partial_payment != null)
+                                                @php($partial_payment = json_decode($order->partial_payment,true))
+                                                    <dt class="col-6 text-left">
+                                                        <div class="ml-auto max-w-130px">
+                                                            <span>{{translate('Paid By')}} ({{'Wallet'}})</span>
+                                                            <span>:</span>
+                                                        </div>
+                                                    </dt>
+                                                    <dd class="col-6 col-xl-5 pr-5">
+                                                        {{ Helpers_set_symbol($partial_payment['wallet_applied']) }}
+                                                    </dd>
+                                                    <?php
+                                                    $due_amount = 0;
+                                                    $due_amount = $order->grand_total;
+                                                    ?>
+                                                <dt class="col-6 text-left">
+                                                    <div class="ml-auto max-w-130px">
+                                                    <span>
+                                                        {{translate('Due Amount')}}</span>
+                                                        <span>:</span>
+                                                    </div>
+                                                </dt>
+                                                <dd class="col-6 col-xl-5 pr-5">
+                                                    {{ Helpers_set_symbol($total+$del_c+$updatedTotalTax-$order['coupon_discount_amount']-$order['advance_payment']-$order['coupon_amount']-$partial_payment['wallet_applied']) }}
+                                                </dd>
+                                            @endif
+                                        </dl>
+                                    </div>
+                                </div>
+                            @else 
+                                <div class="row justify-content-md-end mb-3 mt-4">
+                                    <div class="col-md-9 col-lg-8">
+                                        <dl class="row text-right justify-content-end">
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('items')}} {{translate('price')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($order['item_total']) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Item Discount')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                - {{ Helpers_set_symbol($order['total_discount']) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Sub Total')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($total = $order['item_total'] - $order['total_discount']) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('GST')}} {{ $order['tax_type'] == 'included' ? (translate('included')) : (translate('excluded')) }}:
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol($order['total_tax_amount']) }}
+                                            </dd>
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('Coupon')}} :
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                - {{ Helpers_set_symbol($order['coupon_amount']) }}
+                                                <hr>
+                                            </dd>
+
+                                            <dt class="col-6 text-left">
+                                                <div class="ml-auto max-w-130px">
+                                                    {{translate('total')}}:
+                                                </div>
+                                            </dt>
+                                            <dd class="col-6 col-xl-5 pr-5">
+                                                {{ Helpers_set_symbol(($order['tax_type'] == 'included' ? $order['item_total'] : $order['item_total']+$order['total_tax_amount']) - $order['total_discount'] - $order['coupon_amount']) }}
+                                                <hr>
+                                            </dd>
+                                            @if ($order->partial_payment != null)
+                                                @php($partial_payment = json_decode($order->partial_payment,true))
+                                                <dt class="col-6 text-left">
+                                                    <div class="ml-auto max-w-130px">
+                                                        <span>{{translate('Paid By')}} ({{'Wallet'}})</span>
+                                                        <span>:</span>
+                                                    </div>
+                                                </dt>
+                                                <dd class="col-6 col-xl-5 pr-5">
+                                                    {{ Helpers_set_symbol($partial_payment['wallet_applied']) }}
+                                                </dd>
+                                            @endif
+                                        </dl>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
 
 
             <div class="col-lg-4 order-print-area-right">
-                @if($order['order_type'] != 'pos')
-                    <div class="card">
-                        <div class="card-header border-0 pb-0 justify-content-center">
-                            <h4 class="card-title">{{translate('Order Setup')}}</h4>
-                        </div>
+                <div class="card">
+                    <div class="card-header border-0 pb-0 justify-content-center">
+                        <h4 class="card-title">{{translate('Order Setup')}}</h4>
+                    </div>
 
-                        <div class="card-body">
+                    <div class="card-body">
+                        @if($order['order_type'] != 'amc')
                             <div class="hs-unfold w-100">
                                 <span class="d-block form-label font-bold mb-2">{{translate('Change Order Status')}}:</span>
                                 <div class="dropdown">
@@ -493,7 +662,9 @@
                                     @endif
                                 </div>
                             </div>
+                        @endif
 
+                        @if($order['order_type'] != 'amc')
                             <div class="hs-unfold w-100 mt-3">
                                 <span class="d-block form-label font-bold mb-2">{{translate('Payment Status')}}:</span>
                                 <div class="dropdown">
@@ -508,22 +679,24 @@
                                     </div>
                                 </div>
                             </div>
+                        @endif
 
-                            @if($order['order_type'] == 'goods')
-                                <div class="hs-unfold w-100 mt-3">
-                                    <span class="d-block form-label font-bold mb-2">{{translate('Order category')}}:</span>
-                                    <div class="dropdown">
-                                        <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            {{translate($order['order_category'] ?? 'N/A')}}
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item change-payment-status" data-status="Small" data-route="{{route('admin.orders.order.category',['id'=>$order['id'],'order_status'=>'small'])}}">{{ translate('small') }}</a>
-                                            <a class="dropdown-item change-payment-status" data-status="Large" data-route="{{route('admin.orders.order.category',['id'=>$order['id'],'order_status'=>'large'])}}">{{ translate('large') }}</a>
-                                        </div>
+                        @if($order['order_type'] == 'goods')
+                            <div class="hs-unfold w-100 mt-3">
+                                <span class="d-block form-label font-bold mb-2">{{translate('Order category')}}:</span>
+                                <div class="dropdown">
+                                    <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center w-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {{translate($order['order_category'] ?? 'N/A')}}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item change-payment-status" data-status="Small" data-route="{{route('admin.orders.order.category',['id'=>$order['id'],'order_status'=>'small'])}}">{{ translate('small') }}</a>
+                                        <a class="dropdown-item change-payment-status" data-status="Large" data-route="{{route('admin.orders.order.category',['id'=>$order['id'],'order_status'=>'large'])}}">{{ translate('large') }}</a>
                                     </div>
                                 </div>
-                            @endif
+                            </div>
+                        @endif
 
+                        @if($order['order_type'] != 'amc')
                             <div class="mt-3">
                                 <span class="d-block form-label mb-2 font-bold">{{translate('Delivery Date & Time')}}:</span>
                                 <div class="d-flex flex-wrap g-2">
@@ -532,18 +705,7 @@
                                             <input class="js-flatpickr form-control flatpickr-custom min-h-45px form-control" type="text" value="{{ $order['delivery_date'] != null ? date('d M Y',strtotime($order['delivery_date'])) : 'dd-mm-yyy' }}" name="deliveryDate" id="deliveryDate" data-id="{{ $order['id'] }}" required>
                                         </label>
                                     </div>
-                                    @if($order->order_type == 'goods')
-                                        <div class="hs-unfold w-0 flex-grow min-w-160px">
-                                            <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}" id="timeSlot">
-                                                <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
-                                                @foreach(\App\Models\TimeSlot::all() as $timeSlot)
-                                                    <option value="{{$timeSlot['id']}}" {{$timeSlot->id == $order->delivery_timeslot_id ?'selected':''}}>
-                                                        {{date('H:i A', strtotime($timeSlot['start_time']))}} - {{date('H:i A', strtotime($timeSlot['end_time']))}}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    @else
+                                    @if($order->order_type == 'service')
                                         <div class="hs-unfold w-0 flex-grow min-w-160px">
                                             <select class="custom-select time_slote" name="timeSlot" data-id="{{$order['id']}}" id="servicetimeSlot">
                                                 <option disabled selected>{{translate('select')}} {{translate('Time Slot')}}</option>
@@ -557,7 +719,9 @@
                                     @endif
                                 </div>
                             </div>
+                        @endif
 
+                        @if($order['order_type'] != 'amc')
                             @if($order->delivered_by == 0 && $order->deliveryman_id == null)
                                 <div class="mt-3">
                                     <button class="btn btn--primary w-100" type="button" onclick="assignDeliveryMan({{ $order }})" data-toggle="modal">
@@ -607,130 +771,131 @@
                                     </div>
                                 </div>
                             @endif
+                        @endif
 
-                            @if($order->delivered_by == 0)
-                                @foreach($order->OrderDetails as $ServiceMenArray)
-                                    @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id == null)
-                                        <div class="mt-3">
-                                            <button class="btn btn--primary w-100" type="button" data-target="#assign_service_man_modal" data-toggle="modal">{{ translate('assign service man manually') }}</button>
-                                        </div>
-                                    @endif
-                                @endforeach
-                                @foreach($order->OrderDetails as $ServiceMenArray)
-                                    @if ($ServiceMenArray->installation === 0 && $ServiceMenArray->service_man_id != null)
-                                        <div class="card mt-2">
-                                            <div class="card-body">
-                                                <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">
-                                                    <span class="card-header-icon">
-                                                        <i class="tio-user"></i>
+                        @if($order->delivered_by == 0 && $order->order_type != 'amc')
+                            @foreach($order->OrderDetails as $ServiceMenArray)
+                                @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id == null)
+                                    <div class="mt-3">
+                                        <button class="btn btn--primary w-100" type="button" data-target="#assign_service_man_modal" data-toggle="modal">{{ translate('assign service man manually') }}</button>
+                                    </div>
+                                @endif
+                            @endforeach
+                            @foreach($order->OrderDetails as $ServiceMenArray)
+                                @if ($ServiceMenArray->installation === 0 && $ServiceMenArray->service_man_id != null)
+                                    <div class="card mt-2">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">
+                                                <span class="card-header-icon">
+                                                    <i class="tio-user"></i>
+                                                </span>
+                                                <span>{{ translate('Service Man') }}</span>
+                                                @if ($order->order_status != 'delivered')
+                                                    <a type="button" href="#assign_service_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_service_man_modal">
+                                                        {{ translate('change') }}
+                                                    </a>
+                                                @endif
+                                            </h5>
+                                            <div class="media align-items-center deco-none customer--information-single">
+                                                @php($Servicevendor = App\Models\Vendor::find($ServiceMenArray->service_man_id))
+                                                <div class="avatar avatar-circle">
+                                                    <img class="avatar-img" src="{{ $Servicevendor->image }}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                                </div>
+                                                <div class="media-body">
+                                                    <span class="text-body d-block text-hover-primary mb-1">
+                                                        {{ $Servicevendor->name }}
                                                     </span>
-                                                    <span>{{ translate('Service Man') }}</span>
-                                                    @if ($order->order_status != 'delivered')
-                                                        <a type="button" href="#assign_service_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_service_man_modal">
-                                                            {{ translate('change') }}
-                                                        </a>
-                                                    @endif
-                                                </h5>
-                                                <div class="media align-items-center deco-none customer--information-single">
-                                                    @php($Servicevendor = App\Models\Vendor::find($ServiceMenArray->service_man_id))
-                                                    <div class="avatar avatar-circle">
-                                                        <img class="avatar-img" src="{{ $Servicevendor->image }}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <span class="text-body d-block text-hover-primary mb-1">
-                                                            {{ $Servicevendor->name }}
+                                                    <span class="text--title font-semibold d-flex align-items-center">
+                                                        <i class="tio-shopping-basket-outlined mr-2"></i>
+                                                        {{\App\Models\Products::where(['id' => $ServiceMenArray->product_id])->first()->name}}
+                                                    </span>
+                                                    <span class="text--title font-semibold d-flex align-items-center">
+                                                        <i class="tio-call-talking-quiet mr-2"></i>
+                                                        <a href="Tel:{{ $Servicevendor->number }}">{{ $Servicevendor->number }}</a>
+                                                    </span>
+                                                    <span class="text--title font-semibold d-flex align-items-center">
+                                                        <i class="tio-email-outlined mr-2"></i>
+                                                        <a href="mailto:{{$Servicevendor->email}}">{{$Servicevendor->email}}</a>
+                                                    </span>
+                                                    <span class="text--title font-semibold d-flex align-items-center"> 
+                                                        <span class="badge badge-soft-info py-2 px-3">
+                                                            {{$Servicevendor->serviceman_status == 1 ? 'Pending' : translate('accepted')}}
                                                         </span>
-                                                        <span class="text--title font-semibold d-flex align-items-center">
-                                                            <i class="tio-shopping-basket-outlined mr-2"></i>
-                                                            {{\App\Models\Products::where(['id' => $ServiceMenArray->product_id])->first()->name}}
-                                                        </span>
-                                                        <span class="text--title font-semibold d-flex align-items-center">
-                                                            <i class="tio-call-talking-quiet mr-2"></i>
-                                                            <a href="Tel:{{ $Servicevendor->number }}">{{ $Servicevendor->number }}</a>
-                                                        </span>
-                                                        <span class="text--title font-semibold d-flex align-items-center">
-                                                            <i class="tio-email-outlined mr-2"></i>
-                                                            <a href="mailto:{{$Servicevendor->email}}">{{$Servicevendor->email}}</a>
-                                                        </span>
-                                                        <span class="text--title font-semibold d-flex align-items-center"> 
-                                                            <span class="badge badge-soft-info py-2 px-3">
-                                                                {{$Servicevendor->serviceman_status == 1 ? 'Pending' : translate('accepted')}}
-                                                            </span>
-                                                        </span>
-                                                    </div>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                    @endif
-                                @endforeach
-                            @endif
+                                    </div>
+                                @endif
+                            @endforeach
+                        @endif
 
-                            <div class="card mt-2">
-                                <div class="card-body">
-                                    <h5 class="form-label mb-3">
-                                        <span class="card-header-icon">
-                                            <i class="tio-user"></i>
-                                        </span>
-                                        <span>{{translate('Customer information')}}</span>
-                                    </h5>
-                                    
-                                    @if($order->user_id == null)
-                                        <div class="media align-items-center deco-none customer--information-single">
-                                            <div class="avatar avatar-circle">
-                                                <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
-                                            </div>
-                                            <div class="media-body">
-                                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                                    {{translate('Walking Customer')}}
-                                                </span>
-                                            </div>
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <h5 class="form-label mb-3">
+                                    <span class="card-header-icon">
+                                        <i class="tio-user"></i>
+                                    </span>
+                                    <span>{{translate('Customer information')}}</span>
+                                </h5>
+                                
+                                @if($order->user_id == null)
+                                    <div class="media align-items-center deco-none customer--information-single">
+                                        <div class="avatar avatar-circle">
+                                            <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
                                         </div>
-                                    @endif
-                                    @if($order->user_id != null && !isset($order->customer) )
-                                        <div class="media align-items-center deco-none customer--information-single">
-                                            <div class="avatar avatar-circle">
-                                                <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
-                                            </div>
-                                            <div class="media-body">
-                                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                                    {{translate('Customer_not_available')}}
-                                                </span>
-                                            </div>
+                                        <div class="media-body">
+                                            <span class="fz--14px text--title font-semibold text-hover-primary d-block">
+                                                {{translate('Walking Customer')}}
+                                            </span>
                                         </div>
-                                    @endif
-                                    @if(isset($order->customer) )
-                                        <div class="media align-items-center deco-none customer--information-single">
-                                            <div class="avatar avatar-circle">
-                                                <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
-                                            </div>
-                                            <div class="media-body">
-                                                <span class="fz--14px text--title font-semibold text-hover-primary d-block">
-                                                    <a href="{{route('admin.customer.view',[$order['user_id']])}}">
-                                                        {{$order->customer['f_name'].' '.$order->customer['l_name']}}
-                                                    </a>
-                                                </span>
-                                                <span>
-                                                    {{\App\Models\Order::where('user_id',$order['user_id'])->count()}} {{translate("orders")}}
-                                                </span>
-                                                <span class="text--title font-semibold d-block">
-                                                    <i class="tio-call-talking-quiet mr-2"></i>
-                                                    <a href="Tel:{{$order->customer['number']}}">
-                                                        {{$order->customer['number']}}
-                                                    </a>
-                                                </span>
-                                                <span class="text--title">
-                                                    <i class="tio-email mr-2"></i>
-                                                    <a href="mailto:{{$order->customer['email']}}">
-                                                        {{$order->customer['email']}}
-                                                    </a>
-                                                </span>
-                                            </div>
+                                    </div>
+                                @endif
+                                @if($order->user_id != null && !isset($order->customer) )
+                                    <div class="media align-items-center deco-none customer--information-single">
+                                        <div class="avatar avatar-circle">
+                                            <img class="avatar-img" src="{{asset('assets/admin/img/admin.jpg')}}" alt="{{ translate('Image Description')}}">
                                         </div>
-                                    @endif
-                                </div>
+                                        <div class="media-body">
+                                            <span class="fz--14px text--title font-semibold text-hover-primary d-block">
+                                                {{translate('Customer_not_available')}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
+                                @if(isset($order->customer) )
+                                    <div class="media align-items-center deco-none customer--information-single">
+                                        <div class="avatar avatar-circle">
+                                            <img class="avatar-img" src="{{asset($order->customer->image)}}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                        </div>
+                                        <div class="media-body">
+                                            <span class="fz--14px text--title font-semibold text-hover-primary d-block">
+                                                <a href="{{route('admin.customer.view',[$order['user_id']])}}">
+                                                    {{$order->customer['f_name'].' '.$order->customer['l_name']}}
+                                                </a>
+                                            </span>
+                                            <span>
+                                                {{\App\Models\Order::where('user_id',$order['user_id'])->count()}} {{translate("orders")}}
+                                            </span>
+                                            <span class="text--title font-semibold d-block">
+                                                <i class="tio-call-talking-quiet mr-2"></i>
+                                                <a href="Tel:{{$order->customer['number']}}">
+                                                    {{$order->customer['number']}}
+                                                </a>
+                                            </span>
+                                            <span class="text--title">
+                                                <i class="tio-email mr-2"></i>
+                                                <a href="mailto:{{$order->customer['email']}}">
+                                                    {{$order->customer['email']}}
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
+                        </div>
 
-                            
+                        @if($order['order_type'] != 'amc')
                             <div class="card mt-2">
                                 <div class="card-body">
                                     @php($address=\App\Models\CustomerAddresses::find($order['delivery_address_id']))
@@ -803,9 +968,9 @@
                                     @endif
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
-                @endif 
+                </div>
             </div>
         </div>
     </div>

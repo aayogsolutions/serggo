@@ -84,7 +84,7 @@ class OrderController extends Controller
     public function PlaceOrder(Request $request) : JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'address_id' => 'required|numeric',
+            'due_amount' => 'required|numeric',
             'partial_payment' => 'required|numeric',
             'wallet_applied' => 'required|numeric',
             'payment_method' => 'required',
@@ -224,7 +224,7 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'order_id' => 'required|exists:orders,id',
-            'plan_service_id' => 'required|exists:amc_plan_services,id',
+            'plan_service_id' => 'required|exists:a_m_c_plan_services,id',
         ]);
 
         if ($validator->fails()) {
@@ -284,6 +284,7 @@ class OrderController extends Controller
             $adminOrder->order_status = 'pending';
             $adminOrder->order_approval = 'pending';
             $adminOrder->payment_method = 'amc_booking';
+            $adminOrder->payment_status = 'paid';
             $adminOrder->delivery_address_id = $request->address_id;
             $adminOrder->checked = 1;
             $adminOrder->date = now();

@@ -553,6 +553,12 @@ class OrderController extends Controller
                     'message' => 'Order Status Updated',
                     'data' => Helpers_Orders_formatting($order, false, true, false)
                 ],200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Order Status Managed by admin',
+                    'data' => []
+                ],408);
             }
         } catch (\Throwable $th) {
             return response()->json([

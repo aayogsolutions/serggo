@@ -187,8 +187,14 @@ class OrderController extends Controller
         $order = $this->order->where('id',$id)->with('OrderDetails')->first();
 
         if($request->status == 'accept') {
-            $order->order_approval = 'accepted';
-            $order->order_status = 'confirmed';
+            if($order->order_type == 'amc') {
+                $order->order_approval = 'accepted';
+                $order->order_status = 'delivered';
+            }else{
+                $order->order_approval = 'accepted';
+                $order->order_status = 'confirmed';
+            }
+            
 
             if (!BusinessSetting::where(['key' => 'order_approval_message'])->first()) {
                 BusinessSetting::updateOrInsert(['key' => 'order_approval_message'], [

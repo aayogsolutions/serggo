@@ -329,7 +329,7 @@ class DashboardController extends Controller
 
             $FileName = str_replace(' ', '_', $vendor->name).'_'.Carbon::now()->format('Y-m-d_H-i-s').'.xlsx';
 
-            (new FastExcel($list))->export(public_path('excel\vendor\salereport\\'.$FileName));
+            (new FastExcel($list))->export(public_path('excel/vendor/salereport/'.$FileName));
             
             return response()->json([
                 'status' => true,

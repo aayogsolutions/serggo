@@ -132,8 +132,9 @@
                                     @else
                                         <span class="text-danger">
                                             <div>
-                                                <a class="text-body text-capitalize font-medium"
-                                                    href="{{route('admin.vendor.view',[$order['user_id']])}}">{{translate($order->vendororders->name)}}</a>
+                                                <a class="text-body text-capitalize font-medium" href="{{route('admin.vendor.view',[$order['user_id']])}}">
+                                                    {{translate($order->vendororders->name)}}
+                                                </a>
                                             </div>
                                             <div class="text-sm">
                                                 <a href="javascript:void(0);">{{$order->vendororders->number}}</a>
@@ -148,9 +149,26 @@
                                 </td>
                                 <td>
                                     <div class="mw-90">
-                                        <div>
-                                            {{ Helpers_set_symbol($order['order_amount']) }}
-                                        </div>
+                                        @if($order['parent_order_id'] == null)
+                                            <div>
+                                                <?php
+                                                    $vatStatus = $order->details ? $order->details[0]->gst_status : '';
+                                                    if($vatStatus == 'included'){
+                                                        $orderAmount = $order['order_amount'] - $order['total_tax_amount'];
+                                                    }else{
+                                                        $orderAmount = $order['order_amount'];
+                                                    }
+                                                ?>
+                                                {{ Helpers_set_symbol($orderAmount) }}
+                                            </div>
+                                        @else
+                                            <div>
+                                                <span class="badge badge-soft-info py-2 px-3">
+                                                    {{ 'AMC Service' }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                        
                                         @if($order->payment_status == 'paid')
                                             <span class="text-success">
                                                 {{translate('paid')}}

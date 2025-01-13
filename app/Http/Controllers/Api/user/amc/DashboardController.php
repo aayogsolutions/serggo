@@ -52,7 +52,7 @@ class DashboardController extends Controller
         {
             if(Order::where(['order_type' => 'amc','user_id' => Auth::guard('sanctum')->user()->id,'plan_activate' => 1])->exists())
             {
-                $order = Order::where(['order_type' => 'amc','user_id' => Auth::guard('sanctum')->user()->id,'plan_activate' => 1])->first();
+                $order = Order::where(['order_type' => 'amc','user_id' => Auth::guard('sanctum')->user()->id,'plan_activate' => 1])->orderBy('id', 'desc')->first();
             }
             
             if(isset($order))
