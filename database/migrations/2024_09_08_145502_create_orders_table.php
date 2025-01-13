@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id()->startingValue(1000000);
+            $table->bigInteger('parent_order_id')->nullable();
             $table->bigInteger('user_id');
             $table->enum('order_type',['goods','service','amc']);
             $table->decimal('order_amount',24,2);

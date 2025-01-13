@@ -251,8 +251,9 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
         Route::group(['prefix' => 'amc'], function()
         {
-            Route::get('checkout',[AmcOrderController::class,'CheckOut']);
+            Route::get('checkout/{id}',[AmcOrderController::class,'CheckOut']);
             Route::post('place-order',[AmcOrderController::class,'PlaceOrder']);
+            Route::get('book/checkout',[AmcOrderController::class,'BookedCheckOut']);
             Route::post('book',[AmcOrderController::class,'BookOrder']);
         });
     });

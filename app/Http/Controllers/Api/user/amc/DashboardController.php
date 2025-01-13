@@ -10,6 +10,7 @@ use App\Models\HomeSliderBanner;
 use App\Models\Order;
 use App\Models\Order_details;
 use App\Models\Service;
+use App\Models\ServiceTimeSlot;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -39,6 +40,12 @@ class DashboardController extends Controller
             $homeslider = HomeSliderBanner::where(['status' => 0,'ui_type' => 'amc'])->orderBy('priority', 'asc')->limit(6)->get();
         } catch (\Throwable $th) {
             $homeslider = [];
+        }
+
+        try {
+            $timeslot = ServiceTimeSlot::select('id','time')->where('status' , 1)->orderby('priority' , 'asc')->get();
+        } catch (\Throwable $th) {
+            $timeslot = [];
         }
 
         if(Auth::guard('sanctum')->check())
@@ -95,7 +102,8 @@ class DashboardController extends Controller
                                 'array' => [
                                     'Slider' => $homeslider,
                                     'order' => $order,
-                                    'plan' => $plan
+                                    'plan' => $plan,
+                                    'timeslot' => $timeslot
                                 ]
                             ]
                         ],200);
@@ -143,7 +151,8 @@ class DashboardController extends Controller
                     'banner' => $maindata->attechment ?? 'not found',
                     'array' => [
                         'Slider' => $homeslider,
-                        'plan' => $data
+                        'plan' => $data,
+                        'timeslot' => $timeslot
                     ]
                 ]
             ],200);

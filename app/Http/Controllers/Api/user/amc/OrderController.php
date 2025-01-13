@@ -23,12 +23,18 @@ use Illuminate\Support\Facades\Validator;
 class OrderController extends Controller
 {
     /**
-     * 
+     * @param int $id
      * @return JsonResponse
      */
-    public function Checkout() : JsonResponse
+    public function Checkout($id) : JsonResponse
     {
         try {
+            $plan = AMCPlan::where('id',$id)->with('PlanChild')->first();
+
+            foreach ($plan->PlanChild as $key => $value) {
+                $value->service_details = Service_data_formatting(json_decode($value->service_details),false,false);
+            }
+
             $cod = Helpers_get_business_settings('cash_on_delivery');
             if($cod['status'] == 0)
             {
@@ -48,7 +54,10 @@ class OrderController extends Controller
             $cod = [
                 "status" => 1
             ];
-            $delivery = [];
+            $digital_payment = [
+                "status" => 1
+            ];
+            $partial_payment = 1;
         }
 
         return response()->json([
@@ -59,6 +68,7 @@ class OrderController extends Controller
             ],
             'data' => [
                 'wallet' => Auth::user()->wallet_balance,
+                'plan' => $plan,
                 'cod' => $cod,
                 'digital_payment' => $digital_payment,
                 'partial_payment' => $partial_payment,
@@ -212,12 +222,113 @@ class OrderController extends Controller
      */
     public function BookOrder(Request $request) : JsonResponse
     {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|exists:orders,id',
+            'plan_service_id' => 'required|exists:amc_plan_services,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $order = Order::where('id' , $request->order_id)->with('OrderDetails')->first();
+
+        if($order->plan_activate == 0)
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order Already Booked'
+            ], 400);
+        }
+
+        $order_details = Order_details::where('order_id' , $request->order_id)->where('product_id' , $request->plan_service_id)->first();
+
+        if($order_details->service_activate == 1)
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Service Already Booked'
+            ], 400);
+        }
+
+        if($order_details->booked == $order_details->quantity)
+        {
+            $order_details->service_activate = 1;
+            $order_details->save();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Service Already Booked'
+            ], 400);
+        }
+
         try {
-            $order = Helpers_Orders_formatting(Order::where('id', $request->id)->with('OrderDetails')->first(), false, true, false);
+            
+            if(Order::exists())
+            {
+                $id = Order::max('id') + 1;
+            }else{
+                $id = 100001;
+            }
+
+            $service = Service::find(json_decode($order_details->product_details)->service_id);
+            
+            $adminOrder = new Order();
+            $adminOrder->id = $id;
+            $adminOrder->parent_order_id = $request->order_id;
+            $adminOrder->user_id = Auth::user()->id;
+            $adminOrder->order_type = 'service';
+            $adminOrder->order_status = 'pending';
+            $adminOrder->order_approval = 'pending';
+            $adminOrder->payment_method = 'amc_booking';
+            $adminOrder->delivery_address_id = $request->address_id;
+            $adminOrder->checked = 1;
+            $adminOrder->date = now();
+            $adminOrder->delivery_date = $request->date;
+            $adminOrder->delivery_timeslot_id = $request->time;
+            $adminOrder->delivery_address = json_encode(CustomerAddresses::find($request->address_id));
+            $adminOrder->save();
+
+
+            $adminOrderDetail = new Order_details();
+            $adminOrderDetail->order_id = $adminOrder->id;
+            $adminOrderDetail->product_id = $service->id;
+            $adminOrderDetail->product_details = json_encode($service);
+            $adminOrderDetail->price = $service->price;
+            $adminOrderDetail->quantity = 0;
+            $adminOrderDetail->save();
+
+            $order_details->booked = $order_details->booked + 1;
+
+            if($order_details->booked == $order_details->quantity)
+            {
+                $order_details->service_activate = 1;
+            }
+            $order_details->save();
+
+            if (!BusinessSetting::where(['key' => 'order_place_message'])->first()) {
+                BusinessSetting::updateOrInsert(['key' => 'order_place_message'], [
+                    'value' => json_encode([
+                        'status'  => 0,
+                        'message' => 'Order Placed Successfully',
+                    ]),
+                ]);
+            }
+
+            $notifications = new Notifications();
+            $notifications->type = 0;
+            $notifications->user_id = Auth::user()->id;
+            $notifications->title = helpers_get_business_settings('order_place_message')['message'];
+            $notifications->description = 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending';
+            $notifications->save();
+            
             return response()->json([
                 'status' => true,
-                'message' => 'Order Status',
-                'data' => $order
+                'message' => 'Service Booked Successfully',
+                'data' => $adminOrder->id
             ],200);
         } catch (\Exception $e) {
             return response()->json([
