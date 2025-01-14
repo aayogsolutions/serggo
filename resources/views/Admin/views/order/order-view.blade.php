@@ -627,6 +627,7 @@
                     </div>
 
                     <div class="card-body">
+                        <!-- Order Status -->
                         @if($order['order_type'] != 'amc')
                             <div class="hs-unfold w-100">
                                 <span class="d-block form-label font-bold mb-2">{{translate('Change Order Status')}}:</span>
@@ -664,6 +665,7 @@
                             </div>
                         @endif
 
+                        <!-- Payment Setup -->
                         @if($order['order_type'] != 'amc')
                             <div class="hs-unfold w-100 mt-3">
                                 <span class="d-block form-label font-bold mb-2">{{translate('Payment Status')}}:</span>
@@ -681,6 +683,7 @@
                             </div>
                         @endif
 
+                        <!-- Order category -->
                         @if($order['order_type'] == 'goods')
                             <div class="hs-unfold w-100 mt-3">
                                 <span class="d-block form-label font-bold mb-2">{{translate('Order category')}}:</span>
@@ -696,6 +699,7 @@
                             </div>
                         @endif
 
+                        <!-- Date & TimeSlot -->
                         @if($order['order_type'] != 'amc')
                             <div class="mt-3">
                                 <span class="d-block form-label mb-2 font-bold">{{translate('Delivery Date & Time')}}:</span>
@@ -721,7 +725,8 @@
                             </div>
                         @endif
 
-                        @if($order['order_type'] != 'amc')
+                        <!-- Assign Delivery Man -->
+                        @if($order['order_type'] != 'amc' && $order->delivered_by == 0 && $order->parent_order_id == null)
                             @if($order->delivered_by == 0 && $order->deliveryman_id == null)
                                 <div class="mt-3">
                                     <button class="btn btn--primary w-100" type="button" onclick="assignDeliveryMan({{ $order }})" data-toggle="modal">
@@ -773,7 +778,8 @@
                             @endif
                         @endif
 
-                        @if($order->delivered_by == 0 && $order->order_type != 'amc')
+                        <!-- Assign Service Man -->
+                        @if($order->delivered_by == 0 && $order->order_type != 'amc'  && $order->parent_order_id == null)
                             @foreach($order->OrderDetails as $ServiceMenArray)
                                 @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id == null)
                                     <div class="mt-3">
@@ -830,6 +836,60 @@
                             @endforeach
                         @endif
 
+                        <!-- Assign Service Man To AMC -->
+                        @if($order['order_type'] == 'service' && $order->parent_order_id != null)
+                            @if($order->delivered_by == 0 && $order->deliveryman_id == null)
+                                <div class="mt-3">
+                                    <button class="btn btn--primary w-100" type="button" onclick="assignDeliveryMan({{ $order }})" data-toggle="modal">
+                                        {{ translate('Assign Service man') }}
+                                    </button>
+                                </div>
+                            @endif
+
+                            @if ($order->delivered_by == 0 && $order->deliveryman_id != null)
+                                <div class="card mt-2">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">
+                                            <span class="card-header-icon">
+                                                <i class="tio-user"></i>
+                                            </span>
+                                            <span>{{ translate('Delivery Man') }}</span>
+                                            @if ($order->order_status != 'delivered')
+                                                <a type="button" href="#assign_delivey_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_delivey_man_modal">
+                                                    {{ translate('change') }}
+                                                </a>
+                                            @endif
+                                        </h5>
+                                        <div class="media align-items-center deco-none customer--information-single">
+                                            @php($deliveryvendor = App\Models\Vendor::find($order->deliveryman_id))
+                                            <div class="avatar avatar-circle">
+                                                <img class="avatar-img" src="{{ $deliveryvendor->image }}" alt="{{ translate('Image Description')}}" onerror="this.src='{{asset('assets/admin/img/160x160/img1.jpg')}}'">
+                                            </div>
+                                            <div class="media-body">
+                                                <span class="text-body d-block text-hover-primary mb-1">
+                                                    {{ $deliveryvendor->name }}
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center">
+                                                    <i class="tio-call-talking-quiet mr-2"></i>
+                                                    <a href="Tel:{{ $deliveryvendor->number }}">{{ $deliveryvendor->number }}</a>
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center">
+                                                    <i class="tio-email-outlined mr-2"></i>
+                                                    <a href="mailto:{{$deliveryvendor->email}}">{{$deliveryvendor->email}}</a>
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center"> 
+                                                    <span class="badge badge-soft-info py-2 px-3">
+                                                        {{$order->deliveryman_status == 1 ? 'Pending' : translate('accepted')}}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
+                        <!-- Customer Information -->
                         <div class="card mt-2">
                             <div class="card-body">
                                 <h5 class="form-label mb-3">
@@ -895,6 +955,7 @@
                             </div>
                         </div>
 
+                        <!-- Delivery Information -->
                         @if($order['order_type'] != 'amc')
                             <div class="card mt-2">
                                 <div class="card-body">

@@ -93,7 +93,7 @@ class DashboardController extends Controller
 
                         return response()->json([
                             'status' => true,
-                            'plan' => false,
+                            'plan' => true,
                             'data' => [
                                 'colorcode' => $maindata->background_color ?? '#079AC2',
                                 'fontcode' => $maindata->font_color ?? '#ffffff',
