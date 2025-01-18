@@ -593,6 +593,12 @@ class OrderController extends Controller
                 $order = Order::find($id);
                 $order->delivery_date = $request->date;
                 $order->save();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Delivery Date Assinged',
+                    'data' => []
+                ],200);
             }else{
                 return response()->json([
                     'status' => false,

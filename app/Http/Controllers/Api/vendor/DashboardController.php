@@ -303,28 +303,37 @@ class DashboardController extends Controller
             $vendor = auth('sanctum')->user();
             if(!is_null($request->from_date))
             {
-                $data = Order::where('vender_id', $vendor->id)->with(['OrderDetails'])->whereDate('created_at', '>=', Carbon::parse($request->to_date)->format('Y-m-d 00:00:00'))->whereDate('created_at', '<=', Carbon::parse($request->to_date)->format('Y-m-d 00:00:00'))->get();
+                $data = Order::where('vender_id', $vendor->id)->with(['OrderDetails'])->whereDate('created_at', '>=', Carbon::parse($request->from_date)->format('Y-m-d'))->whereDate('created_at', '<=', Carbon::parse($request->to_date)->format('Y-m-d'))->get();
             }
             else
             {
                 $data = Order::where('vender_id', $vendor->id)->with(['OrderDetails'])->get();
             }
 
-            foreach ($data as $key => $value) {
-                foreach ($value->OrderDetails as $key => $value1) {
-                    $list[] = [
-                        'order_id' => $value->id,
-                        'order_amount' => $value->order_amount,
-                        'product_name' => json_decode($value1->product_details)->name,
-                        'price' => $value1->price,
-                        'quantity' => $value1->quantity,
-                        'tax_amount' => $value1->tax_amount,
-                        'discount_on_product' => $value1->discount_on_product,
-                        'coupon_amount' => $value1->coupon_amount,
-                        'coupon_code' => $value->coupon_code,
-                        'advance_payment' => $value1->advance_payment,
-                    ];
+            if(count($data) != 0)
+            {
+                foreach ($data as $key => $value) {
+                    foreach ($value->OrderDetails as $key => $value1) {
+                        $list[] = [
+                            'order_id' => $value->id,
+                            'order_amount' => $value->order_amount,
+                            'product_name' => json_decode($value1->product_details)->name,
+                            'price' => $value1->price,
+                            'quantity' => $value1->quantity,
+                            'tax_amount' => $value1->tax_amount,
+                            'discount_on_product' => $value1->discount_on_product,
+                            'coupon_amount' => $value1->coupon_amount,
+                            'coupon_code' => $value->coupon_code,
+                            'advance_payment' => $value1->advance_payment,
+                        ];
+                    }
                 }
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No data found',
+                    'data' => []
+                ],408); 
             }
 
             $FileName = str_replace(' ', '_', $vendor->name).'_'.Carbon::now()->format('Y-m-d_H-i-s').'.xlsx';

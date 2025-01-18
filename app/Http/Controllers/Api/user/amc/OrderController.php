@@ -244,7 +244,7 @@ class OrderController extends Controller
             ], 400);
         }
 
-        $order_details = Order_details::where('order_id' , $request->order_id)->where('product_id' , $request->plan_service_id)->first();
+        $order_details = Order_details::where(['order_id' => $request->order_id , 'product_id' => $request->plan_service_id])->first();
 
         if($order_details->service_activate == 1)
         {
