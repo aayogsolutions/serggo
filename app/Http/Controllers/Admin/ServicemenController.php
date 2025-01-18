@@ -233,4 +233,69 @@ class ServicemenController extends Controller
         flash()->success(translate('priority updated!'));
         return back();
     }
+
+    // KYC Approval
+
+    /**
+     * @param Request $request
+     * @return Application|Factory|View
+     */
+    public function kycList(Request $request): View|Factory|Application
+    {
+        $queryParam = [];
+        $search = $request['search'];
+        if($request->has('search'))
+        {
+            $key = explode(' ', $request['search']);
+            $vendors = $this->vendor->where(['role' => '1', 'is_verify' => 1])->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                    $q->orWhere('id', 'like', "%{$value}%");
+                }
+            })->orderBy('id', 'DESC');
+            $queryParam = ['search' => $request['search']];
+        }else{
+            $vendors = $this->vendor->where(['role' => '1', 'is_verify' => 1])->orderBy('id','DESC');
+        }
+        $vendors = $vendors->paginate(Helpers_getPagination())->appends($queryParam);
+        
+        return view('Admin.views.service_men.kyc.list', compact('vendors','search'));
+    }
+
+    /**
+     * @param $id
+     * @return Application|Factory|View
+     */
+    public function kycView($id): View|Factory|Application
+    {
+        $vendor = $this->vendor->where('id' , $id)->first();
+        
+        return view('Admin.views.service_men.kyc.view', compact('vendor'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
+    public function kycStore(Request $request, $id): RedirectResponse
+    {
+        $request->validate([
+            'status' => 'required',
+            'reject_reason' => 'required_if:status,3'
+        ]);
+
+        $vendor = $this->vendor->find($id);
+        $vendor->is_verify = $request->status;
+        $vendor->kyc_remark = $request->reject_reason;
+        $vendor->save();
+
+        if ($request->status == 2) {
+            flash()->success(translate('Partner approved!'));
+        }else{
+            flash()->success(translate('Partner rejected!'));
+        }
+        
+        return redirect()->route('admin.service_men.kyc.list');
+    }
 }

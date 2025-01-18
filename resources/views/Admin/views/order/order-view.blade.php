@@ -853,7 +853,7 @@
                                             <span class="card-header-icon">
                                                 <i class="tio-user"></i>
                                             </span>
-                                            <span>{{ translate('Delivery Man') }}</span>
+                                            <span>{{ translate('Service Man') }}</span>
                                             @if ($order->order_status != 'delivered')
                                                 <a type="button" href="#assign_delivey_man_modal" class="text--base cursor-pointer ml-auto text-sm" data-toggle="modal" data-target="#assign_delivey_man_modal">
                                                     {{ translate('change') }}
@@ -876,6 +876,10 @@
                                                 <span class="text--title font-semibold d-flex align-items-center">
                                                     <i class="tio-email-outlined mr-2"></i>
                                                     <a href="mailto:{{$deliveryvendor->email}}">{{$deliveryvendor->email}}</a>
+                                                </span>
+                                                <span class="text--title font-semibold d-flex align-items-center">
+                                                    <i class="tio-money mr-2"></i>
+                                                    <a href="javascript:void(0);">{{$order->order_amount}}</a>
                                                 </span>
                                                 <span class="text--title font-semibold d-flex align-items-center"> 
                                                     <span class="badge badge-soft-info py-2 px-3">
@@ -1201,7 +1205,7 @@
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">{{translate('Assign Delivery Man')}}</h4>
+                    <h4 class="modal-title">{{$order->order_type == 'goods' ? translate('Assign Delivery Man') : translate('Assign Service Man')}}</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
                 @php($deliveryvendors = App\Models\Vendor::orderby('delivery_type', ($order->order_category == 'small' ? 'DESC' : 'ASC'))->get())
@@ -1216,6 +1220,15 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            @if($order->parent_order_id != null)
+                                <div class="col-md-12 my-2">
+                                    <label for="">
+                                        {{ translate('Price') }}
+                                    </label>
+                                    <input type="number" name="price" class="form-control" {{ $order->parent_order_id != null ? 'required' : '' }}>
+                                </div>
+                            @endif
 
                             <div class="col-md-12 my-2">
                                 <button type="submit" class="btn btn-primary">

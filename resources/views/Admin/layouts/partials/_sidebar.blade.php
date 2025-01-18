@@ -631,11 +631,20 @@
                                             </a>
                                         </li>
                                         
-                                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/service_men/list*')?'active':''}}">
-                                            <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('admin.service_men.list')}}" title="{{translate('service men list')}}">
+                                        <li class="nav-item {{Request::is('admin/service_men/list*')?'active':''}}">
+                                            <a class="nav-link" href="{{route('admin.service_men.list')}}" title="{{translate('service men list')}}">
                                                 <i class="tio-circle nav-indicator-icon"></i>
                                                 <span class="text-truncate">
                                                     {{translate('service men list')}}
+                                                </span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item {{Request::is('admin/service_men/kyc*')?'active':''}}">
+                                            <a class="nav-link" href="{{route('admin.service_men.kyc.list')}}" title="{{translate('service men KYC')}}">
+                                                <i class="tio-circle nav-indicator-icon"></i>
+                                                <span class="text-truncate">
+                                                    {{translate('service men KYC')}}
                                                 </span>
                                             </a>
                                         </li>

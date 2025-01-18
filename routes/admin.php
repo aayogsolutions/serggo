@@ -338,6 +338,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::get('priority', [ServicemenController::class, 'priority'])->name('priority');
             });
             
+            Route::group(['prefix' => 'kyc', 'as' => 'kyc.'], function () 
+            {
+                Route::get('list', [ServicemenController::class, 'kycList'])->name('list');
+                Route::get('view/{id}', [ServicemenController::class, 'kycView'])->name('view');
+                Route::post('store/{id}', [ServicemenController::class, 'kycStore'])->name('store');
+            });
         });
 
         Route::group(['prefix' => 'reviews', 'as' => 'reviews.'], function () {

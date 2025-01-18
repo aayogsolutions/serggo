@@ -64,7 +64,7 @@ class AuthController extends Controller
                 {
                     return response()->json([
                         'status' => true,
-                        'required' => 'registration_verification',
+                        'required' => 'business_verification',
                         'message' => 'Registration Required',
                         'data' => $vendor
                     ],200);
@@ -177,7 +177,7 @@ class AuthController extends Controller
                     $vendor->number = $request->number;
                     $vendor->otp = $otp;
                     $vendor->otp_expired_at = $expired_at;
-                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , json_decode($request->category))->pluck('title')->toArray());
+                    $vendor->category = json_encode($this->vendorcategory->WhereIn('id' , $request->category)->pluck('title')->toArray());
                     $vendor->role = '0';
                     $vendor->save();
 
@@ -189,7 +189,7 @@ class AuthController extends Controller
                             'otp' => $otp,
                             'number' => $request->number
                         ]
-                    ],201);
+                    ],200);
                 }else{
                     return response()->json([
                         'status' => false,
@@ -418,6 +418,10 @@ class AuthController extends Controller
             'aadhar_back' => 'required|image|mimes:jpeg,png,jpg|max:5000',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:5000',
             'gst_document' => 'required|image|mimes:jpeg,png,jpg|max:5000',
+            'bank_name' => 'required|string|max:255',
+            'bank_holder_name' => 'required|string|max:255',
+            'bank_ifsc' => 'required|string|max:255',
+            'bank_account_no' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -443,6 +447,10 @@ class AuthController extends Controller
                 
                 $vendor->is_verify = 1;
                 $vendor->fmc_token = $request->fmc_token;
+                $vendor->bank_name = $request->bank_name;
+                $vendor->bank_holder_name = $request->bank_holder_name;
+                $vendor->bank_ifsc = $request->bank_ifsc;
+                $vendor->bank_account_no = $request->bank_account_no;
                 $vendor->save();
     
                 $token = $vendor->createToken('auth_token')->plainTextToken;

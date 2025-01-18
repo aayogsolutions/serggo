@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\partner\{
     AuthController,
     DashboardController as PartnerDashboardController,
     InformationController as PartnerInformationController,
+    OrderController as PartnerOrderController
 };
 use App\Http\Controllers\Api\user\amc\DashboardController as AmcDashboardController;
 use App\Http\Controllers\Api\user\amc\OrderController as AmcOrderController;
@@ -37,8 +38,6 @@ use App\Http\Controllers\Api\vendor\{
     ProductController as VendorProductController,
     ProfileController
 };
-use App\Models\PaymentGateways;
-use Faker\Provider\ar_EG\Payment;
 use Illuminate\Support\Facades\Route;
 
 
@@ -267,6 +266,7 @@ Route::group(['middleware' => ['auth:sanctum']], function()
         Route::group(['prefix' => 'profile'], function()
         {
             Route::get('/data', [ProfileController::class,'VendorData']);
+            Route::post('/update', [ProfileController::class,'VendorUpdate']);
         });
 
         Route::group(['prefix' => 'product'], function()
@@ -308,6 +308,35 @@ Route::group(['middleware' => ['auth:sanctum']], function()
     Route::group(['prefix' => 'partner'], function()
     {
         Route::get('dashboard', [PartnerDashboardController::class,'Index']);
+        Route::get('/download/sale/report', [PartnerDashboardController::class,'SaleReport']);
+        Route::get('/notification/list', [PartnerDashboardController::class,'NotificationList']);
+
+        Route::group(['prefix' => 'profile'], function()
+        {
+            Route::get('/data', [ProfileController::class,'PartnerData']);
+            Route::post('/update', [ProfileController::class,'PartnerUpdate']);
+        });
+
+        Route::group(['prefix' => 'order'], function()
+        {
+            Route::get('/list', [PartnerOrderController::class,'OrderList']);
+            Route::get('/detail/{id}', [PartnerOrderController::class,'OrderDetail']);
+            Route::get('/approval/{id}', [PartnerOrderController::class,'OrderApproval']);
+            Route::get('/status/{id}', [PartnerOrderController::class,'OrderStatus']);
+            Route::post('/date/{id}', [PartnerOrderController::class,'OrderDate']);
+
+            Route::get('/search', [PartnerOrderController::class,'OrderSearch']);
+
+            Route::get('/timesolts', [PartnerOrderController::class,'OrderGetTimeSlots']);
+            Route::post('/timesolts/{id}', [PartnerOrderController::class,'OrderTimeSlots']);
+        });
+
+        Route::group(['prefix' => 'transaction'], function()
+        {
+            Route::post('/withdrawal/request', [PartnerDashboardController::class,'WithdrawalRequest']);
+            Route::get('/withdrawal/list', [PartnerDashboardController::class,'WithdrawalList']);
+            Route::get('/transaction/list', [PartnerDashboardController::class,'TransactionList']);
+        });
     });
 });
 

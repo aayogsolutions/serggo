@@ -118,7 +118,7 @@
                         <td>
                             <div class="text-center">
 
-                                {{ Helpers_set_symbol(\App\Models\Vender::total_order_amount($service_men->id)) }}
+                                {{ Helpers_set_symbol(\App\Models\Vendor::total_order_amount($service_men->id)) }}
 
                             </div>
                         </td>
@@ -126,9 +126,9 @@
                             <label class="toggle-switch my-0">
                                 <input type="checkbox" class="toggle-switch-input status-change-alert"
                                     id="stocksCheckbox{{ $service_men->id }}"
-                                    data-route="{{ route('admin.service_men.status', [$service_men->id, $service_men->status == 1 ? 0 : 1]) }}"
-                                    data-message="{{ $service_men->status? translate('you_want_to_change_the_status_for_this_customer'): translate('you_want_to_change_the_status_for_this_customer') }}"
-                                    {{ $service_men->status == 0? 'checked' : '' }}>
+                                    data-route="{{ route('admin.service_men.status', [$service_men->id, $service_men->is_block == 1 ? 0 : 1]) }}"
+                                    data-message="{{ $service_men->is_block? translate('you_want_to_change_the_status_for_this_customer'): translate('you_want_to_change_the_status_for_this_customer') }}"
+                                    {{ $service_men->is_block == 0? 'checked' : '' }}>
                                 <span class="toggle-switch-label mx-auto text">
                                     <span class="toggle-switch-indicator"></span>
                                 </span>

@@ -335,6 +335,10 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'aadhar_no' => 'required|numeric|digits:12',
             'number' => 'required|numeric|digits:10',
+            'bank_name' => 'required|string|max:255',
+            'bank_holder_name' => 'required|string|max:255',
+            'bank_ifsc' => 'required|string|max:255',
+            'bank_account_no' => 'required|max:255',
             'aadhar_front' => 'required|image|mimes:jpeg,png,jpg|max:5000',
             'aadhar_back' => 'required|image|mimes:jpeg,png,jpg|max:5000',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:5000',
@@ -362,6 +366,10 @@ class AuthController extends Controller
                 
                 $vendor->is_verify = 1;
                 $vendor->fmc_token = $request->fmc_token;
+                $vendor->bank_name = $request->bank_name;
+                $vendor->bank_holder_name = $request->bank_holder_name;
+                $vendor->bank_ifsc = $request->bank_ifsc;
+                $vendor->bank_account_no = $request->bank_account_no;
                 $vendor->save();
 
                 $token = $vendor->createToken('auth_token')->plainTextToken;

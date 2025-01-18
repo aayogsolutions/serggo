@@ -46,6 +46,10 @@ return new class extends Migration
             $table->tinyInteger('is_block')->default(0)->comment('0 = active | 1 = inactive');
             $table->string('fmc_token')->nullable();
             $table->integer('advance')->default(0);
+            $table->string('bank_name')->nullable();
+            $table->string('bank_holder_name')->nullable();
+            $table->string('bank_ifsc')->nullable();
+            $table->string('bank_account_no')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

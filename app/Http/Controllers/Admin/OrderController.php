@@ -452,6 +452,9 @@ class OrderController extends Controller
         }
         
         $order->deliveryman_id = $request->delivery_man;
+        if($request->price != null){
+            $order->order_amount = $request->price;
+        }
         $order->save();
         
         // $notifications = new Notifications();
