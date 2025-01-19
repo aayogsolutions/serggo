@@ -19,10 +19,12 @@ use App\Models\{
     User,
     Vendor
 };
+use App\Traits\PushNotification;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
+    use PushNotification;
     public function __construct(
         private Products $product,
         private Order $order,
@@ -580,6 +582,13 @@ class OrderController extends Controller
                     $adminOrder->save();
     
                     $order_ids[] = $adminOrder->id;
+
+                    $notifications = new Notifications();
+                    $notifications->type = 1;
+                    $notifications->user_id = $key;
+                    $notifications->title = 'You Got New Order';
+                    $notifications->description = 'You got new order complete it fast';
+                    $notifications->save();
                 }
 
                 if($request->coupon_applied == 0)
@@ -606,6 +615,12 @@ class OrderController extends Controller
                 $notifications->description = 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending';
                 $notifications->save();
 
+                $UserToken = Auth::user()->fmc_token;
+                if($UserToken != null)
+                {
+                    $this->sendPushNotification($UserToken, helpers_get_business_settings('order_place_message')['message'] , 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending');
+                }
+                
                 $no_of_order++;
             }
         } catch (\Throwable $th) {
