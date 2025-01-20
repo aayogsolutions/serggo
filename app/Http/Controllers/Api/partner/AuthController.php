@@ -45,24 +45,8 @@ class AuthController extends Controller
             {
                 $vendor = $this->vendor->find(Auth::guard('vendors')->user()->id);
                 
-                if($vendor->number_verfiy == 0)
+                if($vendor->number_verfiy == 1)
                 {
-                    $vendor->fmc_token = $request->fmc_token;
-                    $vendor->save();
-                    $token = $vendor->createToken('auth_token')->plainTextToken;
-
-                    return response()->json([
-                        'status' => true,
-                        'required' => false,
-                        'message' => 'Logged in successfully',
-                        'data' => [
-                            'token' => $token,
-                            'user' => $vendor,
-                        ]
-                    ],200);
-                    
-                }else {
-
                     $otp = rand(1000, 9999);
                     $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
 
@@ -80,7 +64,35 @@ class AuthController extends Controller
                         ]
                     ],200);
                 }
-                
+                elseif($vendor->is_verify == 0) 
+                {
+                    $vendor->fmc_token = $request->fmc_token;
+                    $vendor->save();
+
+                    return response()->json([
+                        'status' => true,
+                        'required' => 'kyc_verification',
+                        'message' => 'KYC Pending',
+                        'data' => [
+                            'user' => $vendor,
+                        ]
+                    ],200);
+                }
+                else{
+                    $vendor->fmc_token = $request->fmc_token;
+                    $vendor->save();
+                    $token = $vendor->createToken('auth_token')->plainTextToken;
+
+                    return response()->json([
+                        'status' => true,
+                        'required' => false,
+                        'message' => 'Logged in successfully',
+                        'data' => [
+                            'token' => $token,
+                            'user' => $vendor,
+                        ]
+                    ],200);
+                }
             }else{
                 return response()->json([
                     'status' => false,
@@ -214,7 +226,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Information',
+                'message' => 'Enter Valid Informationb '.$th->getMessage(),
                 'data' => [],
             ],401);
         }

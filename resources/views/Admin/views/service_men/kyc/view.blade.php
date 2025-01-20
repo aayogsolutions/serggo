@@ -210,7 +210,7 @@
                         </div>
                     @endif
                     <div class="card-footer">
-                        <form action="{{ route('admin.sevice_men.kyc.store', $vendor->id) }}" method="post">
+                        <form action="{{ route('admin.service_men.kyc.store', $vendor->id) }}" method="post">
                             @csrf
                             <button type="submit" class="btn btn-block btn-primary" name="status" value="2">
                                 {{ translate('Save') }}

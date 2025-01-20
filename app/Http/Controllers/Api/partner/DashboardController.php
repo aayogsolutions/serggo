@@ -9,6 +9,7 @@ use App\Models\Order_details;
 use App\Models\WithdrawalRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,7 +25,7 @@ class DashboardController extends Controller
      */
     public function Index() : JsonResponse
     {
-        try {
+        // try {
             $vendor = auth('sanctum')->user();
             
             if($vendor->is_verify == 0)
@@ -33,8 +34,10 @@ class DashboardController extends Controller
                     'status' => false,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'You Need to Submit KYC',
-                    'data' => []
-                ],200);
+                    'data' => [
+                        'vendor' => $vendor
+                    ]
+                ],408);
             }elseif ($vendor->is_verify == 1) 
             {
                 return response()->json([
@@ -51,21 +54,21 @@ class DashboardController extends Controller
 
                 $order2 = Order_details::where(['service_man_id' => $vendor->id])->with('OrderDetails')->get();
 
-                $orders = array_merge($order1->toArray(), $order2->toArray());
-
+                $orders = Arr::collapse([$order1, $order2]);
+                
                 return response()->json([
                     'status' => true,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'Dashboard',
                     'data' => [
                         'vendor' => $vendor,
-                        'order' => Helpers_Orders_formatting($orders,true)
+                        'order' => Helpers_Orders_formatting($orders,true,true)
                     ]
                 ],200);
             }elseif ($vendor->is_verify == 3) 
             {
                 return response()->json([
-                    'status' => false,
+                    'status' => true,
                     'is_verify' => $vendor->is_verify,
                     'message' => 'KYC Rejected by Admin',
                     'data' => [
@@ -73,13 +76,13 @@ class DashboardController extends Controller
                     ]
                 ],200);
             }
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => false,
-                'message' => 'unexpected error'.$th->getMessage(),
-                'data' => []
-            ],408);
-        }
+        // } catch (\Throwable $th) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'unexpected error '.$th->getMessage(),
+        //         'data' => []
+        //     ],408);
+        // }
     }
 
     /**

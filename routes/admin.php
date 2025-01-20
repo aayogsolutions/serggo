@@ -323,7 +323,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             });
         });
 
-        Route::group(['prefix' => 'service_men', 'as' => 'service_men.'], function () {
+        Route::group(['prefix' => 'service_men', 'as' => 'service_men.'], function () 
+        {
             Route::get('list', [ServicemenController::class, 'list'])->name('list');
             Route::get('view/{user_id}', [ServicemenController::class, 'view'])->name('view');
             Route::get('status/{id}/{status}', [ServicemenController::class, 'status'])->name('status');
