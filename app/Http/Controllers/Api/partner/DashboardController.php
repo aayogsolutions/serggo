@@ -25,7 +25,7 @@ class DashboardController extends Controller
      */
     public function Index() : JsonResponse
     {
-        // try {
+        try {
             $vendor = auth('sanctum')->user();
             
             if($vendor->is_verify == 0)
@@ -76,13 +76,13 @@ class DashboardController extends Controller
                     ]
                 ],200);
             }
-        // } catch (\Throwable $th) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'unexpected error '.$th->getMessage(),
-        //         'data' => []
-        //     ],408);
-        // }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
     }
 
     /**

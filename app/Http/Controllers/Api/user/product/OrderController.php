@@ -616,9 +616,21 @@ class OrderController extends Controller
                 $notifications->save();
 
                 $UserToken = Auth::user()->fmc_token;
-                if($UserToken != null)
-                {
-                    $this->sendPushNotification($UserToken, helpers_get_business_settings('order_place_message')['message'] , 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending');
+                $order = $this->order->find($adminOrder->id);
+                $value = helpers_get_business_settings('order_place_message')['message'];
+    
+                try {
+                    if ($value) {
+                        $data = [
+                            'title' => 'Order',
+                            'description' => $value,
+                            'order_id' => $order->id,
+                            'image' => '',
+                            'type' => 'order'
+                        ];
+                        Helpers_send_push_notif_to_device($UserToken, $data);
+                    }
+                } catch (\Exception $e) {
                 }
                 
                 $no_of_order++;

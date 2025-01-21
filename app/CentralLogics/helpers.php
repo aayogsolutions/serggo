@@ -491,30 +491,113 @@ if(!function_exists('Helpers_order_status_update_message')) {
 }
 
 if(!function_exists('Helpers_send_push_notif_to_device')) {
-    function Helpers_send_push_notif_to_device($value,$user_name=null,$store_name=null,$delivery_man_name=null,$transaction_id=null,$order_id=null)
+    function Helpers_send_push_notif_to_device($fcm_token, $data)
     {
-        try {
-            $data = $value;
-            if ($value) {
-                if($user_name){
-                    $data =  str_replace("{userName}", $user_name, $data);
-                }
+        /*https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send*/
+        $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
+        /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
 
-                if($store_name){
-                    $data =  str_replace("{storeName}", $store_name, $data);
-                }
+        $url = "https://fcm.googleapis.com/fcm/send";
+        $header = array("authorization: key=" . $key . "",
+            "content-type: application/json"
+        );
 
-                if($delivery_man_name){
-                    $data =  str_replace("{deliveryManName}", $delivery_man_name, $data);
+        $postdata = '{
+            "to" : "' . $fcm_token . '",
+            "mutable-content": "true",
+            "data" : {
+                "title":"' . $data['title'] . '",
+                "body" : "' . $data['description'] . '",
+                "image" : "' . $data['image'] . '",
+                "order_id":"' . $data['order_id'] . '",
+                "type":"' . $data['type'] . '",
+                "is_read": 0
+                },
+                "notification" : {
+                "title" :"' . $data['title'] . '",
+                "body" : "' . $data['description'] . '",
+                "image" : "' . $data['image'] . '",
+                "order_id":"' . $data['order_id'] . '",
+                "title_loc_key":"' . $data['order_id'] . '",
+                "type":"' . $data['type'] . '",
+                "is_read": 0,
+                "icon" : "new",
+                "sound" : "default"
                 }
+        }';
 
-                if($order_id){
-                    $data =  str_replace("{orderId}", $order_id, $data);
+        $ch = curl_init();
+        $timeout = 120;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+        // Get URL content
+        $result = curl_exec($ch);
+        // close handle to release resources
+        curl_close($ch);
+
+        return $result;
+    }
+}
+
+
+if(!function_exists('Helpers_send_push_notif_to_topic')) {
+    function Helpers_send_push_notif_to_topic($data)
+    {
+        /*https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send*/
+        $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
+        /*$topic = BusinessSetting::where(['key' => 'fcm_topic'])->first()->value;*/
+        /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
+
+        $url = "https://fcm.googleapis.com/fcm/send";
+        $header = array("authorization: key=" . $key . "",
+            "content-type: application/json"
+        );
+
+        $image = asset('storage/app/public/notification') . '/' . $data['image'];
+        $postdata = '{
+            "to" : "/topics/grofresh",
+            "mutable-content": "true",
+            "data" : {
+                "title" :"' . $data['title'] . '",
+                "body" : "' . $data['description'] . '",
+                "image" : "' . $image . '",
+                "order_id":"' . $data['order_id'] . '",
+                "type":"' . $data['type'] . '",
+                "is_read": 0
+                },
+                "notification" : {
+                "title" :"' . $data['title'] . '",
+                "body" : "' . $data['description'] . '",
+                "image" : "' . $image . '",
+                "order_id":"' . $data['order_id'] . '",
+                "title_loc_key":"' . $data['order_id'] . '",
+                "type":"' . $data['type'] . '",
+                "is_read": 0,
+                "icon" : "new",
+                "sound" : "default"
                 }
-            }
-            return $data;
-        } catch (\Throwable $th) {
-        }
+        }';
+
+        $ch = curl_init();
+        $timeout = 120;
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+        // Get URL content
+        $result = curl_exec($ch);
+        // close handle to release resources
+        curl_close($ch);
+
+        return $result;
     }
 }
 
