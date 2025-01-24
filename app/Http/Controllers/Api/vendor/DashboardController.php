@@ -41,7 +41,6 @@ class DashboardController extends Controller
             {
                 return response()->json([
                     'status' => false,
-                    'is_verify' => $vendor->is_verify,
                     'message' => 'You Need to Submit KYC',
                     'data' => [
                         'banner' => $homeslider,
