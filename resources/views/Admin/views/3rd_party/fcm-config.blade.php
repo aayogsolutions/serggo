@@ -49,8 +49,7 @@
                         @php($key=\App\Models\BusinessSetting::where('key','push_notification_key')->first()->value)
                         <div class="form-group">
                             <label class="input-label">{{translate('server key')}}</label>
-                            <textarea name="push_notification_key" class="form-control"
-                                      required>{{env('APP_MODE')!='demo'?$key:''}}</textarea>
+                            <textarea name="push_notification_key" class="form-control" required>{{ $key }}</textarea>
                         </div>
 
                         <div class="row d-none">

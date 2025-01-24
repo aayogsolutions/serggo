@@ -437,7 +437,7 @@ class ProductController extends Controller
             'sub_category_id' => 'required',
             'brand' => 'required',
             'unit' => 'required',
-            'images' => 'required',
+            'images' => 'nullable',
             'tags' => 'required',
             'discount' => 'required',
             'tax' => 'required|numeric|min:0',
@@ -448,7 +448,7 @@ class ProductController extends Controller
             'is_installable' => 'required',
             'installable_name' => 'required_if:is_installable,0',
             'installable_description' => 'nullable',
-            'imageCount' => 'required'
+            'imageCount' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {

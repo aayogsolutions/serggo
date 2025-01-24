@@ -458,6 +458,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => true,
                     'required' => false,
+                    'is_verify' => $vendor->is_verify,
                     'message' => 'Logged in successfully',
                     'data' => [
                         'token' => $token,
