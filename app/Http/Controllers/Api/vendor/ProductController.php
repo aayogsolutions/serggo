@@ -457,6 +457,8 @@ class ProductController extends Controller
             ], 406);
         }
 
+        $product = Products::find($id);
+
         try {
             
             // if ($request['discount_type'] == 'percent') {
@@ -472,21 +474,24 @@ class ProductController extends Controller
             $imageCount = $request->imageCount;
             $imageNames = [];
 
-            if(isset($request->oldimages)  && $request->oldimages != null)
+            if($product->image != null && $product->image != '[]')
             {
-                $old = json_decode($request->oldimages);
+                $old = json_decode($product->image);
                 foreach ($old as $key => $value) {
                     $imageNames[] = $value;
                 }
             }
 
-            for ($i = 1; $i <= $imageCount; $i++) {
-                $imageKey = "image_{$i}";
-                if ($request->hasFile($imageKey)) {
-                    $file = $request->file($imageKey);
-                    $imageData = Helpers_upload('Images/productImages/', $file->extension() , $file);
-                    $imageNames[] = $imageData;
-                    
+            if($imageCount != 0)
+            {
+                for ($i = 1; $i <= $imageCount; $i++) {
+                    $imageKey = "image_{$i}";
+                    if ($request->hasFile($imageKey)) {
+                        $file = $request->file($imageKey);
+                        $imageData = Helpers_upload('Images/productImages/', $file->extension() , $file);
+                        $imageNames[] = $imageData;
+                        
+                    }
                 }
             }
             $imageData = json_encode($imageNames);

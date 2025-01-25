@@ -82,6 +82,7 @@ class AuthController extends Controller
                 if(Auth::guard('vendors')->attempt([
                     'number' => $request->number,
                     'password' => $request->password,
+                    'role' => '0'
                 ]))
                 {
                     $vendor->fmc_token = $request->fmc_token;

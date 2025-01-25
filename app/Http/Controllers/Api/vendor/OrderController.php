@@ -53,7 +53,6 @@ class OrderController extends Controller
 
         try {
             $ordercount = Order::where(['vender_id' => $vendor->id, 'order_type' => 'goods'])->count();
-            $totalpage = ceil($ordercount / $limit);
 
             if($request->page == 1)
             {

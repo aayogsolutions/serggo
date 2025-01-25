@@ -41,6 +41,7 @@ class AuthController extends Controller
             if(Auth::guard('vendors')->attempt([
                 'number' => $request->number,
                 'password' => $request->password,
+                'role' => '1'
             ]))
             {
                 $vendor = $this->vendor->find(Auth::guard('vendors')->user()->id);
@@ -58,6 +59,7 @@ class AuthController extends Controller
                         'status' => true,
                         'required' => 'number_verification',
                         'message' => 'Otp Send Successfully',
+                        'is_verify' => $vendor->is_verify,
                         'data' => [
                             'otp' => $otp,
                             'number' => $vendor->number

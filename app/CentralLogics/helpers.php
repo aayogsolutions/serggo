@@ -11,6 +11,10 @@ use App\Models\{
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Messaging;
+use Kreait\Firebase\Factory;
 
 if(! function_exists('Helpers_get_business_settings')) {
     function Helpers_get_business_settings($name)
@@ -493,54 +497,23 @@ if(!function_exists('Helpers_order_status_update_message')) {
 if(!function_exists('Helpers_send_push_notif_to_device')) {
     function Helpers_send_push_notif_to_device($fcm_token, $data)
     {
-        /*https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send*/
-        $key = BusinessSetting::where(['key' => 'push_notification_key'])->first()->value;
-        /*$project_id = BusinessSetting::where(['key' => 'fcm_project_id'])->first()->value;*/
+        $credentialsPath = public_path('serggo-e3be2-firebase-adminsdk-bg8br-bea65326fa.json');
+        
+        if (is_null($credentialsPath) || !file_exists($credentialsPath)) {
+            throw new \Exception("Firebase credentials file is missing or the path is incorrect.");
+        }
 
-        $url = "https://fcm.googleapis.com/fcm/send";
-        $header = array("authorization: key=" . $key . "",
-            "content-type: application/json"
-        );
+        // Create Firebase instance with service account
+        $firebase = (new Factory)->withServiceAccount($credentialsPath);
 
-        $postdata = '{
-            "to" : "' . $fcm_token . '",
-            "mutable-content": "true",
-            "data" : {
-                "title":"' . $data['title'] . '",
-                "body" : "' . $data['description'] . '",
-                "image" : "' . $data['image'] . '",
-                "order_id":"' . $data['order_id'] . '",
-                "type":"' . $data['type'] . '",
-                "is_read": 0
-                },
-                "notification" : {
-                "title" :"' . $data['title'] . '",
-                "body" : "' . $data['description'] . '",
-                "image" : "' . $data['image'] . '",
-                "order_id":"' . $data['order_id'] . '",
-                "title_loc_key":"' . $data['order_id'] . '",
-                "type":"' . $data['type'] . '",
-                "is_read": 0,
-                "icon" : "new",
-                "sound" : "default"
-                }
-        }';
+        $messaging = $firebase->createMessaging();
 
-        $ch = curl_init();
-        $timeout = 120;
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        $notification = Notification::create($data['title'], $data['body']);
+        $message = CloudMessage::new()->withTarget('token',$fcm_token)->withNotification($notification);
 
-        // Get URL content
-        $result = curl_exec($ch);
-        // close handle to release resources
-        curl_close($ch);
-
-        return $result;
+        $res = $messaging->send($message);
+            
+        return $res;
     }
 }
 

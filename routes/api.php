@@ -319,8 +319,8 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
         Route::group(['prefix' => 'order'], function()
         {
-            Route::get('/list', [PartnerOrderController::class,'OrderList']);
-            Route::get('/detail/{id}', [PartnerOrderController::class,'OrderDetail']);
+            Route::get('/completed/list', [PartnerOrderController::class,'OrderList']);
+            Route::get('/ongoing/list', [PartnerOrderController::class,'OrderOngoingList']);
             Route::get('/approval/{id}', [PartnerOrderController::class,'OrderApproval']);
             Route::get('/status/{id}', [PartnerOrderController::class,'OrderStatus']);
             Route::post('/date/{id}', [PartnerOrderController::class,'OrderDate']);

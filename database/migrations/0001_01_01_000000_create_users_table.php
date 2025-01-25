@@ -33,7 +33,7 @@ return new class extends Migration
             $table->tinyInteger('number_verify')->default(0)->comment("0 = Required | 1 = Not required");
             $table->string('gst_name')->nullable();
             $table->string('gst_number',30)->nullable();
-            $table->string('fmc_token')->nullable();
+            $table->mediumText('fmc_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

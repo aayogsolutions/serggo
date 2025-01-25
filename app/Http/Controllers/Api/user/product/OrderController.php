@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 class OrderController extends Controller
 {
     use PushNotification;
+    
     public function __construct(
         private Products $product,
         private Order $order,
@@ -186,7 +187,8 @@ class OrderController extends Controller
             $remaining_wallet_amount = $request->wallet_applied;
             $no_of_order = 0;
 
-            foreach ($orderedproducts as $key => $products) {
+            foreach ($orderedproducts as $key => $products) 
+            {
                 if($this->order->exists())
                 {
                     $id = $this->order->max('id') + 1;
@@ -614,19 +616,18 @@ class OrderController extends Controller
                 $notifications->title = helpers_get_business_settings('order_place_message')['message'];
                 $notifications->description = 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending';
                 $notifications->save();
-
+                
                 $UserToken = Auth::user()->fmc_token;
-                $order = $this->order->find($adminOrder->id);
                 $value = helpers_get_business_settings('order_place_message')['message'];
     
+                $error1 = [];
+                $error2 = [];
                 try {
-                    if ($value) {
+                    if (!is_null($UserToken)) {
                         $data = [
-                            'title' => 'Order',
-                            'description' => $value,
-                            'order_id' => $order->id,
-                            'image' => '',
-                            'type' => 'order'
+                            "device_token" => $UserToken,
+                            "title" => $value,
+                            "body" => 'Your Order No. '.$adminOrder->id.' Generated Successfully Approval Pending'
                         ];
                         Helpers_send_push_notif_to_device($UserToken, $data);
                     }
@@ -646,7 +647,7 @@ class OrderController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Order Placed',
-            'data' => $order_ids
+            'data' => $order_ids,
         ], 201);
     }
 
