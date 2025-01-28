@@ -52,9 +52,9 @@ class OrderController extends Controller
         $limit = $request->ItemCount;
 
         try {
-            $order1 = Order::where(['deliveryman_id' => $vendor->id])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
+            $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-            $order2 = Order_details::where(['service_man_id' => $vendor->id])->with('OrderDetails' , function($q) {
+            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0])->with('OrderDetails' , function($q) {
                 return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
             })->get();
 
@@ -105,9 +105,9 @@ class OrderController extends Controller
         }
 
         try {
-            $order1 = Order::where(['deliveryman_id' => $vendor->id])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
+            $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-            $order2 = Order_details::where(['service_man_id' => $vendor->id])->with('OrderDetails' , function($q) {
+            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0])->with('OrderDetails' , function($q) {
                 return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
             })->get();
 
@@ -123,6 +123,67 @@ class OrderController extends Controller
             ],200);
             
 
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function OrderDeliveryAccept(int $id) : JsonResponse
+    {
+        try {
+            $order = Order::find($id);
+            $order->deliveryman_status = 0;
+            $order->save();
+            return response()->json([
+                'status' => true,
+                'message' => 'Order Accepted',
+                'data' => []
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error '.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function OrderServiceAccept(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|numeric|exists:orders,id',
+            'service_id' => 'required|numeric|exists:order_details,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $order = Order_details::where(['id' => $request->service_id , 'order_id' => $request->order_id])->first();
+            $order->serviceman_status = 0;
+            $order->save();
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Order Accepted',
+                'data' => []
+            ],200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

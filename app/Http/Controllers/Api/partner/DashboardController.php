@@ -50,9 +50,9 @@ class DashboardController extends Controller
                 ],200);
             }elseif ($vendor->is_verify == 2) 
             {
-                $order1 = Order::where(['deliveryman_id' => $vendor->id])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
+                $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 1])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-                $order2 = Order_details::where(['service_man_id' => $vendor->id])->with('OrderDetails' , function($q) {
+                $order2 = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
                     return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
                 })->get();
 

@@ -179,6 +179,9 @@ Route::group(['middleware' => ['auth:sanctum']], function()
         // Referral Info Route
         Route::get('/referral/info', [CustomerController::class,'ReferralInfo']);
 
+        // Add Wallet Routes
+        Route::post('/add/wallet/balance', [CustomerController::class,'AddWalletBalance']);
+
         Route::group(['prefix' => 'product'], function()
         {
             Route::get('/cart', [CartController::class,'Cart']);
@@ -319,9 +322,13 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
         Route::group(['prefix' => 'order'], function()
         {
+            Route::get('/accept/delivery/{id}', [PartnerOrderController::class,'OrderDeliveryAccept']);
+            Route::get('/accept/service', [PartnerOrderController::class,'OrderServiceAccept']);
             Route::get('/completed/list', [PartnerOrderController::class,'OrderList']);
             Route::get('/ongoing/list', [PartnerOrderController::class,'OrderOngoingList']);
-            Route::get('/approval/{id}', [PartnerOrderController::class,'OrderApproval']);
+
+
+            
             Route::get('/status/{id}', [PartnerOrderController::class,'OrderStatus']);
             Route::post('/date/{id}', [PartnerOrderController::class,'OrderDate']);
 

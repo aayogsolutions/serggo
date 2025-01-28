@@ -270,7 +270,7 @@ class CustomerController extends Controller
     }
 
     /**
-     * 
+     * @param Request $request
      * @return JsonResponse
      */
     public function Coupon(Request $request) : JsonResponse
@@ -391,6 +391,52 @@ class CustomerController extends Controller
             return response()->json([
                 'status' => false,
                 'error' => 'Unexpected error',
+                'data' => []
+            ],409);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function AddWalletBalance(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'amount' => 'required|numeric',
+            'transaction_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            
+            $status = Helpers_generate_wallet_transaction(Auth::user()->id,$request->transaction_id,'Add_Amount_In_Wallet',0,$request->amount,$request->amount);
+
+            if($status)
+            {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Wallet Balance Added Successfully',
+                    'data' => Auth::user()->wallet_balance
+                ],200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unexpected error',
+                    'data' => []
+                ],409);
+            }
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Unexpected error '.$th->getMessage(),
                 'data' => []
             ],409);
         }
