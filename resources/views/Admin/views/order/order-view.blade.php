@@ -1242,58 +1242,25 @@
         </div>
     </div>
 
-    @if($order->offline_payment)
-        <div class="modal fade" id="payment_verify_modal">
-            <div class="modal-dialog modal-lg offline-details">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center">
-                        <h4 class="modal-title pb-2">{{translate('Payment_Verification')}}</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                    </div>
-                    <div class="card">
-                        <div class="modal-body mx-2">
-                            <p class="text-danger">{{translate('Please Check & Verify the payment information whether it is correct or not before confirm the order.')}}</p>
-                            <h5>{{translate('customer_Information')}}</h5>
-
-                            <div class="card-body">
-                                @if($order->is_guest == 0)
-                                    <p>{{ translate('name') }} : {{ $order->customer ? $order->customer->f_name.' '. $order->customer->l_name: ''}} </p>
-                                    <p>{{ translate('contact') }} : {{ $order->customer ? $order->customer->phone: ''}}</p>
-                                @else
-                                    <p>{{ translate('guest_customer') }} </p>
-                                @endif
-                            </div>
-
-                            <h5>{{translate('Payment_Information')}}</h5>
-                            @php($payment = json_decode($order->offline_payment?->payment_info, true))
-                            <div class="row card-body">
-                                <div class="col-md-6">
-                                    <p>{{ translate('Payment_Method') }} : {{ $payment['payment_name'] }}</p>
-                                    @foreach($payment['method_fields'] as $fields)
-                                        @foreach($fields as $fieldKey => $field)
-                                            <p>{{ $fieldKey }} : {{ $field }}</p>
-                                        @endforeach
-                                    @endforeach
-                                </div>
-                                <div class="col-md-6">
-                                    <p>{{ translate('payment_note') }} : {{ $payment['payment_note'] }}</p>
-                                    @foreach($payment['method_information'] as $infos)
-                                        @foreach($infos as $infoKey => $info)
-                                            <p>{{ $infoKey }} : {{ $info }}</p>
-                                        @endforeach
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="btn--container justify-content-end my-2 mx-3">
-                        <a type="reset" class="btn btn--reset verify-offline-payment" data-status="2">{{ translate('Payment_Did_Not_Received') }}</a>
-                        <a type="submit" class="btn btn--primary verify-offline-payment" data-status="1">{{ translate('Yes,_Payment_Received') }}</a>
+    
+    <div class="modal fade" id="otp-modal">
+        <div class="modal-dialog offline-details">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center">
+                    <h4 class="modal-title pb-2">OTP</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="modal-body mx-2">
+                        <h1 id="otp-text"></h1>
                     </div>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
+    
 @endsection
 
 @push('script_2')
@@ -1329,8 +1296,15 @@
                             order_status : order_status,
                         },
                         success: function (data) {
-                            if (data.status == true) {
-                                location.reload();
+                            if (data.status == true) 
+                            {
+                                if(data.message == 'otp sended')
+                                {
+                                    $('#otp-modal').modal('show');
+                                    $('#otp-text').text(data.otp);
+                                }else{
+                                    location.reload();
+                                }
                             }
                         },
                     });

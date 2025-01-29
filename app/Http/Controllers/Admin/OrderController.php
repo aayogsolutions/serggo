@@ -13,6 +13,7 @@ use App\Models\{
     Order_details,
     Products,
     OfflinePayment,
+    OrderOTPS,
     OrderPartialPayment,
     Referral_setting,
     TimeSlot,
@@ -564,9 +565,9 @@ class OrderController extends Controller
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|RedirectResponse
      */
-    public function status(Request $request): \Illuminate\Http\JsonResponse
+    public function status(Request $request): JsonResponse|RedirectResponse
     {
         $order = $this->order->where('id',$request->id)->with('OrderDetails')->first();
 
@@ -715,20 +716,33 @@ class OrderController extends Controller
                 return response()->json(['status' => true]);
             }
 
-            if (!BusinessSetting::where(['key' => 'out_for_delivery_message'])->first()) {
-                BusinessSetting::updateOrInsert(['key' => 'out_for_delivery_message'], [
-                    'value' => json_encode([
-                        'status'  => 0,
-                        'message' => 'Order Out for Delivery',
-                    ]),
-                ]);
-            }
+            // if (!BusinessSetting::where(['key' => 'out_for_delivery_message'])->first()) {
+            //     BusinessSetting::updateOrInsert(['key' => 'out_for_delivery_message'], [
+            //         'value' => json_encode([
+            //             'status'  => 0,
+            //             'message' => 'Order Out for Delivery',
+            //         ]),
+            //     ]);
+            // }
             
-            $notifications = new Notifications();
-            $notifications->user_id = $order->user_id;
-            $notifications->title = helpers_get_business_settings('out_for_delivery_message')['message'];
-            $notifications->description = 'Your Order No. '.$order->id.' out for delivery';
-            $notifications->save();
+            // $notifications = new Notifications();
+            // $notifications->user_id = $order->user_id;
+            // $notifications->title = helpers_get_business_settings('out_for_delivery_message')['message'];
+            // $notifications->description = 'Your Order No. '.$order->id.' out for delivery';
+            // $notifications->save();
+
+            $otp = rand(1000, 9999);
+            $verification = new OrderOTPS();
+            $verification->order_id = $order['id'];
+            $verification->otp = $otp;
+            $verification->otp_for = 'delivery_reached';
+            $verification->save();
+
+            return response()->json([
+                'status' => true,
+                'otp' => $otp,
+                'message' => 'otp sended'
+            ]);
         }
 
         if ($request->order_status == 'delivered' && $order['payment_status'] != 'paid') 

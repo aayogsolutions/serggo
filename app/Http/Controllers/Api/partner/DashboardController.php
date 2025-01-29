@@ -50,9 +50,9 @@ class DashboardController extends Controller
                 ],200);
             }elseif ($vendor->is_verify == 2) 
             {
-                $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 1])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
+                $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 1,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-                $order2 = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
+                $order2 = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1,'order_approval' => 'accepted'])->with('OrderDetails' , function($q) {
                     return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
                 })->get();
 
@@ -203,5 +203,137 @@ class DashboardController extends Controller
                 'data' => []
             ],408);
         }
+    }
+
+    /**
+     * 
+     * @return JsonResponse
+     */
+    public function PartnerData() : JsonResponse
+    {
+        try {
+            $vendor = auth('sanctum')->user();
+
+            $vendor->aadhar_document = json_decode($vendor->aadhar_document);
+            $vendor->category = json_decode($vendor->category);
+            $vendor->working_days = json_decode($vendor->working_days);
+
+            // Today Calculations
+
+            $todaydelivery = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 1,'order_approval' => 'accepted', 'order_status' => 'delivered'])->whereDate('updated_at', date('Y-m-d'))->get();
+
+            $todayservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
+                return $q->where(['order_status' => 'delivered'])->whereDate('updated_at', date('Y-m-d'));
+            })->get();
+
+            if(!is_null($todaydelivery) && count($todaydelivery) > 0)
+            {
+                $todayd = $this->CalculateDeliveryAmount($todaydelivery);
+            }else{
+                $todayd = 0;
+            }
+
+            if(!is_null($todayservice) && count($todayservice) > 0)
+            {
+                $todays = $this->CalculateServiceAmount($todayservice);
+            }else{
+                $todays = 0;
+            }
+
+            $today = $todayd + $todays;
+
+            // Month Calculation
+
+            $monthdelivery = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 1,'order_approval' => 'accepted', 'order_status' => 'delivered'])->whereMonth('updated_at', date('Y-m'))->get();
+
+            $monthservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
+                return $q->where(['order_status' => 'delivered'])->whereMonth('updated_at', date('Y-m'));
+            })->get();
+
+            if(!is_null($monthdelivery) && count($monthdelivery) > 0)
+            {
+                $monthd = $this->CalculateDeliveryAmount($monthdelivery);
+            }else{
+                $monthd = 0;
+            }
+
+            if(!is_null($monthservice) && count($monthservice) > 0)
+            {
+                $months = $this->CalculateServiceAmount($monthservice);
+            }else{
+                $months = 0;
+            }
+
+            $month = $monthd + $months;
+
+            // Year Calculations
+
+            $totaldelivery = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 1,'order_approval' => 'accepted', 'order_status' => 'delivered'])->get();
+
+            $totalservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
+                return $q->where(['order_status' => 'delivered']);
+            })->get();
+
+            if(!is_null($totaldelivery) && count($totaldelivery) > 0)
+            {
+                $totald = $this->CalculateDeliveryAmount($totaldelivery);
+            }else{
+                $totald = 0;
+            }
+
+            if(!is_null($totalservice) && count($totalservice) > 0)
+            {
+                $totals = $this->CalculateServiceAmount($totalservice);
+            }else{
+                $totals = 0;
+            }
+
+            $total = $totald + $totals;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Profile',
+                'Todaysale' => $today,
+                'Monthlysale' => $month,
+                'TotalSale' => $total,
+                'data' => $vendor
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'unexpected error'.$th->getMessage(),
+                'data' => []
+            ],408);
+        }
+    }
+        
+    /**
+     * @param $order
+     * @return int
+     */
+    private function CalculateDeliveryAmount($order)
+    {
+        $amount = 0;
+        foreach ($order as $key => $value) 
+        {
+            $amount += $value->delivery_charge;
+        }
+
+        return $amount;
+    }
+
+    /**
+     * @param $order
+     * @return int
+     */
+    private function CalculateServiceAmount($order)
+    {
+        $amount = 0;
+        foreach ($order as $key => $value) 
+        {
+            $amount += $value->installastion_amount;
+        }
+
+        return $amount;
     }
 }

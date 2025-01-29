@@ -316,14 +316,20 @@ Route::group(['middleware' => ['auth:sanctum']], function()
 
         Route::group(['prefix' => 'profile'], function()
         {
-            Route::get('/data', [ProfileController::class,'PartnerData']);
-            Route::post('/update', [ProfileController::class,'PartnerUpdate']);
+            Route::get('/data', [PartnerDashboardController::class,'PartnerData']);
+            Route::post('/update', [PartnerDashboardController::class,'PartnerUpdate']);
         });
 
         Route::group(['prefix' => 'order'], function()
         {
             Route::get('/accept/delivery/{id}', [PartnerOrderController::class,'OrderDeliveryAccept']);
             Route::get('/accept/service', [PartnerOrderController::class,'OrderServiceAccept']);
+            Route::post('/otp/verify', [PartnerOrderController::class,'OrderOtpVerify']);
+            Route::get('/product/complete/otp', [PartnerOrderController::class,'OrderProductCompleteOtp']);
+            Route::get('/service/complete/otp', [PartnerOrderController::class,'OrderServiceCompleteOtp']);
+
+
+            // Listings Routes
             Route::get('/completed/list', [PartnerOrderController::class,'OrderList']);
             Route::get('/ongoing/list', [PartnerOrderController::class,'OrderOngoingList']);
 

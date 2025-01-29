@@ -127,6 +127,7 @@ class ProfileController extends Controller
             ],408);
         }
     }
+
     /**
      * @param $order
      * @return int
@@ -134,8 +135,10 @@ class ProfileController extends Controller
     private function CalculateOrderAmount($order)
     {
         $amount = 0;
-        
-        $amount = $order->order_amount - ($order->commission * $order->order_amount / 100);
+        foreach ($order as $key => $value) 
+        {
+            $amount += $value->order_amount - ($value->commission * $value->order_amount / 100);
+        }
 
         return $amount;
     }
