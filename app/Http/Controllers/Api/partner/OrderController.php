@@ -55,7 +55,7 @@ class OrderController extends Controller
         try {
             $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0,'order_approval' => 'accepted'])->with('OrderDetails' , function($q) {
+            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0])->with('OrderDetails' , function($q) {
                 return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
             })->get();
 
@@ -108,7 +108,7 @@ class OrderController extends Controller
         try {
             $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0,'order_approval' => 'accepted'])->with('OrderDetails' , function($q) {
+            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0])->with('OrderDetails' , function($q) {
                 return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
             })->get();
 
