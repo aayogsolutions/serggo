@@ -779,16 +779,17 @@
                         @endif
 
                         <!-- Assign Service Man -->
-                        @if($order->delivered_by == 0 && $order->order_type != 'amc'  && $order->parent_order_id == null)
+                        @if($order->delivered_by == 0 && $order->order_type != 'amc' && $order->parent_order_id == null)
                             @foreach($order->OrderDetails as $ServiceMenArray)
                                 @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id == null)
                                     <div class="mt-3">
                                         <button class="btn btn--primary w-100" type="button" data-target="#assign_service_man_modal" data-toggle="modal">{{ translate('assign service man manually') }}</button>
                                     </div>
+                                    @break
                                 @endif
                             @endforeach
                             @foreach($order->OrderDetails as $ServiceMenArray)
-                                @if ($ServiceMenArray->installation === 0 && $ServiceMenArray->service_man_id != null)
+                                @if ($ServiceMenArray->installation == 0 && $ServiceMenArray->service_man_id != null)
                                     <div class="card mt-2">
                                         <div class="card-body">
                                             <h5 class="card-title mb-3 d-flex flex-wrap align-items-center">

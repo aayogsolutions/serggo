@@ -103,7 +103,7 @@ class OrderController extends Controller
     {
         $order = $this->order->with('OrderDetails')->where(['id' => $id])->first();
 
-        $servicemanlist = $this->vendor->where(['is_block' => 0, 'role' => 1])->get();
+        $servicemanlist = $this->vendor->where(['is_block' => 0, 'role' => '1','is_verify' => 2])->get();
 
         if (isset($order)) {
             return view('Admin.views.order.order-view', compact('order', 'servicemanlist'));

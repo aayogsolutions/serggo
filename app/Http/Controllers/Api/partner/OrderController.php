@@ -202,9 +202,9 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'order_id' => 'required|numeric|exists:orders,id',
-            'type' => 'required|in:delivery_reached,delivery_completed,service',
+            'type' => 'required|in:delivery_reached,delivery_completed,installation_completed',
             'otp' => 'required|numeric',
-            'service_id' => 'nullable|required_if:type,service|exists:order_details,id',
+            'service_id' => 'nullable|required_if:type,installation_completed|exists:order_details,id',
         ]);
 
         if ($validator->fails()) {
@@ -298,9 +298,9 @@ class OrderController extends Controller
                 ],200);
             }
 
-            if($request->type == 'service')
+            if($request->type == 'installation_completed')
             {
-                $otpverify = OrderOTPS::where(['order_id' => $request->order_id , 'otp_for' => 'delivery_completed','service_id' => $request->service_id])->orderBy('id', 'desc')->first();
+                $otpverify = OrderOTPS::where(['order_id' => $request->order_id , 'otp_for' => 'installation_completed'])->orderBy('id', 'desc')->first();
 
                 if($otpverify->otp != $request->otp) 
                 {
@@ -313,9 +313,6 @@ class OrderController extends Controller
 
                 $otpverify->verified = 1;
                 $otpverify->save();
-
-                $order->order_status = 'delivered';
-                $order->save();
 
                 if (!BusinessSetting::where(['key' => 'order_delivered_message'])->first()) {
                     BusinessSetting::updateOrInsert(['key' => 'order_delivered_message'], [
@@ -450,7 +447,7 @@ class OrderController extends Controller
             $verification = new OrderOTPS();
             $verification->order_id = $order->id;
             $verification->otp = $otp;
-            $verification->otp_for = 'service';
+            $verification->otp_for = 'installation_completed';
             $verification->save();
 
             return response()->json([
