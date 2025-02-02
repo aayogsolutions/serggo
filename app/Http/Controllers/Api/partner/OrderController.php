@@ -55,9 +55,17 @@ class OrderController extends Controller
         try {
             $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0])->with('OrderDetails' , function($q) {
-                return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
+            $orderservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
+                $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
             })->get();
+
+            $order2 = [];
+            foreach($orderservice as $key => $value)
+            {
+                $order2 = Order::where(['id' => $value->order_id,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails',function($q) use ($value) {
+                    $q->where(['service_man_id' => $value->service_man_id,'serviceman_status' => 1, 'order_id' => $value->order_id]);
+                })->get();
+            }
 
             foreach ($order2 as $key => $value) {
                 $order1[] = $value;
@@ -108,9 +116,17 @@ class OrderController extends Controller
         try {
             $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
 
-            $order2 = Order_details::where(['service_man_id' => $vendor->id, 'serviceman_status' => 0])->with('OrderDetails' , function($q) {
-                return $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
+            $orderservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 1])->with('OrderDetails' , function($q) {
+                $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
             })->get();
+
+            $order2 = [];
+            foreach($orderservice as $key => $value)
+            {
+                $order2 = Order::where(['id' => $value->order_id,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails',function($q) use ($value) {
+                    $q->where(['service_man_id' => $value->service_man_id,'serviceman_status' => 1, 'order_id' => $value->order_id]);
+                })->get();
+            }
 
             foreach ($order2 as $key => $value) {
                 $order1[] = $value;
