@@ -60,9 +60,11 @@ class DashboardController extends Controller
                 $order2 = [];
                 foreach($orderservice as $key => $value)
                 {
-                    $order2 = Order::where(['id' => $value->order_id,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails',function($q) use ($value) {
+                    $order2[] = Order::select(
+                        'id','order_type','order_status','order_approval','delivery_address','created_at'
+                        )->where(['id' => $value->order_id,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails',function($q) use ($value) {
                         $q->where(['service_man_id' => $value->service_man_id,'serviceman_status' => 1, 'order_id' => $value->order_id]);
-                    })->get();
+                    })->first();
                 }
 
                 $orders = Arr::collapse([$order1, $order2]);
