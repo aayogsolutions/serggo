@@ -177,7 +177,7 @@ class AuthController extends Controller
                     $vendor->otp_expired_at = $expired_at;
                     $vendor->dob = $request->dob;
                     $vendor->delivery_type = $request->delivery;
-                    $vendor->category = json_encode($this->partnercategory->WhereIn('id' , json_decode($request->category))->pluck('name')->toArray());
+                    $vendor->category = json_encode($this->partnercategory->WhereIn('id' , $request->category)->pluck('name')->toArray());
                     $vendor->registration = 0;
                     $vendor->role = '1';
                     $vendor->save();
