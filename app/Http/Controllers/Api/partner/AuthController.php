@@ -13,6 +13,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
+use function Pest\Laravel\json;
+
 class AuthController extends Controller
 {
     public function __construct(
@@ -175,7 +177,7 @@ class AuthController extends Controller
                     $vendor->otp_expired_at = $expired_at;
                     $vendor->dob = $request->dob;
                     $vendor->delivery_type = $request->delivery;
-                    $vendor->category = json_encode($this->partnercategory->WhereIn('id' , $request->category)->pluck('name')->toArray());
+                    $vendor->category = json_encode($this->partnercategory->WhereIn('id' , json_decode($request->category))->pluck('name')->toArray());
                     $vendor->registration = 0;
                     $vendor->role = '1';
                     $vendor->save();
@@ -228,7 +230,7 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Enter Valid Informationb '.$th->getMessage(),
+                'message' => 'Enter Valid Information '.$th->getMessage(),
                 'data' => [],
             ],401);
         }
@@ -372,11 +374,11 @@ class AuthController extends Controller
                 $vendor->aadhar_no = $request->aadhar_no;
 
                 $vendor->aadhar_document = json_encode([
-                    'aadhar_front' => Helpers_upload('Images/partners/kyc/', $request->file('aadhar_front')->getClientOriginalExtension(), $request->file('aadhar_front')),
-                    'aadhar_back' => Helpers_upload('Images/partners/kyc/', $request->file('aadhar_back')->getClientOriginalExtension(), $request->file('aadhar_back'))
+                    'aadhar_front' => Helpers_upload('Images/partners/kyc/', $request->file('aadhar_front')->extension(), $request->file('aadhar_front')),
+                    'aadhar_back' => Helpers_upload('Images/partners/kyc/', $request->file('aadhar_back')->extension(), $request->file('aadhar_back'))
                 ]);
 
-                $vendor->image = Helpers_upload('Images/partners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
+                $vendor->image = Helpers_upload('Images/partners/', $request->file('image')->extension(), $request->file('image'));
                 
                 $vendor->is_verify = 1;
                 $vendor->fmc_token = $request->fmc_token;
