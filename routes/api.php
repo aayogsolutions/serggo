@@ -326,7 +326,7 @@ Route::group(['middleware' => ['auth:sanctum']], function()
             Route::get('/accept/service', [PartnerOrderController::class,'OrderServiceAccept']);
             Route::post('/otp/verify', [PartnerOrderController::class,'OrderOtpVerify']);
             Route::get('/product/complete/otp', [PartnerOrderController::class,'OrderProductCompleteOtp']);
-            Route::get('/service/complete/otp', [PartnerOrderController::class,'OrderServiceCompleteOtp']);
+            Route::get('/installation/complete/otp', [PartnerOrderController::class,'OrderServiceCompleteOtp']);
 
 
             // Listings Routes
