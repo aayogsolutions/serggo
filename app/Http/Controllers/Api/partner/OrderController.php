@@ -53,10 +53,10 @@ class OrderController extends Controller
         $limit = $request->ItemCount;
 
         try {
-            $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails')->get();
+            $order1 = Order::where(['deliveryman_id' => $vendor->id, 'deliveryman_status' => 0,'order_approval' => 'accepted'])->whereIn('order_status' , ['delivered','canceled','returned'])->with('OrderDetails')->get();
 
-            $orderservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 0])->with('OrderDetails' , function($q) {
-                $q->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery']);
+            $orderservice = Order_details::where(['service_man_id' => $vendor->id,'serviceman_status' => 2])->with('OrderDetails' , function($q) {
+                $q->whereIn('order_status' , ['delivered','canceled','returned']);
             })->get();
 
             $order2 = [];
@@ -64,8 +64,8 @@ class OrderController extends Controller
             {
                 $order2[] = Order::select(
                     'id','order_type','order_status','order_approval','delivery_address','created_at'
-                    )->where(['id' => $value->order_id,'order_approval' => 'accepted'])->whereIn('order_status' , ['pending','confirmed','packing','out_for_delivery'])->with('OrderDetails',function($q) use ($value) {
-                    $q->where(['service_man_id' => $value->service_man_id,'serviceman_status' => 0, 'order_id' => $value->order_id]);
+                    )->where(['id' => $value->order_id,'order_approval' => 'accepted'])->whereIn('order_status' , ['delivered','canceled','returned'])->with('OrderDetails',function($q) use ($value) {
+                    $q->where(['service_man_id' => $value->service_man_id,'serviceman_status' => 2, 'order_id' => $value->order_id]);
                 })->first();
             }
 
@@ -333,6 +333,10 @@ class OrderController extends Controller
 
                 $otpverify->verified = 1;
                 $otpverify->save();
+
+                $order_detail = Order_details::where(['order_id' => $request->order_id, 'id' => $request->service_id])->first();
+                $order_detail->serviceman_status = 2;
+                $order_detail->save();
 
                 if (!BusinessSetting::where(['key' => 'order_delivered_message'])->first()) {
                     BusinessSetting::updateOrInsert(['key' => 'order_delivered_message'], [
