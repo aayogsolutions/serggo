@@ -30,7 +30,7 @@ class CategoryCntroller extends Controller
     {
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|numeric',
-            'screen' => 'required|in:new,toprated,newitem,trending,instant,lowprice,topbrand,discounted',
+            'screen' => 'required|in:new,toprated,newitem,trending,instantdeliver,lowprice,topbrands,discounted',
         ]);
 
         if ($validator->fails()) {
@@ -78,7 +78,7 @@ class CategoryCntroller extends Controller
             }
         }
 
-        if($request->screen == 'instant')
+        if($request->screen == 'instantdeliver')
         {
             try {
                 $instant = array();
@@ -112,9 +112,9 @@ class CategoryCntroller extends Controller
                 }
                 $instant = array_slice($instant, 0,29);
     
-                $product['instant'] = product_data_formatting($instant,true,false,true);
+                $product['instantdeliver'] = product_data_formatting($instant,true,false,true);
             } catch (\Throwable $th) {
-                $product['instant'] = [];
+                $product['instantdeliver'] = [];
             }
         }
 
@@ -130,7 +130,7 @@ class CategoryCntroller extends Controller
             }
         }
 
-        if($request->screen == 'topbrand')
+        if($request->screen == 'topbrands')
         {
             try {
                 $topbrand_category = $this->product->status()->where('category_id', $request->category_id)->orderBy('created_at','DESC')->get();
@@ -139,9 +139,9 @@ class CategoryCntroller extends Controller
                 $topbrand_category = array_values(Arr::sort($topbrand,function($value){
                     return $value['brand_name']->priority;
                 }));
-                $product['topbrand'] = array_slice($topbrand_category, 0,29);
+                $product['topbrands'] = array_slice($topbrand_category, 0,29);
             } catch (\Throwable $th) {
-                $product['topbrand'] = [];
+                $product['topbrands'] = [];
             }
         }
 
@@ -228,7 +228,7 @@ class CategoryCntroller extends Controller
     {
         $validator = Validator::make($request->all(), [
             'subcategory_id' => 'required|numeric',
-            'screen' => 'required|in:new,toprated,newitem,trending,instant,lowprice,topbrand,discounted',
+            'screen' => 'required|in:new,toprated,newitem,trending,instantdeliver,lowprice,topbrands,discounted',
         ]);
 
         if ($validator->fails()) {
@@ -238,25 +238,7 @@ class CategoryCntroller extends Controller
             ], 406);
         }
 
-        // $tags = ['Top Rated','New item','Trending','Instant deliver','Low price','Top Brands','Discounted'];
-
-        // try {
-        //     $subcategory = $this->category->where([
-        //         ['id','=', $request->subcategory_id],
-        //         ['position','=',1]    
-        //     ])->first();
-
-        //     if(is_null($subcategory))
-        //     {
-        //         return response()->json([
-        //             'status' => false,
-        //             'message' => 'Data not exists',
-        //             'data' => []
-        //         ],404);
-        //     }
-        // } catch (\Throwable $th) {
-        //     $subcategory = [];
-        // }
+        
 
         if($request->screen == 'new' || $request->screen == 'toprated')
         {
@@ -296,7 +278,7 @@ class CategoryCntroller extends Controller
             }
         }
 
-        if($request->screen == 'instant')
+        if($request->screen == 'instantdeliver')
         {
             try {
                 $instant = array();
@@ -330,9 +312,9 @@ class CategoryCntroller extends Controller
                 }
                 $instant = array_slice($instant, 0,29);
     
-                $product['instant'] = product_data_formatting($instant,true,false,true);
+                $product['instantdeliver'] = product_data_formatting($instant,true,false,true);
             } catch (\Throwable $th) {
-                $product['instant'] = [];
+                $product['instantdeliver'] = [];
             }
         }
 
@@ -348,7 +330,7 @@ class CategoryCntroller extends Controller
             }
         }
 
-        if($request->screen == 'topbrand')
+        if($request->screen == 'topbrands')
         {
             try {
                 $topbrand_category = $this->product->status()->where('sub_category_id', $request->subcategory_id)->orderBy('created_at','DESC')->get();
@@ -357,9 +339,9 @@ class CategoryCntroller extends Controller
                 $topbrand_category = array_values(Arr::sort($topbrand,function($value){
                     return $value['brand_name']->priority;
                 }));
-                $product['topbrand'] = array_slice($topbrand_category, 0,29);
+                $product['topbrands'] = array_slice($topbrand_category, 0,29);
             } catch (\Throwable $th) {
-                $product['topbrand'] = [];
+                $product['topbrands'] = [];
             }
         }
 

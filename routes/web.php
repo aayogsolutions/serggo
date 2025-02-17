@@ -30,9 +30,9 @@ Route::group(['prefix' => 'payment','as' => 'payment.'], function()
 
 require "admin.php";
  
-Route::get('/', function(){
-    return redirect(route('admin.login'));
-});
+// Route::get('/', function(){
+//     return redirect(route('admin.login'));
+// });
 
 Route::get('/ApiLogin', function(){
 
@@ -42,19 +42,6 @@ Route::get('/ApiLogin', function(){
         'data' => [],
     ],401);
 })->name('login');
-
-Route::post('/', function(Request $request){
-    $name = Helpers_upload('admin/', 'png', $request->file('image'));
-    dd($name);
-})->name('signup');
-
-Route::get('/TC', function(Request $request){
-    return view('T&C');
-});
-
-Route::get('/PP', function(Request $request){
-    return view('PP');
-});
 
 
 

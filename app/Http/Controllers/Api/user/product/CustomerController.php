@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\user\product;
 
 use App\Http\Controllers\Controller;
+use App\Models\BulkEnquriey;
 use App\Models\BusinessSetting;
 use App\Models\CouponApplied;
 use App\Models\Coupons;
@@ -438,6 +439,46 @@ class CustomerController extends Controller
                 'status' => false,
                 'error' => 'Unexpected error '.$th->getMessage(),
                 'data' => []
+            ],409);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function BulkEnquiry(Request $request) : JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255',
+            'email' => 'required|email|max:255',
+            'mobile' => 'required|numeric',
+            'description' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        try {
+            $data = new BulkEnquriey();
+            $data->name = $request->name;
+            $data->email = $request->email;
+            $data->phone = $request->mobile;
+            $data->description = $request->description;
+            $data->save();
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Data Inserted Successfully',
+            ],200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Unexpected error '.$th->getMessage(),
             ],409);
         }
     }

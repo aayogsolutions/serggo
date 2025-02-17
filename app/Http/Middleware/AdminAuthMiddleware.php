@@ -26,7 +26,7 @@ class AdminAuthMiddleware
                 if (isset($user) && $user->status == 1) {
                     auth()->guard('admins')->logout();
                     flash()->success(translate('Your Status is off'));
-                    return redirect()->route('admin.auth.login');
+                    return redirect()->route('admin.login');
                 }
                 return $next($request);
             }

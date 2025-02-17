@@ -216,6 +216,9 @@ Route::group(['middleware' => ['auth:sanctum']], function()
         // Coupon route
         Route::get('/coupon', [CustomerController::class,'Coupon']);
 
+        //Bulk Enquiry Routes
+        Route::post('/bulk/enquiry', [CustomerController::class,'BulkEnquiry']);
+
         // Payment Gateway Routes
         Route::group(['prefix' => 'payment'], function()
         {
