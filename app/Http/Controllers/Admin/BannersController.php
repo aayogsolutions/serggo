@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{
+    AMCPlan,
     SplashBanner,
     AuthBanners,
     HomeBanner,
@@ -19,6 +20,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Http\{JsonResponse, RedirectResponse};
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 
 class BannersController extends Controller
 {
@@ -61,6 +63,8 @@ class BannersController extends Controller
         return view('Admin.views.banner.splash.index', compact('banners', 'search'));
     }
 
+    
+
     /**
      * @param Request $request
      * @return RedirectResponse
@@ -76,7 +80,6 @@ class BannersController extends Controller
             'image.required' => translate('Image is required'),
             'type.required' => translate('Type is required'),
         ]);
-
 
         $mimeType = $request->file('image')->getClientMimeType();
         $fileType = explode('/', $mimeType)[0];
@@ -459,6 +462,65 @@ class BannersController extends Controller
 
     /**
      * @param Request $request
+     * @return JsonResponse
+     */
+    function GetCategory(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'type' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => Helpers_error_processor($validator)
+            ], 406);
+        }
+
+        if($request->type == 'user_product')
+        {
+            $categories = $this->category->where('status', 0)->get();
+            $result = '<option value="' . 0 . '" disabled selected>---Select---</option>';
+
+            foreach ($categories as $row) 
+            {
+                $result .= '<option value="' . $row->id . '" data-id="' . $row->is_installable . '">' . $row->name . '</option>';
+            }
+            return response()->json([
+                'status' => true,
+                'data' => $result
+            ]);
+        }
+        elseif($request->type == 'user_service')
+        {
+            $categories = $this->servicecategory->where('status', 0)->get();
+            $result = '<option value="' . 0 . '" disabled selected>---Select---</option>';
+            foreach ($categories as $row) 
+            {
+                $result .= '<option value="' . $row->id . '" data-id="' . $row->is_installable . '">' . $row->name . '</option>';
+            }
+            return response()->json([
+                'status' => true,
+                'data' => $result
+            ]);
+        }
+        else
+        {
+            $categories = AMCPlan::where('status', 1)->get();
+            $result = '<option value="' . 0 . '" disabled selected>---Select---</option>';
+            foreach ($categories as $row) 
+            {
+                $result .= '<option value="' . $row->id . '" data-id="' . $row->is_installable . '">' . $row->name . '</option>';
+            }
+            return response()->json([
+                'status' => true,
+                'data' => $result
+            ]);
+        }
+    }
+
+    /**
+     * @param Request $request
      * @return RedirectResponse
      */
     public function HomeStore(Request $request): RedirectResponse
@@ -467,16 +529,30 @@ class BannersController extends Controller
             'title' => 'required|max:255',
             'image' => 'required',
             'type' => 'required',
+            'id' => 'required',
             'background_color' => 'required',
             'font_color' => 'required',
         ], [
             'title.required' => translate('Title is required'),
             'image.required' => translate('Image is required'),
             'type.required' => translate('Type is required'),
+            'id.required' => translate('Category is required'),
             'background_color.required' => translate('background_color is required'),
             'font_color.required' => translate('font_color is required'),
         ]);
 
+        if($request->type == 'user_product')
+        {
+            $details = $this->category->where('id', $request->id)->first();
+        }
+        elseif($request->type == 'user_service')
+        {
+            $details = $this->servicecategory->where('id', $request->id)->first();
+        }
+        else
+        {
+            $details = AMCPlan::where('id', $request->id)->first();
+        }
 
         $mimeType = $request->file('image')->getClientMimeType();
         $fileType = explode('/', $mimeType)[0];
@@ -490,6 +566,8 @@ class BannersController extends Controller
                 $banner->ui_type = $request->type;
                 $banner->attechment = Helpers_upload('Images/banners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                 $banner->attechment_type = $fileType;
+                $banner->item_id = $request->id;
+                $banner->item_detail = json_encode($details);
                 $banner->background_color = $request->background_color;
                 $banner->font_color = $request->font_color;
                 $banner->save();
@@ -507,6 +585,8 @@ class BannersController extends Controller
                 $banner->ui_type = $request->type;
                 $banner->attechment = Helpers_upload('Images/banners/', $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                 $banner->attechment_type = $fileType;
+                $banner->item_id = $request->id;
+                $banner->item_detail = json_encode($details);
                 $banner->background_color = $request->background_color;
                 $banner->font_color = $request->font_color;
                 $banner->save();
@@ -525,7 +605,19 @@ class BannersController extends Controller
     public function HomeEdit($id): View|Factory|Application
     {
         $banner = $this->homebanner->find($id);
-        return view('Admin.views.banner.home.edit', compact('banner'));
+        if($banner->ui_type == 'user_product')
+        {
+            $details = $this->category->where('status' , 0)->get();
+        }
+        elseif($banner->ui_type == 'user_service')
+        {
+            $details = $this->servicecategory->where('status' , 0)->get();
+        }
+        else
+        {
+            $details = AMCPlan::where('status' , 1)->get();
+        }
+        return view('Admin.views.banner.home.edit', compact('banner', 'details'));
     }
 
     /**
@@ -563,14 +655,29 @@ class BannersController extends Controller
         $request->validate([
             'title' => 'required|max:255',
             'type' => 'required',
+            'id' => 'required',
             'background_color' => 'required',
             'font_color' => 'required',
         ], [
             'title.required' => translate('Title is required'),
             'type.required' => translate('UI Type is required'),
+            'id.required' => translate('Category is required'),
             'background_color.required' => translate('background_color is required'),
             'font_color.required' => translate('font_color is required'),
         ]);
+
+        if($request->type == 'user_product')
+        {
+            $details = $this->category->where('id', $request->id)->first();
+        }
+        elseif($request->type == 'user_service')
+        {
+            $details = $this->servicecategory->where('id', $request->id)->first();
+        }
+        else
+        {
+            $details = AMCPlan::where('id', $request->id)->first();
+        }
 
         if($request->has('image'))
         {
@@ -586,6 +693,8 @@ class BannersController extends Controller
                     $banner->ui_type = $request->type;
                     $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                     $banner->attechment_type = $fileType;
+                    $banner->item_id = $request->id;
+                    $banner->item_detail = json_encode($details);
                     $banner->background_color = $request->background_color;
                     $banner->font_color = $request->font_color;
                     $banner->save();
@@ -603,6 +712,8 @@ class BannersController extends Controller
                     $banner->ui_type = $request->type;
                     $banner->attechment = Helpers_update('Images/banners/', $banner->attechment , $request->file('image')->getClientOriginalExtension(), $request->file('image'));
                     $banner->attechment_type = $fileType;
+                    $banner->item_id = $request->id;
+                    $banner->item_detail = json_encode($details);
                     $banner->background_color = $request->background_color;
                     $banner->font_color = $request->font_color;
                     $banner->save();
@@ -616,6 +727,8 @@ class BannersController extends Controller
             $banner = $this->homebanner->find($id);
             $banner->title = $request->title;
             $banner->ui_type = $request->type;
+            $banner->item_id = $request->id;
+            $banner->item_detail = json_encode($details);
             $banner->background_color = $request->background_color;
             $banner->font_color = $request->font_color;
             $banner->save();

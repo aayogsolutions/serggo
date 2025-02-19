@@ -14,7 +14,7 @@ use App\Models\{
 use Illuminate\Support\Facades\Auth;
 
 if(! function_exists('product_data_formatting')) {
-    function product_data_formatting($data, $multi_data = false, $reviews = false,$brands = false)
+    function product_data_formatting($data, $multi_data = false, $reviews = false,$brands = false, $detailedreviews = false)
     {
         $storage = [];
         if ($multi_data == true) {

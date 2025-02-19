@@ -21,10 +21,9 @@
     <div class="auth-wrapper">
         <div class="auth-wrapper-left">
             <div class="auth-left-cont">
-            @php($logo = Helpers_get_business_settings('logo'))
-                <img src="{{ asset($logo )}}" alt="{{ translate('logo') }}"
-                onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'">
-                <h2 class="title">Your <span class="d-block">All Fresh Food</span> <strong class="text--039D55">in one Place....</strong></h2>
+                @php($logo = Helpers_get_business_settings('logo'))
+                <!-- <img src="{{ asset($logo )}}" alt="{{ translate('logo') }}" onerror="this.src='{{asset('assets/admin/img/400x400/img2.jpg')}}'"> -->
+                <!-- <h2 class="title">Your <span class="d-block">All Fresh Food</span> <strong class="text--039D55">in one Place....</strong></h2> -->
             </div>
         </div>
         <div class="auth-wrapper-right">

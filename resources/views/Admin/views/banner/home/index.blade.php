@@ -41,10 +41,22 @@
                                         {{translate('UI')}} {{translate('type')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="type" class="form-control show-item">
+                                    <select name="type" class="form-control show-item" id="ui_type">
+                                        <option selected disabled>{{translate('Select UI Type')}}</option>
                                         <option value="user_product">{{translate('user_product')}}</option>
                                         <option value="user_service">{{translate('user_service')}}</option>
                                         <option value="amc">{{translate('AMC')}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mb-0">
+                                    <label class="input-label" for="exampleFormControlSelect1">
+                                        {{translate('category')}}
+                                        <span class="input-label-secondary">*</span>
+                                    </label>
+                                    <select name="id" id="category_id" class="form-control">
+                                        <option selected disabled>{{translate('Select UI Type')}}</option>
                                     </select>
                                 </div>
                             </div>
@@ -117,6 +129,7 @@
                         <th class="border-0">{{translate('UI type')}}</th>
                         <th class="border-0">{{translate('background_color')}}</th>
                         <th class="border-0">{{translate('font_color')}}</th>
+                        <th class="border-0">{{translate('Item')}}</th>
                         <th class="text-center border-0">{{translate('status')}}</th>
                         <th class="text-center border-0">{{translate('action')}}</th>
                     </tr>
@@ -149,6 +162,9 @@
                         </td>
                         <td>
                             <div class="initial-24" style="background-color: {{ $banner->font_color }};"></div>
+                        </td>
+                        <td>
+                            Item Name :- {{ translate(json_decode($banner->item_detail)->name ?? '') }}
                         </td>
                         <td>
                             <label class="toggle-switch my-0">
@@ -202,4 +218,25 @@
 
 @push('script_2')
 <script src="{{ asset('assets/admin/js/banner.js') }}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.show-item').change(function () {
+            let type = $(this).val();
+            $.ajax({
+                url: "{{ route('admin.banners.home.getCategory') }}",
+                type: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "type": type
+                },
+                success: function (data) {
+                    if (data.status) {
+                        $('#category_id').html(data.data);
+                    }
+                }
+            });
+        });
+    });
+</script>
 @endpush

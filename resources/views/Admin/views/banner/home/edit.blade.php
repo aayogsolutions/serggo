@@ -33,10 +33,23 @@
                                         {{translate('UI')}} {{translate('type')}}
                                         <span class="input-label-secondary">*</span>
                                     </label>
-                                    <select name="type" class="form-control show-item">
+                                    <select name="type" class="form-control show-item" id="ui_type">
                                         <option value="user_product" {{$banner->ui_type == 'user_product' ? 'selected' : ''}}>{{translate('user_product')}}</option>
                                         <option value="user_service" {{$banner->ui_type == 'user_service' ? 'selected' : ''}}>{{translate('user_service')}}</option>
                                         <option value="amc" {{$banner->ui_type == 'amc' ? 'selected' : ''}}>{{translate('AMC')}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mb-0">
+                                    <label class="input-label" for="exampleFormControlSelect1">
+                                        {{translate('category')}}
+                                        <span class="input-label-secondary">*</span>
+                                    </label>
+                                    <select name="id" id="category_id" class="form-control">
+                                        @foreach($details as $detail)
+                                            <option value="{{$detail->id}}" {{$banner->item_id == $detail->id ? 'selected' : ''}}>{{$detail->name}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -93,4 +106,25 @@
 
 @push('script_2')
 <script src="{{ asset('assets/admin/js/banner.js') }}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.show-item').change(function () {
+            let type = $(this).val();
+            $.ajax({
+                url: "{{ route('admin.banners.home.getCategory') }}",
+                type: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "type": type
+                },
+                success: function (data) {
+                    if (data.status) {
+                        $('#category_id').html(data.data);
+                    }
+                }
+            });
+        });
+    });
+</script>
 @endpush

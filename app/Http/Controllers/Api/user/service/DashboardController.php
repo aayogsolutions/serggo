@@ -205,7 +205,7 @@ class DashboardController extends Controller
             $categorys = $this->servicecategory->where('id',$id)->withCount('childes')->having('childes_count', '>', 0)->with('childes' , function($q){
                 $q->withCount('childes')->having('childes_count', '>', 0);
             })->first();
-
+            
             $category_review_average = 0;
             $category_review_count = 0;
             foreach ($categorys->childes as $key => $value) 
@@ -224,15 +224,30 @@ class DashboardController extends Controller
                         $service_review_average += $service->reviewsAverage;
                         $service_review_count += 1;
                     }
-                    $value1->reviewsAverage = $service_review_average / $service_review_count;
-                    $subcategory_review_average += $value1->reviewsAverage;
-                    $subcategory_review_count += 1;
+                    if($service_review_average != 0 && $service_review_count != 0)
+                    {
+                        $value1->reviewsAverage = $service_review_average / $service_review_count;
+                        $subcategory_review_average += $value1->reviewsAverage;
+                        $subcategory_review_count += 1;
+                    }else{
+                        $value1->reviewsAverage = 0;
+                    }
                 }
-                $value->reviewsAverage = $subcategory_review_average / $subcategory_review_count;
-                $category_review_average += $value->reviewsAverage;
-                $category_review_count += 1;
+                if($subcategory_review_average != 0 && $subcategory_review_count != 0)
+                {
+                    $value->reviewsAverage = $subcategory_review_average / $subcategory_review_count;
+                    $category_review_average += $value->reviewsAverage;
+                    $category_review_count += 1;
+                }else{
+                    $value->reviewsAverage = 0;
+                }
             }
-            $categorys->reviewsAverage = $category_review_average / $category_review_count;
+            if($category_review_average != 0 && $category_review_count != 0)
+            {
+                $categorys->reviewsAverage = $category_review_average / $category_review_count;
+            }else{
+                $categorys->reviewsAverage = 0;
+            }
             
             return response()->json([
                 'status' => true,
@@ -242,7 +257,7 @@ class DashboardController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'unexpected error',
+                'message' => 'unexpected error '.$th->getMessage(),
                 'data' => []
             ], 408);
         }

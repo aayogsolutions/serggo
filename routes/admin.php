@@ -109,6 +109,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
                 Route::post('update/{id}', [BannersController::class, 'HomeUpdate'])->name('update');
                 Route::get('status/{id}/{status}/{type}', [BannersController::class, 'HomeStatus'])->name('status');
                 Route::delete('delete/{id}', [BannersController::class, 'HomeDelete'])->name('delete');
+
+                Route::post('get-category', [BannersController::class, 'GetCategory'])->name('getCategory');
             });
 
             Route::group(['prefix' => 'homeslider', 'as' => 'homeslider.'], function() {

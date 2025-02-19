@@ -28,6 +28,7 @@ class ProductController extends Controller
         private HomeSliderBanner $homesliderbanner,
     ){}
 
+
     /**
      * 
      * @return JsonResponse
@@ -302,7 +303,7 @@ class ProductController extends Controller
             ],408);
         }
     }
-      
+
     /**
      * 
      * @return JsonResponse
@@ -349,6 +350,7 @@ class ProductController extends Controller
         }
     }
 
+    
     /**
      * 
      * @return JsonResponse

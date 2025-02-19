@@ -149,8 +149,7 @@
                         </td>
                         <td>
                             <div class="max-85">
-                                <select name="priority" class="custom-select"
-                                    onchange="location.href='{{ route('admin.banners.subcategory_banners.priority', ['id' => $value['id'], 'priority' => '']) }}' + this.value">
+                                <select name="priority" class="custom-select" onchange="location.href='{{ route('admin.banners.subcategory_banners.priority', ['id' => $value['id'], 'priority' => '']) }}' + this.value">
                                     @for($i = 0; $i <= 10; $i++)
                                         <option value="{{ $i }}" {{ $value->priority == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor

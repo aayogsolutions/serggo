@@ -17,6 +17,8 @@ return new class extends Migration
             $table->enum('ui_type',['user_product','user_service','amc']);
             $table->string('attechment_type');
             $table->string('attechment');
+            $table->integer('item_id')->nullable();
+            $table->text('item_detail')->nullable();
             $table->string('background_color');
             $table->string('font_color');
             $table->tinyInteger('status')->default(1)->comment('0 = active | 1 = inactive');
