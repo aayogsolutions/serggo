@@ -793,13 +793,16 @@ class BannersController extends Controller
         $request->validate([
             'title' => 'required|max:255',
             'image' => 'required|image',
-            'type' => 'required',
+            'type' => 'required|in:user_product,user_service,amc,vendor',
+            'item_type' => 'required_if:type,user_product',
+            'item_id' => 'required_if:type,user_product,user_service',
         ], [
             'title.required' => translate('Title is required'),
             'image.required' => translate('Image is required'),
-            'type.required' => translate('Type is required'),
+            'type.required' => translate('UI Type is required'),
+            'item_type.required_if' => translate('Item type is required'),
+            'item_id.required_if' => translate('Item is required'),
         ]);
-        
         $file_size = getimagesize($request->file('image'));
         // Width Check                 Height Check
         if ($file_size[0] <= 5000 && $file_size[1] <= 5000) {
@@ -885,10 +888,14 @@ class BannersController extends Controller
     {
         $request->validate([
             'title' => 'required|max:255',
-            'type' => 'required',
+            'type' => 'required|in:user_product,user_service,amc,vendor',
+            'item_type' => 'required_if:type,user_product',
+            'item_id' => 'required_if:type,user_product,user_service',
         ], [
             'title.required' => translate('Title is required'),
             'type.required' => translate('UI Type is required'),
+            'item_type.required_if' => translate('Item type is required'),
+            'item_id.required_if' => translate('Item is required'),
         ]);
 
         if($request->has('image'))
