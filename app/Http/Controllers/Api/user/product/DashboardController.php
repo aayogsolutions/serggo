@@ -99,6 +99,7 @@ class DashboardController extends Controller
                     'fontcode' => $maindata->font_color ?? '#ffffff',
                     'bannerType' => $maindata->attechment_type ?? 'not found',
                     'banner' => $maindata->attechment ?? 'not found',
+                    'id' => $maindata->item_id ?? 'not found',
                     'brands' => $data['brands'],
                     'arraydata' => [
                         'tags' => $data['tags'],
