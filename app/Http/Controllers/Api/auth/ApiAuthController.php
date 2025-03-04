@@ -30,7 +30,7 @@ class ApiAuthController extends Controller
         
         if ($usercheck) {
             // user exist;
-            $otp = rand(1000, 9999);
+            $otp = 1234; //rand(1000, 9999)
             $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
 
             $authuser = User::where('number', $request->number)->first();
@@ -53,7 +53,7 @@ class ApiAuthController extends Controller
             ], 202);
         } else {
             // user not exist;
-            $otp = rand(1000, 9999);
+            $otp = 1234; //rand(1000, 9999)
             $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
 
             $user = new User();
@@ -83,7 +83,7 @@ class ApiAuthController extends Controller
             $usercheck = User::where('number', $number)->exists();
 
             if ($usercheck) {
-                $otp = rand(1000, 9999);
+                $otp = 1234; // rand(1000, 9999)
                 $expired_at = Carbon::now()->addMinutes(10)->format('Y/m/d H:i:s');
 
                 $authuser = User::where('number', $number)->first();
@@ -334,7 +334,6 @@ class ApiAuthController extends Controller
             ], 401);
         }
     }
-
 
     /**
      * Redirect the user to the Provider authentication page.
